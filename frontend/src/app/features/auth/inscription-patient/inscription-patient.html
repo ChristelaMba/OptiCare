@@ -1,1 +1,199 @@
-<p>inscription-patient works!</p>
+<main class="w-full min-h-screen grid grid-cols-1 md:grid-cols-2">
+  <!-- Colonne gauche : image (desktop uniquement) -->
+  <div class="hidden md:block relative h-full overflow-hidden">
+    <img
+      class="absolute inset-0 w-full h-full object-cover"
+      alt="Inscription patient - OptiCare"
+      src="/images/auth-inscription.jpg"
+    />
+    <div class="absolute inset-0 bg-primary/10"></div>
+  </div>
+
+  <!-- Colonne droite : formulaire -->
+  <div class="flex items-center justify-center p-margin-mobile md:p-space-12 bg-surface-bg">
+    <div class="w-full max-w-[500px]">
+      <!-- Logo -->
+      <div class="text-center mb-space-8">
+        <h1 class="flex items-center justify-center">
+          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto" />
+        </h1>
+      </div>
+
+      <!-- Carte inscription -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-8 md:p-space-12 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="mb-space-6 relative z-10">
+          <h2 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Créer un compte patient</h2>
+          <p class="font-body text-body-base text-text-muted">Rejoignez-nous pour gérer votre santé en toute simplicité.</p>
+        </div>
+
+        @if (erreur()) {
+          <div class="mb-space-4 rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 relative z-10">
+            <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+          </div>
+        }
+
+        <form class="space-y-space-4 relative z-10" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-space-4">
+            <!-- Prénom -->
+            <div>
+              <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="prenom">Prénom</label>
+              <input
+                id="prenom"
+                type="text"
+                formControlName="prenom"
+                placeholder="Junior"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+              />
+              @if (form.get('prenom')?.invalid && form.get('prenom')?.touched) {
+                <p class="font-body text-label-sm text-error mt-1">Le prénom est requis.</p>
+              }
+            </div>
+            <!-- Nom -->
+            <div>
+              <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="nom">Nom</label>
+              <input
+                id="nom"
+                type="text"
+                formControlName="nom"
+                placeholder="Mbarga"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+              />
+              @if (form.get('nom')?.invalid && form.get('nom')?.touched) {
+                <p class="font-body text-label-sm text-error mt-1">Le nom est requis.</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-space-4">
+            <!-- Téléphone -->
+            <div>
+              <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="telephone">Téléphone</label>
+              <input
+                id="telephone"
+                type="tel"
+                formControlName="telephone"
+                placeholder="+237 677 12 34 56"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+              />
+              @if (form.get('telephone')?.invalid && form.get('telephone')?.touched) {
+                <p class="font-body text-label-sm text-error mt-1">Le téléphone est requis.</p>
+              }
+            </div>
+            <!-- Ville -->
+            <div>
+              <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="ville">Ville</label>
+              <input
+                id="ville"
+                type="text"
+                formControlName="ville"
+                placeholder="Douala"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+              />
+              @if (form.get('ville')?.invalid && form.get('ville')?.touched) {
+                <p class="font-body text-label-sm text-error mt-1">La ville est requise.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="junior.mbarga@email.com"
+              class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+            />
+            @if (form.get('email')?.invalid && form.get('email')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">Un email valide est requis.</p>
+            }
+          </div>
+
+          <!-- Date de naissance -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="dateNaissance">Date de naissance</label>
+            <input
+              id="dateNaissance"
+              type="date"
+              formControlName="dateNaissance"
+              class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+            />
+            @if (form.get('dateNaissance')?.invalid && form.get('dateNaissance')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">La date de naissance est requise.</p>
+            }
+          </div>
+
+          <!-- Mot de passe -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="motDePasse">Mot de passe</label>
+            <div class="relative">
+              <input
+                id="motDePasse"
+                [type]="afficherMotDePasse() ? 'text' : 'password'"
+                formControlName="motDePasse"
+                placeholder="••••••••"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow pr-10 mt-space-2"
+              />
+              <button
+                type="button"
+                (click)="basculerAffichageMotDePasse()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors"
+              >
+                <span class="material-symbols-outlined text-[20px]">{{ afficherMotDePasse() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            @if (form.get('motDePasse')?.invalid && form.get('motDePasse')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">8 caractères minimum.</p>
+            }
+          </div>
+
+          <!-- Confirmation mot de passe -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="confirmationMotDePasse">Confirmer le mot de passe</label>
+            <div class="relative">
+              <input
+                id="confirmationMotDePasse"
+                [type]="afficherConfirmation() ? 'text' : 'password'"
+                formControlName="confirmationMotDePasse"
+                placeholder="••••••••"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow pr-10 mt-space-2"
+              />
+              <button
+                type="button"
+                (click)="basculerAffichageConfirmation()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors"
+              >
+                <span class="material-symbols-outlined text-[20px]">{{ afficherConfirmation() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            @if (form.hasError('motsDePasseDifferents') && form.get('confirmationMotDePasse')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">Les mots de passe ne correspondent pas.</p>
+            }
+          </div>
+
+          <!-- Bouton de soumission -->
+          <button
+            type="submit"
+            [disabled]="chargement()"
+            class="w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {{ chargement() ? 'Création en cours…' : 'Créer mon compte' }}
+            @if (!chargement()) {
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            }
+          </button>
+        </form>
+
+        <div class="mt-space-6 text-center relative z-10">
+          <p class="font-body text-body-base text-on-surface-variant">
+            Déjà un compte ?
+            <a routerLink="/auth/connexion" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1">Se connecter</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

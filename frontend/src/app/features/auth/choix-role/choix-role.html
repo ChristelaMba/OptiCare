@@ -1,1 +1,68 @@
-<p>choix-role works!</p>
+<main class="w-full min-h-screen grid grid-cols-1 md:grid-cols-2">
+  <!-- Colonne gauche : image (desktop uniquement) -->
+  <div class="hidden md:block relative h-full overflow-hidden">
+    <img
+      class="absolute inset-0 w-full h-full object-cover"
+      alt="Rejoindre OptiCare"
+      src="/images/auth-inscription.jpg"
+    />
+    <div class="absolute inset-0 bg-primary/10"></div>
+  </div>
+
+  <!-- Colonne droite : choix -->
+  <div class="flex items-center justify-center p-margin-mobile md:p-space-12 bg-surface-bg">
+    <div class="w-full max-w-[500px]">
+      <!-- Logo -->
+      <div class="text-center mb-space-8">
+        <h1 class="flex items-center justify-center">
+          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto" />
+        </h1>
+      </div>
+
+      <!-- Carte choix du rôle -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-8 md:p-space-12 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="mb-space-6 relative z-10">
+          <h2 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Rejoindre OptiCare</h2>
+          <p class="font-body text-body-base text-text-muted">Comment souhaitez-vous vous inscrire ?</p>
+        </div>
+
+        <div class="space-y-space-4 relative z-10">
+          <!-- Option Patient -->
+          <a
+            routerLink="/auth/inscription/patient"
+            class="group flex items-center gap-space-4 p-space-4 rounded-lg border border-border-subtle hover:border-primary hover:bg-primary/5 transition-colors"
+          >
+            <span class="material-symbols-outlined text-primary text-[28px]">person</span>
+            <div class="flex-1">
+              <h3 class="font-heading text-headline-h3 text-on-surface">Je suis un patient</h3>
+              <p class="font-body text-body-base text-text-muted">Accédez à vos consultations et prenez rendez-vous.</p>
+            </div>
+            <span class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">arrow_forward</span>
+          </a>
+
+          <!-- Option Cabinet -->
+          <a
+            routerLink="/auth/inscription/cabinet"
+            class="group flex items-center gap-space-4 p-space-4 rounded-lg border border-border-subtle hover:border-primary hover:bg-primary/5 transition-colors"
+          >
+            <span class="material-symbols-outlined text-primary text-[28px]">storefront</span>
+            <div class="flex-1">
+              <h3 class="font-heading text-headline-h3 text-on-surface">Je suis un cabinet</h3>
+              <p class="font-body text-body-base text-text-muted">Inscrivez votre cabinet et gérez votre activité.</p>
+            </div>
+            <span class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">arrow_forward</span>
+          </a>
+        </div>
+
+        <div class="mt-space-6 text-center relative z-10">
+          <p class="font-body text-body-base text-on-surface-variant">
+            Déjà un compte ?
+            <a routerLink="/auth/connexion" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1">Se connecter</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

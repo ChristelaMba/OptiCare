@@ -1,4 +1,100 @@
-import { Service } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
+import { RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
+import {
+  AuthResponse,
+  ConnexionPayload,
+  InscriptionCabinetPayload,
+  InscriptionPatientPayload,
+} from '../../models/auth.model';
+
+const CLE_TOKEN = 'opticare_token';
+const CLE_UTILISATEUR = 'opticare_utilisateur';
+
+// environment.apiUrl se termine parfois par '/', parfois non (dev vs prod) :
+// on normalise pour ne jamais produire d'URL avec un slash en trop ou manquant.
+const BASE_URL = environment.apiUrl.replace(/\/$/, '');
+
+// Redirection par défaut après connexion, selon le rôle retourné par l'API.
+const ROUTE_PAR_ROLE: Record<RoleUtilisateur, string> = {
+  Patient: '/patient',
+  Secretaire: '/secretaire',
+  Opticien: '/opticien',
+  Proprietaire: '/proprietaire',
+  SuperAdmin: '/super-admin',
+};
 
 @Service()
-export class Auth {}
+export class Auth {
+  private readonly http = inject(HttpClient);
+
+  private readonly tokenSignal = signal<string | null>(this.lire(CLE_TOKEN));
+  private readonly utilisateurSignal = signal<Utilisateur | null>(this.lireUtilisateur());
+
+  readonly token = this.tokenSignal.asReadonly();
+  readonly utilisateur = this.utilisateurSignal.asReadonly();
+  readonly role = computed<RoleUtilisateur | null>(() => this.utilisateurSignal()?.role ?? null);
+  readonly estConnecte = computed(() => this.tokenSignal() !== null);
+
+  registerPatient(payload: InscriptionPatientPayload): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${BASE_URL}/auth/register/patient`, payload)
+      .pipe(tap((reponse) => this.ouvrirSession(reponse, true)));
+  }
+
+  registerCabinet(payload: InscriptionCabinetPayload): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${BASE_URL}/auth/register/cabinet`, payload)
+      .pipe(tap((reponse) => this.ouvrirSession(reponse, true)));
+  }
+
+  /**
+   * @param seSouvenir si vrai, la session survit à la fermeture du navigateur
+   * (localStorage) ; sinon elle est effacée à la fermeture de l'onglet (sessionStorage).
+   */
+  login(payload: ConnexionPayload, seSouvenir: boolean): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${BASE_URL}/auth/login`, payload)
+      .pipe(tap((reponse) => this.ouvrirSession(reponse, seSouvenir)));
+  }
+
+  logout(): void {
+    this.tokenSignal.set(null);
+    this.utilisateurSignal.set(null);
+    localStorage.removeItem(CLE_TOKEN);
+    localStorage.removeItem(CLE_UTILISATEUR);
+    sessionStorage.removeItem(CLE_TOKEN);
+    sessionStorage.removeItem(CLE_UTILISATEUR);
+  }
+
+  /** Route de destination par défaut après connexion/inscription, selon le rôle. */
+  routeParDefaut(role: RoleUtilisateur): string {
+    return ROUTE_PAR_ROLE[role];
+  }
+
+  private ouvrirSession(reponse: AuthResponse, seSouvenir: boolean): void {
+    this.tokenSignal.set(reponse.token);
+    this.utilisateurSignal.set(reponse.utilisateur);
+
+    // On s'assure qu'une session précédente dans l'autre stockage ne traîne pas.
+    const stockage = seSouvenir ? localStorage : sessionStorage;
+    const autreStockage = seSouvenir ? sessionStorage : localStorage;
+    autreStockage.removeItem(CLE_TOKEN);
+    autreStockage.removeItem(CLE_UTILISATEUR);
+
+    stockage.setItem(CLE_TOKEN, reponse.token);
+    stockage.setItem(CLE_UTILISATEUR, JSON.stringify(reponse.utilisateur));
+  }
+
+  private lire(cle: string): string | null {
+    return localStorage.getItem(cle) ?? sessionStorage.getItem(cle);
+  }
+
+  private lireUtilisateur(): Utilisateur | null {
+    const brut = this.lire(CLE_UTILISATEUR);
+    return brut ? (JSON.parse(brut) as Utilisateur) : null;
+  }
+}
