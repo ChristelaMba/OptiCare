@@ -1,1 +1,114 @@
-<p>connexion works!</p>
+<main class="w-full min-h-screen grid grid-cols-1 md:grid-cols-2">
+  <!-- Colonne gauche : image (desktop uniquement) -->
+  <div class="hidden md:block relative h-full overflow-hidden">
+    <img
+      class="absolute inset-0 w-full h-full object-cover"
+      alt="Connexion - OptiCare"
+      src="/images/auth-connexion.jpg"
+    />
+    <div class="absolute inset-0 bg-primary/10"></div>
+  </div>
+
+  <!-- Colonne droite : formulaire -->
+  <div class="flex items-center justify-center p-margin-mobile md:p-space-12 bg-surface-bg">
+    <div class="w-full max-w-[500px]">
+      <!-- Logo -->
+      <div class="text-center mb-space-8">
+        <h1 class="flex items-center justify-center">
+          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto" />
+        </h1>
+      </div>
+
+      <!-- Carte connexion -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-8 md:p-space-12 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="mb-space-6 relative z-10">
+          <h2 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Se connecter</h2>
+          <p class="font-body text-body-base text-text-muted">Accédez à votre espace OptiCare.</p>
+        </div>
+
+        @if (erreur()) {
+          <div class="mb-space-4 rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 relative z-10">
+            <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+          </div>
+        }
+
+        <form class="space-y-space-4 relative z-10" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Identifiant (email ou téléphone) -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="identifiant">Email ou téléphone</label>
+            <input
+              id="identifiant"
+              type="text"
+              formControlName="identifiant"
+              placeholder="junior.mbarga@email.com ou +237 677 12 34 56"
+              class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
+            />
+            @if (form.get('identifiant')?.invalid && form.get('identifiant')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">L'email ou le téléphone est requis.</p>
+            }
+          </div>
+
+          <!-- Mot de passe -->
+          <div>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="motDePasse">Mot de passe</label>
+            <div class="relative">
+              <input
+                id="motDePasse"
+                [type]="afficherMotDePasse() ? 'text' : 'password'"
+                formControlName="motDePasse"
+                placeholder="••••••••"
+                class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow pr-10 mt-space-2"
+              />
+              <button
+                type="button"
+                (click)="basculerAffichageMotDePasse()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors"
+              >
+                <span class="material-symbols-outlined text-[20px]">{{ afficherMotDePasse() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            @if (form.get('motDePasse')?.invalid && form.get('motDePasse')?.touched) {
+              <p class="font-body text-label-sm text-error mt-1">Le mot de passe est requis.</p>
+            }
+          </div>
+
+          <!-- Se souvenir de moi / Mot de passe oublié -->
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 font-body text-body-base text-on-surface-variant cursor-pointer">
+              <input
+                type="checkbox"
+                formControlName="seSouvenir"
+                class="h-4 w-4 rounded border-border-subtle text-primary focus:ring-primary"
+              />
+              Se souvenir de moi
+            </label>
+            <a href="#" class="font-body text-body-base text-primary font-semibold hover:text-tertiary-container transition-colors">
+              Mot de passe oublié ?
+            </a>
+          </div>
+
+          <!-- Bouton de soumission -->
+          <button
+            type="submit"
+            [disabled]="chargement()"
+            class="w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {{ chargement() ? 'Connexion en cours…' : 'Se connecter' }}
+            @if (!chargement()) {
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            }
+          </button>
+        </form>
+
+        <div class="mt-space-6 text-center relative z-10">
+          <p class="font-body text-body-base text-on-surface-variant">
+            Pas encore de compte ?
+            <a routerLink="/auth/inscription" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1">Créer un compte</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

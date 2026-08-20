@@ -1,3 +1,89 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/*
+ * Thème repris fidèlement de la maquette Tailwind
+ * (maquette/inscription_patient_design_optimis_v2/code.html)
+ * pour que les classes utilisées dans la maquette (bg-primary,
+ * text-on-surface, font-headline-h2, p-space-8, ...) fonctionnent
+ * telles quelles dans les templates Angular.
+ */
+@theme {
+  /* Couleurs — reprises de la maquette */
+  --color-primary: #0050ce;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2f6aec;
+  --color-tertiary-container: #2e69f1;
+  --color-surface-bg: #f8fafc;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #131b2e;
+  --color-on-surface-variant: #434654;
+  --color-text-muted: #475569;
+  --color-border-subtle: #e2e8f0;
+
+  /* Couleur secondaire de marque (Cahier des charges §3.1 — pas utilisée
+     dans la maquette inscription, nécessaire pour les futurs écrans) */
+  --color-secondary: #7bae8c;
+
+  /* États sémantiques (validation de formulaire — absents de la maquette) */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  /* Typographie — reprise de la maquette */
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --text-headline-h1: 28px;
+  --text-headline-h1--line-height: 36px;
+  --text-headline-h1--font-weight: 600;
+
+  --text-headline-h1-mobile: 24px;
+  --text-headline-h1-mobile--line-height: 32px;
+  --text-headline-h1-mobile--font-weight: 600;
+
+  --text-headline-h2: 22px;
+  --text-headline-h2--line-height: 30px;
+  --text-headline-h2--font-weight: 600;
+
+  --text-headline-h3: 18px;
+  --text-headline-h3--line-height: 26px;
+  --text-headline-h3--font-weight: 500;
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+
+  --text-body-base: 14px;
+  --text-body-base--line-height: 20px;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+
+  --text-badge: 12px;
+  --text-badge--line-height: 16px;
+  --text-badge--font-weight: 600;
+
+  --text-button: 14px;
+  --text-button--line-height: 20px;
+  --text-button--font-weight: 600;
+
+  /* Espacements nommés — repris de la maquette */
+  --spacing-space-1: 4px;
+  --spacing-space-2: 8px;
+  --spacing-space-3: 12px;
+  --spacing-space-4: 16px;
+  --spacing-space-6: 24px;
+  --spacing-space-8: 32px;
+  --spacing-space-12: 48px;
+  --spacing-gutter: 16px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 48px;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface-bg);
+  color: var(--color-on-surface);
+}
