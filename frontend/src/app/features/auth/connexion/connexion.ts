@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -15,6 +15,7 @@ export class Connexion {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly chargement = signal(false);
   readonly erreur = signal<string | null>(null);
@@ -51,7 +52,8 @@ export class Connexion {
       .subscribe({
         next: (reponse) => {
           this.chargement.set(false);
-          this.router.navigateByUrl(this.auth.routeParDefaut(reponse.utilisateur.role));
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          this.router.navigateByUrl(returnUrl ?? this.auth.routeParDefaut(reponse.utilisateur.role));
         },
         error: (erreur: HttpErrorResponse) => {
           this.chargement.set(false);
