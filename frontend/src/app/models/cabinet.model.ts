@@ -51,3 +51,15 @@ export interface CompleterProfilCabinetPayload {
   photos?: string[];
   liensExternes?: LiensExternes;
 }
+
+// Champs modifiables depuis l'écran vitrine-edition (§9.6) — édition continue,
+// utilisable même après validation, contrairement à completerProfil() qui est
+// à usage unique et fait passer statutValidation de profilIncomplet à
+// enAttente côté back. Recouvre les informations générales (saisies à
+// l'inscription mais modifiables ici) ET les mêmes champs éditoriaux que
+// CompleterProfilCabinetPayload, sans déclencher cet effet de bord de statut.
+export type ModifierCabinetPayload = Pick<
+  Cabinet,
+  'nom' | 'adresse' | 'telephone' | 'ville' | 'slogan' | 'description' | 'quartier' | 'whatsappNumero' | 'horaires'
+> &
+  Partial<Pick<Cabinet, 'logoUrl' | 'photos' | 'liensExternes'>>;

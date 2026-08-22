@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Cabinet as CabinetModel, CompleterProfilCabinetPayload } from '../../models/cabinet.model';
+import { Cabinet as CabinetModel, CompleterProfilCabinetPayload, ModifierCabinetPayload } from '../../models/cabinet.model';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
@@ -51,6 +51,23 @@ export class Cabinet {
    */
   completerProfil(id: string, payload: CompleterProfilCabinetPayload): Observable<CabinetModel> {
     return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}/completer-profil`, payload);
+  }
+
+  /**
+   * TODO : route NON confirmée avec le back-end. `PATCH /cabinets/{id}`
+   * figurait dans une version antérieure du contrat d'API (§8) — « Informations
+   * du cabinet mises à jour » — mais a disparu de la version actuelle : seules
+   * `/cabinets/{id}/valider` et `/admin/cabinets` y figurent encore pour {id}.
+   * Utilisée par vitrine-edition pour l'édition continue (nom, coordonnées,
+   * profil, horaires...). Volontairement DISTINCTE de completerProfil() —
+   * ne pas fusionner les deux : completerProfil() fait passer le statut de
+   * profilIncomplet à enAttente côté back, ce qui resoumettrait à tort un
+   * cabinet déjà validé à chaque modification mineure depuis vitrine-edition.
+   * Hypothèse provisoire par symétrie avec l'ancienne version du contrat,
+   * à confirmer avant utilisation réelle.
+   */
+  mettreAJour(id: string, payload: ModifierCabinetPayload): Observable<CabinetModel> {
+    return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}`, payload);
   }
 
   /** GET /admin/cabinets — TOUS les cabinets, y compris non validés (Super Admin). Le filtre sur statutValidation === 'enAttente' se fait côté composant. */
