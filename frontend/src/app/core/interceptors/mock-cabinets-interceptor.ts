@@ -71,6 +71,16 @@ export const mockCabinetsInterceptor: HttpInterceptorFn = (req, next) => {
     return reponse(cabinet);
   }
 
+  // PATCH /cabinets/{id} — édition continue depuis vitrine-edition. Distinct de
+  // /completer-profil ci-dessus : ne touche PAS statutValidation.
+  const idModifier = req.method === 'PATCH' ? segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)$/)?.[1] : null;
+  if (req.method === 'PATCH' && idModifier) {
+    const cabinet = cabinetsFactices.find((c) => c.id === idModifier);
+    if (!cabinet) return erreur404(req.url);
+    Object.assign(cabinet, req.body);
+    return reponse(cabinet);
+  }
+
   // GET /cabinets/{id}
   const idDetail = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)$/)?.[1];
   if (req.method === 'GET' && idDetail) {

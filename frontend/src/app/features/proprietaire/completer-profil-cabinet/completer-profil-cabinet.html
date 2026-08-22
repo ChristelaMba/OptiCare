@@ -1,1 +1,304 @@
-<p>completer-profil-cabinet works!</p>
+<main class="min-h-screen bg-surface-bg flex items-center justify-center p-margin-mobile py-space-12">
+  <div class="w-full max-w-[720px]">
+    <!-- Logo -->
+    <div class="text-center mb-space-8">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto mx-auto" />
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-8 md:p-space-12">
+      @if (chargement()) {
+        <p class="font-body text-body-base text-text-muted text-center py-space-8">Chargement…</p>
+      } @else if (erreur()) {
+        <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+          <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+        </div>
+      } @else if (cabinet(); as c) {
+        @if (soumissionReussie()) {
+          <!-- Confirmation après soumission réussie -->
+          <div class="text-center py-space-6">
+            <div class="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-space-4">
+              <span class="material-symbols-outlined text-success text-[32px]">check_circle</span>
+            </div>
+            <h1 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Profil envoyé pour validation</h1>
+            <p class="font-body text-body-base text-text-muted max-w-[480px] mx-auto">
+              Le profil de <strong>{{ c.nom }}</strong> est maintenant <strong>en attente de validation</strong> par un
+              administrateur OptiCare. Votre cabinet apparaîtra dans l'annuaire public dès qu'il sera validé.
+            </p>
+            <a
+              routerLink="/proprietaire/dashboard-comptable"
+              class="inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm"
+            >
+              Aller au tableau de bord
+            </a>
+          </div>
+        } @else if (c.statutValidation !== 'profilIncomplet') {
+          <!-- Le profil a déjà été complété (statut a déjà avancé) -->
+          <div class="text-center py-space-6">
+            <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mx-auto mb-space-4">
+              <span class="material-symbols-outlined text-primary text-[32px]">task_alt</span>
+            </div>
+            <h1 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Profil déjà complété</h1>
+            <p class="font-body text-body-base text-text-muted max-w-[480px] mx-auto">
+              Le profil de <strong>{{ c.nom }}</strong> a déjà été soumis. Pour modifier ces informations, utilisez
+              l'écran « Ma vitrine ».
+            </p>
+            <a
+              routerLink="/proprietaire/vitrine-edition"
+              class="inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm"
+            >
+              Aller sur Ma vitrine
+            </a>
+          </div>
+        } @else {
+          <!-- Formulaire -->
+          <div class="mb-space-6">
+            <h1 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Complétez le profil de {{ c.nom }}</h1>
+            <p class="font-body text-body-base text-text-muted">
+              Ces informations seront visibles sur la vitrine publique de votre cabinet. Une fois soumises, votre
+              profil passe en attente de validation par un administrateur OptiCare.
+            </p>
+          </div>
+
+          @if (erreurFormulaire()) {
+            <div class="mb-space-4 rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+              <p class="font-body text-body-base text-error">{{ erreurFormulaire() }}</p>
+            </div>
+          }
+
+          <form class="space-y-space-6" [formGroup]="formulaire" (ngSubmit)="soumettreFormulaire()">
+            <!-- Présentation -->
+            <section>
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-space-4">Présentation</h2>
+              <div class="space-y-space-4">
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="slogan">Slogan</label>
+                  <input
+                    id="slogan"
+                    type="text"
+                    formControlName="slogan"
+                    placeholder="Votre vue, notre priorité."
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                  @if (formulaire.get('slogan')?.invalid && formulaire.get('slogan')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">Le slogan est requis.</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="description">Description</label>
+                  <textarea
+                    id="description"
+                    formControlName="description"
+                    rows="4"
+                    placeholder="Présentez votre cabinet, vos spécialités, votre équipe…"
+                    class="w-full p-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow resize-y"
+                  ></textarea>
+                  @if (formulaire.get('description')?.invalid && formulaire.get('description')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">La description est requise.</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="quartier">Quartier</label>
+                  <input
+                    id="quartier"
+                    type="text"
+                    formControlName="quartier"
+                    placeholder="Bonapriso"
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                  <p class="font-body text-label-sm text-text-muted mt-1">Utilisé pour la recherche et le filtre par quartier.</p>
+                  @if (formulaire.get('quartier')?.invalid && formulaire.get('quartier')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">Le quartier est requis.</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="whatsapp">Numéro WhatsApp</label>
+                  <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-success text-[20px]">chat</span>
+                    <input
+                      id="whatsapp"
+                      type="tel"
+                      formControlName="whatsappNumero"
+                      placeholder="+237 6 99 88 77 66"
+                      class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                    />
+                  </div>
+                  <p class="font-body text-label-sm text-text-muted mt-1">Utilisé pour le bouton « Discuter sur WhatsApp » — peut différer du téléphone déjà fourni.</p>
+                  @if (formulaire.get('whatsappNumero')?.invalid && formulaire.get('whatsappNumero')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">Le numéro WhatsApp est requis.</p>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Horaires -->
+            <section class="border-t border-border-subtle pt-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-1">Horaires d'ouverture</h2>
+              <p class="font-body text-label-sm text-text-muted mb-space-4">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <div class="space-y-space-2" formArrayName="horaires">
+                @for (grp of horaires.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="flex flex-wrap items-center gap-space-3 py-space-2 border-b border-border-subtle last:border-0">
+                    <span class="font-body text-body-base text-on-surface w-24 shrink-0">{{ jours[i] }}</span>
+
+                    @if (!grp.get('ferme')?.value) {
+                      <input
+                        type="time"
+                        formControlName="ouverture"
+                        class="h-10 px-3 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base"
+                      />
+                      <span class="font-body text-label-sm text-text-muted">à</span>
+                      <input
+                        type="time"
+                        formControlName="fermeture"
+                        class="h-10 px-3 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base"
+                      />
+                    } @else {
+                      <span class="font-body text-label-sm text-text-disabled italic flex-1">Fermé</span>
+                    }
+
+                    <label class="flex items-center gap-2 ml-auto cursor-pointer">
+                      <input type="checkbox" formControlName="ferme" class="w-4 h-4 rounded border-border-subtle accent-primary" />
+                      <span class="font-body text-label-sm text-text-muted">Fermé</span>
+                    </label>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <!-- Médias -->
+            <section class="border-t border-border-subtle pt-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-space-4">Médias</h2>
+
+              <div class="mb-space-4">
+                <label class="block font-body text-label-sm text-on-surface-variant mb-2">Logo du cabinet</label>
+                <div class="flex items-center gap-space-4">
+                  <!-- TODO : pas de vrai upload — aperçu factice tant que logoUrl est vide -->
+                  <img
+                    [src]="formulaire.get('logoUrl')?.value || logoPlaceholder"
+                    alt="Aperçu du logo"
+                    class="w-16 h-16 rounded-lg object-cover border border-border-subtle bg-surface-container-high shrink-0"
+                  />
+                  <input
+                    type="url"
+                    formControlName="logoUrl"
+                    placeholder="https://…"
+                    class="flex-1 h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block font-body text-label-sm text-on-surface-variant">Galerie photos (max {{ maxPhotos }})</label>
+                  @if (peutAjouterPhoto) {
+                    <button
+                      type="button"
+                      (click)="ajouterPhoto()"
+                      class="font-body text-label-sm text-primary hover:text-primary-container transition-colors"
+                    >
+                      + Ajouter une photo
+                    </button>
+                  }
+                </div>
+                <div class="space-y-space-2" formArrayName="photos">
+                  @for (ctrl of photos.controls; track $index; let i = $index) {
+                    <div class="flex items-center gap-space-3">
+                      <!-- TODO : pas de vrai upload — aperçu factice tant que l'URL est vide -->
+                      <img
+                        [src]="ctrl.value || photoPlaceholder"
+                        alt="Aperçu photo {{ i + 1 }}"
+                        class="w-12 h-12 rounded-lg object-cover border border-border-subtle bg-surface-container-high shrink-0"
+                      />
+                      <input
+                        type="url"
+                        [formControlName]="i"
+                        placeholder="https://…"
+                        class="flex-1 h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                      />
+                      <button
+                        type="button"
+                        (click)="retirerPhoto(i)"
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors shrink-0"
+                      >
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                      </button>
+                    </div>
+                  }
+                  @if (photos.length === 0) {
+                    <p class="font-body text-label-sm text-text-muted">Aucune photo ajoutée pour l'instant.</p>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Liens externes -->
+            <section class="border-t border-border-subtle pt-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-1">Liens externes</h2>
+              <p class="font-body text-label-sm text-text-muted mb-space-4">Optionnel — seulement si déjà existants.</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-space-4">
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="siteWeb">Site web</label>
+                  <input
+                    id="siteWeb"
+                    type="url"
+                    formControlName="siteWeb"
+                    placeholder="https://..."
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="facebook">Facebook</label>
+                  <input
+                    id="facebook"
+                    type="text"
+                    formControlName="facebook"
+                    placeholder="@votre_page"
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="instagram">Instagram</label>
+                  <input
+                    id="instagram"
+                    type="text"
+                    formControlName="instagram"
+                    placeholder="@votre_compte"
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="tiktok">TikTok</label>
+                  <input
+                    id="tiktok"
+                    type="text"
+                    formControlName="tiktok"
+                    placeholder="@votre_compte"
+                    class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Soumission -->
+            <div class="border-t border-border-subtle pt-space-6">
+              <button
+                type="submit"
+                [disabled]="envoiEnCours()"
+                class="w-full h-[52px] bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                @if (envoiEnCours()) {
+                  Envoi en cours…
+                } @else {
+                  <span class="material-symbols-outlined text-[18px]">send</span>
+                  Enregistrer et soumettre pour validation
+                }
+              </button>
+            </div>
+          </form>
+        }
+      }
+    </div>
+  </div>
+</main>
