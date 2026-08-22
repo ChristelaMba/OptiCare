@@ -1,1 +1,217 @@
-<p>gestion-employes works!</p>
+<div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
+  <!-- SideNavBar (desktop) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
+    <div class="mb-space-8 px-space-4">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto mb-2" />
+      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
+    </div>
+    <nav class="flex-1 flex flex-col gap-space-2">
+      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-body text-body-base">Dashboard</span>
+      </a>
+      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span class="font-body text-body-base">Rendez-vous</span>
+      </a>
+      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
+        <span class="material-symbols-outlined fill-icon">badge</span>
+        <span class="font-body text-body-base">Employés</span>
+      </a>
+      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="font-body text-body-base">Ma vitrine</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
+    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-space-4 mb-space-8 mt-space-6 md:mt-0">
+      <div>
+        <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Gestion des employés</h1>
+        <p class="font-body text-body-base text-text-muted mt-1">Gérez votre équipe, leurs rôles et statuts.</p>
+      </div>
+      <button
+        type="button"
+        (click)="ouvrirFormulaire()"
+        class="bg-primary text-on-primary font-button text-button h-[44px] px-space-4 rounded-xl flex items-center gap-space-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm hover:shadow-md"
+      >
+        <span class="material-symbols-outlined">add</span>
+        Ajouter un employé
+      </button>
+    </div>
+
+    @if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 mb-space-6">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    }
+
+    <!-- Recherche -->
+    <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm mb-space-8 border border-border-subtle">
+      <div class="relative w-full sm:w-96">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">search</span>
+        <input
+          type="text"
+          [ngModel]="texteRecherche()"
+          (ngModelChange)="texteRecherche.set($event)"
+          placeholder="Rechercher par nom ou rôle…"
+          class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+    </div>
+
+    @if (chargement()) {
+      <p class="font-body text-body-base text-text-muted">Chargement des employés…</p>
+    } @else if (employesFiltres().length === 0) {
+      <div class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-8 text-center">
+        <p class="font-body text-body-base text-text-muted">Aucun employé ne correspond à cette recherche.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-space-6">
+        @for (employe of employesFiltres(); track employe.id) {
+          <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm hover:shadow-md transition-shadow border border-border-subtle flex flex-col" [class.opacity-75]="!employe.actif">
+            <div class="flex items-center gap-space-4 mb-space-4">
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center font-heading font-bold text-lg shrink-0"
+                [class.bg-primary-container]="employe.actif"
+                [class.text-on-primary-container]="employe.actif"
+                [class.bg-surface-container]="!employe.actif"
+                [class.text-text-disabled]="!employe.actif"
+              >
+                {{ employe.prenom.charAt(0) }}{{ employe.nom.charAt(0) }}
+              </div>
+              <div>
+                <h3 class="font-heading text-headline-h3 text-on-surface">{{ employe.prenom }} {{ employe.nom }}</h3>
+                <p class="font-body text-body-base text-text-muted">{{ employe.role === 'Opticien' ? 'Opticien' : 'Secrétaire' }}</p>
+              </div>
+            </div>
+            <div class="mt-auto pt-space-4 border-t border-border-subtle flex justify-between items-center">
+              @if (employe.actif) {
+                <span class="inline-flex items-center px-space-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-badge text-badge">
+                  <span class="w-2 h-2 rounded-full bg-success mr-2"></span> Actif
+                </span>
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === employe.id"
+                  (click)="toggleActivation(employe)"
+                  class="text-error hover:underline font-button text-button transition-colors disabled:opacity-40"
+                >
+                  Désactiver
+                </button>
+              } @else {
+                <span class="inline-flex items-center px-space-2 py-1 rounded-full bg-surface-container-high text-text-muted font-badge text-badge">
+                  <span class="w-2 h-2 rounded-full bg-outline mr-2"></span> Inactif
+                </span>
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === employe.id"
+                  (click)="toggleActivation(employe)"
+                  class="text-primary hover:underline font-button text-button transition-colors disabled:opacity-40"
+                >
+                  Réactiver
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+
+  <!-- Panneau « Ajouter un employé » -->
+  @if (formulaireOuvert()) {
+    <div class="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-margin-mobile" (click)="fermerFormulaire()">
+      <div class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-[480px] p-space-6 md:p-space-8" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-space-6">
+          <h2 class="font-heading text-headline-h2 text-on-surface">Ajouter un employé</h2>
+          <button type="button" (click)="fermerFormulaire()" class="text-text-muted hover:text-on-surface">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form [formGroup]="formulaire" (ngSubmit)="soumettreFormulaire()" class="flex flex-col gap-space-4">
+          @if (erreurFormulaire()) {
+            <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+              <p class="font-body text-body-base text-error">{{ erreurFormulaire() }}</p>
+            </div>
+          }
+
+          <div class="grid grid-cols-2 gap-space-4">
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Prénom</label>
+              <input type="text" formControlName="prenom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Nom</label>
+              <input type="text" formControlName="nom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Rôle</label>
+            <select formControlName="role" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary">
+              <option value="Opticien">Opticien</option>
+              <option value="Secretaire">Secrétaire</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Email</label>
+            <input type="email" formControlName="email" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-space-4">
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Téléphone</label>
+              <input type="tel" formControlName="telephone" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Ville</label>
+              <input type="text" formControlName="ville" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-space-3 mt-space-2">
+            <button type="button" (click)="fermerFormulaire()" class="px-space-6 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container transition-colors">
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="envoiEnCours()"
+              class="px-space-6 py-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors shadow-sm disabled:opacity-60"
+            >
+              {{ envoiEnCours() ? 'Création…' : 'Créer le compte' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- BottomNav (mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-around items-center z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-body text-label-sm mt-1">Dash</span>
+    </a>
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="font-body text-label-sm mt-1">Agenda</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center w-full h-full text-primary font-bold">
+      <span class="material-symbols-outlined fill-icon">badge</span>
+      <span class="font-body text-label-sm mt-1">Employés</span>
+    </a>
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">storefront</span>
+      <span class="font-body text-label-sm mt-1">Vitrine</span>
+    </a>
+  </nav>
+</div>

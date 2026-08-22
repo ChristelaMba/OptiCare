@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ValidationCabinets } from './validation-cabinets';
 
@@ -9,6 +11,7 @@ describe('ValidationCabinets', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ValidationCabinets],
+      providers: [provideRouter([]), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ValidationCabinets);

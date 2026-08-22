@@ -1,1 +1,229 @@
-<p>gestion-comptes works!</p>
+<div class="min-h-screen flex flex-col md:flex-row bg-surface-bg text-on-surface font-body">
+  <!-- TopNavBar (mobile) -->
+  <header class="md:hidden w-full h-16 bg-surface-container-lowest flex justify-between items-center px-margin-mobile sticky top-0 z-40 shadow-sm">
+    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+    <button type="button" (click)="deconnexion()" class="material-symbols-outlined text-text-muted" aria-label="Déconnexion">logout</button>
+  </header>
+
+  <!-- SideNavBar (desktop) -->
+  <nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest py-space-6 border-r border-border-subtle z-50">
+    <div class="px-space-6 mb-space-8">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-8 w-auto" />
+      <p class="font-body text-label-sm text-text-muted mt-1">Super Admin</p>
+    </div>
+    <div class="flex-1 px-space-2 flex flex-col gap-space-1">
+      <a
+        routerLink="/super-admin/validation-cabinets"
+        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+      >
+        <span class="material-symbols-outlined">verified_user</span>
+        <span class="font-button text-button">Validation des cabinets</span>
+      </a>
+      <a
+        routerLink="/super-admin/gestion-comptes"
+        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
+      >
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span class="font-button text-button">Gestion des comptes</span>
+      </a>
+    </div>
+    <div class="px-space-2 mt-auto">
+      <button
+        type="button"
+        (click)="deconnexion()"
+        class="w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+      >
+        <span class="material-symbols-outlined">logout</span>
+        <span class="font-button text-button">Déconnexion</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 md:ml-64 w-full px-margin-mobile md:px-margin-desktop py-space-8 md:py-space-12 flex flex-col gap-space-8">
+    <!-- En-tête -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+      <div>
+        <h1 class="font-heading text-headline-h1-mobile md:text-headline-h1 text-on-surface mb-1">Gestion globale des comptes</h1>
+        <p class="font-body text-body-lg text-text-muted">Recherchez, filtrez et gérez tous les comptes de la plateforme.</p>
+      </div>
+      <div class="relative w-full md:w-80">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">search</span>
+        <input
+          type="text"
+          [ngModel]="texteRecherche()"
+          (ngModelChange)="texteRecherche.set($event); pageActuelle.set(1)"
+          placeholder="Rechercher un compte…"
+          class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="flex flex-wrap items-center gap-space-3">
+      <select
+        [ngModel]="filtreRole()"
+        (ngModelChange)="filtreRole.set($event); pageActuelle.set(1)"
+        class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+      >
+        <option value="tous">Tous les rôles</option>
+        <option value="Patient">Patient</option>
+        <option value="Secretaire">Secrétaire</option>
+        <option value="Opticien">Opticien</option>
+        <option value="Proprietaire">Propriétaire</option>
+        <option value="SuperAdmin">Super Admin</option>
+      </select>
+      <select
+        [ngModel]="filtreStatut()"
+        (ngModelChange)="filtreStatut.set($event); pageActuelle.set(1)"
+        class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+      >
+        <option value="tous">Tous les statuts</option>
+        <option value="actif">Actif</option>
+        <option value="inactif">Inactif</option>
+      </select>
+      @if (texteRecherche() || filtreRole() !== 'tous' || filtreStatut() !== 'tous') {
+        <button type="button" (click)="reinitialiserFiltres()" class="text-primary font-button text-button hover:underline">
+          Réinitialiser
+        </button>
+      }
+    </div>
+
+    @if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    }
+
+    <!-- Table -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-border-subtle">
+              <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Utilisateur</th>
+              <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Rôle</th>
+              <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Cabinet associé</th>
+              <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Statut</th>
+              <th class="px-space-4 py-3 font-button text-button text-on-surface-variant text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-subtle">
+            @if (chargement()) {
+              <tr><td colspan="5" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">Chargement des comptes…</td></tr>
+            } @else if (utilisateursPage().length === 0) {
+              <tr><td colspan="5" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">Aucun compte ne correspond à ces critères.</td></tr>
+            } @else {
+              @for (utilisateur of utilisateursPage(); track utilisateur.id) {
+                <tr class="hover:bg-surface-container-low transition-colors" [class.opacity-60]="!utilisateur.actif">
+                  <td class="px-space-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-button font-bold text-sm"
+                        [class.bg-primary-container]="utilisateur.actif"
+                        [class.text-on-primary-container]="utilisateur.actif"
+                        [class.bg-surface-container-high]="!utilisateur.actif"
+                        [class.text-text-muted]="!utilisateur.actif"
+                      >
+                        {{ utilisateur.prenom.charAt(0) }}{{ utilisateur.nom.charAt(0) }}
+                      </div>
+                      <div>
+                        <div class="font-body font-medium text-body-base text-on-surface">{{ utilisateur.prenom }} {{ utilisateur.nom }}</div>
+                        <div class="font-body text-label-sm text-text-muted">{{ utilisateur.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ utilisateur.role }}</td>
+                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ nomCabinet(utilisateur) }}</td>
+                  <td class="px-space-4 py-4">
+                    @if (utilisateur.actif) {
+                      <span class="inline-flex items-center gap-1.5 px-space-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-badge text-badge">
+                        <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Actif
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1.5 px-space-3 py-1 rounded-full bg-surface-container-high text-text-muted font-badge text-badge">
+                        <span class="w-1.5 h-1.5 rounded-full bg-outline"></span> Inactif
+                      </span>
+                    }
+                  </td>
+                  <td class="px-space-4 py-4">
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        [disabled]="actionEnCours() === utilisateur.id"
+                        (click)="reinitialiserMotDePasse(utilisateur)"
+                        title="Réinitialiser le mot de passe"
+                        class="p-2 text-text-muted hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                      >
+                        <span class="material-symbols-outlined text-[18px]">key</span>
+                      </button>
+                      @if (utilisateur.actif) {
+                        <button
+                          type="button"
+                          [disabled]="actionEnCours() === utilisateur.id"
+                          (click)="toggleActivation(utilisateur)"
+                          title="Désactiver"
+                          class="p-2 text-text-muted hover:text-warning hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                        >
+                          <span class="material-symbols-outlined text-[18px]">block</span>
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          [disabled]="actionEnCours() === utilisateur.id"
+                          (click)="toggleActivation(utilisateur)"
+                          title="Activer"
+                          class="p-2 text-text-muted hover:text-success hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                        >
+                          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (!chargement() && totalResultats() > 0) {
+        <div class="px-space-4 py-3 border-t border-border-subtle bg-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-3">
+          <span class="font-body text-label-sm text-text-muted">{{ totalResultats() }} résultat{{ totalResultats() > 1 ? 's' : '' }}</span>
+          @if (nombrePages() > 1) {
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                [disabled]="pageAffichee() === 1"
+                (click)="allerPage(pageAffichee() - 1)"
+                class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              @for (numero of numerosPages(); track numero) {
+                <button
+                  type="button"
+                  (click)="allerPage(numero)"
+                  [class.bg-primary]="pageAffichee() === numero"
+                  [class.text-on-primary]="pageAffichee() === numero"
+                  [class.text-on-surface-variant]="pageAffichee() !== numero"
+                  class="px-2.5 py-1 rounded font-body text-label-sm font-medium hover:bg-surface-container-high transition-colors"
+                >
+                  {{ numero }}
+                </button>
+              }
+              <button
+                type="button"
+                [disabled]="pageAffichee() === nombrePages()"
+                (click)="allerPage(pageAffichee() + 1)"
+                class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </main>
+</div>
