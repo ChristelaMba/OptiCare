@@ -1,1 +1,356 @@
-<p>accueil works!</p>
+<div class="min-h-screen flex flex-col bg-surface-bg text-on-surface font-body pt-16">
+  <!-- TopNavBar -->
+  <nav class="fixed top-0 w-full z-50 bg-surface-bg shadow-sm">
+    <div class="flex items-center justify-between h-16 gap-space-6 px-margin-mobile md:px-space-12 max-w-7xl mx-auto">
+      <a routerLink="/" class="shrink-0">
+        <img src="/images/logo-opticare.png" alt="OptiCare" class="h-8 w-auto" />
+      </a>
+
+      <!-- Liens + boutons groupés à droite (ml-auto), plutôt que centrés dans la largeur totale du header.
+           Couleur pilotée par sectionActive() (scrollspy IntersectionObserver, voir accueil.ts). -->
+      <div class="hidden md:flex items-center gap-space-8 ml-auto">
+        <a
+          href="#specialites"
+          [class.text-primary]="sectionActive() === 'specialites'"
+          [class.border-b-2]="sectionActive() === 'specialites'"
+          [class.border-primary]="sectionActive() === 'specialites'"
+          [class.text-on-surface-variant]="sectionActive() !== 'specialites'"
+          class="font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
+        >
+          Services
+        </a>
+        <a
+          href="#cabinets-partenaires"
+          [class.text-primary]="sectionActive() === 'cabinets-partenaires'"
+          [class.border-b-2]="sectionActive() === 'cabinets-partenaires'"
+          [class.border-primary]="sectionActive() === 'cabinets-partenaires'"
+          [class.text-on-surface-variant]="sectionActive() !== 'cabinets-partenaires'"
+          class="font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
+        >
+          Cabinets
+        </a>
+      </div>
+
+      <div class="flex items-center gap-space-3">
+        <a
+          routerLink="/auth/connexion"
+          class="font-button text-button text-primary hover:bg-surface-container-high px-space-4 py-space-2 rounded-full transition-colors"
+        >
+          Connexion
+        </a>
+        <a
+          routerLink="/auth/inscription"
+          class="font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant px-space-6 py-space-2 rounded-full transition-colors shadow-sm hover:shadow-md"
+        >
+          Inscription
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto w-full">
+    <!-- Hero Section -->
+    <section class="px-margin-mobile md:px-space-12 py-space-12 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-space-12 items-center">
+      <div class="flex flex-col gap-space-6">
+        <span class="inline-flex items-center gap-space-2 bg-secondary-container text-on-secondary-container font-body text-badge px-space-3 py-space-1 rounded-full w-fit">
+          <span class="material-symbols-outlined text-[14px] fill-icon">verified</span>
+          Garanti OptiCare
+        </span>
+        <h1 class="font-heading text-headline-h1 text-on-surface lg:text-[42px] lg:leading-[50px]">
+          Prenez soin de votre vue en un <span class="text-primary">clic</span>
+        </h1>
+        <p class="font-body text-body-lg text-on-surface-variant max-w-lg">
+          Trouvez les meilleurs spécialistes de l'optique près de chez vous. Gérez votre dossier visuel de santé de
+          manière centralisée et sécurisée.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-space-4 mt-space-4">
+          <a
+            routerLink="/recherche-cabinets"
+            class="bg-primary text-on-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-on-primary-fixed-variant transition-all shadow-md hover:shadow-lg w-fit text-center"
+          >
+            Retrouver un cabinet
+          </a>
+          <a
+            href="#cabinets-partenaires"
+            class="bg-transparent border-2 border-primary text-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-primary/5 transition-all w-fit text-center"
+          >
+            Prendre rendez-vous
+          </a>
+        </div>
+      </div>
+      <div class="relative w-full h-[400px] lg:h-[500px] rounded-[2rem] overflow-hidden shadow-lg">
+        <img
+          class="w-full h-full object-cover"
+          alt="Optométriste souriante montrant un dossier visuel numérique sur tablette dans un cabinet moderne"
+          src="https://images.unsplash.com/photo-1666887360742-974c8fce8e6b?w=1000&q=80"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-surface-bg/20 to-transparent"></div>
+      </div>
+    </section>
+
+    <!-- Nos cabinets partenaires -->
+    <section id="cabinets-partenaires" #cabinetsSection class="px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
+      <div class="text-center mb-space-12">
+        <h2 class="font-heading text-headline-h2 text-on-surface">Nos cabinets partenaires</h2>
+        <p class="font-body text-body-base text-text-muted mt-space-2">Découvrez quelques-uns de nos meilleurs spécialistes</p>
+      </div>
+
+      @if (chargementCabinets()) {
+        <p class="font-body text-body-base text-text-muted text-center">Chargement des cabinets…</p>
+      } @else if (cabinetsAffiches().length === 0) {
+        <p class="font-body text-body-base text-text-muted text-center">Aucun cabinet partenaire pour le moment.</p>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-8">
+          @for (cabinet of cabinetsAffiches(); track cabinet.id) {
+            <a
+              [routerLink]="['/cabinet', cabinet.id]"
+              class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-border-subtle hover:shadow-md transition-shadow block"
+            >
+              <div class="w-full h-48 bg-surface-bg flex items-center justify-center overflow-hidden">
+                @if (cabinet.photos[0]) {
+                  <img [src]="cabinet.photos[0]" [alt]="cabinet.nom" class="w-full h-full object-cover" />
+                } @else {
+                  <span class="material-symbols-outlined text-text-muted text-[40px]">storefront</span>
+                }
+              </div>
+              <div class="p-space-6">
+                <h4 class="font-heading text-headline-h3 text-on-surface">{{ cabinet.nom }}</h4>
+                <div class="flex items-center gap-1 mt-2 text-warning">
+                  <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+                  <span class="font-button text-button text-on-surface">
+                    {{ cabinet.noteMoyenne > 0 ? (cabinet.noteMoyenne | number: '1.1-1') : 'Nouveau' }}
+                  </span>
+                  <span class="text-text-muted text-label-sm ml-2">{{ cabinet.quartier }}, {{ cabinet.ville }}</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+
+        @if (aPlusDeCabinetsAVoir()) {
+          <div class="flex justify-center mt-space-8">
+            <button
+              type="button"
+              (click)="tousLesCabinetsVisibles.set(true)"
+              class="inline-flex items-center gap-1 border-2 border-primary text-primary font-button text-button px-space-8 py-space-3 rounded-full hover:bg-primary/5 transition-all"
+            >
+              Voir plus
+              <span class="material-symbols-outlined text-[20px]">expand_more</span>
+            </button>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- Nos Spécialités Cliniques -->
+    <!-- Contenu éditorial statique — pas de champ correspondant sur Cabinet (§5 du cahier des charges). -->
+    <section id="specialites" #specialitesSection class="px-margin-mobile md:px-space-12 py-space-12 bg-surface-bg">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-space-12">
+          <h2 class="font-heading text-headline-h2 text-on-surface">Nos Spécialités Cliniques</h2>
+          <p class="font-body text-body-base text-text-muted mt-space-2">Une expertise complète pour tous vos besoins visuels</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-space-6">
+          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+            <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
+              <span class="material-symbols-outlined">contact_support</span>
+            </div>
+            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-2">Contactologie</h3>
+            <p class="font-body text-body-base text-on-surface-variant text-center">
+              Adaptation et suivi pour le port de lentilles de contact souples ou rigides.
+            </p>
+          </div>
+          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+            <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
+              <span class="material-symbols-outlined">zoom_in</span>
+            </div>
+            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-2">Basse vision</h3>
+            <p class="font-body text-body-base text-on-surface-variant text-center">
+              Solutions optiques spécifiques pour optimiser le reste visuel des patients malvoyants.
+            </p>
+          </div>
+          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+            <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
+              <span class="material-symbols-outlined">child_care</span>
+            </div>
+            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-2">Pédiatrie</h3>
+            <p class="font-body text-body-base text-on-surface-variant text-center">
+              Examens spécialisés et montures adaptées pour le confort visuel des plus petits.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pourquoi choisir OptiCare ? -->
+    <section class="px-margin-mobile md:px-space-12 py-space-12 bg-surface-container-low rounded-3xl mx-margin-mobile md:mx-space-12 my-space-8">
+      <div class="text-center mb-space-12">
+        <h2 class="font-heading text-headline-h2 text-on-surface">Pourquoi choisir OptiCare ?</h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-12 items-center">
+        <div class="relative h-full min-h-[400px] rounded-lg overflow-hidden shadow-md">
+          <img
+            alt="Opticien montrant un dossier visuel numérique à une patiente"
+            class="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=1000&q=80"
+          />
+        </div>
+        <div class="flex flex-col gap-space-6">
+          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+            <div class="w-12 h-12 shrink-0 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px]">folder_shared</span>
+            </div>
+            <div>
+              <h3 class="font-heading text-headline-h3 text-on-surface mb-space-1">Dossier visuel permanent</h3>
+              <p class="font-body text-body-base text-on-surface-variant">
+                Accédez à votre historique, ordonnances et mesures à tout moment, en toute sécurité.
+              </p>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+            <div class="w-12 h-12 shrink-0 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px]">chat</span>
+            </div>
+            <div>
+              <h3 class="font-heading text-headline-h3 text-on-surface mb-space-1">Chat direct cliniques</h3>
+              <p class="font-body text-body-base text-on-surface-variant">
+                Communiquez facilement avec votre praticien via WhatsApp pour un suivi personnalisé.
+              </p>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+            <div class="w-12 h-12 shrink-0 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px] fill-icon">verified</span>
+            </div>
+            <div>
+              <h3 class="font-heading text-headline-h3 text-on-surface mb-space-1">Cabinet certifié</h3>
+              <p class="font-body text-body-base text-on-surface-variant">
+                Consultez les retours authentiques d'autres patients pour faire le meilleur choix.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Avis de nos patients -->
+    <!-- Placeholder éditorial — avis.service.ts n'existe pas encore (sprint ultérieur), comme sur vitrine-cabinet. -->
+    <section class="px-margin-mobile md:px-space-12 py-space-12 bg-surface-container-low rounded-3xl mx-margin-mobile md:mx-space-12 my-space-8">
+      <div class="text-center mb-space-12">
+        <h2 class="font-heading text-headline-h2 text-on-surface">Avis de nos patients</h2>
+        <p class="font-body text-body-base text-text-muted mt-space-2">Ce que disent nos patients de leur expérience</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
+        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
+          <div class="flex items-center gap-1 text-warning">
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+          </div>
+          <p class="font-body text-body-base text-on-surface-variant italic">
+            "Un service impeccable et une équipe très professionnelle. Mon dossier est enfin centralisé !"
+          </p>
+          <div class="mt-auto">
+            <p class="font-button text-button text-on-surface">Jean Dupont</p>
+            <p class="font-body text-label-sm text-text-muted">Patient depuis 2023</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
+          <div class="flex items-center gap-1 text-warning">
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+          </div>
+          <p class="font-body text-body-base text-on-surface-variant italic">
+            "Très pratique pour trouver un cabinet rapidement. L'interface est intuitive et claire."
+          </p>
+          <div class="mt-auto">
+            <p class="font-button text-button text-on-surface">Marie L.</p>
+            <p class="font-body text-label-sm text-text-muted">Patiente régulière</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
+          <div class="flex items-center gap-1 text-warning">
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+          </div>
+          <p class="font-body text-body-base text-on-surface-variant italic">
+            "Le suivi via WhatsApp est un vrai plus. On se sent vraiment accompagné."
+          </p>
+          <div class="mt-auto">
+            <p class="font-button text-button text-on-surface">Thomas Bernard</p>
+            <p class="font-body text-label-sm text-text-muted">Nouveau patient</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="px-margin-mobile md:px-space-12 py-space-12 max-w-5xl mx-auto my-space-12">
+      <div class="bg-primary rounded-3xl p-space-8 md:p-space-12 text-center text-on-primary">
+        <h2 class="font-heading text-headline-h2 text-on-primary mb-space-4">Prêt à prendre soin de votre vue ?</h2>
+        <p class="font-body text-body-lg text-primary-fixed mb-space-8">
+          Rejoignez des milliers de patients qui font déjà confiance à OptiCare.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-space-4">
+          <a
+            routerLink="/recherche-cabinets"
+            class="bg-on-primary text-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-surface-container-low transition-colors"
+          >
+            Rechercher un cabinet
+          </a>
+          <a
+            routerLink="/auth/inscription"
+            class="bg-transparent border border-on-primary text-on-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-on-primary/10 transition-colors"
+          >
+            S'inscrire
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer — bleu nuit (inverse-surface) pour un rendu plus professionnel qu'un fond clair -->
+  <footer class="w-full bg-inverse-surface mt-space-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
+      <div class="flex flex-col gap-space-4">
+        <img src="/images/logo-opticare.png" alt="OptiCare" class="h-5 w-auto" />
+        <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
+      </div>
+      <div class="flex flex-col gap-space-3">
+        <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>
+        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
+          Mentions légales
+        </a>
+        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
+          Conditions d'utilisation
+        </a>
+      </div>
+      <div class="flex flex-col gap-space-3">
+        <h4 class="font-button text-button text-inverse-on-surface">Ressources</h4>
+        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
+          Plan du site
+        </a>
+        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
+          Nous contacter
+        </a>
+      </div>
+      <div class="flex flex-col gap-space-3">
+        <h4 class="font-button text-button text-inverse-on-surface">Restez informé</h4>
+        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
+          Newsletter
+        </a>
+      </div>
+    </div>
+    <div class="px-margin-mobile md:px-space-12 pb-space-8 max-w-7xl mx-auto border-t border-inverse-on-surface/10 pt-space-4">
+      <p class="font-body text-label-sm text-inverse-on-surface/60 text-center">© 2026 OptiCare. Tous droits réservés.</p>
+    </div>
+  </footer>
+</div>

@@ -1,1 +1,241 @@
-<p>historique-rdv works!</p>
+<div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
+  <!-- SideNavBar (desktop) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
+    <div class="mb-space-8 px-space-4">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto mb-2" />
+      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
+    </div>
+    <nav class="flex-1 flex flex-col gap-space-2">
+      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-body text-body-base">Dashboard</span>
+      </a>
+      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
+        <span class="material-symbols-outlined fill-icon">calendar_today</span>
+        <span class="font-body text-body-base">Rendez-vous</span>
+      </a>
+      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">badge</span>
+        <span class="font-body text-body-base">Employés</span>
+      </a>
+      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="font-body text-body-base">Ma vitrine</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
+    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-space-4 mb-space-8 mt-space-6 md:mt-0">
+      <div>
+        <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Historique des rendez-vous</h1>
+        <p class="font-body text-body-base text-text-muted mt-1">Consultez l'ensemble des rendez-vous passés de la clinique.</p>
+      </div>
+      <button
+        type="button"
+        (click)="exporterCsv()"
+        [disabled]="chargement() || totalResultats() === 0"
+        class="bg-primary text-on-primary px-space-4 py-2 rounded-lg font-button text-button hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+      >
+        <span class="material-symbols-outlined text-[18px]">download</span>
+        Exporter
+      </button>
+    </div>
+
+    @if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 mb-space-6">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    }
+
+    <!-- Filtres -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-space-4 mb-space-6">
+      <div class="md:col-span-5 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block">Rechercher</label>
+        <input
+          type="text"
+          [ngModel]="texteRecherche()"
+          (ngModelChange)="texteRecherche.set($event); pageActuelle.set(1)"
+          placeholder="Nom du patient ou motif…"
+          class="w-full h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+      <div class="md:col-span-4 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block">Statut</label>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            (click)="filtreStatut.set('tous'); pageActuelle.set(1)"
+            [class.bg-primary-container]="filtreStatut() === 'tous'"
+            [class.text-on-primary-container]="filtreStatut() === 'tous'"
+            [class.bg-surface-container-low]="filtreStatut() !== 'tous'"
+            [class.text-on-surface-variant]="filtreStatut() !== 'tous'"
+            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+          >
+            Tous
+          </button>
+          @for (statut of statuts; track statut) {
+            <button
+              type="button"
+              (click)="filtreStatut.set(statut); pageActuelle.set(1)"
+              [class.bg-primary-container]="filtreStatut() === statut"
+              [class.text-on-primary-container]="filtreStatut() === statut"
+              [class.bg-surface-container-low]="filtreStatut() !== statut"
+              [class.text-on-surface-variant]="filtreStatut() !== statut"
+              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            >
+              {{ labelStatut[statut] }}
+            </button>
+          }
+        </div>
+      </div>
+      <div class="md:col-span-3 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block">Opticien(ne)</label>
+        <select
+          [ngModel]="filtreOpticien()"
+          (ngModelChange)="filtreOpticien.set($event); pageActuelle.set(1)"
+          class="w-full h-[40px] px-space-2 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="tous">Tous les opticiens</option>
+          @for (opticien of opticiensDisponibles(); track opticien) {
+            <option [value]="opticien">{{ opticien }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-border-subtle text-on-surface-variant font-body text-label-sm uppercase tracking-wider">
+              <th class="py-3 px-space-4 font-semibold">Patient</th>
+              <th class="py-3 px-space-4 font-semibold">Date</th>
+              <th class="py-3 px-space-4 font-semibold">Heure</th>
+              <th class="py-3 px-space-4 font-semibold">Statut</th>
+              <th class="py-3 px-space-4 font-semibold">Opticien(ne)</th>
+            </tr>
+          </thead>
+          <tbody class="font-body text-body-base text-on-surface divide-y divide-border-subtle">
+            @if (chargement()) {
+              <tr><td colspan="5" class="py-space-8 px-space-4 text-center text-text-muted">Chargement de l'historique…</td></tr>
+            } @else if (rendezVousPage().length === 0) {
+              <tr><td colspan="5" class="py-space-8 px-space-4 text-center text-text-muted">Aucun rendez-vous ne correspond à ces critères.</td></tr>
+            } @else {
+              @for (rdv of rendezVousPage(); track rdv.id) {
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="py-3 px-space-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs shrink-0">
+                        {{ initiales(rdv.nomPatientAffiche) }}
+                      </div>
+                      <div>
+                        <p class="font-medium">{{ rdv.nomPatientAffiche }}</p>
+                        <p class="text-text-muted text-xs">{{ rdv.motifAffiche }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ rdv.date | date: 'd MMM y' }}</td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ rdv.heure }}</td>
+                  <td class="py-3 px-space-4">
+                    @switch (rdv.statut) {
+                      @case ('honore') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-badge text-badge">
+                          <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Honoré
+                        </span>
+                      }
+                      @case ('annule') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-badge text-badge">
+                          <span class="w-1.5 h-1.5 rounded-full bg-error"></span> Annulé
+                        </span>
+                      }
+                      @case ('confirme') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/20 text-primary font-badge text-badge">
+                          <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Confirmé
+                        </span>
+                      }
+                      @default {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-text-muted font-badge text-badge">
+                          <span class="w-1.5 h-1.5 rounded-full bg-text-disabled"></span> En attente
+                        </span>
+                      }
+                    }
+                  </td>
+                  <td class="py-3 px-space-4">{{ rdv.opticienAffiche }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (!chargement() && totalResultats() > 0) {
+        <div class="bg-surface-container-lowest px-space-4 py-3 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-space-3">
+          <p class="font-body text-label-sm text-on-surface-variant">
+            <span class="font-semibold text-on-surface">{{ totalResultats() }}</span> résultat{{ totalResultats() > 1 ? 's' : '' }}
+          </p>
+          @if (nombrePages() > 1) {
+            <nav aria-label="Pagination" class="inline-flex items-center gap-1">
+              <button
+                type="button"
+                [disabled]="pageAffichee() === 1"
+                (click)="allerPage(pageAffichee() - 1)"
+                class="p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+              </button>
+              @for (numero of numerosPages(); track numero) {
+                <button
+                  type="button"
+                  (click)="allerPage(numero)"
+                  [class.bg-primary-container]="pageAffichee() === numero"
+                  [class.text-on-primary-container]="pageAffichee() === numero"
+                  [class.border]="pageAffichee() !== numero"
+                  [class.border-border-subtle]="pageAffichee() !== numero"
+                  class="px-3 py-1.5 rounded font-body text-label-sm font-medium hover:bg-surface-container-low transition-colors"
+                >
+                  {{ numero }}
+                </button>
+              }
+              <button
+                type="button"
+                [disabled]="pageAffichee() === nombrePages()"
+                (click)="allerPage(pageAffichee() + 1)"
+                class="p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </nav>
+          }
+        </div>
+      }
+    </div>
+  </main>
+
+  <!-- BottomNav (mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-around items-center z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-body text-label-sm mt-1">Dash</span>
+    </a>
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center w-full h-full text-primary font-bold">
+      <span class="material-symbols-outlined fill-icon">calendar_today</span>
+      <span class="font-body text-label-sm mt-1">Agenda</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="font-body text-label-sm mt-1">Employés</span>
+    </a>
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">storefront</span>
+      <span class="font-body text-label-sm mt-1">Vitrine</span>
+    </a>
+  </nav>
+</div>
