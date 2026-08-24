@@ -1,1 +1,946 @@
-<p>nouvelle-fiche-consultation works!</p>
+<div class="specialist-layout">
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-brand">
+
+      <div class="brand-mark">
+        <i class="fa-solid fa-eye"></i>
+      </div>
+
+      <div class="brand-text">
+        <h1>OptiCare</h1>
+        <span>Portail spécialiste</span>
+      </div>
+
+    </div>
+
+
+    <!-- Navigation -->
+    <nav class="sidebar-navigation">
+
+      <p class="navigation-label">
+        ESPACE CLINIQUE
+      </p>
+
+      <a
+        class="navigation-item"
+        routerLink="/specialiste/dashboard"
+      >
+        <span class="navigation-icon">
+          <i class="fa-solid fa-chart-pie"></i>
+        </span>
+
+        <span>Dashboard</span>
+      </a>
+
+
+      <a
+        class="navigation-item active"
+        routerLink="/specialiste/patients"
+      >
+        <span class="navigation-icon">
+          <i class="fa-solid fa-users"></i>
+        </span>
+
+        <span>Patients</span>
+      </a>
+
+
+      <a
+        class="navigation-item"
+        routerLink="/specialiste/calendrier"
+      >
+        <span class="navigation-icon">
+          <i class="fa-regular fa-calendar-days"></i>
+        </span>
+
+        <span>Calendrier</span>
+      </a>
+
+
+      <a
+        class="navigation-item"
+        routerLink="/specialiste/dossiers"
+      >
+        <span class="navigation-icon">
+          <i class="fa-solid fa-folder-open"></i>
+        </span>
+
+        <span>Dossiers médicaux</span>
+      </a>
+
+
+      <p class="navigation-label navigation-label-secondary">
+        OUTILS
+      </p>
+
+
+      <a
+        class="navigation-item"
+        routerLink="/specialiste/messages"
+      >
+        <span class="navigation-icon">
+          <i class="fa-regular fa-envelope"></i>
+        </span>
+
+        <span>Messages</span>
+
+        <span class="navigation-badge">
+          3
+        </span>
+      </a>
+
+    </nav>
+
+
+    <!-- Profil en bas -->
+    <div class="sidebar-bottom">
+
+      <div class="specialist-profile">
+
+        <div class="profile-avatar">
+          <i class="fa-solid fa-user-doctor"></i>
+        </div>
+
+        <div class="profile-information">
+          <strong>Dr. Sophie Martin</strong>
+          <span>Opticienne</span>
+        </div>
+
+        <button
+          type="button"
+          class="profile-menu"
+          aria-label="Menu du profil"
+        >
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       ZONE PRINCIPALE
+  ====================================================== -->
+  <div class="main-area">
+
+
+    <!-- ===================================================
+         TOPBAR
+    ==================================================== -->
+    <header class="topbar">
+
+      <div class="topbar-left">
+
+        <button
+          type="button"
+          class="mobile-menu-button"
+          aria-label="Ouvrir le menu"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="topbar-brand">
+          <i class="fa-solid fa-eye"></i>
+          <span>OptiCare</span>
+        </div>
+
+        <span class="topbar-divider"></span>
+
+        <div class="patient-context">
+
+          <span class="context-label">
+            PATIENT
+          </span>
+
+          <span class="context-name">
+            {{ patientNom }}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="topbar-right">
+
+        <button
+          type="button"
+          class="topbar-action"
+          aria-label="Notifications"
+        >
+          <i class="fa-regular fa-bell"></i>
+
+          <span class="notification-dot"></span>
+        </button>
+
+
+        <button
+          type="button"
+          class="topbar-action"
+          aria-label="Paramètres"
+        >
+          <i class="fa-solid fa-gear"></i>
+        </button>
+
+
+        <div class="topbar-profile">
+
+          <div class="topbar-avatar">
+            SM
+          </div>
+
+          <div class="topbar-profile-info">
+            <strong>Sophie Martin</strong>
+            <span>Opticienne</span>
+          </div>
+
+          <i class="fa-solid fa-chevron-down"></i>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         CONTENU
+    ==================================================== -->
+    <main class="page-content">
+
+      <div class="content-container">
+
+
+        <!-- =================================================
+             BREADCRUMB
+        ================================================== -->
+        <div class="breadcrumb">
+
+          <a routerLink="/specialiste/patients">
+            <i class="fa-solid fa-users"></i>
+            Patients
+          </a>
+
+          <i class="fa-solid fa-chevron-right"></i>
+
+          <span>
+            {{ patientNom }}
+          </span>
+
+          <i class="fa-solid fa-chevron-right"></i>
+
+          <strong>
+            Nouvelle consultation
+          </strong>
+
+        </div>
+
+
+        <!-- =================================================
+             PAGE HEADER
+        ================================================== -->
+        <div class="page-header">
+
+          <div class="page-heading">
+
+            <div class="page-heading-icon">
+              <i class="fa-solid fa-file-circle-plus"></i>
+            </div>
+
+            <div>
+
+              <span class="eyebrow">
+                DOSSIER MÉDICAL
+              </span>
+
+              <h2>
+                Nouvelle fiche de consultation
+              </h2>
+
+              <p>
+                Complétez les informations de l'examen visuel
+                du patient.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="patient-chip">
+
+            <div class="patient-chip-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div>
+
+              <span>
+                Patient
+              </span>
+
+              <strong>
+                {{ patientNom }}
+              </strong>
+
+              <small>
+                ID : {{ patientRef }}
+              </small>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FORMULAIRE
+        ================================================== -->
+        <form
+          class="consultation-form"
+          [formGroup]="form"
+          (ngSubmit)="enregistrer()"
+        >
+
+
+          <!-- =================================================
+               SECTION 1
+          ================================================== -->
+          <section
+            class="form-card"
+            formGroupName="symptomes"
+          >
+
+            <div class="card-top-line blue"></div>
+
+            <div class="card-header">
+
+              <div class="card-header-icon blue">
+                <i class="fa-solid fa-clipboard-list"></i>
+              </div>
+
+              <div>
+
+                <span class="section-number">
+                  ÉTAPE 01
+                </span>
+
+                <h3>
+                  Contexte &amp; plaintes
+                </h3>
+
+                <p>
+                  Identifiez les principaux symptômes
+                  signalés par le patient.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="symptoms-grid">
+
+              <!-- Symptômes visuels -->
+              <div class="symptom-group">
+
+                <h4>
+                  <i class="fa-solid fa-eye"></i>
+                  Symptômes visuels
+                </h4>
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="baisseVisionLoin"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Baisse d'acuité visuelle de loin
+                  </span>
+
+                </label>
+
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="baisseVisionPres"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Baisse d'acuité visuelle de près
+                  </span>
+
+                </label>
+
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="diplopie"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Diplopie — vision double
+                  </span>
+
+                </label>
+
+              </div>
+
+
+              <!-- Autres symptômes -->
+              <div class="symptom-group">
+
+                <h4>
+                  <i class="fa-solid fa-notes-medical"></i>
+                  Autres symptômes
+                </h4>
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="cephalees"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Céphalées — maux de tête
+                  </span>
+
+                </label>
+
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="larmoiement"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Larmoiement excessif
+                  </span>
+
+                </label>
+
+
+                <label class="checkbox-card">
+
+                  <input
+                    type="checkbox"
+                    formControlName="demangeaisons"
+                  >
+
+                  <span class="custom-checkbox">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  <span class="checkbox-text">
+                    Démangeaisons
+                  </span>
+
+                </label>
+
+              </div>
+
+            </div>
+
+
+            <!-- Autres plaintes -->
+            <div class="field-block">
+
+              <label for="autresPlaintes">
+                Autres plaintes
+                <span>Facultatif</span>
+              </label>
+
+              <div class="textarea-wrapper">
+
+                <i class="fa-regular fa-comment-dots"></i>
+
+                <textarea
+                  id="autresPlaintes"
+                  formControlName="autresPlaintes"
+                  rows="3"
+                  placeholder="Précisez toute autre plainte ou information communiquée par le patient..."
+                ></textarea>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =================================================
+               SECTION 2 — RÉFRACTION
+          ================================================== -->
+          <section class="form-card">
+
+            <div class="card-top-line green"></div>
+
+            <div class="card-header">
+
+              <div class="card-header-icon green">
+                <i class="fa-solid fa-eye"></i>
+              </div>
+
+              <div>
+
+                <span class="section-number green-text">
+                  ÉTAPE 02
+                </span>
+
+                <h3>
+                  Réfraction subjective
+                </h3>
+
+                <p>
+                  Saisissez les mesures optiques pour chaque œil.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="eyes-grid">
+
+
+              <!-- OEIL DROIT -->
+              <div
+                class="eye-card"
+                formGroupName="od"
+              >
+
+                <div class="eye-card-header">
+
+                  <div class="eye-badge">
+                    OD
+                  </div>
+
+                  <div>
+
+                    <h4>
+                      Œil droit
+                    </h4>
+
+                    <span>
+                      Oculus Dexter
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="eye-fields">
+
+                  <div class="field-block">
+
+                    <label for="odSphere">
+                      Sphère
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="odSphere"
+                        type="number"
+                        step="0.25"
+                        placeholder="+0.00"
+                        formControlName="sphere"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="odCylindre">
+                      Cylindre
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="odCylindre"
+                        type="number"
+                        step="0.25"
+                        placeholder="-0.00"
+                        formControlName="cylindre"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="odAxe">
+                      Axe
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="odAxe"
+                        type="number"
+                        min="0"
+                        max="180"
+                        step="1"
+                        placeholder="0"
+                        formControlName="axe"
+                      >
+
+                      <span>°</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="odAdd">
+                      Addition
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="odAdd"
+                        type="number"
+                        min="0"
+                        step="0.25"
+                        placeholder="+2.00"
+                        formControlName="add"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- OEIL GAUCHE -->
+              <div
+                class="eye-card"
+                formGroupName="og"
+              >
+
+                <div class="eye-card-header">
+
+                  <div class="eye-badge">
+                    OG
+                  </div>
+
+                  <div>
+
+                    <h4>
+                      Œil gauche
+                    </h4>
+
+                    <span>
+                      Oculus Sinister
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="eye-fields">
+
+                  <div class="field-block">
+
+                    <label for="ogSphere">
+                      Sphère
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="ogSphere"
+                        type="number"
+                        step="0.25"
+                        placeholder="+0.00"
+                        formControlName="sphere"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="ogCylindre">
+                      Cylindre
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="ogCylindre"
+                        type="number"
+                        step="0.25"
+                        placeholder="-0.00"
+                        formControlName="cylindre"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="ogAxe">
+                      Axe
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="ogAxe"
+                        type="number"
+                        min="0"
+                        max="180"
+                        step="1"
+                        placeholder="0"
+                        formControlName="axe"
+                      >
+
+                      <span>°</span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="field-block">
+
+                    <label for="ogAdd">
+                      Addition
+                    </label>
+
+                    <div class="input-with-unit">
+
+                      <input
+                        id="ogAdd"
+                        type="number"
+                        min="0"
+                        step="0.25"
+                        placeholder="+2.00"
+                        formControlName="add"
+                      >
+
+                      <span>D</span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =================================================
+               SECTION 3 — OBSERVATIONS
+          ================================================== -->
+          <section class="form-card">
+
+            <div class="card-top-line orange"></div>
+
+            <div class="card-header">
+
+              <div class="card-header-icon orange">
+                <i class="fa-solid fa-file-medical"></i>
+              </div>
+
+              <div>
+
+                <span class="section-number orange-text">
+                  ÉTAPE 03
+                </span>
+
+                <h3>
+                  Observations cliniques
+                </h3>
+
+                <p>
+                  Ajoutez les remarques et observations
+                  réalisées pendant l'examen.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="field-block">
+
+              <label for="observations">
+                Notes et observations
+                <span class="required">
+                  *
+                </span>
+              </label>
+
+              <div class="textarea-wrapper large">
+
+                <i class="fa-solid fa-pen-to-square"></i>
+
+                <textarea
+                  id="observations"
+                  formControlName="observations"
+                  rows="6"
+                  placeholder="Saisissez les remarques complémentaires, anomalies détectées, résultats de l'examen à la lampe à fente, recommandations..."
+                ></textarea>
+
+              </div>
+
+
+              @if (
+                form.get('observations')?.invalid &&
+                form.get('observations')?.touched
+              ) {
+
+                <span class="field-error">
+
+                  <i class="fa-solid fa-circle-exclamation"></i>
+
+                  Ce champ est requis.
+
+                </span>
+
+              }
+
+            </div>
+
+          </section>
+
+
+          <!-- =================================================
+               BARRE D'ACTIONS
+          ================================================== -->
+          <div class="form-actions">
+
+            <div class="secure-info">
+
+              <i class="fa-solid fa-shield-halved"></i>
+
+              <span>
+                Les données sont enregistrées de manière sécurisée.
+              </span>
+
+            </div>
+
+
+            <div class="actions-buttons">
+
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="annuler()"
+                [disabled]="enSoumission"
+              >
+
+                <i class="fa-solid fa-xmark"></i>
+
+                Annuler
+
+              </button>
+
+
+              <button
+                type="submit"
+                class="primary-button"
+                [disabled]="enSoumission"
+              >
+
+                <i
+                  class="fa-solid"
+                  [class.fa-lock]="!enSoumission"
+                  [class.fa-spinner]="enSoumission"
+                  [class.fa-spin]="enSoumission"
+                ></i>
+
+                {{
+                  enSoumission
+                    ? 'Enregistrement…'
+                    : 'Enregistrer et verrouiller'
+                }}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</div>

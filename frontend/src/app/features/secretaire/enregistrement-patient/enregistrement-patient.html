@@ -1,1 +1,663 @@
-<p>enregistrement-patient works!</p>
+<div class="enregistrement-page">
+
+  <!-- =====================================================
+       EN-TÊTE DE PAGE
+       Le header / topbar est fourni par SecretaireLayout
+  ====================================================== -->
+
+  <section class="page-header">
+
+    <div class="page-header-content">
+
+      <div class="page-header-left">
+
+        <!-- RETOUR -->
+
+        <a
+          routerLink="/secretaire/agenda"
+          class="back-link"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+
+          <span>Retour à l'agenda</span>
+        </a>
+
+
+        <!-- TITRE -->
+
+        <div class="title-row">
+
+          <div class="title-icon">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+
+          <div class="title-content">
+
+            <span class="eyebrow">
+              NOUVEAU PATIENT
+            </span>
+
+            <h1>
+              Enregistrer un patient
+            </h1>
+
+            <p>
+              Créez rapidement le dossier d'un patient
+              accueilli directement au cabinet.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- BADGE SECURITE -->
+
+      <div class="secure-badge">
+
+        <i class="fa-solid fa-shield-halved"></i>
+
+        <span>
+          Données sécurisées
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  <main class="enregistrement-container">
+
+
+    <!-- =================================================
+         FORMULAIRE
+    ================================================== -->
+
+    <form
+      class="form-card"
+      [formGroup]="patientForm"
+      (ngSubmit)="submit()"
+    >
+
+
+      <!-- =================================================
+           HEADER FORMULAIRE
+      ================================================== -->
+
+      <div class="form-header">
+
+        <div class="form-header-content">
+
+          <span class="section-label">
+            ÉTAPE 01
+          </span>
+
+          <h2>
+            Informations du patient
+          </h2>
+
+          <p>
+            Les informations marquées d'un
+            <span class="required">*</span>
+            sont obligatoires.
+          </p>
+
+        </div>
+
+        <div class="form-header-icon">
+
+          <i class="fa-solid fa-id-card"></i>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           SECTION 01 — IDENTITÉ
+      ================================================== -->
+
+      <section class="form-section">
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            01
+          </div>
+
+          <div>
+
+            <h3>
+              Identité
+            </h3>
+
+            <p>
+              Informations personnelles du patient.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- NOM -->
+
+          <div class="field">
+
+            <label for="nom">
+              Nom
+              <span>*</span>
+            </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="f.nom.touched && f.nom.invalid"
+            >
+
+              <i class="fa-regular fa-user"></i>
+
+              <input
+                id="nom"
+                type="text"
+                formControlName="nom"
+                placeholder="Ex. Tchamba"
+              />
+
+            </div>
+
+            @if (f.nom.touched && f.nom.invalid) {
+
+              <small class="field-error">
+                Le nom est obligatoire.
+              </small>
+
+            }
+
+          </div>
+
+
+          <!-- PRENOM -->
+
+          <div class="field">
+
+            <label for="prenom">
+              Prénom
+              <span>*</span>
+            </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="f.prenom.touched && f.prenom.invalid"
+            >
+
+              <i class="fa-regular fa-id-badge"></i>
+
+              <input
+                id="prenom"
+                type="text"
+                formControlName="prenom"
+                placeholder="Ex. Jean"
+              />
+
+            </div>
+
+            @if (f.prenom.touched && f.prenom.invalid) {
+
+              <small class="field-error">
+                Le prénom est obligatoire.
+              </small>
+
+            }
+
+          </div>
+
+
+          <!-- DATE DE NAISSANCE -->
+
+          <div class="field">
+
+            <label for="dateNaissance">
+              Date de naissance
+              <span>*</span>
+            </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="
+                f.dateNaissance.touched &&
+                f.dateNaissance.invalid
+              "
+            >
+
+              <i class="fa-regular fa-calendar"></i>
+
+              <input
+                id="dateNaissance"
+                type="date"
+                formControlName="dateNaissance"
+              />
+
+            </div>
+
+            @if (
+              f.dateNaissance.touched &&
+              f.dateNaissance.invalid
+            ) {
+
+              <small class="field-error">
+                La date de naissance est obligatoire.
+              </small>
+
+            }
+
+          </div>
+
+
+          <!-- SEXE -->
+
+          <div class="field">
+
+            <label for="sexe">
+              Sexe
+              <span>*</span>
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fa-solid fa-venus-mars"></i>
+
+              <select
+                id="sexe"
+                formControlName="sexe"
+              >
+
+                <option value="M">
+                  Masculin
+                </option>
+
+                <option value="F">
+                  Féminin
+                </option>
+
+              </select>
+
+              <i class="fa-solid fa-chevron-down select-arrow"></i>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           SECTION 02 — COORDONNÉES
+      ================================================== -->
+
+      <section class="form-section">
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            02
+          </div>
+
+          <div>
+
+            <h3>
+              Coordonnées
+            </h3>
+
+            <p>
+              Pour contacter le patient et envoyer
+              les rappels de rendez-vous.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- TELEPHONE -->
+
+          <div class="field">
+
+            <label for="telephone">
+              Téléphone
+              <span>*</span>
+            </label>
+
+            <div
+              class="input-wrapper phone-input"
+              [class.invalid]="
+                f.telephone.touched &&
+                f.telephone.invalid
+              "
+            >
+
+              <span class="country-code">
+                +237
+              </span>
+
+              <input
+                id="telephone"
+                type="tel"
+                formControlName="telephone"
+                placeholder="6XX XXX XXX"
+                maxlength="9"
+              />
+
+            </div>
+
+            @if (
+              f.telephone.touched &&
+              f.telephone.invalid
+            ) {
+
+              <small class="field-error">
+                Entrez un numéro camerounais valide.
+              </small>
+
+            }
+
+          </div>
+
+
+          <!-- WHATSAPP -->
+
+          <div class="field">
+
+            <label for="whatsapp">
+              WhatsApp
+            </label>
+
+            <div class="input-wrapper phone-input">
+
+              <span class="country-code">
+                +237
+              </span>
+
+              <input
+                id="whatsapp"
+                type="tel"
+                formControlName="whatsapp"
+                placeholder="6XX XXX XXX"
+                maxlength="9"
+              />
+
+            </div>
+
+            <span class="field-hint">
+              Utilisé pour les rappels de rendez-vous.
+            </span>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           SECTION 03 — INFORMATIONS COMPLÉMENTAIRES
+      ================================================== -->
+
+      <section class="form-section">
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            03
+          </div>
+
+          <div>
+
+            <h3>
+              Informations complémentaires
+            </h3>
+
+            <p>
+              Ces informations permettent de mieux
+              connaître le profil du patient.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- PROFESSION -->
+
+          <div class="field">
+
+            <label for="profession">
+              Profession
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fa-solid fa-briefcase"></i>
+
+              <input
+                id="profession"
+                type="text"
+                formControlName="profession"
+                placeholder="Ex. Enseignant"
+              />
+
+            </div>
+
+          </div>
+
+
+          <!-- QUARTIER -->
+
+          <div class="field">
+
+            <label for="quartier">
+              Quartier
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fa-solid fa-location-dot"></i>
+
+              <input
+                id="quartier"
+                type="text"
+                formControlName="quartier"
+                placeholder="Ex. Bastos"
+              />
+
+            </div>
+
+          </div>
+
+
+          <!-- ENFANTS -->
+
+          <div class="field">
+
+            <label for="nombreEnfants">
+              Nombre d'enfants
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fa-solid fa-people-group"></i>
+
+              <input
+                id="nombreEnfants"
+                type="number"
+                min="0"
+                formControlName="nombreEnfants"
+                placeholder="0"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           MESSAGES
+      ================================================== -->
+
+      @if (successMessage()) {
+
+        <div class="alert success">
+
+          <div class="alert-icon">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+
+          <div>
+
+            <strong>
+              Dossier créé avec succès
+            </strong>
+
+            <p>
+              {{ successMessage() }}
+            </p>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      @if (errorMessage()) {
+
+        <div class="alert error">
+
+          <div class="alert-icon">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+
+          <div>
+
+            <strong>
+              Une erreur est survenue
+            </strong>
+
+            <p>
+              {{ errorMessage() }}
+            </p>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- =================================================
+           ACTIONS
+      ================================================== -->
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="btn secondary"
+          (click)="resetForm()"
+          [disabled]="isSubmitting()"
+        >
+
+          <i class="fa-solid fa-xmark"></i>
+
+          <span>
+            Annuler
+          </span>
+
+        </button>
+
+
+        <button
+          type="submit"
+          class="btn primary"
+          [disabled]="isSubmitting()"
+        >
+
+          @if (isSubmitting()) {
+
+            <span class="loader"></span>
+
+            <span>
+              Création...
+            </span>
+
+          }
+
+          @else {
+
+            <i class="fa-solid fa-folder-plus"></i>
+
+            <span>
+              Créer le dossier visuel
+            </span>
+
+          }
+
+        </button>
+
+      </div>
+
+    </form>
+
+
+    <!-- =================================================
+         NOTE DE CONFIDENTIALITÉ
+    ================================================== -->
+
+    <div class="security-note">
+
+      <div class="security-icon">
+
+        <i class="fa-solid fa-lock"></i>
+
+      </div>
+
+      <div>
+
+        <strong>
+          Confidentialité des données
+        </strong>
+
+        <p>
+          Les informations enregistrées sont uniquement
+          accessibles aux membres autorisés du cabinet.
+        </p>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>

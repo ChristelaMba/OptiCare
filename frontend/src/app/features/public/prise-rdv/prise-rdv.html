@@ -1,1 +1,1113 @@
-<p>prise-rdv works!</p>
+<div class="patient-layout">
+
+  <!-- =====================================================
+       SIDEBAR PATIENT
+  ====================================================== -->
+
+  <aside class="patient-sidebar">
+
+    <!-- LOGO -->
+    <div class="sidebar-brand">
+
+      <div class="brand-logo">
+        <i class="fa-solid fa-eye"></i>
+      </div>
+
+      <div class="brand-text">
+        <strong>OptiCare</strong>
+        <span>Patient Portal</span>
+      </div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+    <nav class="sidebar-nav">
+
+      <span class="nav-title">
+        ESPACE PATIENT
+      </span>
+
+      <!-- TABLEAU DE BORD -->
+      <a
+        routerLink="/patient"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <i class="fa-solid fa-grid-2"></i>
+        </span>
+
+        <span class="nav-label">
+          Tableau de bord
+        </span>
+      </a>
+
+
+      <!-- DOSSIER VISUEL -->
+      <a
+        routerLink="/patient/dossier-visuel"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <i class="fa-solid fa-folder-medical"></i>
+        </span>
+
+        <span class="nav-label">
+          Mon dossier visuel
+        </span>
+      </a>
+
+
+      <!-- RENDEZ-VOUS -->
+      <a
+        routerLink="/patient/rendez-vous"
+        class="nav-item active"
+      >
+        <span class="nav-icon">
+          <i class="fa-regular fa-calendar"></i>
+        </span>
+
+        <span class="nav-label">
+          Rendez-vous
+        </span>
+      </a>
+
+
+      <!-- MESSAGES -->
+      <a
+        routerLink="/patient/messages"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <i class="fa-regular fa-envelope"></i>
+        </span>
+
+        <span class="nav-label">
+          Messages
+        </span>
+
+        <span class="message-badge">
+          2
+        </span>
+      </a>
+
+    </nav>
+
+
+    <!-- SEPARATION -->
+    <div class="sidebar-separator"></div>
+
+
+    <!-- MON COMPTE -->
+    <nav class="sidebar-secondary">
+
+      <span class="nav-title">
+        MON COMPTE
+      </span>
+
+      <a
+        routerLink="/patient/profil"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <i class="fa-regular fa-user"></i>
+        </span>
+
+        <span class="nav-label">
+          Mon profil
+        </span>
+      </a>
+
+
+      <a
+        routerLink="/patient/parametres"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <i class="fa-solid fa-gear"></i>
+        </span>
+
+        <span class="nav-label">
+          Paramètres
+        </span>
+      </a>
+
+    </nav>
+
+
+    <!-- ESPACE BAS -->
+    <div class="sidebar-bottom">
+
+      <button
+        type="button"
+        class="help-card"
+      >
+
+        <div class="help-icon">
+          <i class="fa-regular fa-circle-question"></i>
+        </div>
+
+        <div>
+          <strong>
+            Besoin d'aide ?
+          </strong>
+
+          <span>
+            Contactez OptiCare
+          </span>
+        </div>
+
+      </button>
+
+
+      <!-- PROFIL -->
+      <div class="sidebar-profile">
+
+        <div class="profile-avatar">
+          JD
+        </div>
+
+        <div class="profile-info">
+
+          <strong>
+            Jean Dupont
+          </strong>
+
+          <span>
+            Patient
+          </span>
+
+        </div>
+
+        <button
+          type="button"
+          class="profile-menu"
+          title="Options"
+        >
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <div class="patient-main">
+
+
+    <!-- MOBILE HEADER -->
+    <header class="mobile-header">
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="mobile-brand">
+        <i class="fa-solid fa-eye"></i>
+        <strong>OptiCare</strong>
+      </div>
+
+      <button
+        type="button"
+        class="mobile-notification"
+      >
+        <i class="fa-regular fa-bell"></i>
+      </button>
+
+    </header>
+
+
+    <!-- =================================================
+         PAGE PRISE DE RENDEZ-VOUS
+    ================================================== -->
+
+    <div class="rdv-page">
+
+
+      <!-- =================================================
+           HEADER
+      ================================================== -->
+
+      <header class="page-header">
+
+        <div class="header-content">
+
+          <div>
+
+            <!-- BREADCRUMB -->
+
+            <div class="breadcrumb">
+
+              <a routerLink="/patient">
+                <i class="fa-solid fa-house"></i>
+                Tableau de bord
+              </a>
+
+              <span>/</span>
+
+              <span>
+                Prendre rendez-vous
+              </span>
+
+            </div>
+
+
+            <!-- TITRE -->
+
+            <div class="title-row">
+
+              <div class="title-icon">
+
+                <i class="fa-regular fa-calendar-plus"></i>
+
+              </div>
+
+              <div class="title-content">
+
+                <span class="eyebrow">
+                  RENDEZ-VOUS
+                </span>
+
+                <h1>
+                  Prendre rendez-vous
+                </h1>
+
+                <p class="patient-summary">
+
+                  Réservez votre consultation chez
+
+                  <strong>
+                    {{ cabinetNom }}
+                  </strong>
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ETAPE -->
+
+          <div class="appointment-status">
+
+            <span class="status-number">
+              1
+            </span>
+
+            <div>
+
+              <strong>
+                Nouvelle réservation
+              </strong>
+
+              <span>
+                Choisissez votre créneau
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <!-- =================================================
+           CONTENU
+      ================================================== -->
+
+      <main class="rdv-container">
+
+
+        <!-- =================================================
+             MESSAGE DE CONFIRMATION
+        ================================================== -->
+
+        @if (reservationConfirmee) {
+
+          <section class="confirmation-card">
+
+            <div class="confirmation-icon">
+
+              <i class="fa-solid fa-circle-check"></i>
+
+            </div>
+
+            <div class="confirmation-content">
+
+              <span class="eyebrow">
+                RENDEZ-VOUS CONFIRMÉ
+              </span>
+
+              <h2>
+                Votre rendez-vous est confirmé
+              </h2>
+
+              <p>
+                Votre consultation chez
+                <strong>{{ cabinetNom }}</strong>
+                est bien enregistrée.
+              </p>
+
+
+              <div class="confirmation-details">
+
+                <div class="confirmation-detail">
+
+                  <span class="detail-icon">
+                    <i class="fa-regular fa-calendar"></i>
+                  </span>
+
+                  <div>
+
+                    <span>
+                      Date
+                    </span>
+
+                    <strong>
+                      {{ dateSelectionneeFormatee }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div class="confirmation-detail">
+
+                  <span class="detail-icon">
+                    <i class="fa-regular fa-clock"></i>
+                  </span>
+
+                  <div>
+
+                    <span>
+                      Heure
+                    </span>
+
+                    <strong>
+                      {{ heureSelectionnee }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <div class="confirmation-actions">
+
+                <button
+                  type="button"
+                  class="btn-primary"
+                  (click)="allerAccueil()"
+                >
+
+                  <i class="fa-solid fa-house"></i>
+
+                  Retour au tableau de bord
+
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  (click)="retourVitrine()"
+                >
+
+                  Voir le cabinet
+
+                  <i class="fa-solid fa-arrow-right"></i>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </section>
+
+        }
+
+
+        @else {
+
+          <!-- =================================================
+               GRID PRINCIPALE
+          ================================================== -->
+
+          <div class="rdv-grid">
+
+
+            <!-- =================================================
+                 COLONNE GAUCHE : CALENDRIER
+            ================================================== -->
+
+            <section class="calendar-card">
+
+              <div class="section-header">
+
+                <div class="section-title">
+
+                  <span class="section-icon blue">
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                  </span>
+
+                  <div>
+
+                    <span class="section-label">
+                      ÉTAPE 1
+                    </span>
+
+                    <h2>
+                      Choisissez une date
+                    </h2>
+
+                    <p>
+                      Sélectionnez le jour qui vous convient
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- NAVIGATION MOIS -->
+
+              <div class="calendar-navigation">
+
+                <button
+                  type="button"
+                  class="calendar-nav-button"
+                  (click)="moisPrecedent()"
+                  aria-label="Mois précédent"
+                >
+
+                  <i class="fa-solid fa-chevron-left"></i>
+
+                </button>
+
+
+                <div class="calendar-month">
+
+                  <strong>
+                    {{ nomMoisAffiche }}
+                  </strong>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  class="calendar-nav-button"
+                  (click)="moisSuivant()"
+                  aria-label="Mois suivant"
+                >
+
+                  <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+              </div>
+
+
+              <!-- JOURS SEMAINE -->
+
+              <div class="calendar-weekdays">
+
+                @for (
+                  jour of joursSemaine;
+                  track jour
+                ) {
+
+                  <span>
+                    {{ jour }}
+                  </span>
+
+                }
+
+              </div>
+
+
+              <!-- CALENDRIER -->
+
+              <div class="calendar-grid">
+
+                @for (
+                  jour of joursCalendrier;
+                  track jour.dateComplete.getTime()
+                ) {
+
+                  <button
+                    type="button"
+                    class="calendar-day"
+                    [class.other-month]="jour.horsMois"
+                    [class.disabled]="!jour.disponible"
+                    [class.today]="jour.estAujourdhui"
+                    [class.selected]="estJourSelectionne(jour)"
+                    [disabled]="!jour.disponible"
+                    (click)="selectionnerJour(jour)"
+                  >
+
+                    <span>
+                      {{ jour.jour }}
+                    </span>
+
+                    @if (
+                      jour.disponible &&
+                      !jour.horsMois
+                    ) {
+
+                      <small></small>
+
+                    }
+
+                  </button>
+
+                }
+
+              </div>
+
+
+              <!-- LEGENDE -->
+
+              <div class="calendar-legend">
+
+                <div>
+
+                  <span class="legend-dot available"></span>
+
+                  <span>
+                    Disponible
+                  </span>
+
+                </div>
+
+                <div>
+
+                  <span class="legend-dot selected"></span>
+
+                  <span>
+                    Sélectionné
+                  </span>
+
+                </div>
+
+                <div>
+
+                  <span class="legend-dot unavailable"></span>
+
+                  <span>
+                    Indisponible
+                  </span>
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 COLONNE DROITE
+            ================================================== -->
+
+            <div class="rdv-right-column">
+
+
+              <!-- =================================================
+                   CRENEAUX
+              ================================================== -->
+
+              <section class="slots-card">
+
+                <div class="section-header">
+
+                  <div class="section-title">
+
+                    <span class="section-icon green">
+
+                      <i class="fa-regular fa-clock"></i>
+
+                    </span>
+
+                    <div>
+
+                      <span class="section-label">
+                        ÉTAPE 2
+                      </span>
+
+                      <h2>
+                        Choisissez une heure
+                      </h2>
+
+                      <p>
+                        @if (dateSelectionnee) {
+
+                          Créneaux disponibles pour le
+                          {{ dateSelectionnee | date:'dd/MM/yyyy' }}
+
+                        }
+
+                        @else {
+
+                          Sélectionnez d'abord une date
+
+                        }
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                @if (dateSelectionnee) {
+
+                  <div class="slots-grid">
+
+                    @for (
+                      heure of creneaux;
+                      track heure
+                    ) {
+
+                      <button
+                        type="button"
+                        class="slot-button"
+                        [class.selected]="heureSelectionnee === heure"
+                        [class.unavailable]="
+                          creneauxIndisponibles.includes(heure)
+                        "
+                        [disabled]="
+                          creneauxIndisponibles.includes(heure)
+                        "
+                        (click)="selectionnerHeure(heure)"
+                      >
+
+                        <i class="fa-regular fa-clock"></i>
+
+                        <span>
+                          {{ heure }}
+                        </span>
+
+                        @if (
+                          creneauxIndisponibles.includes(heure)
+                        ) {
+
+                          <small>
+                            Indisponible
+                          </small>
+
+                        }
+
+                      </button>
+
+                    }
+
+                  </div>
+
+                }
+
+                @else {
+
+                  <div class="slots-empty">
+
+                    <div class="slots-empty-icon">
+
+                      <i class="fa-regular fa-calendar"></i>
+
+                    </div>
+
+                    <strong>
+                      Aucune date sélectionnée
+                    </strong>
+
+                    <p>
+                      Choisissez une date dans le calendrier
+                      pour afficher les créneaux disponibles.
+                    </p>
+
+                  </div>
+
+                }
+
+              </section>
+
+
+              <!-- =================================================
+                   FORMULAIRE PATIENT
+              ================================================== -->
+
+              <section class="patient-form-card">
+
+                <div class="section-header">
+
+                  <div class="section-title">
+
+                    <span class="section-icon purple">
+
+                      <i class="fa-regular fa-user"></i>
+
+                    </span>
+
+                    <div>
+
+                      <span class="section-label">
+                        ÉTAPE 3
+                      </span>
+
+                      <h2>
+                        Vos informations
+                      </h2>
+
+                      <p>
+                        Renseignez les informations nécessaires
+                        à votre réservation
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <form
+                  [formGroup]="form"
+                  (ngSubmit)="confirmerRendezVous()"
+                >
+
+
+                  <!-- NOM -->
+
+                  <div class="form-field">
+
+                    <label for="nomComplet">
+                      Nom complet
+                      <span>*</span>
+                    </label>
+
+                    <div class="input-wrapper">
+
+                      <i class="fa-regular fa-user"></i>
+
+                      <input
+                        id="nomComplet"
+                        type="text"
+                        formControlName="nomComplet"
+                        placeholder="Jean Dupont"
+                      />
+
+                    </div>
+
+                    @if (
+                      form.get('nomComplet')?.touched &&
+                      form.get('nomComplet')?.hasError('required')
+                    ) {
+
+                      <small class="field-error">
+                        Votre nom complet est requis.
+                      </small>
+
+                    }
+
+                  </div>
+
+
+                  <!-- TELEPHONE -->
+
+                  <div class="form-field">
+
+                    <label for="telephone">
+                      Numéro de téléphone
+                      <span>*</span>
+                    </label>
+
+                    <div class="input-wrapper">
+
+                      <i class="fa-solid fa-phone"></i>
+
+                      <input
+                        id="telephone"
+                        type="tel"
+                        formControlName="telephone"
+                        placeholder="+237 6XX XXX XXX"
+                      />
+
+                    </div>
+
+                    @if (
+                      form.get('telephone')?.touched &&
+                      form.get('telephone')?.hasError('required')
+                    ) {
+
+                      <small class="field-error">
+                        Votre numéro de téléphone est requis.
+                      </small>
+
+                    }
+
+                  </div>
+
+
+                  <!-- EMAIL -->
+
+                  <div class="form-field">
+
+                    <label for="email">
+                      Adresse e-mail
+                      <span class="optional">
+                        Facultatif
+                      </span>
+                    </label>
+
+                    <div class="input-wrapper">
+
+                      <i class="fa-regular fa-envelope"></i>
+
+                      <input
+                        id="email"
+                        type="email"
+                        formControlName="email"
+                        placeholder="jean@email.com"
+                      />
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- MOTIF -->
+
+                  <div class="form-field">
+
+                    <label for="motif">
+                      Motif de consultation
+                      <span class="optional">
+                        Facultatif
+                      </span>
+                    </label>
+
+                    <div class="input-wrapper textarea-wrapper">
+
+                      <i class="fa-regular fa-comment"></i>
+
+                      <textarea
+                        id="motif"
+                        formControlName="motif"
+                        rows="3"
+                        placeholder="Ex. contrôle de la vue, renouvellement de lunettes..."
+                      ></textarea>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- CONDITIONS -->
+
+                  <label class="conditions">
+
+                    <input
+                      type="checkbox"
+                      formControlName="accepteConditions"
+                    />
+
+                    <span class="checkmark">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
+
+                    <span class="conditions-text">
+
+                      J'accepte les
+                      <a href="#">
+                        conditions de prise de rendez-vous
+                      </a>
+                      et confirme l'exactitude de mes informations.
+
+                    </span>
+
+                  </label>
+
+
+                  @if (
+                    form.get('accepteConditions')?.touched &&
+                    form.get('accepteConditions')?.hasError('required')
+                  ) {
+
+                    <small class="field-error conditions-error">
+                      Vous devez accepter les conditions.
+                    </small>
+
+                  }
+
+
+                  <!-- RESUME -->
+
+                  <div class="appointment-summary">
+
+                    <div class="summary-header">
+
+                      <i class="fa-solid fa-receipt"></i>
+
+                      <strong>
+                        Résumé du rendez-vous
+                      </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                      <span>
+                        <i class="fa-regular fa-calendar"></i>
+                        Date
+                      </span>
+
+                      <strong>
+                        @if (dateSelectionnee) {
+                          {{ dateSelectionneeFormatee }}
+                        }
+                        @else {
+                          Non sélectionnée
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                      <span>
+                        <i class="fa-regular fa-clock"></i>
+                        Heure
+                      </span>
+
+                      <strong>
+                        {{ heureSelectionnee || 'Non sélectionnée' }}
+                      </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                      <span>
+                        <i class="fa-solid fa-location-dot"></i>
+                        Cabinet
+                      </span>
+
+                      <strong>
+                        {{ cabinetNom }}
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- ACTION -->
+
+                  <button
+                    type="submit"
+                    class="btn-primary confirm-button"
+                    [disabled]="!peutConfirmer || enSoumission"
+                  >
+
+                    @if (enSoumission) {
+
+                      <span class="button-loader"></span>
+
+                      Confirmation...
+
+                    }
+
+                    @else {
+
+                      <i class="fa-solid fa-calendar-check"></i>
+
+                      Confirmer le rendez-vous
+
+                    }
+
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="back-button"
+                    (click)="retourVitrine()"
+                  >
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Retour au cabinet
+
+                  </button>
+
+                </form>
+
+              </section>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               INFORMATIONS
+          ================================================== -->
+
+          <section class="information-card">
+
+            <div class="information-icon">
+
+              <i class="fa-solid fa-shield-heart"></i>
+
+            </div>
+
+            <div>
+
+              <strong>
+                Votre rendez-vous en toute sérénité
+              </strong>
+
+              <p>
+                Vous recevrez une confirmation de votre
+                rendez-vous. En cas d'empêchement, pensez à
+                prévenir le cabinet afin de libérer le créneau
+                pour un autre patient.
+              </p>
+
+            </div>
+
+          </section>
+
+        }
+
+      </main>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,1 +1,688 @@
-<p>mes-rendez-vous works!</p>
+<section class="content">
+
+  <!-- =====================================================
+       HEADER DE LA PAGE
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <span class="eyebrow">
+
+        <i class="fa-solid fa-calendar-check"></i>
+
+        ESPACE PATIENT
+
+      </span>
+
+      <h1>Mes rendez-vous</h1>
+
+      <p>
+        Consultez, planifiez et gérez vos rendez-vous
+        avec vos spécialistes.
+      </p>
+
+    </div>
+
+    <button
+    routerLink="prise-rdv"
+      type="button"
+      class="btn-primary"
+
+    >
+
+      <i class="fa-solid fa-plus"></i>
+
+      <span>Prendre un rendez-vous</span>
+
+    </button>
+
+  </header>
+
+
+  <!-- =====================================================
+       CHARGEMENT
+  ====================================================== -->
+
+  @if (chargement()) {
+
+    <section class="state-card loading-state">
+
+      <div class="state-icon">
+
+        <i class="fa-solid fa-spinner fa-spin"></i>
+
+      </div>
+
+      <div>
+
+        <strong>
+          Chargement des rendez-vous
+        </strong>
+
+        <p>
+          Nous récupérons vos prochaines consultations...
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       ERREUR
+  ====================================================== -->
+
+  @if (erreur(); as message) {
+
+    <section class="state-card error-state">
+
+      <div class="state-icon">
+
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+      </div>
+
+      <div class="state-content">
+
+        <strong>
+          Impossible de charger vos rendez-vous
+        </strong>
+
+        <p>
+          {{ message }}
+        </p>
+
+        <button
+          type="button"
+          class="btn-retry"
+          (click)="chargerRendezVous()"
+        >
+
+          <i class="fa-solid fa-rotate-right"></i>
+
+          Réessayer
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  @if (!chargement() && !erreur()) {
+
+
+    <!-- ===================================================
+         RÉSUMÉ
+    ==================================================== -->
+
+    <section class="rdv-overview">
+
+      <div class="overview-intro">
+
+        <span class="section-label">
+          VOTRE ACTIVITÉ
+        </span>
+
+        <h2>
+          Suivi des consultations
+        </h2>
+
+        <p>
+          Retrouvez ici l'ensemble de vos rendez-vous médicaux.
+        </p>
+
+      </div>
+
+
+      <div class="overview-stats">
+
+        <!-- À VENIR -->
+
+        <div class="stat-item">
+
+          <span class="stat-icon upcoming">
+
+            <i class="fa-regular fa-calendar"></i>
+
+          </span>
+
+          <div class="stat-content">
+
+            <strong>
+              {{ rendezVousAVenir().length }}
+            </strong>
+
+            <span>
+              À venir
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="stat-separator"></div>
+
+
+        <!-- PASSÉS -->
+
+        <div class="stat-item">
+
+          <span class="stat-icon past">
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+          </span>
+
+          <div class="stat-content">
+
+            <strong>
+              {{ rendezVousPasses().length }}
+            </strong>
+
+            <span>
+              Consultations passées
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         ONGLET + FILTRES
+    ==================================================== -->
+
+    <div class="rdv-navigation">
+
+      <!-- ONGLET -->
+
+      <div class="tabs">
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="ongletActif() === 'a-venir'"
+          (click)="changerOnglet('a-venir')"
+        >
+
+          <span>
+            À venir
+          </span>
+
+          <strong>
+            {{ rendezVousAVenir().length }}
+          </strong>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="ongletActif() === 'passes'"
+          (click)="changerOnglet('passes')"
+        >
+
+          <span>
+            Historique
+          </span>
+
+          <strong>
+            {{ rendezVousPasses().length }}
+          </strong>
+
+        </button>
+
+      </div>
+
+
+      <!-- FILTRES -->
+
+      <div class="filters">
+
+        <!-- RECHERCHE -->
+
+        <div class="search-field">
+
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            type="text"
+            placeholder="Rechercher une consultation..."
+            [value]="recherche()"
+            (input)="recherche.set($any($event.target).value)"
+          />
+
+        </div>
+
+
+        <!-- STATUT -->
+
+        <div class="select-wrapper">
+
+          <i class="fa-solid fa-sliders"></i>
+
+          <select
+            [value]="filtreStatut()"
+            (change)="filtreStatut.set($any($event.target).value)"
+          >
+
+            <option value="tous">
+              Tous les statuts
+            </option>
+
+            <option value="confirme">
+              Confirmés
+            </option>
+
+            <option value="en_attente">
+              En attente
+            </option>
+
+            <option value="annule">
+              Annulés
+            </option>
+
+            <option value="termine">
+              Terminés
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         AUCUN RÉSULTAT
+    ==================================================== -->
+
+    @if (listeVide()) {
+
+      <section class="empty-state">
+
+        <div class="empty-icon">
+
+          <i class="fa-regular fa-calendar-xmark"></i>
+
+        </div>
+
+        <span class="section-label">
+          AUCUN RÉSULTAT
+        </span>
+
+        <h2>
+
+          Aucun rendez-vous
+          {{ ongletActif() === 'a-venir'
+            ? 'à venir'
+            : 'passé'
+          }}
+
+        </h2>
+
+
+        <p>
+
+          @if (ongletActif() === 'a-venir') {
+
+            Vous n'avez aucune consultation prévue
+            pour le moment.
+
+          } @else {
+
+            Aucun rendez-vous passé ne correspond
+            à votre recherche.
+
+          }
+
+        </p>
+
+
+        @if (ongletActif() === 'a-venir') {
+
+          <button
+            type="button"
+            class="btn-secondary"
+          >
+
+            <i class="fa-solid fa-plus"></i>
+
+            Planifier une consultation
+
+          </button>
+
+        }
+
+      </section>
+
+    } @else {
+
+
+      <!-- =================================================
+           LISTE DES RENDEZ-VOUS
+      ================================================== -->
+
+      <div class="rdv-list">
+
+        @for (
+          rdv of rendezVousFiltres();
+          track rdv.id
+        ) {
+
+          <article
+            class="rdv-card"
+            [attr.data-statut]="rdv.statut"
+          >
+
+
+            <!-- ===========================================
+                 DATE
+            ============================================ -->
+
+            <div class="date-block">
+
+              <span class="date-day">
+                {{ rdv.date | date:'dd' }}
+              </span>
+
+              <span class="date-month">
+                {{ rdv.date | date:'MMM':'':'fr' }}
+              </span>
+
+              <span class="date-year">
+                {{ rdv.date | date:'yyyy' }}
+              </span>
+
+            </div>
+
+
+            <!-- ===========================================
+                 CONTENU DU RENDEZ-VOUS
+            ============================================ -->
+
+            <div class="rdv-main">
+
+
+              <!-- HEADER -->
+
+              <div class="rdv-top">
+
+                <div class="rdv-heading">
+
+                  <span class="rdv-type">
+
+                    <i class="fa-solid fa-eye"></i>
+
+                    CONSULTATION OPHTALMOLOGIQUE
+
+                  </span>
+
+
+                  <h3>
+                    {{ rdv.praticienNom || rdv.cabinetNom }}
+                  </h3>
+
+
+                  <p class="cabinet-name">
+                    {{ rdv.cabinetNom }}
+                  </p>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <span
+                  class="status-badge"
+                  [attr.data-statut]="rdv.statut"
+                >
+
+                  <span class="status-dot"></span>
+
+                  {{ libelleStatut(rdv.statut) }}
+
+                </span>
+
+              </div>
+
+
+              <!-- =========================================
+                   INFORMATIONS
+              ========================================== -->
+
+              <div class="rdv-information">
+
+
+                <!-- HORAIRE -->
+
+                <div class="info-item">
+
+                  <i class="fa-regular fa-clock"></i>
+
+                  <div>
+
+                    <span>
+                      Horaire
+                    </span>
+
+                    <strong>
+                      {{ rdv.heureDebut }}
+                      –
+                      {{ rdv.heureFin }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <!-- ÉTABLISSEMENT -->
+
+                <div class="info-item">
+
+                  <i class="fa-solid fa-hospital"></i>
+
+                  <div>
+
+                    <span>
+                      Établissement
+                    </span>
+
+                    <strong>
+                      {{ rdv.cabinetNom }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <!-- ADRESSE -->
+
+                @if (rdv.cabinetAdresse) {
+
+                  <div class="info-item">
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                    <div>
+
+                      <span>
+                        Adresse
+                      </span>
+
+                      <a href="#">
+
+                        Voir l'emplacement
+
+                        <i
+                          class="fa-solid fa-arrow-up-right-from-square"
+                        ></i>
+
+                      </a>
+
+                    </div>
+
+                  </div>
+
+                }
+
+              </div>
+
+
+              <!-- =========================================
+                   FOOTER DU RDV
+              ========================================== -->
+
+              <div class="rdv-footer">
+
+
+                <!-- DATE COMPLÈTE -->
+
+                <span class="appointment-date">
+
+                  <i class="fa-regular fa-calendar"></i>
+
+                  {{ rdv.date | date:'EEEE d MMMM yyyy':'':'fr' }}
+
+                </span>
+
+
+                <!-- ACTIONS -->
+
+                <div class="rdv-actions">
+
+
+                  <!-- CONFIRMÉ -->
+
+                  @if (rdv.statut === 'confirme') {
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-regular fa-calendar-plus"></i>
+
+                      Ajouter au calendrier
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-solid fa-calendar-days"></i>
+
+                      Reprogrammer
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      class="action-btn danger"
+                      (click)="annulerRendezVous(rdv)"
+                    >
+
+                      <i class="fa-solid fa-ban"></i>
+
+                      Annuler
+
+                    </button>
+
+                  }
+
+
+                  <!-- EN ATTENTE -->
+
+                  @else if (rdv.statut === 'en_attente') {
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-regular fa-eye"></i>
+
+                      Voir les détails
+
+                    </button>
+
+                  }
+
+
+                  <!-- TERMINÉ -->
+
+                  @else if (rdv.statut === 'termine') {
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-regular fa-eye"></i>
+
+                      Voir les détails
+
+                    </button>
+
+                  }
+
+
+                  <!-- ANNULÉ -->
+
+                  @else if (rdv.statut === 'annule') {
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-regular fa-eye"></i>
+
+                      Voir les détails
+
+                    </button>
+
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  }
+
+</section>

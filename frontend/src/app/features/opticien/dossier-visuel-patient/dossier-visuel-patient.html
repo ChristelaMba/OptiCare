@@ -1,1 +1,609 @@
-<p>dossier-visuel-patient works!</p>
+<div class="dossier-page">
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="page-header">
+
+    <div class="header-left">
+
+      <a
+        routerLink="/secretaire/agenda"
+        class="back-link"
+      >
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Retour
+      </a>
+
+      <div class="title-block">
+
+        <span class="eyebrow">
+          DOSSIER PATIENT
+        </span>
+
+        <h1>
+          Dossier visuel
+        </h1>
+
+        <p>
+          Consultez l’historique et gérez les fiches de consultation.
+        </p>
+
+      </div>
+
+    </div>
+
+    @if (patient()) {
+
+      <button
+        class="primary-button"
+        type="button"
+        [disabled]="!dossierModifiable()"
+        (click)="nouvelleFiche()"
+      >
+
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        Nouvelle fiche
+
+      </button>
+
+    }
+
+  </header>
+
+
+  <!-- =========================
+       LOADING
+  ========================== -->
+
+  @if (isLoading()) {
+
+    <section class="loading-card">
+
+      <div class="loading-spinner"></div>
+
+      <p>
+        Chargement du dossier...
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- =========================
+       ERROR
+  ========================== -->
+
+  @if (!isLoading() && errorMessage()) {
+
+    <section class="error-card">
+
+      <div class="error-icon">
+
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+      </div>
+
+      <div>
+
+        <h2>
+          Une erreur est survenue
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  @if (!isLoading() && patient()) {
+
+    <!-- =========================
+         PATIENT PROFILE
+    ========================== -->
+
+    <section class="patient-card">
+
+      <div class="patient-main">
+
+        <div class="patient-avatar">
+
+          {{ initiales(patient()!) }}
+
+        </div>
+
+        <div class="patient-identity">
+
+          <div class="name-row">
+
+            <h2>
+              {{ patient()!.prenom }}
+              {{ patient()!.nom }}
+            </h2>
+
+            @if (dossierModifiable()) {
+
+              <span class="status-badge editable">
+
+                <span class="status-dot"></span>
+
+                Dossier modifiable
+
+              </span>
+
+            } @else {
+
+              <span class="status-badge locked">
+
+                <span class="material-symbols-outlined">
+                  lock
+                </span>
+
+                Dossier verrouillé
+
+              </span>
+
+            }
+
+          </div>
+
+          <p class="patient-id">
+            ID patient · {{ patient()!.id }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="patient-details">
+
+        <div class="detail-item">
+
+          <span class="detail-icon">
+
+            <span class="material-symbols-outlined">
+              cake
+            </span>
+
+          </span>
+
+          <div>
+
+            <span class="detail-label">
+              Âge
+            </span>
+
+            <strong>
+              {{ patient()!.age }} ans
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span class="detail-icon">
+
+            <span class="material-symbols-outlined">
+              person
+            </span>
+
+          </span>
+
+          <div>
+
+            <span class="detail-label">
+              Sexe
+            </span>
+
+            <strong>
+              {{ patient()!.sexe === 'M' ? 'Masculin' : 'Féminin' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span class="detail-icon">
+
+            <span class="material-symbols-outlined">
+              call
+            </span>
+
+          </span>
+
+          <div>
+
+            <span class="detail-label">
+              Téléphone
+            </span>
+
+            <strong>
+              {{ patient()!.telephone }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span class="detail-icon">
+
+            <span class="material-symbols-outlined">
+              location_on
+            </span>
+
+          </span>
+
+          <div>
+
+            <span class="detail-label">
+              Quartier
+            </span>
+
+            <strong>
+              {{ patient()!.quartier || 'Non renseigné' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         QUICK STATS
+    ========================== -->
+
+    <section class="stats-grid">
+
+      <article class="stat-card">
+
+        <div class="stat-icon blue">
+
+          <span class="material-symbols-outlined">
+            description
+          </span>
+
+        </div>
+
+        <div>
+
+          <span class="stat-label">
+            Fiches de consultation
+          </span>
+
+          <strong>
+            {{ nombreFiches() }}
+          </strong>
+
+        </div>
+
+      </article>
+
+
+      <article class="stat-card">
+
+        <div class="stat-icon green">
+
+          <span class="material-symbols-outlined">
+            calendar_today
+          </span>
+
+        </div>
+
+        <div>
+
+          <span class="stat-label">
+            Dernière consultation
+          </span>
+
+          <strong>
+
+            @if (derniereFiche()) {
+
+              {{ derniereFiche()!.date | date:'dd/MM/yyyy' }}
+
+            } @else {
+
+              Aucune
+
+            }
+
+          </strong>
+
+        </div>
+
+      </article>
+
+
+      <article class="stat-card">
+
+        <div class="stat-icon violet">
+
+          <span class="material-symbols-outlined">
+            medical_services
+          </span>
+
+        </div>
+
+        <div>
+
+          <span class="stat-label">
+            Dernier cabinet
+          </span>
+
+          <strong>
+
+            {{ derniereFiche()?.cabinet || '—' }}
+
+          </strong>
+
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- =========================
+         CONSULTATION HISTORY
+    ========================== -->
+
+    <section class="history-section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="eyebrow">
+            HISTORIQUE
+          </span>
+
+          <h2>
+            Fil des consultations
+          </h2>
+
+          <p>
+            Historique des consultations de ce patient,
+            tous cabinets confondus.
+          </p>
+
+        </div>
+
+        @if (dossierModifiable()) {
+
+          <button
+            class="secondary-button desktop-action"
+            type="button"
+            (click)="nouvelleFiche()"
+          >
+
+            <span class="material-symbols-outlined">
+              add
+            </span>
+
+            Ajouter une fiche
+
+          </button>
+
+        }
+
+      </div>
+
+
+      <!-- EMPTY STATE -->
+
+      @if (fiches().length === 0) {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+
+            <span class="material-symbols-outlined">
+              folder_open
+            </span>
+
+          </div>
+
+          <h3>
+            Aucun historique disponible
+          </h3>
+
+          <p>
+            Ce patient ne possède encore aucune fiche de consultation.
+          </p>
+
+          @if (dossierModifiable()) {
+
+            <button
+              class="primary-button"
+              type="button"
+              (click)="nouvelleFiche()"
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Créer la première fiche
+
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+
+      <!-- TIMELINE -->
+
+      @if (fiches().length > 0) {
+
+        <div class="timeline">
+
+          @for (
+            fiche of fiches();
+            track fiche.id
+          ) {
+
+            <article
+              class="consultation-card"
+              (click)="ouvrirFiche(fiche)"
+            >
+
+              <div class="timeline-marker">
+
+                <span class="material-symbols-outlined">
+                  visibility
+                </span>
+
+              </div>
+
+
+              <div class="consultation-content">
+
+                <div class="consultation-top">
+
+                  <div>
+
+                    <span class="consultation-date">
+
+                      {{ fiche.date | date:'dd MMMM yyyy' }}
+
+                      @if (fiche.heure) {
+                        · {{ fiche.heure }}
+                      }
+
+                    </span>
+
+                    <h3>
+                      {{ fiche.motif }}
+                    </h3>
+
+                  </div>
+
+
+                  <span
+                    class="fiche-status"
+                    [class.completed]="fiche.statut === 'terminee'"
+                    [class.draft]="fiche.statut === 'brouillon'"
+                    [class.archived]="fiche.statut === 'archivee'"
+                  >
+
+                    @switch (fiche.statut) {
+
+                      @case ('terminee') {
+                        Terminée
+                      }
+
+                      @case ('brouillon') {
+                        Brouillon
+                      }
+
+                      @case ('archivee') {
+                        Archivée
+                      }
+
+                    }
+
+                  </span>
+
+                </div>
+
+
+                <div class="consultation-meta">
+
+                  <span>
+
+                    <span class="material-symbols-outlined">
+                      person
+                    </span>
+
+                    {{ fiche.opticien }}
+
+                  </span>
+
+
+                  <span>
+
+                    <span class="material-symbols-outlined">
+                      business
+                    </span>
+
+                    {{ fiche.cabinet }}
+
+                  </span>
+
+                </div>
+
+
+                @if (fiche.diagnostic) {
+
+                  <div class="diagnostic">
+
+                    <span class="diagnostic-label">
+                      Diagnostic
+                    </span>
+
+                    <p>
+                      {{ fiche.diagnostic }}
+                    </p>
+
+                  </div>
+
+                }
+
+
+                <div class="open-link">
+
+                  Ouvrir la fiche
+
+                  <span class="material-symbols-outlined">
+                    arrow_forward
+                  </span>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+</div>
