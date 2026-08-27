@@ -1,0 +1,1222 @@
+/* =========================================================
+   DOSSIER VISUEL
+   Le composant est affiché DANS PatientLayout.
+   Il ne possède donc ni sidebar ni topbar.
+========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --green: #16a34a;
+  --green-light: #ecfdf3;
+
+  --blue-light: #eff6ff;
+
+  --text-main: #172033;
+  --text-secondary: #667085;
+  --text-muted: #98a2b3;
+
+  --border: #e7eaf0;
+  --border-light: #eef0f4;
+
+  --background: #f7f8fa;
+  --white: #ffffff;
+
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+
+  --radius: 14px;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.dossier-page {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  background: var(--background);
+  color: var(--text-main);
+}
+
+
+/* =========================================================
+   INTRODUCTION
+========================================================= */
+
+.page-intro {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+
+  padding: 28px 34px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  box-sizing: border-box;
+}
+
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
+.title-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: var(--blue-light);
+  color: var(--primary);
+
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+
+.title-content {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.page-label {
+  margin-bottom: 4px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  color: var(--text-muted);
+}
+
+
+.title-content h1 {
+  margin: 0;
+
+  font-size: 26px;
+  line-height: 1.25;
+  font-weight: 700;
+
+  letter-spacing: -0.02em;
+
+  color: var(--text-main);
+}
+
+
+.patient-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin: 7px 0 0;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: var(--text-secondary);
+}
+
+
+.separator {
+  color: #c4c9d2;
+}
+
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 13px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+
+  background: var(--green-light);
+  color: #15803d;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.status-badge i {
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   CONTENEUR
+========================================================= */
+
+.dossier-container {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding: 0 34px 40px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CARTE GÉNÉRIQUE
+========================================================= */
+
+.history-card,
+.detail-card,
+.documents-card,
+.loading-card,
+.error-card,
+.empty-state {
+  background: var(--white);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.02);
+}
+
+
+/* =========================================================
+   GRID PRINCIPALE
+========================================================= */
+
+.dossier-grid {
+  display: grid;
+
+  grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.55fr);
+
+  gap: 20px;
+
+  align-items: start;
+}
+
+
+.details-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   HEADERS DE SECTIONS
+========================================================= */
+
+.section-header {
+  padding: 20px 20px 17px;
+
+  border-bottom: 1px solid var(--border-light);
+}
+
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+.section-icon {
+  width: 38px;
+  height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  flex-shrink: 0;
+
+  font-size: 15px;
+}
+
+
+.section-icon.blue {
+  background: var(--blue-light);
+  color: var(--primary);
+}
+
+
+.section-icon.green {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+
+.section-heading h2 {
+  margin: 0;
+
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 700;
+
+  color: var(--text-main);
+}
+
+
+.section-heading p {
+  margin: 3px 0 0;
+
+  font-size: 12px;
+
+  color: var(--text-muted);
+}
+
+
+/* =========================================================
+   HISTORIQUE
+========================================================= */
+
+.history-card {
+  overflow: hidden;
+}
+
+
+.timeline {
+  padding: 8px 12px 12px;
+}
+
+
+.timeline-item {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  gap: 13px;
+
+  padding: 14px 10px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  color: inherit;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+.timeline-item:hover {
+  background: #f8fafc;
+}
+
+
+.timeline-item.active {
+  background: #eff6ff;
+}
+
+
+.timeline-dot {
+  width: 9px;
+  height: 9px;
+
+  margin-top: 5px;
+
+  border-radius: 50%;
+
+  background: #cbd5e1;
+
+  box-shadow: 0 0 0 4px #f8fafc;
+
+  flex-shrink: 0;
+}
+
+
+.timeline-item.active .timeline-dot {
+  background: var(--primary);
+
+  box-shadow: 0 0 0 4px #dbeafe;
+}
+
+
+.timeline-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+.timeline-date,
+.cabinet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 11px;
+
+  color: var(--text-muted);
+}
+
+
+.timeline-content strong {
+  font-size: 13px;
+  font-weight: 650;
+
+  color: var(--text-main);
+}
+
+
+.view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: 2px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  color: var(--primary);
+}
+
+
+.view-link i {
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   DETAIL CONSULTATION
+========================================================= */
+
+.detail-card {
+  padding: 22px;
+}
+
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid var(--border-light);
+}
+
+
+.small-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: var(--text-muted);
+}
+
+
+.detail-header h2 {
+  margin: 0;
+
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 700;
+
+  color: var(--text-main);
+}
+
+
+.detail-header p {
+  margin: 6px 0 0;
+
+  font-size: 12px;
+
+  color: var(--text-secondary);
+}
+
+
+.detail-header p span {
+  margin: 0 5px;
+
+  color: #c5cad3;
+}
+
+
+.consultation-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: var(--blue-light);
+  color: var(--primary);
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   INFORMATIONS
+========================================================= */
+
+.info-section {
+  padding: 18px 0;
+
+  border-bottom: 1px solid var(--border-light);
+}
+
+
+.info-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0 0 8px;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  color: var(--text-main);
+}
+
+
+.info-section h3 i {
+  color: var(--primary);
+
+  font-size: 13px;
+}
+
+
+.info-section p {
+  margin: 0;
+
+  font-size: 13px;
+  line-height: 1.7;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   PRESCRIPTION
+========================================================= */
+
+.prescription-section {
+  padding-top: 20px;
+}
+
+
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 13px;
+}
+
+
+.subsection-title i {
+  color: var(--primary);
+}
+
+
+.subsection-title h3 {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   YEUX
+========================================================= */
+
+.eyes-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+
+.eye-card {
+  padding: 15px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 11px;
+
+  background: #fafbfc;
+}
+
+
+.eye-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding-bottom: 13px;
+
+  margin-bottom: 13px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+
+.eye-symbol {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: var(--blue-light);
+
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+.eye-header strong {
+  display: block;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  color: var(--text-main);
+}
+
+
+.eye-header span {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 10px;
+
+  color: var(--text-muted);
+}
+
+
+.prescription-values {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 9px;
+}
+
+
+.prescription-values > div {
+  padding: 8px;
+
+  border-radius: 7px;
+
+  background: var(--white);
+
+  border: 1px solid var(--border-light);
+}
+
+
+.prescription-values span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 9px;
+
+  color: var(--text-muted);
+}
+
+
+.prescription-values strong {
+  font-size: 12px;
+
+  color: var(--text-main);
+}
+
+
+/* =========================================================
+   DOCUMENTS
+========================================================= */
+
+.documents-card {
+  overflow: hidden;
+}
+
+
+.documents-list {
+  padding: 7px 20px 12px;
+}
+
+
+.document-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid var(--border-light);
+}
+
+
+.document-item:last-child {
+  border-bottom: 0;
+}
+
+
+.document-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+
+.pdf-icon {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  flex-shrink: 0;
+}
+
+
+.document-left strong {
+  display: block;
+
+  max-width: 100%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  color: var(--text-main);
+}
+
+
+.document-left span {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 10px;
+
+  color: var(--text-muted);
+}
+
+
+.download-button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: var(--white);
+
+  color: var(--text-secondary);
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+
+.download-button:hover {
+  background: var(--blue-light);
+  border-color: #bfdbfe;
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   AUCUN DOCUMENT
+========================================================= */
+
+.no-documents {
+  padding: 30px 20px;
+
+  text-align: center;
+}
+
+
+.no-documents i {
+  font-size: 24px;
+
+  color: #cbd5e1;
+}
+
+
+.no-documents p {
+  max-width: 280px;
+
+  margin: 9px auto 0;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  color: var(--text-muted);
+}
+
+
+/* =========================================================
+   BOUTON PDF
+========================================================= */
+
+.download-all {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 0 15px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: var(--primary);
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+
+.btn-primary:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+.loading-card {
+  min-height: 180px;
+
+  padding: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 18px;
+
+  text-align: left;
+}
+
+
+.loader {
+  width: 28px;
+  height: 28px;
+
+  border: 3px solid #dbeafe;
+  border-top-color: var(--primary);
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+
+  flex-shrink: 0;
+}
+
+
+.loading-card h2 {
+  margin: 0;
+
+  font-size: 15px;
+}
+
+
+.loading-card p {
+  margin: 5px 0 0;
+
+  font-size: 12px;
+
+  color: var(--text-muted);
+}
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   ERREUR
+========================================================= */
+
+.error-card {
+  padding: 25px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 15px;
+
+  border-color: #fecaca;
+
+  background: var(--danger-light);
+}
+
+
+.error-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #fee2e2;
+
+  color: var(--danger);
+
+  flex-shrink: 0;
+}
+
+
+.error-card h2 {
+  margin: 0;
+
+  font-size: 15px;
+}
+
+
+.error-card p {
+  margin: 5px 0 13px;
+
+  font-size: 12px;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   DOSSIER VIDE
+========================================================= */
+
+.empty-state {
+  padding: 60px 25px;
+
+  text-align: center;
+}
+
+
+.empty-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: var(--blue-light);
+
+  color: var(--primary);
+
+  font-size: 22px;
+}
+
+
+.empty-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: var(--text-muted);
+}
+
+
+.empty-state h2 {
+  margin: 0;
+
+  font-size: 18px;
+}
+
+
+.empty-state p {
+  max-width: 430px;
+
+  margin: 9px auto 18px;
+
+  font-size: 12px;
+  line-height: 1.7;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .dossier-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-column {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    align-items: start;
+  }
+
+  .detail-card {
+    grid-column: 1 / -1;
+  }
+
+  .download-all {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+@media (max-width: 800px) {
+
+  .page-intro {
+    padding: 22px 20px 18px;
+  }
+
+  .dossier-container {
+    padding: 0 20px 30px;
+  }
+
+  .title-content h1 {
+    font-size: 22px;
+  }
+
+  .status-badge {
+    display: none;
+  }
+
+  .details-column {
+    display: flex;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .page-intro {
+    padding: 18px 15px 15px;
+  }
+
+  .dossier-container {
+    padding: 0 15px 25px;
+  }
+
+  .title-row {
+    align-items: flex-start;
+  }
+
+  .title-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 11px;
+  }
+
+  .title-content h1 {
+    font-size: 20px;
+  }
+
+  .patient-summary {
+    font-size: 11px;
+  }
+
+  .dossier-grid {
+    gap: 14px;
+  }
+
+  .detail-card {
+    padding: 17px;
+  }
+
+  .detail-header {
+    gap: 10px;
+  }
+
+  .detail-header h2 {
+    font-size: 17px;
+  }
+
+  .eyes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prescription-values {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .download-all {
+    justify-content: stretch;
+  }
+
+  .download-all .btn-primary {
+    width: 100%;
+  }
+
+  .loading-card {
+    padding: 25px 18px;
+  }
+
+}
+
+
+@media (max-width: 400px) {
+
+  .title-icon {
+    width: 38px;
+    height: 38px;
+
+    font-size: 15px;
+  }
+
+  .title-content h1 {
+    font-size: 18px;
+  }
+
+  .page-label {
+    font-size: 9px;
+  }
+
+  .patient-summary {
+    gap: 5px;
+
+    font-size: 10px;
+  }
+
+  .section-header {
+    padding: 16px;
+  }
+
+  .timeline {
+    padding: 6px 8px 10px;
+  }
+
+  .prescription-values {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}

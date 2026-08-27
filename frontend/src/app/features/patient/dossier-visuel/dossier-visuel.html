@@ -1,1 +1,579 @@
-<p>dossier-visuel works!</p>
+<div class="dossier-page">
+
+  <!-- =====================================================
+       INTRODUCTION DE LA PAGE
+       La sidebar + topbar appartiennent à PatientLayout
+  ====================================================== -->
+
+  <section class="page-intro">
+
+    <div class="intro-left">
+
+      <div class="title-row">
+
+        <div class="title-icon">
+          <i class="fa-solid fa-eye"></i>
+        </div>
+
+        <div class="title-content">
+
+          <span class="page-label">
+            DOSSIER MÉDICAL
+          </span>
+
+          <h1>Mon dossier visuel</h1>
+
+          @if (dossier(); as patient) {
+
+            <p class="patient-summary">
+              <span>{{ patient.prenom }} {{ patient.nom }}</span>
+              <span class="separator">•</span>
+              <span>{{ patient.age }} ans</span>
+              <span class="separator">•</span>
+              <span>{{ patient.sexe }}</span>
+            </p>
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
+    @if (!chargement() && !erreur()) {
+
+      <div class="status-badge">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Dossier à jour</span>
+      </div>
+
+    }
+
+  </section>
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  <main class="dossier-container">
+
+    <!-- CHARGEMENT -->
+
+    @if (chargement()) {
+
+      <section class="loading-card">
+
+        <div class="loader"></div>
+
+        <div>
+          <h2>Chargement de votre dossier</h2>
+
+          <p>
+            Nous récupérons vos informations médicales...
+          </p>
+        </div>
+
+      </section>
+
+    }
+
+
+    <!-- ERREUR -->
+
+    @if (erreur(); as message) {
+
+      <section class="error-card">
+
+        <div class="error-icon">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+
+        <div>
+
+          <h2>Une erreur est survenue</h2>
+
+          <p>{{ message }}</p>
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="chargerDossier()"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+            Réessayer
+          </button>
+
+        </div>
+
+      </section>
+
+    }
+
+
+    <!-- DOSSIER -->
+
+    @if (!chargement() && !erreur()) {
+
+      @if (dossierVide()) {
+
+        <section class="empty-state">
+
+          <div class="empty-icon">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+
+          <span class="empty-label">
+            DOSSIER VISUEL
+          </span>
+
+          <h2>
+            Votre dossier visuel est encore vide
+          </h2>
+
+          <p>
+            Aucune consultation n'est actuellement
+            enregistrée dans votre dossier.
+          </p>
+
+          <a
+            routerLink="/"
+            class="btn-primary"
+          >
+            <i class="fa-solid fa-location-dot"></i>
+            Trouver un cabinet
+          </a>
+
+        </section>
+
+      }
+
+      @else {
+
+        <div class="dossier-grid">
+
+          <!-- =================================================
+               HISTORIQUE
+          ================================================== -->
+
+          <section class="history-card">
+
+            <div class="section-header">
+
+              <div class="section-heading">
+
+                <span class="section-icon blue">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </span>
+
+                <div>
+                  <h2>Historique</h2>
+
+                  <p>
+                    {{ nombreConsultations() }}
+                    consultation(s)
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="timeline">
+
+              @for (fiche of fiches(); track fiche.id) {
+
+                <button
+                  type="button"
+                  class="timeline-item"
+                  [class.active]="ficheSelectionnee()?.id === fiche.id"
+                  (click)="selectionnerFiche(fiche)"
+                >
+
+                  <span class="timeline-dot"></span>
+
+                  <div class="timeline-content">
+
+                    <span class="timeline-date">
+                      <i class="fa-regular fa-calendar"></i>
+                      {{ fiche.date | date:'dd MMMM yyyy':'':'fr' }}
+                    </span>
+
+                    <strong>
+                      {{ fiche.motif }}
+                    </strong>
+
+                    <span class="cabinet">
+                      <i class="fa-solid fa-location-dot"></i>
+                      {{ fiche.cabinet }}
+                    </span>
+
+                    <span class="view-link">
+                      Voir le détail
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </span>
+
+                  </div>
+
+                </button>
+
+              }
+
+            </div>
+
+          </section>
+
+
+          <!-- =================================================
+               COLONNE DROITE
+          ================================================== -->
+
+          <div class="details-column">
+
+            <!-- DETAIL CONSULTATION -->
+
+            @if (ficheSelectionnee(); as fiche) {
+
+              <section class="detail-card">
+
+                <div class="detail-header">
+
+                  <div>
+
+                    <span class="small-label">
+                      CONSULTATION
+                    </span>
+
+                    <h2>
+                      {{ fiche.motif }}
+                    </h2>
+
+                    <p>
+                      {{ fiche.date | date:'dd MMMM yyyy':'':'fr' }}
+                      <span>•</span>
+                      {{ fiche.cabinet }}
+                    </p>
+
+                  </div>
+
+                  <div class="consultation-icon">
+                    <i class="fa-solid fa-stethoscope"></i>
+                  </div>
+
+                </div>
+
+
+                @if (fiche.plaintes) {
+
+                  <div class="info-section">
+
+                    <h3>
+                      <i class="fa-regular fa-comment"></i>
+                      Plaintes déclarées
+                    </h3>
+
+                    <p>
+                      {{ fiche.plaintes }}
+                    </p>
+
+                  </div>
+
+                }
+
+
+                @if (fiche.observations) {
+
+                  <div class="info-section">
+
+                    <h3>
+                      <i class="fa-solid fa-notes-medical"></i>
+                      Observations
+                    </h3>
+
+                    <p>
+                      {{ fiche.observations }}
+                    </p>
+
+                  </div>
+
+                }
+
+
+                <!-- PRESCRIPTION -->
+
+                @if (fiche.prescription; as prescription) {
+
+                  <div class="prescription-section">
+
+                    <div class="subsection-title">
+
+                      <i class="fa-solid fa-prescription-bottle-medical"></i>
+
+                      <h3>Prescription</h3>
+
+                    </div>
+
+
+                    <div class="eyes-grid">
+
+                      <!-- OEIL DROIT -->
+
+                      <div class="eye-card">
+
+                        <div class="eye-header">
+
+                          <div class="eye-symbol">
+                            OD
+                          </div>
+
+                          <div>
+                            <strong>Œil droit</strong>
+                            <span>OD</span>
+                          </div>
+
+                        </div>
+
+                        <div class="prescription-values">
+
+                          <div>
+                            <span>Sphère</span>
+                            <strong>
+                              {{ prescription.oeilDroit.sphere || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Cylindre</span>
+                            <strong>
+                              {{ prescription.oeilDroit.cylindre || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Axe</span>
+                            <strong>
+                              {{ prescription.oeilDroit.axe || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>ADD</span>
+                            <strong>
+                              {{ prescription.oeilDroit.add || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>AVL</span>
+                            <strong>
+                              {{ prescription.oeilDroit.avl || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>AVP</span>
+                            <strong>
+                              {{ prescription.oeilDroit.avp || '—' }}
+                            </strong>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+
+                      <!-- OEIL GAUCHE -->
+
+                      <div class="eye-card">
+
+                        <div class="eye-header">
+
+                          <div class="eye-symbol">
+                            OG
+                          </div>
+
+                          <div>
+                            <strong>Œil gauche</strong>
+                            <span>OG</span>
+                          </div>
+
+                        </div>
+
+                        <div class="prescription-values">
+
+                          <div>
+                            <span>Sphère</span>
+                            <strong>
+                              {{ prescription.oeilGauche.sphere || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Cylindre</span>
+                            <strong>
+                              {{ prescription.oeilGauche.cylindre || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Axe</span>
+                            <strong>
+                              {{ prescription.oeilGauche.axe || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>ADD</span>
+                            <strong>
+                              {{ prescription.oeilGauche.add || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>AVL</span>
+                            <strong>
+                              {{ prescription.oeilGauche.avl || '—' }}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>AVP</span>
+                            <strong>
+                              {{ prescription.oeilGauche.avp || '—' }}
+                            </strong>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                }
+
+              </section>
+
+            }
+
+
+            <!-- DOCUMENTS -->
+
+            <section class="documents-card">
+
+              <div class="section-header">
+
+                <div class="section-heading">
+
+                  <span class="section-icon green">
+                    <i class="fa-solid fa-folder-open"></i>
+                  </span>
+
+                  <div>
+                    <h2>Documents liés</h2>
+                    <p>Ordonnances et documents médicaux</p>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              @if (ficheSelectionnee()?.documents?.length) {
+
+                <div class="documents-list">
+
+                  @for (
+                    doc of ficheSelectionnee()?.documents;
+                    track doc.id
+                  ) {
+
+                    <div class="document-item">
+
+                      <div class="document-left">
+
+                        <div class="pdf-icon">
+                          <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+
+                        <div>
+
+                          <strong>{{ doc.nom }}</strong>
+
+                          <span>
+                            {{ doc.date | date:'dd MMM yyyy':'':'fr' }}
+
+                            @if (doc.taille) {
+                              <span>•</span>
+                              {{ doc.taille }}
+                            }
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        class="download-button"
+                        title="Télécharger"
+                        (click)="telechargerDocument(doc)"
+                      >
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+              @else {
+
+                <div class="no-documents">
+
+                  <i class="fa-regular fa-file"></i>
+
+                  <p>
+                    Aucun document associé à cette consultation.
+                  </p>
+
+                </div>
+
+              }
+
+            </section>
+
+
+            <!-- PDF -->
+
+            <div class="download-all">
+
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="!dossierPdfDisponible()"
+                (click)="telechargerDocument(ficheSelectionnee()?.dossierPdf)"
+              >
+                <i class="fa-solid fa-file-pdf"></i>
+                Télécharger le PDF de cette consultation
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+    }
+
+  </main>
+
+</div>

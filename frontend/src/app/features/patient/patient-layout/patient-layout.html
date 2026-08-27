@@ -1,0 +1,514 @@
+<div class="patient-layout">
+
+  <!-- =====================================================
+       OVERLAY MOBILE
+  ====================================================== -->
+
+  @if (menuOuvert()) {
+
+    <div
+      class="sidebar-overlay"
+      (click)="fermerMenu()"
+    ></div>
+
+  }
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside
+    class="patient-sidebar"
+    [class.sidebar-open]="menuOuvert()"
+  >
+
+    <!-- =================================================
+         LOGO
+    ================================================== -->
+
+    <div class="sidebar-brand">
+
+      <a
+        routerLink="/patient"
+        class="brand"
+        (click)="fermerMenu()"
+      >
+
+        <div class="brand-logo">
+
+          <i class="fa-solid fa-eye"></i>
+
+        </div>
+
+        <div class="brand-text">
+
+          <strong>OptiCare</strong>
+
+          <span>
+            Espace patient
+          </span>
+
+        </div>
+
+      </a>
+
+
+      <!-- FERMER MOBILE -->
+
+      <button
+        type="button"
+        class="close-menu"
+        (click)="fermerMenu()"
+        aria-label="Fermer le menu"
+      >
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- =================================================
+         CHANGEMENT D'ESPACE
+    ================================================== -->
+
+    <div class="space-switcher">
+
+      <button
+        type="button"
+        class="space-switcher-button"
+        (click)="toggleEspaces()"
+      >
+
+        <span class="space-switcher-icon">
+          <i class="fa-solid fa-layer-group"></i>
+        </span>
+
+        <span class="space-switcher-content">
+
+          <small>
+            ESPACE ACTUEL
+          </small>
+
+          <strong>
+            Patient
+          </strong>
+
+        </span>
+
+        <i
+          class="fa-solid fa-chevron-down space-chevron"
+          [class.rotate]="espacesOuverts()"
+        ></i>
+
+      </button>
+
+
+      @if (espacesOuverts()) {
+
+        <div class="spaces-menu">
+
+          <a
+            routerLink="/patient"
+            class="space-option active"
+            (click)="selectionnerEspace('patient')"
+          >
+
+            <span class="space-option-icon">
+              <i class="fa-solid fa-user"></i>
+            </span>
+
+            <span>
+              <strong>Patient</strong>
+              <small>Mon espace personnel</small>
+            </span>
+
+            <i class="fa-solid fa-check"></i>
+
+          </a>
+
+
+          <a
+            routerLink="/secretaire/agenda"
+            class="space-option"
+            (click)="selectionnerEspace('secretaire')"
+          >
+
+            <span class="space-option-icon">
+              <i class="fa-solid fa-calendar-days"></i>
+            </span>
+
+            <span>
+              <strong>Secrétaire</strong>
+              <small>Gestion du cabinet</small>
+            </span>
+
+          </a>
+
+        </div>
+
+      }
+
+    </div>
+
+
+    <!-- =================================================
+         NAVIGATION PRINCIPALE
+    ================================================== -->
+
+    <nav class="sidebar-nav">
+
+      <span class="nav-title">
+        ESPACE PATIENT
+      </span>
+
+
+      <!-- TABLEAU DE BORD -->
+
+      <a
+        routerLink="/patient"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-solid fa-grid-2"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Tableau de bord
+        </span>
+
+      </a>
+
+
+      <!-- DOSSIER VISUEL -->
+
+      <a
+        routerLink="/patient/dossier-visuel"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-solid fa-folder-medical"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Dossier visuel
+        </span>
+
+      </a>
+
+
+      <!-- RENDEZ-VOUS -->
+
+      <a
+        routerLink="/patient/rendez-vous"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-regular fa-calendar"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Mes rendez-vous
+        </span>
+
+      </a>
+
+
+      <!-- AVIS -->
+
+      <a
+        routerLink="mes-avis"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-regular fa-star"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Mes avis
+        </span>
+
+      </a>
+
+
+      <!-- NOTIFICATIONS -->
+
+      <a
+        routerLink="/patient/notifications"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-regular fa-bell"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Notifications
+        </span>
+
+        <span class="message-badge">
+          2
+        </span>
+
+      </a>
+
+
+      <!-- COMPLETER DOSSIER -->
+
+      <a
+        routerLink="/patient/completer-dossier"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-solid fa-user-pen"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Compléter mon dossier
+        </span>
+
+      </a>
+
+    </nav>
+
+
+    <!-- =================================================
+         SEPARATION
+    ================================================== -->
+
+    <div class="sidebar-separator"></div>
+
+
+    <!-- =================================================
+         MON COMPTE
+    ================================================== -->
+
+    <nav class="sidebar-secondary">
+
+      <span class="nav-title">
+        MON COMPTE
+      </span>
+
+
+      <!-- PROFIL -->
+
+      <a
+        routerLink="/patient/profil"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-regular fa-user"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Mon profil
+        </span>
+
+      </a>
+
+
+      <!-- PARAMETRES -->
+
+      <a
+        routerLink="/patient/parametres"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon">
+
+          <i class="fa-solid fa-gear"></i>
+
+        </span>
+
+        <span class="nav-label">
+          Paramètres
+        </span>
+
+      </a>
+
+    </nav>
+
+
+    <!-- =================================================
+         BAS SIDEBAR
+    ================================================== -->
+
+    <div class="sidebar-bottom">
+
+
+      <!-- AIDE -->
+
+      <button
+        type="button"
+        class="help-card"
+      >
+
+        <span class="help-icon">
+
+          <i class="fa-regular fa-circle-question"></i>
+
+        </span>
+
+        <span class="help-content">
+
+          <strong>
+            Besoin d'aide ?
+          </strong>
+
+          <small>
+            Contactez OptiCare
+          </small>
+
+        </span>
+
+      </button>
+
+
+      <!-- PROFIL UTILISATEUR -->
+
+      <div class="sidebar-profile">
+
+        <div class="profile-avatar">
+          JD
+        </div>
+
+        <div class="profile-info">
+
+          <strong>
+            Jean Dupont
+          </strong>
+
+          <span>
+            Patient
+          </span>
+
+        </div>
+
+        <button
+          type="button"
+          class="profile-menu"
+          aria-label="Options"
+        >
+
+          <i class="fa-solid fa-ellipsis"></i>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="patient-main">
+
+
+    <!-- =================================================
+         HEADER MOBILE
+    ================================================== -->
+
+    <header class="mobile-header">
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        (click)="toggleMenu()"
+        aria-label="Ouvrir le menu"
+      >
+
+        <i class="fa-solid fa-bars"></i>
+
+      </button>
+
+
+      <a
+        routerLink="/patient"
+        class="mobile-brand"
+      >
+
+        <span class="mobile-brand-icon">
+
+          <i class="fa-solid fa-eye"></i>
+
+        </span>
+
+        <strong>
+          OptiCare
+        </strong>
+
+      </a>
+
+
+      <button
+        type="button"
+        class="mobile-notification"
+        routerLink="/patient/notifications"
+        aria-label="Notifications"
+      >
+
+        <i class="fa-regular fa-bell"></i>
+
+        <span></span>
+
+      </button>
+
+    </header>
+
+
+    <!-- =================================================
+         CONTENU DES PAGES
+    ================================================== -->
+
+    <div class="patient-content">
+
+      <router-outlet></router-outlet>
+
+    </div>
+
+  </main>
+
+</div>

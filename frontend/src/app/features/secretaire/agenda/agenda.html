@@ -1,1 +1,726 @@
-<p>agenda works!</p>
+<div class="agenda-page">
+
+  <!-- =====================================================
+       EN-TÊTE DE PAGE
+       La sidebar + topbar sont fournies par SecretaireLayout
+  ====================================================== -->
+
+  <section class="page-header">
+
+    <div class="page-heading">
+
+      <div class="title-icon">
+        <i class="fa-regular fa-calendar-days"></i>
+      </div>
+
+      <div class="title-content">
+
+        <span class="eyebrow">
+          GESTION DU CABINET
+        </span>
+
+        <h1>Agenda</h1>
+
+        <p>
+          Gérez les rendez-vous et le planning des patients.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       BARRE DE NAVIGATION DE L'AGENDA
+  ====================================================== -->
+
+  <section class="agenda-toolbar">
+
+    <div class="date-navigation">
+
+      <button
+        type="button"
+        class="icon-button"
+        title="Jour précédent"
+        (click)="changerJour(-1)"
+      >
+
+        <i class="fa-solid fa-chevron-left"></i>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="today-button"
+        (click)="allerAujourdHui()"
+      >
+
+        Aujourd'hui
+
+      </button>
+
+
+      <button
+        type="button"
+        class="icon-button"
+        title="Jour suivant"
+        (click)="changerJour(1)"
+      >
+
+        <i class="fa-solid fa-chevron-right"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- DATE -->
+
+    <div class="current-date">
+
+      <i class="fa-regular fa-calendar"></i>
+
+      <strong>
+        {{ dateFormatee() }}
+      </strong>
+
+    </div>
+
+
+    <!-- VUE -->
+
+    <div class="view-selector">
+
+      <button
+        type="button"
+        class="view-button"
+        [class.active]="vueActive() === 'jour'"
+        (click)="changerVue('jour')"
+      >
+
+        Jour
+
+      </button>
+
+
+      <button
+        type="button"
+        class="view-button"
+        [class.active]="vueActive() === 'semaine'"
+        (click)="changerVue('semaine')"
+      >
+
+        Semaine
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       STATISTIQUES
+  ====================================================== -->
+
+  <section class="agenda-stats">
+
+
+    <!-- TOTAL -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon blue">
+
+        <i class="fa-regular fa-calendar-check"></i>
+
+      </div>
+
+      <div>
+
+        <span>
+          Rendez-vous
+        </span>
+
+        <strong>
+          {{ rendezVous().length }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CONFIRMÉS -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon green">
+
+        <i class="fa-solid fa-circle-check"></i>
+
+      </div>
+
+      <div>
+
+        <span>
+          Confirmés
+        </span>
+
+        <strong>
+          {{ nombreConfirmes() }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- EN ATTENTE -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon orange">
+
+        <i class="fa-regular fa-clock"></i>
+
+      </div>
+
+      <div>
+
+        <span>
+          En attente
+        </span>
+
+        <strong>
+          {{ nombreAttente() }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- ANNULÉS -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon red">
+
+        <i class="fa-solid fa-circle-xmark"></i>
+
+      </div>
+
+      <div>
+
+        <span>
+          Annulés
+        </span>
+
+        <strong>
+          {{ nombreAnnules() }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       AGENDA
+  ====================================================== -->
+
+  <section class="agenda-card">
+
+
+    <!-- HEADER -->
+
+    <div class="agenda-card-header">
+
+      <div>
+
+        <span class="section-label">
+          PLANNING
+        </span>
+
+        <h2>
+          Rendez-vous du jour
+        </h2>
+
+        <p>
+          Consultez et gérez les rendez-vous programmés.
+        </p>
+
+      </div>
+
+
+      <!-- LÉGENDE -->
+
+      <div class="legend">
+
+        <span class="legend-item">
+
+          <span class="legend-dot confirmed"></span>
+
+          Confirmé
+
+        </span>
+
+
+        <span class="legend-item">
+
+          <span class="legend-dot pending"></span>
+
+          En attente
+
+        </span>
+
+
+        <span class="legend-item">
+
+          <span class="legend-dot cancelled"></span>
+
+          Annulé
+
+        </span>
+
+
+        <span class="legend-item">
+
+          <span class="legend-dot completed"></span>
+
+          Honoré
+
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- =================================================
+         LISTE DES RENDEZ-VOUS
+    ================================================== -->
+
+    <div class="appointments-list">
+
+
+      @for (
+        rdv of rendezVous();
+        track rdv.id
+      ) {
+
+        <article
+          class="appointment-card"
+          [class.status-confirmed]="rdv.statut === 'confirmé'"
+          [class.status-pending]="rdv.statut === 'attente'"
+          [class.status-cancelled]="rdv.statut === 'annulé'"
+          [class.status-completed]="rdv.statut === 'honoré'"
+        >
+
+
+          <!-- HEURE -->
+
+          <div class="appointment-time">
+
+            <strong>
+              {{ rdv.heure }}
+            </strong>
+
+            <span>
+              {{ rdv.duree }}
+            </span>
+
+          </div>
+
+
+          <!-- PATIENT -->
+
+          <div class="appointment-patient">
+
+            <div class="patient-avatar">
+
+              {{ rdv.patient.charAt(0) }}
+
+            </div>
+
+
+            <div class="patient-details">
+
+              <h3>
+                {{ rdv.patient }}
+              </h3>
+
+              <p>
+                {{ rdv.motif }}
+              </p>
+
+
+              <div class="patient-meta">
+
+
+                @if (rdv.dossier) {
+
+                  <span>
+
+                    <i class="fa-regular fa-folder"></i>
+
+                    Dossier {{ rdv.dossier }}
+
+                  </span>
+
+                }
+
+
+                @if (rdv.telephone) {
+
+                  <span>
+
+                    <i class="fa-solid fa-phone"></i>
+
+                    {{ rdv.telephone }}
+
+                  </span>
+
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- STATUT -->
+
+          <div class="appointment-status">
+
+            <span class="status-badge">
+
+              @if (rdv.statut === 'confirmé') {
+
+                <i class="fa-solid fa-circle-check"></i>
+
+              }
+
+              @else if (rdv.statut === 'attente') {
+
+                <i class="fa-regular fa-clock"></i>
+
+              }
+
+              @else if (rdv.statut === 'annulé') {
+
+                <i class="fa-solid fa-circle-xmark"></i>
+
+              }
+
+              @else {
+
+                <i class="fa-solid fa-check-double"></i>
+
+              }
+
+              {{ statutLabel(rdv.statut) }}
+
+            </span>
+
+          </div>
+
+
+          <!-- ACTION -->
+
+          <div class="appointment-action">
+
+            <button
+              type="button"
+              class="details-button"
+              title="Voir les détails"
+              (click)="ouvrirDetails(rdv)"
+            >
+
+              <span>
+                Détails
+              </span>
+
+              <i class="fa-solid fa-chevron-right"></i>
+
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+
+      <!-- =================================================
+           AUCUN RENDEZ-VOUS
+      ================================================== -->
+
+      @if (rendezVous().length === 0) {
+
+        <div class="empty-agenda">
+
+          <div class="empty-icon">
+
+            <i class="fa-regular fa-calendar-xmark"></i>
+
+          </div>
+
+          <h3>
+            Aucun rendez-vous
+          </h3>
+
+          <p>
+            Aucun rendez-vous n'est programmé pour cette journée.
+          </p>
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       MODALE DÉTAILS
+  ====================================================== -->
+
+  @if (rendezVousActif(); as rdv) {
+
+    <div
+      class="modal-overlay"
+      (click)="fermerDetails()"
+    >
+
+      <section
+        class="appointment-modal"
+        (click)="$event.stopPropagation()"
+      >
+
+
+        <!-- HEADER MODALE -->
+
+        <div class="modal-header">
+
+          <div>
+
+            <span class="modal-eyebrow">
+              RENDEZ-VOUS
+            </span>
+
+            <h2>
+              Détails du rendez-vous
+            </h2>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="fermerDetails()"
+          >
+
+            <i class="fa-solid fa-xmark"></i>
+
+          </button>
+
+        </div>
+
+
+        <!-- PATIENT -->
+
+        <div class="modal-patient">
+
+          <div class="modal-avatar">
+
+            {{ rdv.patient.charAt(0) }}
+
+          </div>
+
+          <div>
+
+            <h3>
+              {{ rdv.patient }}
+            </h3>
+
+            <p>
+              {{ rdv.motif }}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- INFORMATIONS -->
+
+        <div class="details-grid">
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Date
+            </span>
+
+            <strong>
+              {{ dateFormatee() }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Heure
+            </span>
+
+            <strong>
+              {{ rdv.heure }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Durée
+            </span>
+
+            <strong>
+              {{ rdv.duree }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Statut
+            </span>
+
+            <span class="status-badge">
+
+              {{ statutLabel(rdv.statut) }}
+
+            </span>
+
+          </div>
+
+
+          @if (rdv.dossier) {
+
+            <div class="detail-item">
+
+              <span class="detail-label">
+                Dossier patient
+              </span>
+
+              <strong>
+                {{ rdv.dossier }}
+              </strong>
+
+            </div>
+
+          }
+
+
+          @if (rdv.telephone) {
+
+            <div class="detail-item">
+
+              <span class="detail-label">
+                Téléphone
+              </span>
+
+              <strong>
+                {{ rdv.telephone }}
+              </strong>
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div class="modal-actions">
+
+
+          @if (rdv.statut === 'attente') {
+
+            <button
+              type="button"
+              class="btn-success"
+              (click)="confirmerRendezVous()"
+            >
+
+              <i class="fa-solid fa-circle-check"></i>
+
+              Confirmer
+
+            </button>
+
+          }
+
+
+          @if (
+            rdv.statut === 'confirmé' ||
+            rdv.statut === 'attente'
+          ) {
+
+            <button
+              type="button"
+              class="btn-danger"
+              (click)="annulerRendezVous()"
+            >
+
+              <i class="fa-solid fa-xmark"></i>
+
+              Annuler
+
+            </button>
+
+          }
+
+
+          @if (rdv.statut === 'confirmé') {
+
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="marquerHonore()"
+            >
+
+              <i class="fa-solid fa-check-double"></i>
+
+              Marquer comme honoré
+
+            </button>
+
+          }
+
+        </div>
+
+      </section>
+
+    </div>
+
+  }
+
+</div>
