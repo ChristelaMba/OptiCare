@@ -1,1 +1,349 @@
-<p>vitrine-edition works!</p>
+<div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
+  <!-- SideNavBar (desktop) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
+    <div class="mb-space-8 px-space-4">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto mb-2" />
+      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
+    </div>
+    <nav class="flex-1 flex flex-col gap-space-2">
+      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-body text-body-base">Dashboard</span>
+      </a>
+      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span class="font-body text-body-base">Rendez-vous</span>
+      </a>
+      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">badge</span>
+        <span class="font-body text-body-base">Employés</span>
+      </a>
+      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
+        <span class="material-symbols-outlined fill-icon">storefront</span>
+        <span class="font-body text-body-base">Ma vitrine</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
+    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
+    @if (chargement()) {
+      <p class="font-body text-body-base text-text-muted mt-space-6 md:mt-0">Chargement…</p>
+    } @else if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 mt-space-6 md:mt-0">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    } @else if (cabinet(); as c) {
+      <!-- En-tête -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-4 mt-space-6 md:mt-0">
+        <div>
+          <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Ma vitrine</h1>
+          <p class="font-body text-body-base text-text-muted mt-1">Personnalisez votre profil public visible par les patients.</p>
+        </div>
+        <div class="flex items-center gap-space-3">
+          <div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full">
+            <span
+              class="w-2 h-2 rounded-full"
+              [class.bg-success]="c.statutValidation === 'valide'"
+              [class.bg-warning]="c.statutValidation === 'enAttente'"
+              [class.bg-error]="c.statutValidation === 'rejete' || c.statutValidation === 'profilIncomplet'"
+            ></span>
+            <span class="font-badge text-badge text-on-background">Statut : {{ labelStatut[c.statutValidation] }}</span>
+          </div>
+          <a
+            [href]="lienApercu"
+            target="_blank"
+            rel="noopener"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle bg-surface-container-lowest hover:bg-surface-container text-on-background font-button text-button transition-colors shadow-sm"
+          >
+            <span class="material-symbols-outlined text-xl">visibility</span>
+            Aperçu en direct
+          </a>
+        </div>
+      </div>
+
+      @if (erreurFormulaire()) {
+        <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+          <p class="font-body text-body-base text-error">{{ erreurFormulaire() }}</p>
+        </div>
+      }
+      @if (enregistrementReussi()) {
+        <div class="rounded-lg bg-success/10 border border-success/30 px-space-4 py-space-3">
+          <p class="font-body text-body-base text-success">Les modifications ont bien été enregistrées.</p>
+        </div>
+      }
+
+      <form [formGroup]="formulaire" (ngSubmit)="soumettreFormulaire()" class="space-y-space-6 max-w-5xl">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-6">
+          <!-- Colonne gauche -->
+          <div class="lg:col-span-2 space-y-space-6">
+            <!-- Informations générales -->
+            <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-space-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">store</span>
+                Informations générales
+              </h2>
+              <div class="space-y-space-4">
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="nom">Nom du cabinet</label>
+                  <input id="nom" type="text" formControlName="nom" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                  @if (formulaire.get('nom')?.invalid && formulaire.get('nom')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">Le nom du cabinet est requis.</p>
+                  }
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="slogan">Slogan (optionnel)</label>
+                  <input id="slogan" type="text" formControlName="slogan" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="description">Description</label>
+                  <textarea id="description" formControlName="description" rows="4" class="w-full p-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors resize-y"></textarea>
+                  @if (formulaire.get('description')?.invalid && formulaire.get('description')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">La description est requise.</p>
+                  }
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-space-4">
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="quartier">Quartier</label>
+                    <input id="quartier" type="text" formControlName="quartier" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    @if (formulaire.get('quartier')?.invalid && formulaire.get('quartier')?.touched) {
+                      <p class="font-body text-label-sm text-error mt-1">Le quartier est requis.</p>
+                    }
+                  </div>
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="ville">Ville</label>
+                    <input id="ville" type="text" formControlName="ville" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    @if (formulaire.get('ville')?.invalid && formulaire.get('ville')?.touched) {
+                      <p class="font-body text-label-sm text-error mt-1">La ville est requise.</p>
+                    }
+                  </div>
+                </div>
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="adresse">Adresse</label>
+                  <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">location_on</span>
+                    <input id="adresse" type="text" formControlName="adresse" class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                  </div>
+                  @if (formulaire.get('adresse')?.invalid && formulaire.get('adresse')?.touched) {
+                    <p class="font-body text-label-sm text-error mt-1">L'adresse est requise.</p>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Horaires -->
+            <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">schedule</span>
+                Horaires d'ouverture
+              </h2>
+              <p class="font-body text-label-sm text-text-muted mb-space-4">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <div class="space-y-space-2" formArrayName="horaires">
+                @for (grp of horaires.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="flex flex-wrap items-center gap-space-3 py-space-2 border-b border-border-subtle last:border-0">
+                    <span class="font-body text-body-base text-on-surface w-24 shrink-0">{{ jours[i] }}</span>
+                    @if (!grp.get('ferme')?.value) {
+                      <input type="time" formControlName="ouverture" class="h-10 px-3 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base" />
+                      <span class="font-body text-label-sm text-text-muted">à</span>
+                      <input type="time" formControlName="fermeture" class="h-10 px-3 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base" />
+                    } @else {
+                      <span class="font-body text-label-sm text-text-disabled italic flex-1">Fermé</span>
+                    }
+                    <label class="flex items-center gap-2 ml-auto cursor-pointer">
+                      <input type="checkbox" formControlName="ferme" class="w-4 h-4 rounded border-border-subtle accent-primary" />
+                      <span class="font-body text-label-sm text-text-muted">Fermé</span>
+                    </label>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-space-6">
+              <!-- Contact -->
+              <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+                <h2 class="font-heading text-headline-h3 text-on-surface mb-space-4 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary">call</span>
+                  Contact
+                </h2>
+                <div class="space-y-space-4">
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="telephone">Téléphone</label>
+                    <div class="relative">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">phone</span>
+                      <input id="telephone" type="tel" formControlName="telephone" class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    </div>
+                    @if (formulaire.get('telephone')?.invalid && formulaire.get('telephone')?.touched) {
+                      <p class="font-body text-label-sm text-error mt-1">Le téléphone est requis.</p>
+                    }
+                  </div>
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="whatsapp">WhatsApp</label>
+                    <div class="relative">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-success">chat</span>
+                      <input id="whatsapp" type="tel" formControlName="whatsappNumero" class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    </div>
+                    @if (formulaire.get('whatsappNumero')?.invalid && formulaire.get('whatsappNumero')?.touched) {
+                      <p class="font-body text-label-sm text-error mt-1">Le numéro WhatsApp est requis.</p>
+                    }
+                  </div>
+                </div>
+              </section>
+
+              <!-- Liens externes -->
+              <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+                <h2 class="font-heading text-headline-h3 text-on-surface mb-space-4 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary">link</span>
+                  Liens externes
+                </h2>
+                <div class="space-y-space-4">
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="siteWeb">Site web</label>
+                    <div class="relative">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">language</span>
+                      <input id="siteWeb" type="url" formControlName="siteWeb" class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="instagram">Instagram</label>
+                    <div class="relative">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">photo_camera</span>
+                      <input id="instagram" type="text" formControlName="instagram" placeholder="@votre_compte" class="w-full h-11 pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="facebook">Facebook</label>
+                    <input id="facebook" type="text" formControlName="facebook" placeholder="@votre_page" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                  </div>
+                  <div>
+                    <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="tiktok">TikTok</label>
+                    <input id="tiktok" type="text" formControlName="tiktok" placeholder="@votre_compte" class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors" />
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="space-y-space-6">
+            <!-- Médias -->
+            <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+              <h2 class="font-heading text-headline-h3 text-on-surface mb-space-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">image</span>
+                Médias
+              </h2>
+              <div class="space-y-space-4">
+                <div>
+                  <label class="block font-body text-label-sm text-on-surface-variant mb-2">Logo du cabinet</label>
+                  <div class="flex items-center gap-4">
+                    <!-- TODO : pas de vrai upload — aperçu factice tant que logoUrl est vide -->
+                    <div class="w-16 h-16 rounded-lg bg-surface-container-high border border-border-subtle flex items-center justify-center overflow-hidden shrink-0">
+                      <img [src]="formulaire.get('logoUrl')?.value || logoPlaceholder" alt="Aperçu du logo" class="w-full h-full object-cover" />
+                    </div>
+                    <input type="url" formControlName="logoUrl" placeholder="https://…" class="flex-1 h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body text-body-base transition-colors text-sm" />
+                  </div>
+                </div>
+                <hr class="border-border-subtle" />
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block font-body text-label-sm text-on-surface-variant">Galerie photos (max {{ maxPhotos }})</label>
+                    @if (peutAjouterPhoto) {
+                      <button type="button" (click)="ajouterPhoto()" class="font-body text-label-sm text-primary hover:text-primary-container transition-colors">
+                        + Ajouter
+                      </button>
+                    }
+                  </div>
+                  <div class="grid grid-cols-2 gap-2" formArrayName="photos">
+                    @for (ctrl of photos.controls; track $index; let i = $index) {
+                      <div class="relative aspect-square rounded-lg overflow-hidden border border-border-subtle group">
+                        <!-- TODO : pas de vrai upload — aperçu factice tant que l'URL est vide -->
+                        <img [src]="ctrl.value || photoPlaceholder" alt="Aperçu photo {{ i + 1 }}" class="w-full h-full object-cover" />
+                        <input type="url" [formControlName]="i" placeholder="https://…" class="absolute bottom-0 inset-x-0 h-7 px-2 text-[10px] bg-surface-container-lowest/90 border-t border-border-subtle font-body outline-none" />
+                        <button type="button" (click)="retirerPhoto(i)" class="absolute top-1 right-1 w-6 h-6 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-error opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                          <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      </div>
+                    }
+                    @if (peutAjouterPhoto) {
+                      <div (click)="ajouterPhoto()" class="aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface-bg flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container hover:border-primary hover:text-primary transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined mb-1">add_photo_alternate</span>
+                        <span class="font-body text-[10px]">Ajouter</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Abonnement -->
+            <section class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary-container to-tertiary shadow-sm text-on-primary p-space-6">
+              <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div class="relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                  <h2 class="font-heading text-headline-h3 flex items-center gap-2">
+                    <span class="material-symbols-outlined">workspace_premium</span>
+                    Abonnement
+                  </h2>
+                  <span class="px-2 py-1 bg-white/20 rounded-full font-badge text-[10px] uppercase tracking-wider backdrop-blur-sm">
+                    {{ c.abonnementPremium ? 'Premium' : 'Gratuit' }}
+                  </span>
+                </div>
+                <p class="font-body text-body-base text-on-primary/90 mb-4 text-sm">
+                  @if (c.abonnementPremium) {
+                    Votre vitrine bénéficie d'une visibilité prioritaire et de photos illimitées.
+                  } @else {
+                    Passez en Premium pour une visibilité prioritaire et davantage de photos.
+                  }
+                </p>
+                <!-- Paiement réel hors périmètre (§11 du cahier des charges) — bouton non fonctionnel pour ce sprint. -->
+                <button type="button" disabled title="Bientôt disponible" class="w-full px-4 py-2 rounded-lg bg-white text-primary font-button text-button transition-colors text-sm shadow-sm opacity-60 cursor-not-allowed">
+                  Gérer mon plan
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Action -->
+        <div class="flex justify-end pt-space-4 border-t border-border-subtle">
+          <button
+            type="submit"
+            [disabled]="envoiEnCours()"
+            class="px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 min-w-[200px] justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            @if (envoiEnCours()) {
+              Enregistrement…
+            } @else {
+              <span class="material-symbols-outlined text-xl">save</span>
+              Enregistrer les modifications
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </main>
+
+  <!-- BottomNav (mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-around items-center z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-body text-label-sm mt-1">Dashboard</span>
+    </a>
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="font-body text-label-sm mt-1">Rendez-vous</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="font-body text-label-sm mt-1">Employés</span>
+    </a>
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center w-full h-full text-primary font-bold">
+      <span class="material-symbols-outlined fill-icon">storefront</span>
+      <span class="font-body text-label-sm mt-1">Ma vitrine</span>
+    </a>
+  </nav>
+</div>

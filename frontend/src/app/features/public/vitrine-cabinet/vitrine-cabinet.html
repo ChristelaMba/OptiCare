@@ -1,1 +1,369 @@
-<p>vitrine-cabinet works!</p>
+<div class="min-h-screen flex flex-col bg-surface-bg text-on-surface font-body">
+  <!-- TopNavBar — cohérent avec accueil/recherche-cabinets : logo + retour, pas de liens creux -->
+  <nav class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-sm shadow-sm">
+    <div class="flex items-center justify-between h-16 gap-space-6 px-margin-mobile md:px-space-12 max-w-7xl mx-auto">
+      <div class="flex items-center gap-space-3">
+        <button
+          type="button"
+          (click)="retour()"
+          aria-label="Retour à la page précédente"
+          class="flex items-center justify-center w-9 h-9 rounded-full text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors shrink-0"
+        >
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <a routerLink="/" class="shrink-0">
+          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-8 w-auto" />
+        </a>
+      </div>
+
+      <div class="flex items-center gap-space-3">
+        <a
+          routerLink="/auth/connexion"
+          class="font-button text-button text-primary hover:bg-surface-container-high px-space-4 py-space-2 rounded-full transition-colors hidden sm:block"
+        >
+          Connexion
+        </a>
+        <a
+          routerLink="/auth/inscription"
+          class="font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant px-space-6 py-space-2 rounded-full transition-colors shadow-sm hover:shadow-md"
+        >
+          Inscription
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  @if (chargement()) {
+    <main class="flex-1 flex items-center justify-center pt-16 py-space-12">
+      <p class="font-body text-body-base text-text-muted">Chargement du cabinet…</p>
+    </main>
+  } @else if (erreur()) {
+    <main class="flex-1 flex items-center justify-center pt-16 px-margin-mobile py-space-12">
+      <div class="w-full max-w-[480px] text-center bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-8">
+        <span class="material-symbols-outlined text-error text-[48px]">error</span>
+        <h1 class="font-heading text-headline-h2 text-on-surface font-bold mt-space-4 mb-2">Cabinet introuvable</h1>
+        <p class="font-body text-body-base text-text-muted mb-space-6">{{ erreur() }}</p>
+        <a
+          routerLink="/"
+          class="inline-flex items-center justify-center gap-2 h-[44px] px-space-6 bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-colors"
+        >
+          Retour à la liste des cabinets
+        </a>
+      </div>
+    </main>
+  } @else if (cabinet(); as cabinet) {
+    <!-- Hero immersif -->
+    <section class="relative w-full h-[70vh] min-h-[480px] mt-16 flex items-center justify-center overflow-hidden">
+      @if (cabinet.photos[0]) {
+        <img [src]="cabinet.photos[0]" [alt]="cabinet.nom" class="absolute inset-0 w-full h-full object-cover" />
+      } @else {
+        <div class="absolute inset-0 bg-primary/20"></div>
+      }
+      <div class="absolute inset-0 bg-black/50 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+
+      <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center mt-space-8">
+        <div class="w-24 h-24 bg-surface-container-lowest rounded-2xl shadow-lg border border-white/20 flex items-center justify-center shrink-0 overflow-hidden mb-space-6 p-1">
+          @if (cabinet.logoUrl) {
+            <img [src]="cabinet.logoUrl" [alt]="cabinet.nom" class="w-full h-full object-cover rounded-xl" />
+          } @else {
+            <span class="material-symbols-outlined text-primary text-[32px]">storefront</span>
+          }
+        </div>
+
+        <div class="flex gap-space-2 mb-space-4 flex-wrap justify-center">
+          @if (cabinet.abonnementPremium) {
+            <span class="bg-secondary/90 text-on-primary backdrop-blur-md px-space-4 py-1.5 rounded-full font-body text-badge flex items-center gap-1 shadow-sm">
+              <span class="material-symbols-outlined fill-icon text-[16px]">verified</span>
+              Cabinet Premium
+            </span>
+          }
+          <span class="bg-white/10 backdrop-blur-md text-white border border-white/20 px-space-4 py-1.5 rounded-full font-body text-badge flex items-center gap-1">
+            <span class="material-symbols-outlined fill-icon text-warning text-[16px]">star</span>
+            {{ cabinet.noteMoyenne > 0 ? (cabinet.noteMoyenne | number: '1.1-1') : 'Nouveau' }}
+          </span>
+        </div>
+
+        <h1 class="font-heading text-4xl md:text-6xl text-white mb-space-4 font-bold tracking-tight">{{ cabinet.nom }}</h1>
+        @if (cabinet.slogan) {
+          <p class="font-body text-xl md:text-2xl text-white/90 mb-space-8 max-w-2xl">{{ cabinet.slogan }}</p>
+        }
+
+        <div class="flex flex-col sm:flex-row gap-space-4 w-full sm:w-auto">
+          <a
+            [routerLink]="['/cabinet', cabinet.id, 'rendez-vous']"
+            class="bg-primary text-on-primary font-button text-button py-space-4 px-space-8 rounded-full shadow-lg hover:bg-primary-container transition-all flex justify-center items-center gap-2 text-lg w-full sm:w-auto"
+          >
+            <span class="material-symbols-outlined fill-icon text-2xl">calendar_month</span>
+            Prendre rendez-vous
+          </a>
+          @if (lienWhatsapp(); as lienWhatsapp) {
+            <a
+              [href]="lienWhatsapp"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-white/10 backdrop-blur-md text-white font-button text-button py-space-4 px-space-8 rounded-full hover:bg-white/20 transition-all flex justify-center items-center gap-2 border border-white/30 w-full sm:w-auto text-lg"
+            >
+              <span class="material-symbols-outlined text-2xl">chat</span>
+              Discuter sur WhatsApp
+            </a>
+          }
+        </div>
+      </div>
+    </section>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-space-12 flex flex-col gap-space-12">
+      <!-- Notre Histoire -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-8 items-center">
+          <div class="rounded-xl overflow-hidden aspect-video md:aspect-square bg-surface-bg flex items-center justify-center">
+            @if (cabinet.photos[1] || cabinet.photos[0]) {
+              <img [src]="cabinet.photos[1] || cabinet.photos[0]" [alt]="cabinet.nom" class="w-full h-full object-cover" />
+            } @else {
+              <span class="material-symbols-outlined text-text-muted text-[48px]">storefront</span>
+            }
+          </div>
+          <div class="flex flex-col gap-space-4">
+            <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-primary text-3xl">info</span>
+              Notre Histoire
+            </h2>
+            @if (cabinet.description) {
+              <p class="font-body text-body-lg text-text-muted leading-relaxed">{{ cabinet.description }}</p>
+            } @else {
+              <p class="font-body text-body-lg text-text-muted leading-relaxed">Ce cabinet n'a pas encore renseigné sa présentation.</p>
+            }
+
+            @if (cabinet.liensExternes.siteWeb || cabinet.liensExternes.instagram || cabinet.liensExternes.facebook || cabinet.liensExternes.tiktok) {
+              <div class="mt-space-4 pt-space-4 flex gap-space-4">
+                @if (cabinet.liensExternes.siteWeb) {
+                  <a
+                    [href]="cabinet.liensExternes.siteWeb"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Site web"
+                    class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-xl">language</span>
+                  </a>
+                }
+                @if (cabinet.liensExternes.instagram) {
+                  <a
+                    [href]="cabinet.liensExternes.instagram"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Instagram"
+                    class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-xl">photo_camera</span>
+                  </a>
+                }
+                @if (cabinet.liensExternes.facebook) {
+                  <a
+                    [href]="cabinet.liensExternes.facebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Facebook"
+                    class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-xl">thumb_up</span>
+                  </a>
+                }
+                @if (cabinet.liensExternes.tiktok) {
+                  <a
+                    [href]="cabinet.liensExternes.tiktok"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="TikTok"
+                    class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    <span class="material-symbols-outlined text-xl">smart_display</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Nos Services -->
+      <!--
+        SUPPOSITION : le modèle Cabinet (§5 du cahier des charges) ne définit
+        aucun champ « services » — contenu générique identique pour tous les
+        cabinets, reproduit tel quel depuis la maquette accueil_cabinet, en
+        attendant que ce champ soit défini côté back-end.
+      -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
+        <div class="flex flex-col items-center text-center mb-space-8">
+          <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-primary text-3xl">medical_services</span>
+            Nos Services
+          </h2>
+          <p class="font-body text-body-base text-text-muted max-w-2xl">
+            Des soins oculaires complets adaptés à vos besoins, utilisant les dernières technologies de diagnostic.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-space-6">
+          @for (service of services; track service.titre) {
+            <div class="bg-surface-bg p-space-6 rounded-xl border border-border-subtle hover:border-primary hover:shadow-md transition-all flex flex-col items-center text-center gap-space-4 group">
+              <span class="material-symbols-outlined text-4xl text-primary group-hover:scale-110 transition-transform bg-primary/10 p-space-4 rounded-full">{{ service.icone }}</span>
+              <span class="font-heading text-headline-h3 text-on-surface">{{ service.titre }}</span>
+              <p class="font-body text-body-base text-text-muted">{{ service.description }}</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Localisation & Horaires -->
+      <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <div class="h-64 md:h-full w-full min-h-[320px]">
+            @if (carteEmbed(); as carteEmbed) {
+              <iframe [src]="carteEmbed" class="w-full h-full border-0" loading="lazy" title="Localisation du cabinet"></iframe>
+            }
+          </div>
+          <div class="p-space-6 md:p-space-8 flex flex-col gap-space-8">
+            <div class="flex items-start gap-space-4">
+              <div class="bg-primary/10 p-space-4 rounded-xl shrink-0">
+                <span class="material-symbols-outlined text-primary text-3xl">location_on</span>
+              </div>
+              <div>
+                <h3 class="font-heading text-headline-h2 text-on-surface mb-2">Localisation</h3>
+                <p class="font-body text-body-lg text-text-muted leading-relaxed mb-space-4">
+                  {{ cabinet.adresse }}<br />{{ cabinet.quartier }}, {{ cabinet.ville }}
+                </p>
+                <a [href]="lienGoogleMaps()" target="_blank" rel="noopener noreferrer" class="text-primary font-button text-button flex items-center gap-1 hover:underline w-fit">
+                  Voir sur Google Maps <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+            <div class="flex items-start gap-space-4">
+              <div class="bg-primary/10 p-space-4 rounded-xl shrink-0">
+                <span class="material-symbols-outlined text-primary text-3xl">schedule</span>
+              </div>
+              <div class="w-full">
+                <h3 class="font-heading text-headline-h2 text-on-surface mb-space-4">Horaires d'ouverture</h3>
+                @if (cabinet.horaires.length === 0) {
+                  <p class="font-body text-body-base text-text-muted">Horaires non renseignés pour le moment.</p>
+                } @else {
+                  <ul class="font-body text-body-lg text-text-muted flex flex-col gap-space-3">
+                    @for (horaire of cabinet.horaires; track horaire.jour) {
+                      <li class="flex justify-between items-center border-b border-border-subtle pb-2 last:border-0 last:pb-0">
+                        <span>{{ horaire.jour }}</span>
+                        @if (horaire.ferme) {
+                          <span class="bg-error/10 text-error px-space-3 py-1 rounded text-label-sm font-bold">FERMÉ</span>
+                        } @else {
+                          <span class="font-bold text-on-surface">{{ horaire.ouverture }} - {{ horaire.fermeture }}</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Galerie -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
+        <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-space-8">
+          <span class="material-symbols-outlined text-primary text-3xl">gallery_thumbnail</span>
+          Visitez notre espace
+        </h2>
+
+        @if (cabinet.photos.length === 0) {
+          <p class="font-body text-body-base text-text-muted">Aucune photo pour le moment.</p>
+        } @else {
+          <div class="relative w-full">
+            <div #galerie class="flex gap-space-4 overflow-x-auto snap-x snap-mandatory pb-space-4 scroll-smooth">
+              @for (photo of cabinet.photos; track photo) {
+                <div class="snap-center shrink-0 w-[85%] md:w-[45%] lg:w-[30%] aspect-square rounded-xl overflow-hidden border border-border-subtle">
+                  <img [src]="photo" [alt]="cabinet.nom" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+                </div>
+              }
+            </div>
+            @if (cabinet.photos.length > 1) {
+              <button
+                type="button"
+                (click)="defilerGalerie(-1)"
+                aria-label="Photo précédente"
+                class="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-surface-container-lowest rounded-full shadow-md items-center justify-center text-primary hover:bg-surface-container-high transition-colors z-10 border border-border-subtle"
+              >
+                <span class="material-symbols-outlined">arrow_back</span>
+              </button>
+              <button
+                type="button"
+                (click)="defilerGalerie(1)"
+                aria-label="Photo suivante"
+                class="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-surface-container-lowest rounded-full shadow-md items-center justify-center text-primary hover:bg-surface-container-high transition-colors z-10 border border-border-subtle"
+              >
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Avis des patients -->
+      <!-- Placeholder : avis.service.ts n'existe pas encore (sprint ultérieur), comme sur l'accueil. -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
+        <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-space-8">
+          <span class="material-symbols-outlined text-primary text-3xl">reviews</span>
+          Avis des patients
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
+          @for (avis of avisPlaceholder; track avis.nom) {
+            <div class="bg-surface-bg p-space-6 rounded-xl border border-border-subtle border-l-4 border-l-primary flex flex-col gap-space-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start">
+                <div class="flex items-center gap-space-3">
+                  <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center font-button text-primary font-bold text-lg shrink-0">
+                    {{ avis.initiales }}
+                  </div>
+                  <div>
+                    <h4 class="font-button text-button text-on-surface">{{ avis.nom }}</h4>
+                    <span class="font-body text-label-sm text-text-muted">{{ avis.quand }}</span>
+                  </div>
+                </div>
+                <div class="flex text-warning shrink-0">
+                  @for (etoile of etoiles; track etoile) {
+                    <span class="material-symbols-outlined text-[20px]" [class.fill-icon]="etoile <= avis.note">star</span>
+                  }
+                </div>
+              </div>
+              <p class="font-body text-body-base text-text-muted leading-relaxed">{{ avis.commentaire }}</p>
+            </div>
+          }
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer — bleu nuit, cohérent avec l'accueil et recherche-cabinets -->
+    <footer class="w-full bg-inverse-surface mt-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
+        <div class="flex flex-col gap-space-4">
+          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-5 w-auto" />
+          <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
+        </div>
+        <div class="flex flex-col gap-space-3">
+          <h4 class="font-button text-button text-inverse-on-surface">Navigation</h4>
+          <a routerLink="/" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Accueil</a>
+          <a routerLink="/recherche-cabinets" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Tous les cabinets</a>
+          <a [routerLink]="['/cabinet', cabinet.id, 'rendez-vous']" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Prendre rendez-vous</a>
+        </div>
+        <div class="flex flex-col gap-space-3">
+          <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>
+          <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Mentions légales</a>
+          <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Conditions d'utilisation</a>
+        </div>
+        <div class="flex flex-col gap-space-3">
+          <h4 class="font-button text-button text-inverse-on-surface">Contact</h4>
+          <p class="font-body text-body-base text-inverse-on-surface/70">{{ cabinet.adresse }}, {{ cabinet.quartier }}</p>
+          <p class="font-body text-body-base text-inverse-on-surface/70">{{ cabinet.telephone }}</p>
+        </div>
+      </div>
+      <div class="px-margin-mobile md:px-space-12 pb-space-8 max-w-7xl mx-auto border-t border-inverse-on-surface/10 pt-space-4">
+        <p class="font-body text-label-sm text-inverse-on-surface/60 text-center">© 2026 OptiCare. Tous droits réservés.</p>
+      </div>
+    </footer>
+  }
+</div>

@@ -1,1 +1,235 @@
-<p>dashboard-comptable works!</p>
+<div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
+  <!-- SideNavBar (desktop) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
+    <div class="mb-space-8 px-space-4">
+      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto mb-2" />
+      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
+    </div>
+    <nav class="flex-1 flex flex-col gap-space-2">
+      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
+        <span class="material-symbols-outlined fill-icon">dashboard</span>
+        <span class="font-body text-body-base">Dashboard</span>
+      </a>
+      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span class="font-body text-body-base">Rendez-vous</span>
+      </a>
+      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">badge</span>
+        <span class="font-body text-body-base">Employés</span>
+      </a>
+      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="font-body text-body-base">Ma vitrine</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
+    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
+    <!-- En-tête + sélecteur de période -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-4 mt-space-6 md:mt-0">
+      <div>
+        <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Dashboard comptable</h1>
+        <p class="font-body text-body-base text-text-muted mt-1">Aperçu financier et indicateurs clés de performance.</p>
+      </div>
+      <div class="flex bg-surface-container-low p-1 rounded-lg border border-border-subtle self-start sm:self-auto">
+        @for (p of periodes; track p) {
+          <button
+            type="button"
+            (click)="changerPeriode(p)"
+            [class.bg-surface-container-lowest]="periode() === p"
+            [class.shadow-sm]="periode() === p"
+            [class.border]="periode() === p"
+            [class.border-border-subtle]="periode() === p"
+            [class.text-on-surface]="periode() === p"
+            [class.text-text-muted]="periode() !== p"
+            class="px-space-4 py-2 font-button text-button rounded-md hover:text-on-surface transition-colors capitalize"
+          >
+            {{ p }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    } @else if (chargement()) {
+      <p class="font-body text-body-base text-text-muted">Chargement des statistiques…</p>
+    } @else if (stats(); as s) {
+      <!-- Cartes indicateurs -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-4">
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
+          <div class="flex justify-between items-start">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Chiffre d'affaires</p>
+            <span class="material-symbols-outlined text-primary bg-primary-fixed w-8 h-8 flex items-center justify-center rounded-full text-sm">payments</span>
+          </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.chiffreAffaires | number: '1.0-0':'fr' }} FCFA</h3>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.chiffreAffairesVariation >= 0" [class.text-error]="s.chiffreAffairesVariation < 0">
+                {{ s.chiffreAffairesVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+              <span class="font-badge text-badge" [class.text-success]="s.chiffreAffairesVariation >= 0" [class.text-error]="s.chiffreAffairesVariation < 0">
+                {{ s.chiffreAffairesVariation | number: '1.1-1' }}%
+              </span>
+              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
+          <div class="flex justify-between items-start">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Rendez-vous</p>
+            <span class="material-symbols-outlined text-tertiary-container bg-primary-fixed w-8 h-8 flex items-center justify-center rounded-full text-sm">event</span>
+          </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.nombreRendezVous }}</h3>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.nombreRendezVousVariation >= 0" [class.text-error]="s.nombreRendezVousVariation < 0">
+                {{ s.nombreRendezVousVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+              <span class="font-badge text-badge" [class.text-success]="s.nombreRendezVousVariation >= 0" [class.text-error]="s.nombreRendezVousVariation < 0">
+                {{ s.nombreRendezVousVariation | number: '1.1-1' }}%
+              </span>
+              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
+          <div class="flex justify-between items-start">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Panier moyen</p>
+            <span class="material-symbols-outlined text-secondary bg-secondary-container w-8 h-8 flex items-center justify-center rounded-full text-sm">shopping_cart</span>
+          </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.panierMoyen | number: '1.0-0':'fr' }} FCFA</h3>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.panierMoyenVariation >= 0" [class.text-error]="s.panierMoyenVariation < 0">
+                {{ s.panierMoyenVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+              <span class="font-badge text-badge" [class.text-success]="s.panierMoyenVariation >= 0" [class.text-error]="s.panierMoyenVariation < 0">
+                {{ s.panierMoyenVariation | number: '1.1-1' }}%
+              </span>
+              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
+          <div class="flex justify-between items-start">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Nouveaux patients</p>
+            <span class="material-symbols-outlined text-warning bg-warning/20 w-8 h-8 flex items-center justify-center rounded-full text-sm">person_add</span>
+          </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.nouveauxPatients }}</h3>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.nouveauxPatientsVariation >= 0" [class.text-error]="s.nouveauxPatientsVariation < 0">
+                {{ s.nouveauxPatientsVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+              <span class="font-badge text-badge" [class.text-success]="s.nouveauxPatientsVariation >= 0" [class.text-error]="s.nouveauxPatientsVariation < 0">
+                {{ s.nouveauxPatientsVariation | number: '1.1-1' }}%
+              </span>
+              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphique + stats -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-6">
+        <!-- Évolution des revenus -->
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col">
+          <h3 class="font-heading text-headline-h3 text-on-surface mb-space-6">Évolution des revenus</h3>
+          <div class="flex-1 min-h-[260px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
+            @for (point of s.evolutionRevenus; track point.mois; let derniere = $last) {
+              <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
+                <span class="font-body text-label-sm text-text-muted mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {{ point.montant | number: '1.0-0':'fr' }}
+                </span>
+                <div
+                  class="w-full rounded-t transition-colors hover:bg-primary"
+                  [class.bg-primary]="derniere"
+                  [class.bg-primary-fixed]="!derniere"
+                  [style.height.%]="(point.montant / montantMax()) * 100"
+                ></div>
+                <span class="font-body text-label-sm mt-2" [class.text-primary]="derniere" [class.font-semibold]="derniere" [class.text-text-disabled]="!derniere">
+                  {{ point.mois }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Colonne stats -->
+        <div class="flex flex-col gap-space-6 lg:col-span-1">
+          <!-- Jours d'affluence -->
+          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Jours d'affluence</h3>
+            <div class="flex flex-col gap-space-4">
+              @for (jour of s.joursAffluence; track jour.jour) {
+                <div>
+                  <div class="flex justify-between font-body text-label-sm mb-1">
+                    <span class="text-on-surface font-medium">{{ jour.jour }}</span>
+                    <span class="text-text-muted">{{ jour.nombreRdv }} rdv</span>
+                  </div>
+                  <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+                    <div class="bg-primary h-full rounded-full" [style.width.%]="(jour.nombreRdv / rdvMax()) * 100"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Distribution par âge -->
+          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Distribution par âge</h3>
+            <div class="flex items-center gap-space-4">
+              <div class="w-24 h-24 rounded-full shrink-0 flex items-center justify-center relative shadow-sm" [style.background]="styleDonut()">
+                <div class="w-16 h-16 bg-surface-container-lowest rounded-full absolute inset-0 m-auto flex items-center justify-center">
+                  <span class="material-symbols-outlined text-text-muted">groups</span>
+                </div>
+              </div>
+              <div class="flex-1 flex flex-col gap-space-2">
+                @for (segment of segmentsDonut(); track segment.tranche) {
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full shrink-0" [style.background-color]="segment.couleur"></div>
+                    <span class="font-body text-label-sm text-text-muted flex-1">{{ segment.tranche }}</span>
+                    <span class="font-body text-label-sm font-semibold text-on-surface">{{ segment.pourcentage }}%</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- BottomNav (mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-around items-center z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center w-full h-full text-primary font-bold">
+      <span class="material-symbols-outlined fill-icon">dashboard</span>
+      <span class="font-body text-label-sm mt-1">Dashboard</span>
+    </a>
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="font-body text-label-sm mt-1">Rendez-vous</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="font-body text-label-sm mt-1">Employés</span>
+    </a>
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">storefront</span>
+      <span class="font-body text-label-sm mt-1">Ma vitrine</span>
+    </a>
+  </nav>
+</div>

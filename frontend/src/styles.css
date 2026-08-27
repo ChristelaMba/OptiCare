@@ -26,11 +26,45 @@
      dans la maquette inscription, nécessaire pour les futurs écrans) */
   --color-secondary: #7bae8c;
 
+  /* Tons « container » MD3 — ajoutés pour la maquette accueil_plateforme
+     (maquette/accueil_plateforme/code.html et DESIGN.md), absents de la
+     maquette inscription d'origine. Valeurs reprises telles quelles. */
+  --color-secondary-container: #b9efc9;
+  --color-on-secondary-container: #3d6e50;
+  --color-on-primary-container: #faf8ff;
+  --color-on-tertiary-container: #fbf9ff;
+  --color-surface-container-low: #f2f3ff;
+  --color-surface-container-high: #e2e7ff;
+  --color-surface-variant: #dae2fd;
+  --color-primary-fixed: #dbe1ff;
+  --color-on-primary-fixed-variant: #003fa5;
+
+  /* Surface "inverse" (bleu nuit) — utilisée pour le pied de page (rendu
+     plus professionnel qu'un fond clair), reprise du même DESIGN.md. */
+  --color-inverse-surface: #283044;
+  --color-inverse-on-surface: #eef0ff;
+  --color-inverse-primary: #b3c5ff;
+
+  /* Ajoutés pour la maquette recherche_de_cabinets_liste_tendue
+     (filtres, cartes de résultats, pagination). */
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
+  --color-surface-container: #eaedff;
+  --color-surface-tint: #0254d7;
+
   /* États sémantiques (validation de formulaire — absents de la maquette) */
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-error: #dc2626;
   --color-info: #2563eb;
+
+  /* Ajoutés pour les maquettes espace Propriétaire/Super Admin
+     (gestion_des_employes, gestion_des_comptes, dashboard_comptable,
+     historique_des_rendez_vous). */
+  --color-text-disabled: #94a3b8;
+  --color-on-secondary-fixed: #002110;
+  --color-on-error-container: #93000a;
+  --color-error-container: #ffdad6;
 
   /* Typographie — reprise de la maquette */
   --font-heading: 'Poppins', sans-serif;
@@ -86,4 +120,11 @@ body {
   font-family: var(--font-body);
   background-color: var(--color-surface-bg);
   color: var(--color-on-surface);
+}
+
+/* Variante "remplie" des Material Symbols (étoiles, badges "Garanti"…) —
+   reprise de maquette/accueil_plateforme/code.html. Le poids par défaut
+   (FILL 0) reste géré par le lien Google Fonts dans index.html. */
+.fill-icon {
+  font-variation-settings: 'FILL' 1;
 }
