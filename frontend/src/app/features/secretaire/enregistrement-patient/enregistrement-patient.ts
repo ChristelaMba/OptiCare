@@ -111,21 +111,22 @@ export class EnregistrementPatient {
 
     const formValue = this.patientForm.getRawValue();
 
-    const patient = {
-      nom: formValue.nom.trim(),
-      prenom: formValue.prenom.trim(),
-      dateNaissance: formValue.dateNaissance,
-      age: this.calculateAge(formValue.dateNaissance),
-      sexe: formValue.sexe,
-      telephone: `+237${formValue.telephone}`,
-      whatsapp: formValue.whatsapp
-        ? `+237${formValue.whatsapp}`
-        : undefined,
-      profession: formValue.profession.trim() || undefined,
-      quartier: formValue.quartier.trim() || undefined,
-      nombreEnfants: formValue.nombreEnfants,
-      createdAt: new Date().toISOString()
-    };
+   const patient = {
+  nom: formValue.nom.trim(),
+  prenom: formValue.prenom.trim(),
+  dateNaissance: formValue.dateNaissance,
+  age: this.calculateAge(formValue.dateNaissance),
+  sexe: formValue.sexe,
+  telephone: `+237${formValue.telephone}`,
+  whatsapp: formValue.whatsapp
+    ? `+237${formValue.whatsapp}`
+    : undefined,
+  profession: formValue.profession.trim() || undefined,
+  quartier: formValue.quartier.trim() || undefined,
+  nombreEnfants: formValue.nombreEnfants,
+  estUtilisateur: false,
+  dossierVisuelId: ''
+};
 
     this.patientService.createPatient(patient).subscribe({
 

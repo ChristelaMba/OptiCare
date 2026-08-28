@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { DossierVisuelService } from '../../../core/services/dossier-visuel';
 import {
@@ -19,7 +19,7 @@ import {
 @Component({
   selector: 'app-dossier-visuel',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dossier-visuel.html',
   styleUrl: './dossier-visuel.css',
 })
