@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-
-import { DossierVisuel } from './dossier-visuel';
-
+import { DossierVisuel } from '../../features/patient/dossier-visuel/dossier-visuel';
 describe('DossierVisuel', () => {
   let service: DossierVisuel;
 

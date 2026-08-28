@@ -4,13 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
-import { RendezVous as RendezVousService } from '../../../core/services/rendez-vous';
-import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
-import { StatutRendezVous } from '../../../models/rendez-vous.model';
+import { RendezVousService } from '../../../core/services/rendez-vous';
+import { RendezVousAffichage, StatutRendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
 
 const TAILLE_PAGE = 8;
 
-const LABEL_STATUT: Record<StatutRendezVous, string> = {
+const LABEL_STATUT: Record<StatutRendezVousAffichage, string> = {
   enAttente: 'En attente',
   confirme: 'Confirmé',
   honore: 'Honoré',
@@ -42,10 +41,10 @@ export class HistoriqueRdv implements OnInit {
   private readonly rendezVous = signal<RendezVousAffichage[]>([]);
 
   readonly labelStatut = LABEL_STATUT;
-  readonly statuts: StatutRendezVous[] = ['enAttente', 'confirme', 'honore', 'annule'];
+  readonly statuts: StatutRendezVousAffichage[] = ['enAttente', 'confirme', 'honore', 'annule'];
 
   readonly texteRecherche = signal('');
-  readonly filtreStatut = signal<StatutRendezVous | 'tous'>('tous');
+  readonly filtreStatut = signal<StatutRendezVousAffichage | 'tous'>('tous');
   readonly filtreOpticien = signal<string>('tous');
   readonly pageActuelle = signal(1);
 
@@ -88,7 +87,7 @@ export class HistoriqueRdv implements OnInit {
 
     this.rendezVousService.listerParCabinet(this.cabinetId).subscribe({
       next: (rendezVous) => {
-        this.rendezVous.set(rendezVous as RendezVousAffichage[]);
+       this.rendezVous.set(rendezVous as unknown as RendezVousAffichage[]);
         this.chargement.set(false);
       },
       error: () => {
@@ -125,7 +124,7 @@ export class HistoriqueRdv implements OnInit {
       ]),
     ];
     const csv = lignes.map((ligne) => ligne.map((champ) => `"${champ.replace(/"/g, '""')}"`).join(';')).join('\n');
-    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const lien = document.createElement('a');
     lien.href = url;
