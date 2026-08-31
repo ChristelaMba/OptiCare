@@ -5,14 +5,15 @@ import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
-import { RendezVousAffichage, StatutRendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
+import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
+import { StatutRendezVous } from '../../../models/rendez-vous.model';
 
 const TAILLE_PAGE = 8;
 
-const LABEL_STATUT: Record<StatutRendezVousAffichage, string> = {
-  enAttente: 'En attente',
+const LABEL_STATUT: Record<StatutRendezVous, string> = {
+  en_attente: 'En attente',
   confirme: 'Confirmé',
-  honore: 'Honoré',
+  termine: 'Terminé',
   annule: 'Annulé',
 };
 
@@ -20,7 +21,7 @@ const LABEL_STATUT: Record<StatutRendezVousAffichage, string> = {
  * Reproduction de la maquette `maquette/historique_des_rendez_vous_opticare_admin/`.
  * Écart avec la maquette : le statut « Non présenté » qu'elle affiche
  * n'existe pas dans le modèle RendezVous officiel (§5 du cahier des
- * charges : enAttente | confirme | annule | honore) — remplacé par les 4
+ * charges : en_attente | confirme | annule | termine) — remplacé par les 4
  * statuts réels. Le bouton « Exporter » télécharge un CSV des lignes
  * actuellement filtrées (fonctionnalité réelle, pas un simple visuel).
  */
@@ -41,15 +42,17 @@ export class HistoriqueRdv implements OnInit {
   private readonly rendezVous = signal<RendezVousAffichage[]>([]);
 
   readonly labelStatut = LABEL_STATUT;
-  readonly statuts: StatutRendezVousAffichage[] = ['enAttente', 'confirme', 'honore', 'annule'];
+  readonly statuts: StatutRendezVous[] = ['en_attente', 'confirme', 'termine', 'annule'];
 
   readonly texteRecherche = signal('');
-  readonly filtreStatut = signal<StatutRendezVousAffichage | 'tous'>('tous');
+  readonly filtreStatut = signal<StatutRendezVous | 'tous'>('tous');
   readonly filtreOpticien = signal<string>('tous');
   readonly pageActuelle = signal(1);
 
   readonly opticiensDisponibles = computed(() =>
-    [...new Set(this.rendezVous().map((r) => r.opticienAffiche))].sort((a, b) => a.localeCompare(b)),
+    [...new Set(this.rendezVous().map((r) => r.praticienNom).filter((nom): nom is string => !!nom))].sort((a, b) =>
+      a.localeCompare(b),
+    ),
   );
 
   private readonly rendezVousFiltres = computed(() => {
@@ -58,11 +61,13 @@ export class HistoriqueRdv implements OnInit {
     const opticien = this.filtreOpticien();
 
     return [...this.rendezVous()]
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      // `date` est une chaîne ISO (YYYY-MM-DD) : triable lexicalement, pas besoin de Date/getTime().
+      .sort((a, b) => b.date.localeCompare(a.date))
       .filter((r) => {
-        const correspondTexte = !texte || r.nomPatientAffiche.toLowerCase().includes(texte) || r.motifAffiche.toLowerCase().includes(texte);
+        const nomPatient = (r.nomPatientAffiche ?? '').toLowerCase();
+        const correspondTexte = !texte || nomPatient.includes(texte) || r.motif.toLowerCase().includes(texte);
         const correspondStatut = statut === 'tous' || r.statut === statut;
-        const correspondOpticien = opticien === 'tous' || r.opticienAffiche === opticien;
+        const correspondOpticien = opticien === 'tous' || r.praticienNom === opticien;
         return correspondTexte && correspondStatut && correspondOpticien;
       });
   });
@@ -87,7 +92,11 @@ export class HistoriqueRdv implements OnInit {
 
     this.rendezVousService.listerParCabinet(this.cabinetId).subscribe({
       next: (rendezVous) => {
-       this.rendezVous.set(rendezVous as unknown as RendezVousAffichage[]);
+        // Pas de cast : RendezVousAffichage n'ajoute qu'un champ optionnel
+        // (nomPatientAffiche) à RendezVous, donc un RendezVous[] est déjà
+        // assignable tel quel. Si ça cesse un jour de compiler ici, c'est
+        // que le contrat a vraiment divergé — et il faut le voir, pas le masquer.
+        this.rendezVous.set(rendezVous);
         this.chargement.set(false);
       },
       error: () => {
@@ -115,12 +124,12 @@ export class HistoriqueRdv implements OnInit {
     const lignes = [
       ['Patient', 'Motif', 'Date', 'Heure', 'Statut', 'Opticien(ne)'],
       ...this.rendezVousFiltres().map((r) => [
-        r.nomPatientAffiche,
-        r.motifAffiche,
-        r.date.toLocaleDateString('fr-FR'),
-        r.heure,
+        r.nomPatientAffiche ?? 'Patient',
+        r.motif,
+        new Date(r.date).toLocaleDateString('fr-FR'),
+        `${r.heureDebut} - ${r.heureFin}`,
         this.labelStatut[r.statut],
-        r.opticienAffiche,
+        r.praticienNom ?? '',
       ]),
     ];
     const csv = lignes.map((ligne) => ligne.map((champ) => `"${champ.replace(/"/g, '""')}"`).join(';')).join('\n');

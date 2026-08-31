@@ -1,4 +1,4 @@
-export interface PrescriptionOeil {
+export interface PrescriptionOeilAffichage {
   sphere: string;
   cylindre: string;
   axe: string;
@@ -8,8 +8,8 @@ export interface PrescriptionOeil {
 }
 
 export interface Prescription {
-  oeilDroit: PrescriptionOeil;
-  oeilGauche: PrescriptionOeil;
+  oeilDroit: PrescriptionOeilAffichage;
+  oeilGauche: PrescriptionOeilAffichage;
 }
 
 export interface DocumentMedical {
@@ -20,7 +20,7 @@ export interface DocumentMedical {
   url?: string;
 }
 
-export interface FicheConsultation {
+export interface FicheConsultationResume {
   id: string;
   date: string;
   motif: string;
@@ -37,5 +37,5 @@ export interface PatientDossier {
   nom: string;
   age: number;
   sexe: string;
-  fiches: FicheConsultation[];
+  fiches: FicheConsultationResume[];
 }

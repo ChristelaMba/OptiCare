@@ -134,21 +134,21 @@
                   <td class="py-3 px-space-4">
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs shrink-0">
-                        {{ initiales(rdv.nomPatientAffiche) }}
+                        {{ initiales(rdv.nomPatientAffiche ?? 'Patient') }}
                       </div>
                       <div>
-                        <p class="font-medium">{{ rdv.nomPatientAffiche }}</p>
-                        <p class="text-text-muted text-xs">{{ rdv.motifAffiche }}</p>
+                        <p class="font-medium">{{ rdv.nomPatientAffiche ?? 'Patient' }}</p>
+                        <p class="text-text-muted text-xs">{{ rdv.motif }}</p>
                       </div>
                     </div>
                   </td>
                   <td class="py-3 px-space-4 text-on-surface-variant">{{ rdv.date | date: 'd MMM y' }}</td>
-                  <td class="py-3 px-space-4 text-on-surface-variant">{{ rdv.heure }}</td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ rdv.heureDebut }} - {{ rdv.heureFin }}</td>
                   <td class="py-3 px-space-4">
                     @switch (rdv.statut) {
-                      @case ('honore') {
+                      @case ('termine') {
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-badge text-badge">
-                          <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Honoré
+                          <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Terminé
                         </span>
                       }
                       @case ('annule') {
@@ -168,7 +168,7 @@
                       }
                     }
                   </td>
-                  <td class="py-3 px-space-4">{{ rdv.opticienAffiche }}</td>
+                  <td class="py-3 px-space-4">{{ rdv.praticienNom ?? '—' }}</td>
                 </tr>
               }
             }

@@ -17,6 +17,8 @@ export interface PrescriptionOeil {
   cylindre: number | null;
   axe: number | null;
   add: number | null;
+  avl: string; // acuité visuelle de loin — §5 du cahier des charges
+  avp: string; // acuité visuelle de près — §5 du cahier des charges
 }
 
 export interface FicheConsultation {
@@ -138,6 +140,8 @@ export interface PrescriptionOeilSaisie {
   cylindre: number | null;
   axe: number | null;
   add: number | null;
+  avl: string;
+  avp: string;
 }
 
 export interface SymptomesFiche {

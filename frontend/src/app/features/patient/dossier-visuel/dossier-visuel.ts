@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
 import { DossierVisuelService } from '../../../core/services/dossier-visuel';
 import {
   PatientDossier,
-  FicheConsultation,
+  FicheConsultationResume,
   DocumentMedical
 } from '../../../models/dossier-visuel.model';
 
@@ -30,7 +30,7 @@ export class DossierVisuel implements OnInit {
   dossier = signal<PatientDossier | null>(null);
   chargement = signal(true);
   erreur = signal<string | null>(null);
-  ficheSelectionnee = signal<FicheConsultation | null>(null);
+  ficheSelectionnee = signal<FicheConsultationResume | null>(null);
 
   // Etat de la sidebar mobile
   sidebarOuverte = signal(false);
@@ -67,7 +67,7 @@ export class DossierVisuel implements OnInit {
     });
   }
 
-  selectionnerFiche(fiche: FicheConsultation): void {
+  selectionnerFiche(fiche: FicheConsultationResume): void {
     this.ficheSelectionnee.set(fiche);
   }
 
