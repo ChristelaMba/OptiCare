@@ -112,6 +112,10 @@ export class EnregistrementPatient {
     const formValue = this.patientForm.getRawValue();
 
     const patient = {
+      // Patient créé par une secrétaire depuis le cabinet : il n'a pas de
+      // compte propre, et aucun dossier visuel n'existe encore pour lui.
+      estUtilisateur: false,
+      dossierVisuelId: '', // généré et renseigné par le back au moment de la création
       nom: formValue.nom.trim(),
       prenom: formValue.prenom.trim(),
       dateNaissance: formValue.dateNaissance,
