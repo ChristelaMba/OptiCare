@@ -133,3 +133,27 @@ export interface NouvelleFicheConsultationPayload {
    */
   observations: string;
 }
+export interface PrescriptionOeilSaisie {
+  sphere: number | null;
+  cylindre: number | null;
+  axe: number | null;
+  add: number | null;
+}
+
+export interface SymptomesFiche {
+  baisseVisionLoin: boolean;
+  baisseVisionPres: boolean;
+  diplopie: boolean;
+  cephalees: boolean;
+  larmoiement: boolean;
+  demangeaisons: boolean;
+}
+
+export interface NouvelleFicheConsultationPayload {
+  patientId: string;
+  symptomes: SymptomesFiche;
+  autresPlaintes ?: string;
+  prescriptionOD: PrescriptionOeilSaisie;
+  prescriptionOG: PrescriptionOeilSaisie;
+  observations: string;
+}

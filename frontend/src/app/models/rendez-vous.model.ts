@@ -1,14 +1,31 @@
-export type StatutRendezVous = 'enAttente' | 'confirme' | 'annule' | 'honore';
+export type StatutRendezVous = 'confirme' | 'en_attente' | 'annule' | 'termine';
 
 export interface RendezVous {
   id: string;
-  cabinetId: string; // reference → Cabinet
-  patientId?: string; // reference → Patient — vide si invité sans compte
-  nomInvite?: string;
-  telephoneInvite?: string;
-  date: Date;
-  heure: string;
+  cabinetId: string;
+  cabinetNom: string;
+  cabinetAdresse?: string;
+  praticienNom?: string;
+  motif: string;
+  date: string;
+  heureDebut: string;
+  heureFin: string;
   statut: StatutRendezVous;
-  creePar: 'patient' | 'secretaire';
-  dateCreation: Date;
+}
+export interface JourCalendrier {
+  jour: number;
+  dateComplete: Date;
+  disponible: boolean;
+  horsMois: boolean;
+  estAujourdhui: boolean;
+}
+
+export interface NouveauRendezVousPayload {
+  cabinetId: string;
+  date: string;
+  heure: string;
+  motif: string;
+  nomComplet: string;
+  telephone: string;
+  email: string;
 }

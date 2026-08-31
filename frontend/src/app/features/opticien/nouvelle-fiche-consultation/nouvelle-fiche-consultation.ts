@@ -12,7 +12,8 @@ import { NouvelleFicheConsultationPayload } from '../../../models/fiche-consulta
 
 @Component({
   selector: 'app-nouvelle-fiche-consultation',
-  imports: [],
+  standalone: true,
+  imports: [ReactiveFormsModule],
   templateUrl: './nouvelle-fiche-consultation.html',
   styleUrl: './nouvelle-fiche-consultation.css'
 })
@@ -141,37 +142,6 @@ export class NouvelleFicheConsultation implements OnInit {
       'Fiche à enregistrer :',
       payload
     );
-
-    /*
-     * Quand ton API Laravel sera prête :
-     *
-     * this.ficheConsultationService.creerFiche(payload).subscribe({
-     *
-     *   next: () => {
-     *
-     *     this.enSoumission = false;
-     *
-     *     this.router.navigate([
-     *       '/opticien/patients',
-     *       this.patientId,
-     *       'dossier-visuel'
-     *     ]);
-     *
-     *   },
-     *
-     *   error: (error) => {
-     *
-     *     console.error(
-     *       'Erreur lors de la création de la fiche',
-     *       error
-     *     );
-     *
-     *     this.enSoumission = false;
-     *
-     *   }
-     *
-     * });
-     */
 
     setTimeout(() => {
 

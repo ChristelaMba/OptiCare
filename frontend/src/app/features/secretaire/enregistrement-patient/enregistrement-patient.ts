@@ -127,8 +127,7 @@ export class EnregistrementPatient {
         : undefined,
       profession: formValue.profession.trim() || undefined,
       quartier: formValue.quartier.trim() || undefined,
-      nombreEnfants: formValue.nombreEnfants,
-      createdAt: new Date().toISOString()
+      nombreEnfants: formValue.nombreEnfants
     };
 
     this.patientService.createPatient(patient).subscribe({
