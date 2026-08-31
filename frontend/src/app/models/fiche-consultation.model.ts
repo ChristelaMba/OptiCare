@@ -75,15 +75,39 @@ export interface FicheConsultation {
    */
   autresPlaintes?: string;
 
+  // --- Identité déclarée à cette visite précise (snapshot, indépendant
+  // du DossierVisuel) — §5 du cahier des charges. Ajoutés en catégorie A
+  // (voir POINTS-A-CORRIGER-NOELLY.md) : aucun consommateur actuel
+  // (FicheConsultation n'est importée nulle part), donc sans risque.
+  // Obligatoires comme dans le §5 (pas de `?`, sauf mention contraire).
+  nom: string;
+  age: number;
+  sexe: 'M' | 'F';
+  telephone: string;
+  whatsapp: string;
+  profession: string;
+  quartier: string;
+  nombreEnfants: number;
+
+  // --- Contexte — §5 du cahier des charges.
+  dateAnciennePrescription?: string;
+  puissanceAncienneCorrection?: string;
+  commentConnuCabinet: string;
+
+  /**
+   * Écart pupillaire global (en mm) — §5 du cahier des charges.
+   */
+  ecartPupillaire: number;
+
   /**
    * Prescription œil droit.
    */
-  prescriptionOD: PrescriptionOeil;
+  prescriptionOeilDroit: PrescriptionOeil;
 
   /**
    * Prescription œil gauche.
    */
-  prescriptionOG: PrescriptionOeil;
+  prescriptionOeilGauche: PrescriptionOeil;
 
   /**
    * Observations générales de l'opticien.
