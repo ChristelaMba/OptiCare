@@ -161,6 +161,11 @@
                           <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Confirmé
                         </span>
                       }
+                      @case ('en_attente') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-text-muted font-badge text-badge">
+                          <span class="w-1.5 h-1.5 rounded-full bg-text-disabled"></span> En attente
+                        </span>
+                      }
                       @default {
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-text-muted font-badge text-badge">
                           <span class="w-1.5 h-1.5 rounded-full bg-text-disabled"></span> En attente

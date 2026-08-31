@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
@@ -56,8 +56,7 @@ const RENDEZ_VOUS_MOCK: RendezVous[] = [
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    RouterLinkActive
+    RouterLink
 ],
   templateUrl: './mes-rendez-vous.html',
   styleUrl: './mes-rendez-vous.css'
