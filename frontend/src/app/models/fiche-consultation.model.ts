@@ -132,6 +132,19 @@ export interface NouvelleFicheConsultationPayload {
   patientId: string;
 
   /**
+   * Références réelles du §5 du cahier des charges (flux PriseEnCharge →
+   * FicheConsultation). Ajoutées à côté de patientId — conservé pour la
+   * transition plutôt que remplacé, voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+   */
+  dossierVisuelId: string;
+
+  priseEnChargeId: string;
+
+  cabinetId: string;
+
+  opticienId: string;
+
+  /**
    * Informations générales de la consultation.
    */
   date?: string;

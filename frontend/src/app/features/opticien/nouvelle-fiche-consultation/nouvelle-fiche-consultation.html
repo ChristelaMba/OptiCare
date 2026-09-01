@@ -304,6 +304,70 @@
 
 
         <!-- =================================================
+             CHARGEMENT / ERREURS — dossier patient, prise en charge,
+             enregistrement (voir JOURNAL-MODIFICATIONS-PARTAGEES.md)
+        ================================================== -->
+        @if (chargementPatient()) {
+          <div class="form-card" style="border-left: 4px solid var(--primary); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+            <strong>
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Chargement du dossier patient…
+            </strong>
+          </div>
+        }
+
+        @if (erreurPatient()) {
+          <div class="form-card" style="border-left: 4px solid var(--danger); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+            <strong>
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Patient introuvable
+            </strong>
+            <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">
+              Impossible de récupérer le dossier de ce patient. La consultation ne peut pas démarrer.
+            </p>
+          </div>
+        }
+
+        <!-- CONSULTATION TERMINÉE — fiche verrouillée (lecture seule
+             côté interface uniquement) -->
+        @if (!modifiable()) {
+          <div class="form-card" style="border-left: 4px solid var(--green); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+            <strong>
+              <i class="fa-solid fa-lock"></i>
+              Consultation terminée — fiche verrouillée
+            </strong>
+            <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">
+              La prise en charge est close. Le formulaire est désormais en lecture seule.
+            </p>
+          </div>
+        }
+
+        @if (erreurPriseEnCharge()) {
+          <div class="form-card" style="border-left: 4px solid var(--danger); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+            <strong>
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Prise en charge non disponible
+            </strong>
+            <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">
+              Impossible de créer, clôturer ou rattacher la prise en charge pour le moment.
+            </p>
+          </div>
+        }
+
+        @if (erreurEnregistrement()) {
+          <div class="form-card" style="border-left: 4px solid var(--danger); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+            <strong>
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Échec de l'enregistrement
+            </strong>
+            <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">
+              La fiche n'a pas pu être enregistrée. Réessayez.
+            </p>
+          </div>
+        }
+
+
+        <!-- =================================================
              FORMULAIRE
         ================================================== -->
         <form
@@ -316,9 +380,14 @@
           <!-- =================================================
                SECTION 1
           ================================================== -->
+          <!-- formGroupName="symptomes" est sur la div ci-dessous, pas sur
+               cette <section> : "Autres plaintes" (formControlName="autresPlaintes")
+               est un FormControl frère de "symptomes" dans nouvelle-fiche-consultation.ts,
+               pas un de ses enfants — le mettre ici cassait la fiche avec
+               "Cannot find control with path: 'symptomes -> autresPlaintes'"
+               (NG0304), pré-existant, sans rapport avec le flux PriseEnCharge. -->
           <section
             class="form-card"
-            formGroupName="symptomes"
           >
 
             <div class="card-top-line blue"></div>
@@ -349,7 +418,7 @@
             </div>
 
 
-            <div class="symptoms-grid">
+            <div class="symptoms-grid" formGroupName="symptomes">
 
               <!-- Symptômes visuels -->
               <div class="symptom-group">
@@ -900,7 +969,7 @@
                 type="button"
                 class="secondary-button"
                 (click)="annuler()"
-                [disabled]="enSoumission"
+                [disabled]="enSoumission()"
               >
 
                 <i class="fa-solid fa-xmark"></i>
@@ -913,20 +982,45 @@
               <button
                 type="submit"
                 class="primary-button"
-                [disabled]="enSoumission"
+                [disabled]="enSoumission() || !modifiable() || chargementPatient() || erreurPatient() || !priseEnChargeId()"
               >
 
                 <i
                   class="fa-solid"
-                  [class.fa-lock]="!enSoumission"
-                  [class.fa-spinner]="enSoumission"
-                  [class.fa-spin]="enSoumission"
+                  [class.fa-lock]="!enSoumission()"
+                  [class.fa-spinner]="enSoumission()"
+                  [class.fa-spin]="enSoumission()"
                 ></i>
 
                 {{
-                  enSoumission
+                  enSoumission()
                     ? 'Enregistrement…'
                     : 'Enregistrer et verrouiller'
+                }}
+
+              </button>
+
+
+              <!-- Distinct de "Enregistrer" : termine réellement la
+                   prise en charge (§5) plutôt que sauvegarder la fiche. -->
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="terminerConsultation()"
+                [disabled]="!modifiable() || enClotureConsultation() || !priseEnChargeId()"
+              >
+
+                <i
+                  class="fa-solid"
+                  [class.fa-flag-checkered]="!enClotureConsultation()"
+                  [class.fa-spinner]="enClotureConsultation()"
+                  [class.fa-spin]="enClotureConsultation()"
+                ></i>
+
+                {{
+                  enClotureConsultation()
+                    ? 'Clôture…'
+                    : 'Terminer la consultation'
                 }}
 
               </button>
