@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   FicheConsultation,
+  FicheConsultationHistorique,
   NouvelleFicheConsultationPayload
 } from '../../models/fiche-consultation.model';
 
@@ -28,5 +29,17 @@ export class FicheConsultationService {
   /** POST /consultations — confirmé au §8 du cahier des charges. */
   creer(payload: NouvelleFicheConsultationPayload): Observable<FicheConsultation> {
     return this.http.post<FicheConsultation>(`${BASE_URL}/consultations`, payload);
+  }
+
+  /**
+   * TODO : route NON confirmée avec le back-end — §8 ne liste que
+   * `GET /patients/{id}/consultations` (clé patientId), pas de route
+   * indexée par dossierVisuelId. `dossierVisuelId` choisi ici par
+   * cohérence avec B1 (dossier-visuel-patient.ts ne connaît plus de
+   * patientId) — décision assumée, à confirmer avec Lionel avant
+   * utilisation réelle. Voir POINTS-A-CONFIRMER-BACKEND.md.
+   */
+  listerParDossierVisuel(dossierVisuelId: string): Observable<FicheConsultationHistorique[]> {
+    return this.http.get<FicheConsultationHistorique[]>(`${BASE_URL}/dossiers-visuels/${dossierVisuelId}/consultations`);
   }
 }

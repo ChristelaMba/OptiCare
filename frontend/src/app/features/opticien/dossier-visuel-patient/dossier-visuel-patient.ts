@@ -2,17 +2,8 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Patient } from '../../../models/patient.model';
-
-interface FicheHistorique {
-  id: string;
-  date: string;
-  heure?: string;
-  motif: string;
-  statut: 'terminee' | 'brouillon' | 'archivee';
-  opticien: string;
-  cabinet: string;
-  diagnostic?: string;
-}
+import { FicheConsultationHistorique } from '../../../models/fiche-consultation.model';
+import { FicheConsultationService } from '../../../core/services/fiche-consultation';
 
 @Component({
   selector: 'app-dossier-visuel-patient',
@@ -25,6 +16,7 @@ export class DossierVisuelPatient implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly ficheConsultationService = inject(FicheConsultationService);
 
   // 2026-09-02 : renommé de patientId — la route déclare
   // dossier-visuel-patient/:dossierVisuelId, et c'est bien cette valeur
@@ -36,7 +28,10 @@ export class DossierVisuelPatient implements OnInit {
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
   patient = signal<Patient | null>(null);
-  fiches = signal<FicheHistorique[]>([]);
+  fiches = signal<FicheConsultationHistorique[]>([]);
+  // Non touché (2026-09-02, B3) : concept séparé de FicheConsultation.modifiable
+  // (celui-ci est par fiche, dossierModifiable est au niveau du dossier
+  // entier) — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
   dossierModifiable = signal(true);
 
   nombreFiches = computed(() => this.fiches().length);
@@ -56,9 +51,8 @@ export class DossierVisuelPatient implements OnInit {
 
     // Mock en attendant l'API Laravel — id patient laissé fixe (aucune
     // vraie référence patient disponible ici) ; dossierVisuelId reflète
-    // maintenant la vraie valeur de la route, plus une constante 'dv1'
-    // déconnectée de l'URL (corrigé le 2026-09-02 avec le renommage du
-    // paramètre de route).
+    // la vraie valeur de la route (corrigé le 2026-09-02 avec le
+    // renommage du paramètre de route, B1).
     setTimeout(() => {
       this.patient.set({
         id: 'patient-mock-1',
@@ -72,20 +66,18 @@ export class DossierVisuelPatient implements OnInit {
         dossierVisuelId: this.dossierVisuelId || 'dv1'
       } as Patient);
 
-      this.fiches.set([
-        {
-          id: '1',
-          date: '2026-01-14',
-          motif: 'Examen de la vue standard',
-          statut: 'terminee',
-          opticien: 'Dr. Marie Fotso',
-          cabinet: 'OptiCare Centre',
-          diagnostic: 'Presbytie débutante confirmée.'
-        }
-      ]);
-
       this.isLoading.set(false);
     }, 500);
+
+    // Branché sur le vrai service (2026-09-02, B3) — remplace le tableau
+    // FicheHistorique codé en dur. Échec traité séparément de la carte
+    // patient : une erreur ici laisse juste l'historique vide (état
+    // "Aucun historique disponible" déjà existant), plutôt que de
+    // cacher toute la page derrière errorMessage.
+    this.ficheConsultationService.listerParDossierVisuel(this.dossierVisuelId).subscribe({
+      next: (fiches) => this.fiches.set(fiches),
+      error: () => this.fiches.set([])
+    });
   }
 
   initiales(patient: Patient): string {
@@ -103,7 +95,7 @@ export class DossierVisuelPatient implements OnInit {
     this.router.navigate(['/opticien/nouvelle-fiche-consultation', this.dossierVisuelId]);
   }
 
-  ouvrirFiche(fiche: FicheHistorique): void {
+  ouvrirFiche(fiche: FicheConsultationHistorique): void {
     this.router.navigate(['/opticien/facture-ordonnance', fiche.id]);
   }
 }

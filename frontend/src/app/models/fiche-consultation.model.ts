@@ -1,8 +1,3 @@
-export type StatutFiche =
-  | 'terminee'
-  | 'brouillon'
-  | 'archivee';
-
 /**
  * Renommée de SymptomeConsultation le 2026-09-02 (B2) : 5 champs exacts
  * du §5 du cahier des charges (visionFlouLoin, visionFlouPres,
@@ -53,9 +48,14 @@ export interface FicheConsultation {
   motif: string;
 
   /**
-   * Statut de la fiche
+   * true tant que la prise en charge liée n'est pas terminée — §5 du
+   * cahier des charges. Remplace `statut` (2026-09-02, B3) : ce champ
+   * n'existe pas dans le vrai FicheConsultation du §5, seul `modifiable`
+   * y figure, calculé depuis PriseEnCharge.statut. Portée volontairement
+   * limitée à ce remplacement — patientId/opticien/cabinet restent en
+   * l'état, chantier séparé (voir JOURNAL-MODIFICATIONS-PARTAGEES.md).
    */
-  statut: StatutFiche;
+  modifiable: boolean;
 
   /**
    * Opticien ayant réalisé la consultation
@@ -128,6 +128,26 @@ export interface FicheConsultation {
   createdAt?: string;
 
   updatedAt?: string;
+}
+
+/**
+ * Vue résumée d'une FicheConsultation pour un historique/timeline — ex.
+ * dossier-visuel-patient.ts (2026-09-02, B3). Ne porte que les champs
+ * réellement affichés dans une liste (7, contre ~20 sur FicheConsultation
+ * complète — plaintes, prescriptions, écart pupillaire... n'ont pas leur
+ * place ici). Nommée différemment de FicheConsultationResume
+ * (dossier-visuel.model.ts, écran patient) pour ne pas répéter la
+ * collision de nom déjà réglée sur ce même modèle.
+ */
+export interface FicheConsultationHistorique {
+  id: string;
+  date: string;
+  heure?: string;
+  motif: string;
+  modifiable: boolean;
+  opticien: string;
+  cabinet: string;
+  diagnostic?: string;
 }
 
 

@@ -513,26 +513,11 @@
 
                   <span
                     class="fiche-status"
-                    [class.completed]="fiche.statut === 'terminee'"
-                    [class.draft]="fiche.statut === 'brouillon'"
-                    [class.archived]="fiche.statut === 'archivee'"
+                    [class.completed]="!fiche.modifiable"
+                    [class.draft]="fiche.modifiable"
                   >
 
-                    @switch (fiche.statut) {
-
-                      @case ('terminee') {
-                        Terminée
-                      }
-
-                      @case ('brouillon') {
-                        Brouillon
-                      }
-
-                      @case ('archivee') {
-                        Archivée
-                      }
-
-                    }
+                    {{ fiche.modifiable ? 'Modifiable' : 'Verrouillée' }}
 
                   </span>
 
