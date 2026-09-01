@@ -317,10 +317,10 @@
 
         <article
           class="appointment-card"
-          [class.status-confirmed]="rdv.statut === 'confirmé'"
-          [class.status-pending]="rdv.statut === 'attente'"
-          [class.status-cancelled]="rdv.statut === 'annulé'"
-          [class.status-completed]="rdv.statut === 'honoré'"
+          [class.status-confirmed]="rdv.statut === 'confirme'"
+          [class.status-pending]="rdv.statut === 'en_attente'"
+          [class.status-cancelled]="rdv.statut === 'annule'"
+          [class.status-completed]="rdv.statut === 'termine'"
         >
 
 
@@ -329,12 +329,14 @@
           <div class="appointment-time">
 
             <strong>
-              {{ rdv.heure }}
+              {{ rdv.heureDebut }}
             </strong>
 
-            <span>
-              {{ rdv.duree }}
-            </span>
+            @if (duree(rdv)) {
+              <span>
+                {{ duree(rdv) }}
+              </span>
+            }
 
           </div>
 
@@ -345,7 +347,7 @@
 
             <div class="patient-avatar">
 
-              {{ rdv.patient.charAt(0) }}
+              {{ nomAffiche(rdv).charAt(0) }}
 
             </div>
 
@@ -353,43 +355,12 @@
             <div class="patient-details">
 
               <h3>
-                {{ rdv.patient }}
+                {{ nomAffiche(rdv) }}
               </h3>
 
               <p>
                 {{ rdv.motif }}
               </p>
-
-
-              <div class="patient-meta">
-
-
-                @if (rdv.dossier) {
-
-                  <span>
-
-                    <i class="fa-regular fa-folder"></i>
-
-                    Dossier {{ rdv.dossier }}
-
-                  </span>
-
-                }
-
-
-                @if (rdv.telephone) {
-
-                  <span>
-
-                    <i class="fa-solid fa-phone"></i>
-
-                    {{ rdv.telephone }}
-
-                  </span>
-
-                }
-
-              </div>
 
             </div>
 
@@ -402,19 +373,19 @@
 
             <span class="status-badge">
 
-              @if (rdv.statut === 'confirmé') {
+              @if (rdv.statut === 'confirme') {
 
                 <i class="fa-solid fa-circle-check"></i>
 
               }
 
-              @else if (rdv.statut === 'attente') {
+              @else if (rdv.statut === 'en_attente') {
 
                 <i class="fa-regular fa-clock"></i>
 
               }
 
-              @else if (rdv.statut === 'annulé') {
+              @else if (rdv.statut === 'annule') {
 
                 <i class="fa-solid fa-circle-xmark"></i>
 
@@ -460,10 +431,50 @@
 
 
       <!-- =================================================
-           AUCUN RENDEZ-VOUS
+           CHARGEMENT / ERREUR / AUCUN RENDEZ-VOUS
       ================================================== -->
 
-      @if (rendezVous().length === 0) {
+      @if (chargement()) {
+
+        <div class="empty-agenda">
+
+          <div class="empty-icon">
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+          </div>
+
+          <h3>
+            Chargement...
+          </h3>
+
+          <p>
+            Récupération des rendez-vous en cours.
+          </p>
+
+        </div>
+
+      } @else if (erreur()) {
+
+        <div class="empty-agenda">
+
+          <div class="empty-icon">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+          </div>
+
+          <h3>
+            Une erreur est survenue
+          </h3>
+
+          <p>
+            {{ erreur() }}
+          </p>
+
+        </div>
+
+      } @else if (rendezVous().length === 0) {
 
         <div class="empty-agenda">
 
@@ -543,14 +554,14 @@
 
           <div class="modal-avatar">
 
-            {{ rdv.patient.charAt(0) }}
+            {{ nomAffiche(rdv).charAt(0) }}
 
           </div>
 
           <div>
 
             <h3>
-              {{ rdv.patient }}
+              {{ nomAffiche(rdv) }}
             </h3>
 
             <p>
@@ -587,23 +598,27 @@
             </span>
 
             <strong>
-              {{ rdv.heure }}
+              {{ rdv.heureDebut }}
             </strong>
 
           </div>
 
 
-          <div class="detail-item">
+          @if (duree(rdv)) {
 
-            <span class="detail-label">
-              Durée
-            </span>
+            <div class="detail-item">
 
-            <strong>
-              {{ rdv.duree }}
-            </strong>
+              <span class="detail-label">
+                Durée
+              </span>
 
-          </div>
+              <strong>
+                {{ duree(rdv) }}
+              </strong>
+
+            </div>
+
+          }
 
 
           <div class="detail-item">
@@ -620,40 +635,6 @@
 
           </div>
 
-
-          @if (rdv.dossier) {
-
-            <div class="detail-item">
-
-              <span class="detail-label">
-                Dossier patient
-              </span>
-
-              <strong>
-                {{ rdv.dossier }}
-              </strong>
-
-            </div>
-
-          }
-
-
-          @if (rdv.telephone) {
-
-            <div class="detail-item">
-
-              <span class="detail-label">
-                Téléphone
-              </span>
-
-              <strong>
-                {{ rdv.telephone }}
-              </strong>
-
-            </div>
-
-          }
-
         </div>
 
 
@@ -662,7 +643,7 @@
         <div class="modal-actions">
 
 
-          @if (rdv.statut === 'attente') {
+          @if (rdv.statut === 'en_attente') {
 
             <button
               type="button"
@@ -680,8 +661,8 @@
 
 
           @if (
-            rdv.statut === 'confirmé' ||
-            rdv.statut === 'attente'
+            rdv.statut === 'confirme' ||
+            rdv.statut === 'en_attente'
           ) {
 
             <button
@@ -699,7 +680,7 @@
           }
 
 
-          @if (rdv.statut === 'confirmé') {
+          @if (rdv.statut === 'confirme') {
 
             <button
               type="button"
