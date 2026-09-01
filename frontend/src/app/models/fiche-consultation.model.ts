@@ -3,13 +3,21 @@ export type StatutFiche =
   | 'brouillon'
   | 'archivee';
 
-export interface SymptomeConsultation {
-  baisseVisionLoin: boolean;
-  baisseVisionPres: boolean;
-  diplopie: boolean;
-  cephalees: boolean;
-  larmoiement: boolean;
+/**
+ * Renommée de SymptomeConsultation le 2026-09-02 (B2) : 5 champs exacts
+ * du §5 du cahier des charges (visionFlouLoin, visionFlouPres,
+ * visionDouble, demangeaisons, larmoiement). `cephalees` (qui existait
+ * ici) n'a aucun équivalent dans le §5 — retiré, voir
+ * nouvelle-fiche-consultation.ts (le champ passe par `autresPlaintes`
+ * en texte libre désormais). `diplopie` renommé en `visionDouble`
+ * (même notion médicale, nom du §5).
+ */
+export interface Plaintes {
+  visionFlouLoin: boolean;
+  visionFlouPres: boolean;
+  visionDouble: boolean;
   demangeaisons: boolean;
+  larmoiement: boolean;
 }
 
 export interface PrescriptionOeil {
@@ -66,9 +74,9 @@ export interface FicheConsultation {
   diagnostic?: string;
 
   /**
-   * Symptômes déclarés par le patient.
+   * Plaintes déclarées par le patient — §5 du cahier des charges.
    */
-  symptomes: SymptomeConsultation;
+  plaintes: Plaintes;
 
   /**
    * Autres plaintes éventuelles.
@@ -126,15 +134,16 @@ export interface FicheConsultation {
 /**
  * Payload utilisé lors de la création
  * d'une nouvelle fiche de consultation.
+ *
+ * `patientId` retiré le 2026-09-02 (B1) : nouvelle-fiche-consultation.ts
+ * ne connaît plus que dossierVisuelId (reçu via la route), plus
+ * patientId — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
  */
 export interface NouvelleFicheConsultationPayload {
 
-  patientId: string;
-
   /**
    * Références réelles du §5 du cahier des charges (flux PriseEnCharge →
-   * FicheConsultation). Ajoutées à côté de patientId — conservé pour la
-   * transition plutôt que remplacé, voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+   * FicheConsultation).
    */
   dossierVisuelId: string;
 
@@ -154,9 +163,9 @@ export interface NouvelleFicheConsultationPayload {
   motif?: string;
 
   /**
-   * Symptômes.
+   * Plaintes — §5 du cahier des charges.
    */
-  symptomes: SymptomeConsultation;
+  plaintes: Plaintes;
 
   autresPlaintes?: string;
 
@@ -181,18 +190,17 @@ export interface PrescriptionOeilSaisie {
   avp: string;
 }
 
-export interface SymptomesFiche {
-  baisseVisionLoin: boolean;
-  baisseVisionPres: boolean;
-  diplopie: boolean;
-  cephalees: boolean;
-  larmoiement: boolean;
+/** Miroir de Plaintes pour la seconde déclaration dupliquée ci-dessous — voir PrescriptionOeilSaisie. */
+export interface PlaintesSaisie {
+  visionFlouLoin: boolean;
+  visionFlouPres: boolean;
+  visionDouble: boolean;
   demangeaisons: boolean;
+  larmoiement: boolean;
 }
 
 export interface NouvelleFicheConsultationPayload {
-  patientId: string;
-  symptomes: SymptomesFiche;
+  plaintes: PlaintesSaisie;
   autresPlaintes ?: string;
   prescriptionOD: PrescriptionOeilSaisie;
   prescriptionOG: PrescriptionOeilSaisie;

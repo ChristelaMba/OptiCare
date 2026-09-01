@@ -26,7 +26,12 @@ export class DossierVisuelPatient implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  patientId = '';
+  // 2026-09-02 : renommé de patientId — la route déclare
+  // dossier-visuel-patient/:dossierVisuelId, et c'est bien cette valeur
+  // (pas un patientId) qui est ensuite transmise à
+  // nouvelle-fiche-consultation (voir nouvelleFiche() plus bas et
+  // JOURNAL-MODIFICATIONS-PARTAGEES.md).
+  dossierVisuelId = '';
 
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
@@ -38,9 +43,9 @@ export class DossierVisuelPatient implements OnInit {
   derniereFiche = computed(() => this.fiches()[0]);
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('patientId');
+    const id = this.route.snapshot.paramMap.get('dossierVisuelId');
     if (id) {
-      this.patientId = id;
+      this.dossierVisuelId = id;
     }
     this.chargerDossier();
   }
@@ -49,10 +54,14 @@ export class DossierVisuelPatient implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    // Mock en attendant l'API Laravel
+    // Mock en attendant l'API Laravel — id patient laissé fixe (aucune
+    // vraie référence patient disponible ici) ; dossierVisuelId reflète
+    // maintenant la vraie valeur de la route, plus une constante 'dv1'
+    // déconnectée de l'URL (corrigé le 2026-09-02 avec le renommage du
+    // paramètre de route).
     setTimeout(() => {
       this.patient.set({
-        id: this.patientId || '1',
+        id: 'patient-mock-1',
         nom: 'Dupont',
         prenom: 'Jean',
         age: 45,
@@ -60,7 +69,7 @@ export class DossierVisuelPatient implements OnInit {
         telephone: '06 12 34 56 78',
         quartier: 'Bonanjo',
         estUtilisateur: false,
-        dossierVisuelId: 'dv1'
+        dossierVisuelId: this.dossierVisuelId || 'dv1'
       } as Patient);
 
       this.fiches.set([
@@ -84,7 +93,14 @@ export class DossierVisuelPatient implements OnInit {
   }
 
   nouvelleFiche(): void {
-    this.router.navigate(['/opticien/nouvelle-fiche-consultation', this.patientId]);
+    // 2026-09-02 (B1) : la route de nouvelle-fiche-consultation attend
+    // dossierVisuelId, plus patientId — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+    // On a déjà la vraie valeur (celle de notre propre route, renommée
+    // le même jour), pas besoin de repasser par patient().
+    if (!this.dossierVisuelId) {
+      return;
+    }
+    this.router.navigate(['/opticien/nouvelle-fiche-consultation', this.dossierVisuelId]);
   }
 
   ouvrirFiche(fiche: FicheHistorique): void {

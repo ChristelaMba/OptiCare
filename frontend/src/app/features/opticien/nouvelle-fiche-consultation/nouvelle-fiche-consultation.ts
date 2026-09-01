@@ -10,7 +10,6 @@ import {
 import { FicheConsultationService } from '../../../core/services/fiche-consultation';
 import { PriseEnCharge as PriseEnChargeService } from '../../../core/services/prise-en-charge';
 import { Auth } from '../../../core/services/auth';
-import { PatientService } from '../../../core/services/patient';
 import { NouvelleFicheConsultationPayload } from '../../../models/fiche-consultation.model';
 
 @Component({
@@ -23,10 +22,7 @@ import { NouvelleFicheConsultationPayload } from '../../../models/fiche-consulta
 export class NouvelleFicheConsultation implements OnInit {
 
   private readonly auth = inject(Auth);
-  private readonly patientService = inject(PatientService);
   private readonly priseEnChargeService = inject(PriseEnChargeService);
-
-  patientId = '';
 
   patientNom = 'Jean Dupont';
 
@@ -44,25 +40,23 @@ export class NouvelleFicheConsultation implements OnInit {
   readonly enSoumission = signal(false);
 
   /* =====================================================
-     RÉSOLUTION DU PATIENT → DossierVisuel
+     DOSSIER VISUEL
      ---------------------------------------------------
-     2026-09-01 : dossierVisuelId était un placeholder (= patientId),
-     documenté comme tel. Corrigé — vrai lookup via PatientService
-     avant d'ouvrir la prise en charge. Voir
-     JOURNAL-MODIFICATIONS-PARTAGEES.md.
+     2026-09-02 (B1) : dossierVisuelId est maintenant le paramètre de
+     route lui-même (opticien.routes.ts : nouvelle-fiche-consultation/:dossierVisuelId),
+     plus un placeholder ni un lookup PatientService — l'écran appelant
+     (dossier-visuel-patient.ts) a déjà résolu le patient et transmet sa
+     vraie référence. resoudrePatient()/PatientService, devenus
+     redondants, ont été retirés — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
   ===================================================== */
 
   dossierVisuelId = '';
 
-  readonly chargementPatient = signal(false);
-
-  readonly erreurPatient = signal(false);
-
   /* =====================================================
      PRISE EN CHARGE
      ---------------------------------------------------
-     Ouverte automatiquement une fois le patient résolu — c'est elle
-     qui, une fois terminée, verrouille définitivement la fiche (§5 du
+     Ouverte automatiquement à l'arrivée sur l'écran — c'est elle qui,
+     une fois terminée, verrouille définitivement la fiche (§5 du
      cahier des charges). Voir JOURNAL-MODIFICATIONS-PARTAGEES.md pour
      le détail du flux et ce qui reste symbolique côté verrouillage.
   ===================================================== */
@@ -102,15 +96,18 @@ export class NouvelleFicheConsultation implements OnInit {
   ) {
     this.form = this.fb.group({
 
-      symptomes: this.fb.group({
-        baisseVisionLoin: [false],
-        baisseVisionPres: [false],
-        diplopie: [false],
-        cephalees: [false],
+      // Renommé de "symptomes" à "plaintes" le 2026-09-02 (B2), pour
+      // matcher Plaintes du §5 — voir fiche-consultation.model.ts.
+      plaintes: this.fb.group({
+        visionFlouLoin: [false],
+        visionFlouPres: [false],
+        visionDouble: [false],
         larmoiement: [false],
         demangeaisons: [false]
       }),
 
+      // "cephalees" retiré (B2) : pas d'équivalent dans Plaintes du §5.
+      // Passe par ce champ texte libre désormais (voir placeholder).
       autresPlaintes: [''],
 
       od: this.fb.group({
@@ -149,61 +146,28 @@ export class NouvelleFicheConsultation implements OnInit {
 
   ngOnInit(): void {
 
-    const idFromQuery =
-      this.route.snapshot.queryParamMap.get('patientId');
+    const idFromRoute =
+      this.route.snapshot.paramMap.get('dossierVisuelId');
 
-    if (idFromQuery) {
-      this.patientId = idFromQuery;
+    if (idFromRoute) {
+      this.dossierVisuelId = idFromRoute;
     }
 
     this.opticienId = this.auth.utilisateur()?.id ?? '';
     this.cabinetId = this.auth.utilisateur()?.cabinetId ?? '';
 
-    this.resoudrePatient();
-
-  }
-
-  /**
-   * Résout dossierVisuelId depuis patientId via PatientService, AVANT
-   * d'ouvrir la prise en charge — remplace l'ancien placeholder
-   * (dossierVisuelId = patientId). Gère le chargement et l'échec
-   * (patient introuvable ou appel en erreur) : dans les deux cas, la
-   * prise en charge n'est PAS ouverte, et les boutons Enregistrer/
-   * Terminer restent désactivés (voir le template) tant que
-   * dossierVisuelId n'est pas résolu.
-   */
-  private resoudrePatient(): void {
-
-    if (!this.patientId) {
-      return;
+    if (this.dossierVisuelId) {
+      this.demarrerPriseEnCharge();
     }
 
-    this.chargementPatient.set(true);
-
-    this.patientService.getPatientById(this.patientId).subscribe({
-
-      next: (patient) => {
-        this.dossierVisuelId = patient.dossierVisuelId;
-        this.chargementPatient.set(false);
-        this.demarrerPriseEnCharge();
-      },
-
-      error: () => {
-        // Patient introuvable, ou route non confirmée (GET /patients/{id}
-        // n'apparaît pas au §8 — voir POINTS-A-CONFIRMER-BACKEND.md).
-        this.chargementPatient.set(false);
-        this.erreurPatient.set(true);
-      }
-
-    });
   }
 
   /**
-   * Ouvre la prise en charge (point 1 du flux) — avant même que
-   * l'opticien ait rempli quoi que ce soit, puisque c'est cet acte-là
-   * (« je commence à m'occuper de ce patient ») que PriseEnCharge est
-   * censée représenter, pas la sauvegarde de la fiche elle-même.
-   * N'est appelée qu'une fois dossierVisuelId résolu (voir resoudrePatient()).
+   * Ouvre la prise en charge dès l'arrivée sur l'écran (point 1 du flux
+   * demandé) — avant même que l'opticien ait rempli quoi que ce soit,
+   * puisque c'est cet acte-là (« je commence à m'occuper de ce patient »)
+   * que PriseEnCharge est censée représenter, pas la sauvegarde de la
+   * fiche elle-même.
    */
   private demarrerPriseEnCharge(): void {
 
@@ -222,9 +186,8 @@ export class NouvelleFicheConsultation implements OnInit {
       },
 
       error: () => {
-        // GET/PATCH confirmés au §8 ; POST /prise-en-charge l'est aussi
-        // (corrigé le 2026-09-01, appelait /prises-en-charge au pluriel
-        // par erreur) — une erreur ici est donc un vrai échec réseau/serveur,
+        // GET/PATCH restent non confirmés au §8 ; POST /prise-en-charge
+        // l'est. Une erreur ici est donc un vrai échec réseau/serveur,
         // pas juste une route non confirmée. On n'empêche pas l'opticien de
         // remplir la fiche pour autant, mais enregistrer()/terminerConsultation()
         // restent bloqués tant que priseEnChargeId est vide (voir le template).
@@ -234,14 +197,21 @@ export class NouvelleFicheConsultation implements OnInit {
     });
   }
 
+  /**
+   * Destination réelle : dossier-visuel-patient.ts (opticien.routes.ts
+   * n'a pas de route /opticien/patients/:id/dossier-visuel — corrigé le
+   * 2026-09-02 en même temps que le passage à dossierVisuelId). Sa
+   * route s'appelle elle aussi :dossierVisuelId depuis le même jour
+   * (renommée séparément, elle attendait encore :patientId au départ) —
+   * voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+   */
   annuler(): void {
 
-    if (this.patientId) {
+    if (this.dossierVisuelId) {
 
       this.router.navigate([
-        '/opticien/patients',
-        this.patientId,
-        'dossier-visuel'
+        '/opticien/dossier-visuel-patient',
+        this.dossierVisuelId
       ]);
 
       return;
@@ -278,8 +248,6 @@ export class NouvelleFicheConsultation implements OnInit {
 
     const payload: NouvelleFicheConsultationPayload = {
 
-      patientId: this.patientId,
-
       dossierVisuelId: this.dossierVisuelId,
 
       priseEnChargeId: this.priseEnChargeId(),
@@ -288,7 +256,7 @@ export class NouvelleFicheConsultation implements OnInit {
 
       opticienId: this.opticienId,
 
-      symptomes: valeurs.symptomes,
+      plaintes: valeurs.plaintes,
 
       autresPlaintes: valeurs.autresPlaintes,
 
@@ -307,9 +275,8 @@ export class NouvelleFicheConsultation implements OnInit {
         this.enSoumission.set(false);
 
         this.router.navigate([
-          '/opticien/patients',
-          this.patientId,
-          'dossier-visuel'
+          '/opticien/dossier-visuel-patient',
+          this.dossierVisuelId
         ]);
       },
 

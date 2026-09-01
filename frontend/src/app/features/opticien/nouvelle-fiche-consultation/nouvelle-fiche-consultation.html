@@ -304,29 +304,12 @@
 
 
         <!-- =================================================
-             CHARGEMENT / ERREURS — dossier patient, prise en charge,
-             enregistrement (voir JOURNAL-MODIFICATIONS-PARTAGEES.md)
+             ERREURS — prise en charge, enregistrement (voir
+             JOURNAL-MODIFICATIONS-PARTAGEES.md). Le lookup patient
+             (chargementPatient/erreurPatient) a été retiré le
+             2026-09-02 (B1) : dossierVisuelId vient directement de la
+             route, plus d'un appel PatientService à cet endroit.
         ================================================== -->
-        @if (chargementPatient()) {
-          <div class="form-card" style="border-left: 4px solid var(--primary); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
-            <strong>
-              <i class="fa-solid fa-spinner fa-spin"></i>
-              Chargement du dossier patient…
-            </strong>
-          </div>
-        }
-
-        @if (erreurPatient()) {
-          <div class="form-card" style="border-left: 4px solid var(--danger); margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
-            <strong>
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              Patient introuvable
-            </strong>
-            <p style="margin: 0.25rem 0 0; color: var(--text-secondary);">
-              Impossible de récupérer le dossier de ce patient. La consultation ne peut pas démarrer.
-            </p>
-          </div>
-        }
 
         <!-- CONSULTATION TERMINÉE — fiche verrouillée (lecture seule
              côté interface uniquement) -->
@@ -380,11 +363,12 @@
           <!-- =================================================
                SECTION 1
           ================================================== -->
-          <!-- formGroupName="symptomes" est sur la div ci-dessous, pas sur
-               cette <section> : "Autres plaintes" (formControlName="autresPlaintes")
-               est un FormControl frère de "symptomes" dans nouvelle-fiche-consultation.ts,
+          <!-- formGroupName="plaintes" (renommé de "symptomes" le
+               2026-09-02, B2) est sur la div ci-dessous, pas sur cette
+               <section> : "Autres plaintes" (formControlName="autresPlaintes")
+               est un FormControl frère de "plaintes" dans nouvelle-fiche-consultation.ts,
                pas un de ses enfants — le mettre ici cassait la fiche avec
-               "Cannot find control with path: 'symptomes -> autresPlaintes'"
+               "Cannot find control with path: 'plaintes -> autresPlaintes'"
                (NG0304), pré-existant, sans rapport avec le flux PriseEnCharge. -->
           <section
             class="form-card"
@@ -418,7 +402,7 @@
             </div>
 
 
-            <div class="symptoms-grid" formGroupName="symptomes">
+            <div class="symptoms-grid" formGroupName="plaintes">
 
               <!-- Symptômes visuels -->
               <div class="symptom-group">
@@ -432,7 +416,7 @@
 
                   <input
                     type="checkbox"
-                    formControlName="baisseVisionLoin"
+                    formControlName="visionFlouLoin"
                   >
 
                   <span class="custom-checkbox">
@@ -450,7 +434,7 @@
 
                   <input
                     type="checkbox"
-                    formControlName="baisseVisionPres"
+                    formControlName="visionFlouPres"
                   >
 
                   <span class="custom-checkbox">
@@ -468,7 +452,7 @@
 
                   <input
                     type="checkbox"
-                    formControlName="diplopie"
+                    formControlName="visionDouble"
                   >
 
                   <span class="custom-checkbox">
@@ -491,24 +475,6 @@
                   <i class="fa-solid fa-notes-medical"></i>
                   Autres symptômes
                 </h4>
-
-                <label class="checkbox-card">
-
-                  <input
-                    type="checkbox"
-                    formControlName="cephalees"
-                  >
-
-                  <span class="custom-checkbox">
-                    <i class="fa-solid fa-check"></i>
-                  </span>
-
-                  <span class="checkbox-text">
-                    Céphalées — maux de tête
-                  </span>
-
-                </label>
-
 
                 <label class="checkbox-card">
 
@@ -566,7 +532,7 @@
                   id="autresPlaintes"
                   formControlName="autresPlaintes"
                   rows="3"
-                  placeholder="Précisez toute autre plainte ou information communiquée par le patient..."
+                  placeholder="Précisez toute autre plainte ou information communiquée par le patient (ex. céphalées, sensibilité à la lumière...)"
                 ></textarea>
 
               </div>
@@ -982,7 +948,7 @@
               <button
                 type="submit"
                 class="primary-button"
-                [disabled]="enSoumission() || !modifiable() || chargementPatient() || erreurPatient() || !priseEnChargeId()"
+                [disabled]="enSoumission() || !modifiable() || !priseEnChargeId()"
               >
 
                 <i
