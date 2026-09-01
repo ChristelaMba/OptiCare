@@ -2,10 +2,26 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/com
 import { delay, Observable, of, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { rendezVousFactices } from '../mocks/rendez-vous-mock-data';
+import { rendezVousFactices, RendezVousAffichage } from '../mocks/rendez-vous-mock-data';
+import { cabinetsFactices } from '../mocks/cabinets-mock-data';
+import { NouveauRendezVousPayload } from '../../models/rendez-vous.model';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 const LATENCE_MS = 400;
+
+/**
+ * Le payload de création (NouveauRendezVousPayload) ne porte qu'une heure
+ * de début, pas de durée — 30 min par défaut ici, cohérent avec la
+ * majorité des créneaux du jeu de données existant. Purement un détail de
+ * mock : le vrai back-end décidera lui-même de la durée du créneau.
+ */
+function ajouterMinutes(heure: string, minutes: number): string {
+  const [h, m] = heure.split(':').map(Number);
+  const total = h * 60 + m + minutes;
+  const hh = Math.floor((total % (24 * 60)) / 60).toString().padStart(2, '0');
+  const mm = (total % 60).toString().padStart(2, '0');
+  return `${hh}:${mm}`;
+}
 
 function reponse<T>(body: T, status = 200): Observable<HttpResponse<T>> {
   return of(new HttpResponse({ body, status })).pipe(delay(LATENCE_MS));
@@ -26,6 +42,31 @@ function erreur404(url: string): Observable<never> {
 export const mockRendezVousInterceptor: HttpInterceptorFn = (req, next) => {
   if (environment.production || !req.url.startsWith(BASE_URL)) {
     return next(req);
+  }
+
+  // POST /rendezvous
+  if (req.method === 'POST' && req.url === `${BASE_URL}/rendezvous`) {
+    const payload = req.body as NouveauRendezVousPayload;
+    const cabinet = cabinetsFactices.find((c) => c.id === payload.cabinetId);
+
+    const nouveau: RendezVousAffichage = {
+      id: `rdv-${Date.now()}`,
+      cabinetId: payload.cabinetId,
+      cabinetNom: cabinet?.nom ?? 'Cabinet',
+      cabinetAdresse: cabinet?.adresse,
+      motif: payload.motif,
+      date: payload.date,
+      heureDebut: payload.heure,
+      heureFin: ajouterMinutes(payload.heure, 30),
+      // Un rendez-vous pris en ligne attend une confirmation par la
+      // secrétaire — jamais confirmé d'office.
+      statut: 'en_attente',
+      nomPatientAffiche: payload.nomComplet,
+    };
+
+    rendezVousFactices.push(nouveau);
+
+    return reponse(nouveau, 201);
   }
 
   // GET /cabinets/{id}/rendezvous

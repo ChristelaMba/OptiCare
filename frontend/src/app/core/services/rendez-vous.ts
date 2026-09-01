@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { RendezVous } from '../../models/rendez-vous.model';
+import { NouveauRendezVousPayload, RendezVous } from '../../models/rendez-vous.model';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
@@ -12,6 +12,11 @@ const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 export class RendezVousService {
 
   private readonly http = inject(HttpClient);
+
+  /** POST /rendezvous — §8 du cahier des charges (rôle Patient, y compris invité). */
+  creer(payload: NouveauRendezVousPayload): Observable<RendezVous> {
+    return this.http.post<RendezVous>(`${BASE_URL}/rendezvous`, payload);
+  }
 
   /**
    * TODO : route non confirmée avec le back-end — le contrat §8 ne liste

@@ -336,7 +336,7 @@
              MESSAGE DE CONFIRMATION
         ================================================== -->
 
-        @if (reservationConfirmee) {
+        @if (reservationConfirmee()) {
 
           <section class="confirmation-card">
 
@@ -1025,15 +1025,30 @@
                   </div>
 
 
+                  <!-- ERREUR DE SOUMISSION -->
+
+                  @if (erreurSoumission()) {
+
+                    <p class="submit-error">
+
+                      <i class="fa-solid fa-triangle-exclamation"></i>
+
+                      {{ erreurSoumission() }}
+
+                    </p>
+
+                  }
+
+
                   <!-- ACTION -->
 
                   <button
                     type="submit"
                     class="btn-primary confirm-button"
-                    [disabled]="!peutConfirmer || enSoumission"
+                    [disabled]="!peutConfirmer || enSoumission()"
                   >
 
-                    @if (enSoumission) {
+                    @if (enSoumission()) {
 
                       <span class="button-loader"></span>
 

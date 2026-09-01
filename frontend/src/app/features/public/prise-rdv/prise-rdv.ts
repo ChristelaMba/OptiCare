@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   FormBuilder,
@@ -114,9 +114,17 @@ export class PriseRdv implements OnInit {
      ÉTAT DE LA RÉSERVATION
   ====================================================== */
 
-  enSoumission = false;
+  // 2026-09-03 : signals plutôt que propriétés simples — l'app tourne
+  // sans zone.js (aucun provideZoneChangeDetection/ProvideZoneless
+  // explicite non plus, cf. app.config.ts), et une mutation de propriété
+  // simple à l'intérieur d'un callback .subscribe() (donc hors de la pile
+  // synchrone du clic) ne redéclenche pas le rendu — déjà rencontré et
+  // corrigé de la même façon sur nouvelle-fiche-consultation.ts.
+  enSoumission = signal(false);
 
-  reservationConfirmee = false;
+  reservationConfirmee = signal(false);
+
+  erreurSoumission = signal<string | null>(null);
 
 
   /* =====================================================
@@ -624,12 +632,13 @@ export class PriseRdv implements OnInit {
     /*
      * Empêcher les doubles clics
      */
-    if (this.enSoumission) {
+    if (this.enSoumission()) {
       return;
     }
 
 
-    this.enSoumission = true;
+    this.enSoumission.set(true);
+    this.erreurSoumission.set(null);
 
 
     /*
@@ -662,35 +671,27 @@ export class PriseRdv implements OnInit {
     };
 
 
-    console.log(
-      'Rendez-vous à créer :',
-      payload
-    );
-
-
     /*
-     * -------------------------------------------------
-     * VERSION TEMPORAIRE
-     * -------------------------------------------------
-     *
-     * Pour l'instant on simule la création.
-     *
-     * Quand ton API sera prête, on remplacera
-     * ce bloc par :
-     *
-     * this.rendezVousService
-     *   .creerRendezVous(payload)
-     *   .subscribe(...)
-     *
+     * 2026-09-03 : appel réel — POST /rendezvous (§8, confirmée). Le
+     * console.log() + setTimeout() qui simulait un succès a été retiré.
      */
+    this.rendezVousService
+      .creer(payload)
+      .subscribe({
 
-    setTimeout(() => {
+        next: () => {
+          this.enSoumission.set(false);
+          this.reservationConfirmee.set(true);
+        },
 
-      this.enSoumission = false;
+        error: () => {
+          this.enSoumission.set(false);
+          this.erreurSoumission.set(
+            "Impossible d'enregistrer votre rendez-vous pour le moment. Réessayez dans quelques instants."
+          );
+        }
 
-      this.reservationConfirmee = true;
-
-    }, 600);
+      });
   }
 
 
