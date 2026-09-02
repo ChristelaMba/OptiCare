@@ -1,0 +1,770 @@
+:host {
+  display: block;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: #eff6ff;
+
+  --text: #172033;
+  --muted: #64748b;
+
+  --border: #e8edf5;
+
+  --background: #f7f9fc;
+  --surface: #ffffff;
+
+  --green: #16a34a;
+  --green-soft: #ecfdf3;
+
+  --amber: #b45309;
+  --amber-soft: #fffbeb;
+
+  --neutral: #64748b;
+  --neutral-soft: #f1f5f9;
+
+  --shadow-sm:
+    0 2px 8px rgba(15, 23, 42, 0.04);
+
+  --shadow-md:
+    0 10px 30px rgba(15, 23, 42, 0.07);
+}
+
+
+/* =========================
+   PAGE
+========================= */
+
+.commande-page {
+  min-height: 100vh;
+
+  padding: 40px;
+
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      rgba(37, 99, 235, 0.06),
+      transparent 28%
+    ),
+    var(--background);
+
+  color: var(--text);
+
+  font-family:
+    Inter,
+    sans-serif;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.page-header {
+  max-width: 1180px;
+
+  margin: 0 auto 32px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 24px;
+}
+
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  width: fit-content;
+
+  color: var(--muted);
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+
+.back-link span {
+  font-size: 18px;
+}
+
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+.eyebrow {
+  color: var(--primary);
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+}
+
+
+.title-block h1 {
+  margin: 0;
+
+  font-family: Poppins, sans-serif;
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  letter-spacing: -0.02em;
+}
+
+
+.title-block p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   RAPPEL PATIENT / RÉFÉRENCES
+========================= */
+
+.rappel-card {
+  max-width: 1180px;
+
+  margin: 0 auto 20px;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  border: 1px solid var(--border);
+
+  border-radius: 22px;
+
+  padding: 28px;
+
+  box-shadow: var(--shadow-md);
+
+  backdrop-filter: blur(10px);
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+
+.rappel-patient {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+
+.patient-avatar {
+  width: 60px;
+  height: 60px;
+
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dbeafe,
+      #eff6ff
+    );
+
+  color: var(--primary);
+
+  font-family: Poppins, sans-serif;
+
+  font-size: 19px;
+
+  font-weight: 600;
+
+  flex-shrink: 0;
+}
+
+
+.patient-avatar.muted {
+  background: var(--neutral-soft);
+
+  color: var(--muted);
+}
+
+
+.patient-avatar.muted span {
+  font-size: 26px;
+}
+
+
+.patient-identity h2 {
+  margin: 0;
+
+  font-family: Poppins, sans-serif;
+
+  font-size: 19px;
+
+  font-weight: 600;
+}
+
+
+.patient-meta {
+  margin: 4px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+
+.rappel-refs {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 22px;
+}
+
+
+.ref-chip {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.ref-label {
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.ref-chip strong {
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   DÉTAIL (ÉQUIPEMENT / DIAGNOSTIC / STATUT)
+========================= */
+
+.detail-card {
+  max-width: 1180px;
+
+  margin: 0 auto 20px;
+
+  background: white;
+
+  border: 1px solid var(--border);
+
+  border-radius: 20px;
+
+  padding: 28px;
+
+  box-shadow: var(--shadow-sm);
+}
+
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+
+.section-heading h2 {
+  margin: 5px 0 0;
+
+  font-family: Poppins, sans-serif;
+
+  font-size: 19px;
+
+  font-weight: 600;
+}
+
+
+/* =========================
+   ÉQUIPEMENT — GRILLE DE CHAMPS
+========================= */
+
+.fields-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.field-item.span-2 {
+  grid-column: span 2;
+}
+
+
+.field-label {
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.field-item strong {
+  color: var(--text);
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+/* =========================
+   DIAGNOSTIC
+========================= */
+
+.diagnostic-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+
+.diagnostic-col {
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  padding: 18px;
+
+  background: #f8fafc;
+}
+
+
+.diagnostic-col-label {
+  display: block;
+
+  margin-bottom: 14px;
+
+  color: var(--primary);
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+
+.diagnostic-values {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 14px;
+}
+
+
+.diagnostic-values div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.diagnostic-values span {
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.diagnostic-values strong {
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   STATUT
+========================= */
+
+.statut-selector {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+
+.statut-pill {
+  border: 1px solid var(--border);
+
+  border-radius: 999px;
+
+  padding: 9px 18px;
+
+  background: white;
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+
+.statut-pill:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+
+.statut-pill:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+
+/* Couleur suggérée par entité/valeur, §7 du cahier des charges :
+   initie = neutral, enCours = info, enVerification = warning,
+   termine = success. Appliquée seulement à l'étape active. */
+
+.statut-pill.actif.statut-initie {
+  background: var(--neutral-soft);
+  color: var(--neutral);
+  border-color: transparent;
+}
+
+
+.statut-pill.actif.statut-enCours {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: transparent;
+}
+
+
+.statut-pill.actif.statut-enVerification {
+  background: var(--amber-soft);
+  color: var(--amber);
+  border-color: transparent;
+}
+
+
+.statut-pill.actif.statut-termine {
+  background: var(--green-soft);
+  color: var(--green);
+  border-color: transparent;
+}
+
+
+.update-error {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 16px 0 0;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  background: #fff7f7;
+
+  color: #dc2626;
+
+  font-size: 13px;
+}
+
+
+.update-error span {
+  font-size: 18px;
+}
+
+
+.notification-reminder {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 16px 0 0;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  background: var(--green-soft);
+
+  color: #15803d;
+
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+
+.notification-reminder span {
+  font-size: 18px;
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.loading-card {
+  max-width: 1180px;
+
+  min-height: 280px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+
+  background: white;
+
+  border-radius: 20px;
+
+  border: 1px solid var(--border);
+}
+
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+
+  border: 3px solid #dbeafe;
+
+  border-top-color: var(--primary);
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+
+.loading-card p {
+  color: var(--muted);
+
+  font-size: 13px;
+}
+
+
+@keyframes spin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+.error-card {
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+  padding: 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  background: #fff7f7;
+
+  border: 1px solid #fee2e2;
+
+  border-radius: 16px;
+}
+
+
+.error-icon {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+
+.error-card h2 {
+  margin: 0 0 3px;
+
+  font-size: 14px;
+}
+
+
+.error-card p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  .commande-page {
+    padding: 28px 24px;
+  }
+
+
+  .fields-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+
+  .field-item.span-2 {
+    grid-column: span 2;
+  }
+
+
+  .diagnostic-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 640px) {
+
+  .commande-page {
+    padding: 20px 16px 90px;
+  }
+
+
+  .title-block h1 {
+    font-size: 25px;
+  }
+
+
+  .rappel-card,
+  .detail-card {
+    padding: 20px;
+
+    border-radius: 18px;
+  }
+
+
+  .rappel-card {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .field-item.span-2 {
+    grid-column: span 1;
+  }
+
+
+  .diagnostic-values {
+    grid-template-columns: 1fr;
+  }
+
+
+  .statut-selector {
+    flex-direction: column;
+  }
+
+
+  .statut-pill {
+    width: 100%;
+  }
+
+}

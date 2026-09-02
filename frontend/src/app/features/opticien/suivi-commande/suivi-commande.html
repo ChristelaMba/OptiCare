@@ -1,1 +1,417 @@
-<p>suivi-commande works!</p>
+<div class="commande-page">
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="page-header">
+
+    <div class="header-left">
+
+      @if (patient()) {
+
+        <a
+          [routerLink]="['/opticien/dossier-visuel-patient', patient()!.dossierVisuelId]"
+          class="back-link"
+        >
+          <span class="material-symbols-outlined">
+            arrow_back
+          </span>
+
+          Retour au dossier patient
+        </a>
+
+      }
+
+      <div class="title-block">
+
+        <span class="eyebrow">
+          COMMANDE
+        </span>
+
+        <h1>
+          Suivi de commande
+        </h1>
+
+        <p>
+          Détail de l'équipement et progression de la commande.
+        </p>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       LOADING
+  ========================== -->
+
+  @if (isLoading()) {
+
+    <section class="loading-card">
+
+      <div class="loading-spinner"></div>
+
+      <p>
+        Chargement de la commande...
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- =========================
+       ERROR
+  ========================== -->
+
+  @if (!isLoading() && errorMessage()) {
+
+    <section class="error-card">
+
+      <div class="error-icon">
+
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+      </div>
+
+      <div>
+
+        <h2>
+          Une erreur est survenue
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  @if (!isLoading() && commande(); as commande) {
+
+    <!-- =========================
+         RAPPEL PATIENT / PRISE EN CHARGE
+    ========================== -->
+
+    <section class="rappel-card">
+
+      <div class="rappel-patient">
+
+        @if (patient(); as patient) {
+
+          <div class="patient-avatar">
+            {{ initiales(patient) }}
+          </div>
+
+          <div class="patient-identity">
+
+            <h2>
+              {{ patient.prenom }}
+              {{ patient.nom }}
+            </h2>
+
+            <p class="patient-meta">
+              {{ patient.age }} ans ·
+              {{ patient.telephone }}
+            </p>
+
+          </div>
+
+        } @else {
+
+          <div class="patient-avatar muted">
+            <span class="material-symbols-outlined">
+              person
+            </span>
+          </div>
+
+          <div class="patient-identity">
+
+            <h2>
+              Patient introuvable
+            </h2>
+
+            <p class="patient-meta">
+              ID patient · {{ commande.patientId }}
+            </p>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <div class="rappel-refs">
+
+        <div class="ref-chip">
+
+          <span class="ref-label">
+            Prise en charge
+          </span>
+
+          <strong>
+            {{ commande.priseEnChargeId }}
+          </strong>
+
+        </div>
+
+
+        <div class="ref-chip">
+
+          <span class="ref-label">
+            Initiée le
+          </span>
+
+          <strong>
+            {{ commande.dateInitiation | date:'dd/MM/yyyy à HH:mm' }}
+          </strong>
+
+        </div>
+
+
+        <div class="ref-chip">
+
+          <span class="ref-label">
+            Dernière mise à jour
+          </span>
+
+          <strong>
+            {{ commande.dateDerniereMiseAJour | date:'dd/MM/yyyy à HH:mm' }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         ÉQUIPEMENT
+    ========================== -->
+
+    <section class="detail-card">
+
+      <div class="section-heading">
+
+        <span class="eyebrow">
+          ÉQUIPEMENT
+        </span>
+
+        <h2>
+          Détail de l'équipement
+        </h2>
+
+      </div>
+
+
+      <div class="fields-grid">
+
+        <div class="field-item">
+          <span class="field-label">Numéro de monture</span>
+          <strong>{{ commande.numeroMonture || '—' }}</strong>
+        </div>
+
+        <div class="field-item">
+          <span class="field-label">Type de verre</span>
+          <strong>{{ commande.typeVerre || '—' }}</strong>
+        </div>
+
+        <div class="field-item">
+          <span class="field-label">Teinte</span>
+          <strong>{{ commande.teinte || '—' }}</strong>
+        </div>
+
+        <div class="field-item">
+          <span class="field-label">Port</span>
+          <strong>{{ commande.port || '—' }}</strong>
+        </div>
+
+        <div class="field-item">
+          <span class="field-label">Antireflet</span>
+          <strong>{{ commande.antireflet || '—' }}</strong>
+        </div>
+
+        <div class="field-item span-2">
+          <span class="field-label">Description des foyers</span>
+          <strong>{{ commande.descriptionFoyers || '—' }}</strong>
+        </div>
+
+        <div class="field-item span-2">
+          <span class="field-label">Autres détails</span>
+          <strong>{{ commande.autresDetails || '—' }}</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         DIAGNOSTIC FINAL
+    ========================== -->
+
+    <section class="detail-card">
+
+      <div class="section-heading">
+
+        <span class="eyebrow">
+          DIAGNOSTIC
+        </span>
+
+        <h2>
+          Diagnostic final par œil
+        </h2>
+
+      </div>
+
+
+      <div class="diagnostic-grid">
+
+        <div class="diagnostic-col">
+
+          <span class="diagnostic-col-label">
+            Œil droit
+          </span>
+
+          <div class="diagnostic-values">
+            <div>
+              <span>Sphère</span>
+              <strong>{{ commande.diagnosticOeilDroit.sphere }}</strong>
+            </div>
+            <div>
+              <span>Cylindre</span>
+              <strong>{{ commande.diagnosticOeilDroit.cylindre }}</strong>
+            </div>
+            <div>
+              <span>Axe</span>
+              <strong>{{ commande.diagnosticOeilDroit.axe }}°</strong>
+            </div>
+            <div>
+              <span>Addition</span>
+              <strong>{{ commande.diagnosticOeilDroit.addition }}</strong>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="diagnostic-col">
+
+          <span class="diagnostic-col-label">
+            Œil gauche
+          </span>
+
+          <div class="diagnostic-values">
+            <div>
+              <span>Sphère</span>
+              <strong>{{ commande.diagnosticOeilGauche.sphere }}</strong>
+            </div>
+            <div>
+              <span>Cylindre</span>
+              <strong>{{ commande.diagnosticOeilGauche.cylindre }}</strong>
+            </div>
+            <div>
+              <span>Axe</span>
+              <strong>{{ commande.diagnosticOeilGauche.axe }}°</strong>
+            </div>
+            <div>
+              <span>Addition</span>
+              <strong>{{ commande.diagnosticOeilGauche.addition }}</strong>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         STATUT
+    ========================== -->
+
+    <section class="detail-card">
+
+      <div class="section-heading">
+
+        <span class="eyebrow">
+          PROGRESSION
+        </span>
+
+        <h2>
+          Statut de la commande
+        </h2>
+
+      </div>
+
+
+      <div class="statut-selector">
+
+        @for (etape of etapesStatut; track etape.valeur) {
+
+          <button
+            type="button"
+            class="statut-pill"
+            [class.actif]="commande.statut === etape.valeur"
+            [class.statut-initie]="etape.valeur === 'initie'"
+            [class.statut-enCours]="etape.valeur === 'enCours'"
+            [class.statut-enVerification]="etape.valeur === 'enVerification'"
+            [class.statut-termine]="etape.valeur === 'termine'"
+            [disabled]="isUpdatingStatut()"
+            (click)="changerStatut(etape.valeur)"
+          >
+
+            {{ etape.libelle }}
+
+          </button>
+
+        }
+
+      </div>
+
+
+      @if (updateError()) {
+
+        <p class="update-error">
+          <span class="material-symbols-outlined">error</span>
+          {{ updateError() }}
+        </p>
+
+      }
+
+
+      @if (commande.statut === 'termine') {
+
+        <p class="notification-reminder">
+
+          <span class="material-symbols-outlined">
+            notifications_active
+          </span>
+
+          @if (commande.notificationEnvoyee) {
+            Le patient a été notifié automatiquement de la fin de sa commande.
+          } @else {
+            Le passage à « Terminé » déclenche une notification automatique pour le patient.
+          }
+
+        </p>
+
+      }
+
+    </section>
+
+  }
+
+</div>

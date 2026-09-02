@@ -15,11 +15,12 @@ import { mockStatistiquesInterceptor } from './core/interceptors/mock-statistiqu
 import { mockPriseEnChargeInterceptor } from './core/interceptors/mock-prise-en-charge-interceptor';
 import { mockPatientInterceptor } from './core/interceptors/mock-patient-interceptor';
 import { mockFicheConsultationInterceptor } from './core/interceptors/mock-fiche-consultation-interceptor';
+import { mockCommandeInterceptor } from './core/interceptors/mock-commande-interceptor';
 
 // OUTIL DE DEV UNIQUEMENT — court-circuite les appels /cabinets,
-// /admin/cabinets, /admin/utilisateurs, /rendezvous, /statistiques et
-// /prises-en-charge avec des données factices tant que le back-end n'est
-// pas branché (cf. core/mocks/*.ts). Jamais actif en prod
+// /admin/cabinets, /admin/utilisateurs, /rendezvous, /statistiques,
+// /prises-en-charge et /commandes avec des données factices tant que le
+// back-end n'est pas branché (cf. core/mocks/*.ts). Jamais actif en prod
 // (environment.production === true fait passer chaque intercepteur en
 // no-op). À retirer une fois l'API réelle disponible.
 const interceptors = environment.production
@@ -32,6 +33,7 @@ const interceptors = environment.production
       mockPriseEnChargeInterceptor,
       mockPatientInterceptor,
       mockFicheConsultationInterceptor,
+      mockCommandeInterceptor,
       authInterceptor,
       errorInterceptor,
     ];
