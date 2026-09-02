@@ -33,7 +33,14 @@ export class RendezVousService {
     return this.http.patch<RendezVous>(`${BASE_URL}/rendezvous/${id}`, { statut });
   }
 
-  /** Récupère les rendez-vous du patient connecté (écran 4.2). */
+  /**
+   * TODO : route non confirmée avec le back-end — absente du §8, qui ne
+   * liste que POST /rendezvous et PATCH /rendezvous/{id}. Nécessaire pour
+   * l'écran Patient « Mes rendez-vous » (§4.2, mes-rendez-vous.ts).
+   * Hypothèse provisoire (voir POINTS-A-CONFIRMER-BACKEND.md, point 8) :
+   * le patient connecté est déduit du token JWT côté back, aucun
+   * patientId n'est transmis ici — à confirmer.
+   */
   getMesRendezVous(): Observable<RendezVous[]> {
     return this.http.get<RendezVous[]>(`${BASE_URL}/rendez-vous/mes-rendez-vous`);
   }

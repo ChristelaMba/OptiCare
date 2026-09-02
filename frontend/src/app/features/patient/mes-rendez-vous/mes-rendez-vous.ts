@@ -10,47 +10,6 @@ import {
 
 type Onglet = 'a-venir' | 'passes';
 
-// TODO: retirer dès que le backend expose GET /api/rendez-vous/mes-rendez-vous
-const MODE_MOCK = true;
-
-const RENDEZ_VOUS_MOCK: RendezVous[] = [
-  {
-    id: '1',
-    cabinetId: 'c1',
-    cabinetNom: 'Centre Ophtalmologique de Paris',
-    cabinetAdresse: '12 rue de Rivoli, Paris',
-    praticienNom: 'Dr. Sarah Lemoine',
-    motif: 'Contrôle de vue annuel',
-    date: '2026-10-12',
-    heureDebut: '14:30',
-    heureFin: '15:00',
-    statut: 'confirme'
-  },
-  {
-    id: '2',
-    cabinetId: 'c2',
-    cabinetNom: 'Clinique de la Vision',
-    praticienNom: undefined,
-    motif: 'Examen de la vue général',
-    date: '2026-10-29',
-    heureDebut: '09:15',
-    heureFin: '10:00',
-    statut: 'en_attente'
-  },
-  {
-    id: '3',
-    cabinetId: 'c1',
-    cabinetNom: 'Centre Ophtalmologique de Paris',
-    cabinetAdresse: '12 rue de Rivoli, Paris',
-    praticienNom: 'Dr. Sarah Lemoine',
-    motif: 'Renouvellement de prescription',
-    date: '2026-06-03',
-    heureDebut: '11:00',
-    heureFin: '11:30',
-    statut: 'termine'
-  }
-];
-
 @Component({
   selector: 'app-mes-rendez-vous',
   standalone: true,
@@ -190,21 +149,6 @@ export class MesRendezVous implements OnInit {
     this.chargement.set(true);
     this.erreur.set(null);
 
-    if (MODE_MOCK) {
-
-      setTimeout(() => {
-
-        this.rendezVous.set(
-          RENDEZ_VOUS_MOCK
-        );
-
-        this.chargement.set(false);
-
-      }, 400);
-
-      return;
-    }
-
     this.rdvService.getMesRendezVous()
       .subscribe({
 
@@ -244,22 +188,6 @@ export class MesRendezVous implements OnInit {
   annulerRendezVous(
     rdv: RendezVous
   ): void {
-
-    if (MODE_MOCK) {
-
-      this.rendezVous.update(liste =>
-        liste.map(r =>
-          r.id === rdv.id
-            ? {
-                ...r,
-                statut: 'annule' as const
-              }
-            : r
-        )
-      );
-
-      return;
-    }
 
     this.rdvService
       .annulerRendezVous(rdv.id)

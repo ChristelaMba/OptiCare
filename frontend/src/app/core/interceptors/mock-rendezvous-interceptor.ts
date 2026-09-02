@@ -69,6 +69,17 @@ export const mockRendezVousInterceptor: HttpInterceptorFn = (req, next) => {
     return reponse(nouveau, 201);
   }
 
+  // GET /rendez-vous/mes-rendez-vous
+  if (req.method === 'GET' && req.url === `${BASE_URL}/rendez-vous/mes-rendez-vous`) {
+    // Aucun patientId n'est transmis ici (hypothèse posée côté front :
+    // le back le déduit du token JWT — voir POINTS-A-CONFIRMER-BACKEND.md,
+    // point 8) et rendezVousFactices ne porte de toute façon aucun champ
+    // patientId pour filtrer dessus. Sous-ensemble fixe plutôt qu'un
+    // filtrage inventé qui ferait croire à une vraie logique d'identité
+    // côté mock — juste de quoi peupler l'écran de façon plausible.
+    return reponse(rendezVousFactices.slice(0, 5));
+  }
+
   // GET /cabinets/{id}/rendezvous
   const matchListerParCabinet = req.url.match(new RegExp(`^${BASE_URL}/cabinets/([^/]+)/rendezvous$`));
   if (req.method === 'GET' && matchListerParCabinet) {
