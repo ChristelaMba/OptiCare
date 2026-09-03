@@ -75,6 +75,41 @@ export class Auth {
     return ROUTE_PAR_ROLE[role];
   }
 
+  /**
+   * OUTIL DE DEV UNIQUEMENT — simule une session pour un rôle donné, sans
+   * appel API. Passe par `ouvrirSession()`, exactement comme un vrai
+   * login/register : la session est donc réellement persistée
+   * (sessionStorage) et rehydratée à chaque construction du service, pas
+   * seulement posée en mémoire. C'est délibéré — une version antérieure de
+   * cet outil qui ne faisait que positionner les signals en mémoire a déjà
+   * causé un bug de navigation (un clic sur un lien interne redirigeait à
+   * tort vers la connexion). Utilisée par /dev/connexion-simulee tant que
+   * le back-end n'est pas branché. À retirer une fois l'authentification
+   * réelle disponible.
+   */
+  simulerConnexion(role: RoleUtilisateur): void {
+    // Rôles rattachés à un cabinet : cabinetId par défaut sur cab-004 (Vision
+    // Plus) pour que gestion-employes/dashboard-comptable/historique-rdv/
+    // agenda affichent des données factices dès la connexion, au lieu d'un
+    // écran vide faute de cabinetId.
+    const cabinetIdParDefaut = ['Proprietaire', 'Opticien', 'Secretaire'].includes(role) ? 'cab-004' : undefined;
+
+    const utilisateurSimule: Utilisateur = {
+      id: `dev-${role.toLowerCase()}`,
+      role,
+      nom: 'Test',
+      prenom: role,
+      email: `${role.toLowerCase()}@dev.local`,
+      telephone: '+237600000000',
+      ville: 'Douala',
+      cabinetId: cabinetIdParDefaut,
+      actif: true,
+      dateCreation: new Date(),
+    };
+
+    this.ouvrirSession({ token: `dev-fake-token-${role}`, utilisateur: utilisateurSimule }, false);
+  }
+
   private ouvrirSession(reponse: AuthResponse, seSouvenir: boolean): void {
     this.tokenSignal.set(reponse.token);
     this.utilisateurSignal.set(reponse.utilisateur);

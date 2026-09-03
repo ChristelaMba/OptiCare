@@ -1,0 +1,76 @@
+<main class="min-h-screen bg-surface-bg flex items-center justify-center p-margin-mobile">
+  <div class="w-full max-w-[640px] bg-surface-container-lowest rounded-xl shadow-md p-space-8 flex flex-col gap-space-6">
+    <div class="rounded-lg bg-warning/10 border border-warning/30 px-space-4 py-space-3">
+      <p class="font-body text-body-base text-on-surface">
+        <strong>Outil de développement uniquement.</strong> Simule une session sans backend réel, pour visualiser les écrans protégés. À retirer une fois l'authentification réelle branchée.
+      </p>
+    </div>
+
+    <div>
+      <h1 class="font-heading text-headline-h2 text-on-surface font-bold mb-1">Connexion simulée</h1>
+      <p class="font-body text-body-base text-text-muted">
+        @if (estConnecte()) {
+          Session active : rôle <strong>{{ roleActuel() }}</strong>.
+        } @else {
+          Aucune session active.
+        }
+      </p>
+    </div>
+
+    <!-- Accès rapide par rôle -->
+    <div>
+      <h2 class="font-heading text-headline-h3 text-on-surface mb-space-3">Aller sur l'espace par défaut d'un rôle</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-space-3">
+        @for (role of roles; track role) {
+          <button
+            type="button"
+            (click)="allerVersEspace(role)"
+            class="px-space-4 py-space-3 rounded-lg text-button font-body font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm"
+          >
+            {{ role }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Accès à un chemin précis -->
+    <div class="border-t border-border-subtle pt-space-6">
+      <h2 class="font-heading text-headline-h3 text-on-surface mb-space-3">Aller sur un chemin précis</h2>
+      <div class="flex flex-col sm:flex-row gap-space-3">
+        <select
+          [ngModel]="roleChoisi()"
+          (ngModelChange)="roleChoisi.set($event)"
+          class="h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base"
+        >
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+        <input
+          type="text"
+          [ngModel]="cheminPersonnalise()"
+          (ngModelChange)="cheminPersonnalise.set($event)"
+          placeholder="/super-admin/validation-cabinets"
+          class="flex-1 h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+        <button
+          type="button"
+          (click)="allerVersChemin()"
+          class="px-space-6 py-2 rounded-lg text-button font-body font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm"
+        >
+          Aller
+        </button>
+      </div>
+    </div>
+
+    @if (estConnecte()) {
+      <button
+        type="button"
+        (click)="deconnexion()"
+        class="self-start px-space-4 py-2 rounded-lg text-button font-body font-semibold border border-error text-error hover:bg-error/10 transition-colors"
+      >
+        Se déconnecter
+      </button>
+    }
+  </div>
+</main>
