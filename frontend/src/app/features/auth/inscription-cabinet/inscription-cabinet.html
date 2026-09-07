@@ -1,27 +1,55 @@
 <main class="w-full min-h-screen grid grid-cols-1 md:grid-cols-2">
-  <!-- Colonne gauche : image (desktop uniquement) -->
+  <!-- Colonne gauche : image (desktop uniquement).
+       TODO : auth-connexion.jpg et auth-inscription.jpg sont actuellement
+       le même fichier (placeholders identiques) — prévoir des visuels
+       distincts par écran plus tard. Voir JOURNAL-MODIFICATIONS-PARTAGEES.md. -->
   <div class="hidden md:block relative h-full overflow-hidden">
-    <img
-      class="absolute inset-0 w-full h-full object-cover"
-      alt="Inscription cabinet - OptiCare"
-      src="/images/auth-inscription.jpg"
-    />
+    <!-- Image posée en background-image, chargée uniquement à partir de md :
+         un <img> se charge toujours même caché par display:none, alors
+         qu'un background-image déclaré dans une règle md: ne l'est que si
+         le media query correspond — évite ~80 Ko inutiles sur mobile. -->
+    <div
+      class="absolute inset-0 bg-cover bg-center md:bg-[url('/images/auth-inscription.jpg')]"
+      aria-hidden="true"
+    ></div>
     <div class="absolute inset-0 bg-primary/10"></div>
   </div>
 
   <!-- Colonne droite : formulaire -->
-  <div class="flex items-center justify-center p-margin-mobile md:p-space-12 bg-surface-bg">
-    <div class="w-full max-w-[560px]">
-      <!-- Logo -->
-      <div class="text-center mb-space-8">
-        <h1 class="flex items-center justify-center">
-          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto" />
-        </h1>
-      </div>
+  <div class="relative overflow-hidden flex items-center justify-center p-margin-mobile md:p-space-12 bg-surface-bg">
+    <!-- Ambiance décorative (verre dépoli, 04/09) : sans ce fond, le flou de
+         la carte n'a rien à flouter sur cette colonne quasi unie. -->
+    <div class="absolute -top-32 -left-24 w-80 h-80 bg-primary/8 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+    <div class="absolute -bottom-32 -right-16 w-72 h-72 bg-secondary/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-      <!-- Carte inscription -->
-      <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-8 md:p-space-12 relative overflow-hidden">
+    <div class="w-full max-w-[560px] relative z-10">
+      <!-- Carte inscription — verre dépoli léger (04/09) : carte translucide
+           + flou d'arrière-plan, mais champs de saisie gardés 100% opaques
+           (bg-surface-container-lowest sans /alpha, non touché ci-dessous) —
+           formulaire le plus dense des 4 écrans (11 champs), la lisibilité
+           prime plus que jamais ici sur l'esthétique. -->
+      <div class="auth-card-enter bg-surface-container-lowest/80 backdrop-blur-xl border border-white/60 rounded-xl shadow-md p-space-8 md:p-space-12 relative overflow-hidden">
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Logo (déplacé à l'intérieur du cadre, 04/09) -->
+        <div class="text-center mb-space-8 relative z-10">
+          <h1 class="flex items-center justify-center">
+            <img src="/images/logo-opticare.png" alt="OptiCare" class="h-10 w-auto" />
+          </h1>
+        </div>
+
+        <!-- Retour vers le choix du rôle + repère d'étape (04/09) :
+             cet écran est l'étape 2 sur 2 du parcours d'inscription (§6.2). -->
+        <div class="mb-space-4 flex items-center justify-between relative z-10">
+          <a
+            routerLink="/auth/inscription"
+            class="inline-flex items-center gap-1 font-body text-label-sm font-semibold text-text-muted hover:text-primary transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            Retour
+          </a>
+          <span class="font-body text-label-sm font-bold uppercase tracking-widest text-primary">Étape 2 sur 2</span>
+        </div>
 
         <div class="mb-space-6 relative z-10">
           <h2 class="font-heading text-headline-h2 text-on-surface font-bold mb-2">Créer un compte cabinet</h2>
@@ -49,7 +77,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('prenom')?.invalid && form.get('prenom')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">Le prénom est requis.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le prénom est requis.</p>
               }
             </div>
             <div>
@@ -62,7 +90,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('nom')?.invalid && form.get('nom')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">Le nom est requis.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le nom est requis.</p>
               }
             </div>
           </div>
@@ -78,7 +106,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('telephone')?.invalid && form.get('telephone')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">Le téléphone est requis.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le téléphone est requis.</p>
               }
             </div>
             <div>
@@ -91,7 +119,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('ville')?.invalid && form.get('ville')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">La ville est requise.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">La ville est requise.</p>
               }
             </div>
           </div>
@@ -107,7 +135,7 @@
             />
             <p class="font-body text-label-sm text-text-muted mt-1">Cet email vous servira à vous connecter — il est différent de l'email public du cabinet.</p>
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">Un email valide est requis.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Un email valide est requis.</p>
             }
           </div>
 
@@ -124,13 +152,14 @@
               <button
                 type="button"
                 (click)="basculerAffichageMotDePasse()"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors"
+                [attr.aria-label]="afficherMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span class="material-symbols-outlined text-[20px]">{{ afficherMotDePasse() ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
             @if (form.get('motDePasse')?.invalid && form.get('motDePasse')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">8 caractères minimum.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">8 caractères minimum.</p>
             }
           </div>
 
@@ -147,13 +176,14 @@
               <button
                 type="button"
                 (click)="basculerAffichageConfirmation()"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors"
+                [attr.aria-label]="afficherConfirmation() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span class="material-symbols-outlined text-[20px]">{{ afficherConfirmation() ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
             @if (form.hasError('motsDePasseDifferents') && form.get('confirmationMotDePasse')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">Les mots de passe ne correspondent pas.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Les mots de passe ne correspondent pas.</p>
             }
           </div>
 
@@ -173,7 +203,7 @@
               class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
             />
             @if (form.get('cabinetNom')?.invalid && form.get('cabinetNom')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">Le nom du cabinet est requis.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le nom du cabinet est requis.</p>
             }
           </div>
 
@@ -187,7 +217,7 @@
               class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
             />
             @if (form.get('cabinetAdresse')?.invalid && form.get('cabinetAdresse')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">L'adresse est requise.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">L'adresse est requise.</p>
             }
           </div>
 
@@ -202,7 +232,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('cabinetTelephone')?.invalid && form.get('cabinetTelephone')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">Le téléphone du cabinet est requis.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le téléphone du cabinet est requis.</p>
               }
             </div>
             <div>
@@ -215,7 +245,7 @@
                 class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
               />
               @if (form.get('cabinetVille')?.invalid && form.get('cabinetVille')?.touched) {
-                <p class="font-body text-label-sm text-error mt-1">La ville du cabinet est requise.</p>
+                <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">La ville du cabinet est requise.</p>
               }
             </div>
           </div>
@@ -231,7 +261,7 @@
             />
             <p class="font-body text-label-sm text-text-muted mt-1">Email public, affiché sur la vitrine du cabinet — jamais utilisé pour la connexion.</p>
             @if (form.get('cabinetEmail')?.invalid && form.get('cabinetEmail')?.touched) {
-              <p class="font-body text-label-sm text-error mt-1">Un email valide est requis.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Un email valide est requis.</p>
             }
           </div>
 
@@ -239,7 +269,7 @@
           <button
             type="submit"
             [disabled]="chargement()"
-            class="w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             {{ chargement() ? 'Création en cours…' : 'Créer mon compte cabinet' }}
             @if (!chargement()) {
@@ -251,7 +281,7 @@
         <div class="mt-space-6 text-center relative z-10">
           <p class="font-body text-body-base text-on-surface-variant">
             Déjà un compte ?
-            <a routerLink="/auth/connexion" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1">Se connecter</a>
+            <a routerLink="/auth/connexion" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Se connecter</a>
           </p>
         </div>
       </div>

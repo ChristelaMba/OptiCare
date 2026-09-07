@@ -17,6 +17,35 @@ function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErro
   return motDePasse === confirmation ? null : { motsDePasseDifferents: true };
 }
 
+/**
+ * Bornes « raisonnables » sur la date de naissance (04/09) : pas de date
+ * future, pas d'âge irréaliste au-delà de 120 ans. Volontairement pas de
+ * borne d'âge minimum — aucune règle de consentement/âge minimum n'est
+ * spécifiée dans le cahier des charges, ce serait inventer une décision
+ * produit plutôt qu'une simple borne UX.
+ */
+function dateNaissanceValideValidator(control: AbstractControl): ValidationErrors | null {
+  const valeur = control.value;
+  if (!valeur) {
+    return null; // Validators.required s'en charge déjà
+  }
+
+  const date = new Date(valeur);
+  const aujourdHui = new Date();
+  const ilYa120Ans = new Date();
+  ilYa120Ans.setFullYear(aujourdHui.getFullYear() - 120);
+
+  if (date > aujourdHui) {
+    return { dateNaissanceFuture: true };
+  }
+
+  if (date < ilYa120Ans) {
+    return { dateNaissanceInvraisemblable: true };
+  }
+
+  return null;
+}
+
 @Component({
   selector: 'app-inscription-patient',
   imports: [ReactiveFormsModule, RouterLink],
@@ -33,6 +62,21 @@ export class InscriptionPatient {
   readonly afficherMotDePasse = signal(false);
   readonly afficherConfirmation = signal(false);
 
+  /**
+   * Bornes du champ « Date de naissance » (04/09) : pas de date future
+   * (dateMax), pas d'âge irréaliste au-delà de 120 ans (dateMin). Pas de
+   * borne d'âge minimum imposée délibérément — aucune règle de
+   * consentement/âge minimum n'est spécifiée dans le cahier des charges,
+   * ce serait inventer une décision produit plutôt qu'une simple borne
+   * UX. Format ISO 'YYYY-MM-DD', celui attendu par <input type="date">.
+   */
+  readonly dateNaissanceMax = new Date().toISOString().slice(0, 10);
+  readonly dateNaissanceMin = (() => {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - 120);
+    return date.toISOString().slice(0, 10);
+  })();
+
   readonly form = this.fb.nonNullable.group(
     {
       prenom: ['', [Validators.required]],
@@ -40,7 +84,7 @@ export class InscriptionPatient {
       telephone: ['', [Validators.required]],
       ville: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      dateNaissance: ['', [Validators.required]],
+      dateNaissance: ['', [Validators.required, dateNaissanceValideValidator]],
       motDePasse: ['', [Validators.required, Validators.minLength(8)]],
       confirmationMotDePasse: ['', [Validators.required]],
     },
