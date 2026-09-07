@@ -17,7 +17,11 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  const roleAttendu = route.data['role'] as RoleUtilisateur | undefined;
+  // route.data est indexé `any` côté Angular : on annote explicitement la
+  // cible au lieu d'un cast `as` non vérifié. La valeur attendue vient de
+  // app.routes.ts (data.role), le vocabulaire y est aligné sur celui de
+  // l'API (voir RoleUtilisateur).
+  const roleAttendu: RoleUtilisateur | undefined = route.data['role'];
   const roleActuel = auth.role();
 
   if (!roleAttendu || roleActuel === roleAttendu) {

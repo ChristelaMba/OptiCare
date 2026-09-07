@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
+import { libelleRole, RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
 import {
   AuthResponse,
   ConnexionPayload,
@@ -20,11 +20,11 @@ const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
 // Redirection par défaut après connexion, selon le rôle retourné par l'API.
 const ROUTE_PAR_ROLE: Record<RoleUtilisateur, string> = {
-  Patient: '/patient',
-  Secretaire: '/secretaire',
-  Opticien: '/opticien',
-  Proprietaire: '/proprietaire',
-  SuperAdmin: '/super-admin',
+  patient: '/patient',
+  secretaire: '/secretaire',
+  opticien: '/opticien',
+  proprietaire: '/proprietaire',
+  super_admin: '/super-admin',
 };
 
 @Service()
@@ -92,14 +92,14 @@ export class Auth {
     // Plus) pour que gestion-employes/dashboard-comptable/historique-rdv/
     // agenda affichent des données factices dès la connexion, au lieu d'un
     // écran vide faute de cabinetId.
-    const cabinetIdParDefaut = ['Proprietaire', 'Opticien', 'Secretaire'].includes(role) ? 'cab-004' : undefined;
+    const cabinetIdParDefaut = ['proprietaire', 'opticien', 'secretaire'].includes(role) ? 'cab-004' : undefined;
 
     const utilisateurSimule: Utilisateur = {
-      id: `dev-${role.toLowerCase()}`,
+      id: `dev-${role}`,
       role,
       nom: 'Test',
-      prenom: role,
-      email: `${role.toLowerCase()}@dev.local`,
+      prenom: libelleRole(role),
+      email: `${role}@dev.local`,
       telephone: '+237600000000',
       ville: 'Douala',
       cabinetId: cabinetIdParDefaut,

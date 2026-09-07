@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { CreerPersonnelPayload, Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
-import { RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
+import { libelleRole, RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
 
 /**
  * Reproduction de la maquette `maquette/gestion_des_employ_s_opticare_admin/`.
@@ -28,6 +28,9 @@ export class GestionEmployes implements OnInit {
   readonly erreur = signal<string | null>(null);
   private readonly employes = signal<UtilisateurModel[]>([]);
 
+  /** Libellé lisible d'un rôle pour l'affichage (carte employé). */
+  readonly libelleRole = libelleRole;
+
   readonly texteRecherche = signal('');
   readonly actionEnCours = signal<string | null>(null);
   readonly formulaireOuvert = signal(false);
@@ -37,7 +40,7 @@ export class GestionEmployes implements OnInit {
   readonly formulaire = this.fb.nonNullable.group({
     prenom: ['', Validators.required],
     nom: ['', Validators.required],
-    role: ['Opticien' as Extract<RoleUtilisateur, 'Opticien' | 'Secretaire'>, Validators.required],
+    role: ['opticien' as Extract<RoleUtilisateur, 'opticien' | 'secretaire'>, Validators.required],
     email: ['', [Validators.required, Validators.email]],
     telephone: ['', Validators.required],
     ville: ['Douala', Validators.required],
@@ -89,7 +92,7 @@ export class GestionEmployes implements OnInit {
   }
 
   ouvrirFormulaire(): void {
-    this.formulaire.reset({ prenom: '', nom: '', role: 'Opticien', email: '', telephone: '', ville: 'Douala' });
+    this.formulaire.reset({ prenom: '', nom: '', role: 'opticien', email: '', telephone: '', ville: 'Douala' });
     this.erreurFormulaire.set(null);
     this.formulaireOuvert.set(true);
   }

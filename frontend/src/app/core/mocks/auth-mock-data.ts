@@ -11,13 +11,13 @@ import { Utilisateur } from '../../models/utilisateur.model';
  * Comptes de test disponibles (mot de passe identique pour tous,
  * `password123`, uniquement pour simplifier les tests manuels) :
  *
- * | Rôle         | Téléphone         |
- * |--------------|-------------------|
- * | Patient      | +237600000001     |
- * | Secretaire   | +237600000002     |
- * | Opticien     | +237600000003     |
- * | Proprietaire | +237600000004     |
- * | SuperAdmin   | +237600000005     |
+ * | Rôle          | Téléphone         |
+ * |---------------|-------------------|
+ * | patient       | +237600000001     |
+ * | secretaire    | +237600000002     |
+ * | opticien      | +237600000003     |
+ * | proprietaire  | +237600000004     |
+ * | super_admin   | +237600000005     |
  */
 export interface UtilisateurFactice extends Utilisateur {
   /** Mock uniquement — jamais un vrai champ de Utilisateur côté API. */
@@ -27,7 +27,7 @@ export interface UtilisateurFactice extends Utilisateur {
 export let utilisateursFactices: UtilisateurFactice[] = [
   {
     id: 'user-patient-01',
-    role: 'Patient',
+    role: 'patient',
     nom: 'Dupont',
     prenom: 'Jean',
     email: 'jean.dupont@email.cm',
@@ -39,7 +39,7 @@ export let utilisateursFactices: UtilisateurFactice[] = [
   },
   {
     id: 'user-secretaire-01',
-    role: 'Secretaire',
+    role: 'secretaire',
     nom: 'Mbarga',
     prenom: 'Aline',
     email: 'aline.mbarga@email.cm',
@@ -52,7 +52,7 @@ export let utilisateursFactices: UtilisateurFactice[] = [
   },
   {
     id: 'user-opticien-01',
-    role: 'Opticien',
+    role: 'opticien',
     nom: 'Nkeng',
     prenom: 'Sylvie',
     email: 'sylvie.nkeng@email.cm',
@@ -65,7 +65,7 @@ export let utilisateursFactices: UtilisateurFactice[] = [
   },
   {
     id: 'user-proprietaire-01',
-    role: 'Proprietaire',
+    role: 'proprietaire',
     nom: 'Fotso',
     prenom: 'Marc',
     email: 'marc.fotso@email.cm',
@@ -78,7 +78,7 @@ export let utilisateursFactices: UtilisateurFactice[] = [
   },
   {
     id: 'user-superadmin-01',
-    role: 'SuperAdmin',
+    role: 'super_admin',
     nom: 'Admin',
     prenom: 'Super',
     email: 'admin@opticare.cm',

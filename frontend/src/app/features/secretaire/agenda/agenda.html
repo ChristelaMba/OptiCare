@@ -298,6 +298,15 @@
 
         </span>
 
+
+        <span class="legend-item">
+
+          <span class="legend-dot noshow"></span>
+
+          Non honoré
+
+        </span>
+
       </div>
 
     </div>
@@ -318,9 +327,10 @@
         <article
           class="appointment-card"
           [class.status-confirmed]="rdv.statut === 'confirme'"
-          [class.status-pending]="rdv.statut === 'en_attente'"
+          [class.status-pending]="rdv.statut === 'reserve'"
           [class.status-cancelled]="rdv.statut === 'annule'"
           [class.status-completed]="rdv.statut === 'termine'"
+          [class.status-noshow]="rdv.statut === 'non_honore'"
         >
 
 
@@ -379,7 +389,7 @@
 
               }
 
-              @else if (rdv.statut === 'en_attente') {
+              @else if (rdv.statut === 'reserve') {
 
                 <i class="fa-regular fa-clock"></i>
 
@@ -388,6 +398,12 @@
               @else if (rdv.statut === 'annule') {
 
                 <i class="fa-solid fa-circle-xmark"></i>
+
+              }
+
+              @else if (rdv.statut === 'non_honore') {
+
+                <i class="fa-solid fa-user-xmark"></i>
 
               }
 
@@ -643,7 +659,7 @@
         <div class="modal-actions">
 
 
-          @if (rdv.statut === 'en_attente') {
+          @if (rdv.statut === 'reserve') {
 
             <button
               type="button"
@@ -662,7 +678,7 @@
 
           @if (
             rdv.statut === 'confirme' ||
-            rdv.statut === 'en_attente'
+            rdv.statut === 'reserve'
           ) {
 
             <button
@@ -691,6 +707,18 @@
               <i class="fa-solid fa-check-double"></i>
 
               Marquer comme honoré
+
+            </button>
+
+            <button
+              type="button"
+              class="btn-danger"
+              (click)="marquerAbsent()"
+            >
+
+              <i class="fa-solid fa-user-xmark"></i>
+
+              Marquer absent
 
             </button>
 

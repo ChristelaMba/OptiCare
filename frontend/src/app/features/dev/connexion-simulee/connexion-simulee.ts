@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { Auth } from '../../../core/services/auth';
-import { RoleUtilisateur } from '../../../models/utilisateur.model';
+import { libelleRole, RoleUtilisateur } from '../../../models/utilisateur.model';
 
 /**
  * OUTIL DE DEV UNIQUEMENT — permet d'atteindre n'importe quel écran protégé
@@ -21,9 +21,12 @@ export class ConnexionSimulee {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
-  readonly roles: RoleUtilisateur[] = ['Patient', 'Secretaire', 'Opticien', 'Proprietaire', 'SuperAdmin'];
+  readonly roles: RoleUtilisateur[] = ['patient', 'secretaire', 'opticien', 'proprietaire', 'super_admin'];
 
-  readonly roleChoisi = signal<RoleUtilisateur>('SuperAdmin');
+  readonly roleChoisi = signal<RoleUtilisateur>('super_admin');
+
+  /** Libellé lisible d'un rôle pour l'affichage (boutons, liste déroulante). */
+  readonly libelleRole = libelleRole;
   readonly cheminPersonnalise = signal('');
   readonly estConnecte = this.auth.estConnecte;
   readonly roleActuel = this.auth.role;

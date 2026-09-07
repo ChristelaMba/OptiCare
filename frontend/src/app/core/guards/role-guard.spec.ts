@@ -19,9 +19,9 @@ describe('roleGuard', () => {
   }
 
   it('laisse passer quand le rôle actuel correspond au rôle attendu', () => {
-    configurer('Opticien');
+    configurer('opticien');
 
-    const route = { data: { role: 'Opticien' } } as unknown as ActivatedRouteSnapshot;
+    const route = { data: { role: 'opticien' } } as unknown as ActivatedRouteSnapshot;
     const state = { url: '/opticien/dossier-visuel-patient/1' } as RouterStateSnapshot;
 
     const resultat = executeGuard(route, state);
@@ -30,9 +30,9 @@ describe('roleGuard', () => {
   });
 
   it("redirige vers /acces-refuse quand le rôle actuel ne correspond pas (connecté, mauvais rôle)", () => {
-    configurer('Patient');
+    configurer('patient');
 
-    const route = { data: { role: 'Opticien' } } as unknown as ActivatedRouteSnapshot;
+    const route = { data: { role: 'opticien' } } as unknown as ActivatedRouteSnapshot;
     const state = { url: '/opticien/dossier-visuel-patient/1' } as RouterStateSnapshot;
 
     const resultat = executeGuard(route, state) as UrlTree;
@@ -44,7 +44,7 @@ describe('roleGuard', () => {
   it('redirige vers /auth/connexion (pas /acces-refuse) quand aucun utilisateur n\'est connecté', () => {
     configurer(null);
 
-    const route = { data: { role: 'Opticien' } } as unknown as ActivatedRouteSnapshot;
+    const route = { data: { role: 'opticien' } } as unknown as ActivatedRouteSnapshot;
     const state = { url: '/opticien/dossier-visuel-patient/1' } as RouterStateSnapshot;
 
     const resultat = executeGuard(route, state) as UrlTree;

@@ -67,11 +67,11 @@
         class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
       >
         <option value="tous">Tous les rôles</option>
-        <option value="Patient">Patient</option>
-        <option value="Secretaire">Secrétaire</option>
-        <option value="Opticien">Opticien</option>
-        <option value="Proprietaire">Propriétaire</option>
-        <option value="SuperAdmin">Super Admin</option>
+        <option value="patient">Patient</option>
+        <option value="secretaire">Secrétaire</option>
+        <option value="opticien">Opticien</option>
+        <option value="proprietaire">Propriétaire</option>
+        <option value="super_admin">Super Administrateur</option>
       </select>
       <select
         [ngModel]="filtreStatut()"
@@ -133,7 +133,7 @@
                       </div>
                     </div>
                   </td>
-                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ utilisateur.role }}</td>
+                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ libelleRole(utilisateur.role) }}</td>
                   <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ nomCabinet(utilisateur) }}</td>
                   <td class="px-space-4 py-4">
                     @if (utilisateur.actif) {

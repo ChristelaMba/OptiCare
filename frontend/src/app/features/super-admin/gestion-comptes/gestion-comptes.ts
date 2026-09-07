@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
-import { RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
+import { libelleRole, RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
 
 type FiltreStatut = 'tous' | 'actif' | 'inactif';
@@ -36,6 +36,9 @@ export class GestionComptes implements OnInit {
   readonly erreur = signal<string | null>(null);
   private readonly utilisateurs = signal<UtilisateurModel[]>([]);
   private readonly cabinets = signal<CabinetModel[]>([]);
+
+  /** Libellé lisible d'un rôle pour l'affichage (cellule « Rôle » du tableau). */
+  readonly libelleRole = libelleRole;
 
   readonly texteRecherche = signal('');
   readonly filtreRole = signal<RoleUtilisateur | 'tous'>('tous');

@@ -5,16 +5,18 @@ import { RendezVousService } from '../../../core/services/rendez-vous';
 import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
 import { StatutRendezVous } from '../../../models/rendez-vous.model';
 
-// 2026-09-03 : labels conservés à l'identique de la version précédente
-// (mêmes textes visibles pour la secrétaire, notamment « Honoré » pour
-// l'état termine) — seules les clés changent, pour pointer vers le vrai
-// StatutRendezVous (§5) au lieu de l'ancien vocabulaire local à 3 valeurs
-// divergentes. Voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+// 2026-09-07 : vocabulaire aligné sur l'API réelle du back-end
+// (en_attente → reserve, + 'libre' et 'non_honore'). Textes visibles
+// pour la secrétaire conservés (« Honoré » pour termine, « En attente »
+// pour reserve). Voir Docs/DIAGNOSTIC-VOCABULAIRE-BACKEND.md et l'entrée
+// du 07/09 de JOURNAL-MODIFICATIONS-PARTAGEES.md.
 const LABEL_STATUT: Record<StatutRendezVous, string> = {
+  libre: 'Libre',
+  reserve: 'En attente',
   confirme: 'Confirmé',
-  en_attente: 'En attente',
   annule: 'Annulé',
   termine: 'Honoré',
+  non_honore: 'Non honoré',
 };
 
 @Component({
@@ -43,7 +45,14 @@ export class Agenda implements OnInit {
   // non RendezVous brut : le modèle officiel (§5) ne porte aucune identité
   // patient, seul ce type dénormalisé ajoute nomPatientAffiche (optionnel,
   // dégradation propre si absent). Voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
-  rendezVous = signal<RendezVousAffichage[]>([]);
+  private readonly rendezVousBruts = signal<RendezVousAffichage[]>([]);
+
+  // 'libre' est un état de créneau, pas un rendez-vous : cet écran ne le
+  // rend pas encore (grille de créneaux non couverte). On l'écarte de la
+  // liste affichée mais la valeur reste supportée par le type/les labels.
+  readonly rendezVous = computed(() =>
+    this.rendezVousBruts().filter((rdv) => rdv.statut !== 'libre'),
+  );
 
   rendezVousActif = signal<RendezVousAffichage | null>(null);
 
@@ -61,7 +70,7 @@ export class Agenda implements OnInit {
   );
 
   nombreAttente = computed(() =>
-    this.rendezVous().filter(r => r.statut === 'en_attente').length
+    this.rendezVous().filter(r => r.statut === 'reserve').length
   );
 
   nombreAnnules = computed(() =>
@@ -80,7 +89,7 @@ export class Agenda implements OnInit {
         // Pas de cast : RendezVousAffichage n'ajoute qu'un champ optionnel
         // à RendezVous, donc un RendezVous[] est déjà assignable tel quel
         // (même remarque que historique-rdv.ts).
-        this.rendezVous.set(rendezVous);
+        this.rendezVousBruts.set(rendezVous);
         this.chargement.set(false);
       },
       error: () => {
@@ -160,6 +169,11 @@ export class Agenda implements OnInit {
     this.changerStatut('termine');
   }
 
+  /** Patient absent : passe le rendez-vous à 'non_honore' (PATCH /rendezvous/{id}, §8). */
+  marquerAbsent(): void {
+    this.changerStatut('non_honore');
+  }
+
   /**
    * 2026-09-03 : remplace les 3 méthodes qui mutaient rendezVousActif()
    * localement — appelle désormais le vrai
@@ -175,7 +189,7 @@ export class Agenda implements OnInit {
 
     this.rendezVousService.mettreAJourStatut(rdv.id, statut).subscribe({
       next: () => {
-        this.rendezVous.update(liste =>
+        this.rendezVousBruts.update(liste =>
           liste.map(item =>
             item.id === rdv.id
               ? { ...item, statut }

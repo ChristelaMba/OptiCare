@@ -58,9 +58,10 @@ export const mockRendezVousInterceptor: HttpInterceptorFn = (req, next) => {
       date: payload.date,
       heureDebut: payload.heure,
       heureFin: ajouterMinutes(payload.heure, 30),
-      // Un rendez-vous pris en ligne attend une confirmation par la
-      // secrétaire — jamais confirmé d'office.
-      statut: 'en_attente',
+      // Un rendez-vous pris en ligne est 'reserve' : créneau pris, en
+      // attente de confirmation par la secrétaire — jamais confirmé
+      // d'office (vocabulaire back-end réel, aligné le 07/09).
+      statut: 'reserve',
       nomPatientAffiche: payload.nomComplet,
     };
 
@@ -77,7 +78,8 @@ export const mockRendezVousInterceptor: HttpInterceptorFn = (req, next) => {
     // patientId pour filtrer dessus. Sous-ensemble fixe plutôt qu'un
     // filtrage inventé qui ferait croire à une vraie logique d'identité
     // côté mock — juste de quoi peupler l'écran de façon plausible.
-    return reponse(rendezVousFactices.slice(0, 5));
+    // 'libre' exclu : état de créneau, pas un rendez-vous du patient.
+    return reponse(rendezVousFactices.filter((rdv) => rdv.statut !== 'libre').slice(0, 6));
   }
 
   // GET /cabinets/{id}/rendezvous

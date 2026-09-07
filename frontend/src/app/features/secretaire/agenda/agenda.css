@@ -369,6 +369,10 @@
   background: #7e8d98;
 }
 
+.legend-dot.noshow {
+  background: #b0397a;
+}
+
 
 /* =========================================================
    LISTE
@@ -423,6 +427,10 @@
 
 .appointment-card.status-completed {
   border-left-color: #7e8d98;
+}
+
+.appointment-card.status-noshow {
+  border-left-color: #b0397a;
 }
 
 
@@ -570,6 +578,11 @@
 .status-completed .status-badge {
   background: #f0f3f5;
   color: #73818b;
+}
+
+.status-noshow .status-badge {
+  background: #fdeef6;
+  color: #a83371;
 }
 
 

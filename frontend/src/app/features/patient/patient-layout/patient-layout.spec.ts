@@ -1,22 +1,24 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-@Component({
-  selector: 'app-patient-layout',
-  standalone: true,
-  imports: [RouterLink, RouterOutlet, RouterLinkActive],
-  templateUrl: './patient-layout.html',
-  styleUrl: './patient-layout.css'
-})
-export class PatientLayout {
+import { PatientLayout } from './patient-layout';
 
-  sidebarOuverte = signal(false);
+describe('PatientLayout', () => {
+  let component: PatientLayout;
+  let fixture: ComponentFixture<PatientLayout>;
 
-  toggleSidebar(): void {
-    this.sidebarOuverte.update(v => !v);
-  }
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PatientLayout],
+      providers: [provideRouter([])],
+    }).compileComponents();
 
-  fermerSidebar(): void {
-    this.sidebarOuverte.set(false);
-  }
-}
+    fixture = TestBed.createComponent(PatientLayout);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
