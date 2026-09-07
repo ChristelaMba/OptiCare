@@ -74,7 +74,7 @@ export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
     const payload = req.body as InscriptionPatientPayload;
     const nouveau: Utilisateur = {
       id: `user-${Date.now()}`,
-      role: 'Patient',
+      role: 'patient',
       nom: payload.nom,
       prenom: payload.prenom,
       email: payload.email,
@@ -97,7 +97,7 @@ export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
     const payload = req.body as InscriptionCabinetPayload;
     const nouveau: Utilisateur = {
       id: `user-${Date.now()}`,
-      role: 'Proprietaire',
+      role: 'proprietaire',
       nom: payload.nom,
       prenom: payload.prenom,
       email: payload.email,

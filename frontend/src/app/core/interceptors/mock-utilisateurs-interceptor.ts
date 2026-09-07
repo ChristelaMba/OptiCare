@@ -59,7 +59,7 @@ export const mockUtilisateursInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.method === 'GET' && matchListerPersonnel) {
     const cabinetId = matchListerPersonnel[1];
     return reponse(
-      utilisateursFactices.filter((u) => u.cabinetId === cabinetId && (u.role === 'Opticien' || u.role === 'Secretaire')),
+      utilisateursFactices.filter((u) => u.cabinetId === cabinetId && (u.role === 'opticien' || u.role === 'secretaire')),
     );
   }
 

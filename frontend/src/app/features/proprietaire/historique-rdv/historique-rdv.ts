@@ -11,19 +11,23 @@ import { StatutRendezVous } from '../../../models/rendez-vous.model';
 const TAILLE_PAGE = 8;
 
 const LABEL_STATUT: Record<StatutRendezVous, string> = {
-  en_attente: 'En attente',
+  libre: 'Libre',
+  reserve: 'En attente',
   confirme: 'Confirmé',
   termine: 'Terminé',
   annule: 'Annulé',
+  non_honore: 'Non honoré',
 };
 
 /**
  * Reproduction de la maquette `maquette/historique_des_rendez_vous_opticare_admin/`.
- * Écart avec la maquette : le statut « Non présenté » qu'elle affiche
- * n'existe pas dans le modèle RendezVous officiel (§5 du cahier des
- * charges : en_attente | confirme | annule | termine) — remplacé par les 4
- * statuts réels. Le bouton « Exporter » télécharge un CSV des lignes
- * actuellement filtrées (fonctionnalité réelle, pas un simple visuel).
+ * 2026-09-07 : le statut « Non présenté » de la maquette est de retour —
+ * il correspond à la valeur `non_honore` du back-end réel (avant, ce
+ * statut avait été retiré faute d'équivalent dans le modèle). Vocabulaire
+ * complet aligné sur l'API : libre | reserve | confirme | annule |
+ * termine | non_honore. `libre` est un état de créneau et n'apparaît
+ * jamais dans cet historique. Le bouton « Exporter » télécharge un CSV
+ * des lignes actuellement filtrées (fonctionnalité réelle).
  */
 @Component({
   selector: 'app-historique-rdv',
@@ -42,7 +46,8 @@ export class HistoriqueRdv implements OnInit {
   private readonly rendezVous = signal<RendezVousAffichage[]>([]);
 
   readonly labelStatut = LABEL_STATUT;
-  readonly statuts: StatutRendezVous[] = ['en_attente', 'confirme', 'termine', 'annule'];
+  // 'libre' volontairement absent : état de créneau, pas un rendez-vous.
+  readonly statuts: StatutRendezVous[] = ['reserve', 'confirme', 'termine', 'annule', 'non_honore'];
 
   readonly texteRecherche = signal('');
   readonly filtreStatut = signal<StatutRendezVous | 'tous'>('tous');
@@ -61,6 +66,8 @@ export class HistoriqueRdv implements OnInit {
     const opticien = this.filtreOpticien();
 
     return [...this.rendezVous()]
+      // 'libre' = état de créneau, jamais listé dans l'historique.
+      .filter((r) => r.statut !== 'libre')
       // `date` est une chaîne ISO (YYYY-MM-DD) : triable lexicalement, pas besoin de Date/getTime().
       .sort((a, b) => b.date.localeCompare(a.date))
       .filter((r) => {

@@ -23,11 +23,18 @@ export interface RendezVousAffichage extends RendezVous {
 
 export let rendezVousFactices: RendezVousAffichage[] = [
   { id: 'rdv-001', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Examen de la vue', date: '2026-08-19', heureDebut: '14:30', heureFin: '15:00', statut: 'termine', nomPatientAffiche: 'Jean Dupont' },
+
+  // 2026-09-07 : entrées de test pour les valeurs ajoutées lors de l'alignement
+  // sur le vocabulaire back-end (voir Docs/DIAGNOSTIC-VOCABULAIRE-BACKEND.md).
+  // 'non_honore' : patient absent — visible dans mes-rendez-vous / historique-rdv / agenda.
+  { id: 'rdv-019', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Aïcha Fouda', motif: 'Examen de la vue', date: '2026-08-13', heureDebut: '10:00', heureFin: '10:30', statut: 'non_honore', nomPatientAffiche: 'Bernard Kotto' },
+  // 'libre' : créneau réservable jamais pris — aucun écran ne l'affiche encore, filtré partout.
+  { id: 'rdv-020', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: '', date: '2026-08-25', heureDebut: '09:00', heureFin: '09:30', statut: 'libre' },
   { id: 'rdv-002', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Aïcha Fouda', motif: 'Ajustement monture', date: '2026-08-19', heureDebut: '11:00', heureFin: '11:30', statut: 'annule', nomPatientAffiche: 'Marie Laurent' },
   { id: 'rdv-003', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Retrait lentilles', date: '2026-08-18', heureDebut: '16:15', heureFin: '16:45', statut: 'termine', nomPatientAffiche: 'Pierre Lemaire' },
   { id: 'rdv-004', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Examen de la vue', date: '2026-08-17', heureDebut: '09:30', heureFin: '10:00', statut: 'termine', nomPatientAffiche: 'Sophie Fabre' },
   { id: 'rdv-005', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Aïcha Fouda', motif: 'Renouvellement ordonnance', date: '2026-08-16', heureDebut: '15:00', heureFin: '15:30', statut: 'termine', nomPatientAffiche: 'Lucas Roux' },
-  { id: 'rdv-006', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Examen de la vue', date: '2026-08-15', heureDebut: '10:00', heureFin: '10:30', statut: 'en_attente', nomPatientAffiche: 'Jean Leclerc' },
+  { id: 'rdv-006', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Examen de la vue', date: '2026-08-15', heureDebut: '10:00', heureFin: '10:30', statut: 'reserve', nomPatientAffiche: 'Jean Leclerc' },
   { id: 'rdv-007', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Aïcha Fouda', motif: 'Ajustement monture', date: '2026-08-21', heureDebut: '11:30', heureFin: '12:00', statut: 'confirme', nomPatientAffiche: 'Thomas Bernard' },
   { id: 'rdv-008', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Examen de la vue', date: '2026-08-22', heureDebut: '09:00', heureFin: '09:30', statut: 'confirme', nomPatientAffiche: 'Pierre Lemaire' },
   { id: 'rdv-009', cabinetId: 'cab-004', cabinetNom: 'Vision Plus', praticienNom: 'Sylvie Nkeng', motif: 'Retrait lentilles', date: '2026-08-14', heureDebut: '14:00', heureFin: '14:30', statut: 'termine', nomPatientAffiche: 'Aline Manga' },

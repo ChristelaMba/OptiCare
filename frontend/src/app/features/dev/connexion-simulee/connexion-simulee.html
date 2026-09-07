@@ -10,7 +10,7 @@
       <h1 class="font-heading text-headline-h2 text-on-surface font-bold mb-1">Connexion simulée</h1>
       <p class="font-body text-body-base text-text-muted">
         @if (estConnecte()) {
-          Session active : rôle <strong>{{ roleActuel() }}</strong>.
+          Session active : rôle <strong>{{ libelleRole(roleActuel()) }}</strong>.
         } @else {
           Aucune session active.
         }
@@ -27,7 +27,7 @@
             (click)="allerVersEspace(role)"
             class="px-space-4 py-space-3 rounded-lg text-button font-body font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm"
           >
-            {{ role }}
+            {{ libelleRole(role) }}
           </button>
         }
       </div>
@@ -43,7 +43,7 @@
           class="h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base"
         >
           @for (role of roles; track role) {
-            <option [value]="role">{{ role }}</option>
+            <option [value]="role">{{ libelleRole(role) }}</option>
           }
         </select>
         <input

@@ -291,7 +291,7 @@
               Confirmés
             </option>
 
-            <option value="en_attente">
+            <option value="reserve">
               En attente
             </option>
 
@@ -301,6 +301,10 @@
 
             <option value="termine">
               Terminés
+            </option>
+
+            <option value="non_honore">
+              Non honorés
             </option>
 
           </select>
@@ -616,9 +620,9 @@
                   }
 
 
-                  <!-- EN ATTENTE -->
+                  <!-- EN ATTENTE (créneau réservé, à confirmer par la secrétaire) -->
 
-                  @else if (rdv.statut === 'en_attente') {
+                  @else if (rdv.statut === 'reserve') {
 
                     <button
                       type="button"
@@ -655,6 +659,24 @@
                   <!-- ANNULÉ -->
 
                   @else if (rdv.statut === 'annule') {
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                    >
+
+                      <i class="fa-regular fa-eye"></i>
+
+                      Voir les détails
+
+                    </button>
+
+                  }
+
+
+                  <!-- NON HONORÉ (patient absent) -->
+
+                  @else if (rdv.statut === 'non_honore') {
 
                     <button
                       type="button"
