@@ -78,7 +78,7 @@ export const routes: Routes = [
     ],
 
     data: {
-      role: 'Patient'
+      role: 'patient'
     },
 
     loadChildren: () =>
@@ -100,7 +100,7 @@ export const routes: Routes = [
     ],
 
     data: {
-      role: 'Secretaire'
+      role: 'secretaire'
     },
 
     loadChildren: () =>
@@ -122,7 +122,7 @@ export const routes: Routes = [
     ],
 
     data: {
-      role: 'Opticien'
+      role: 'opticien'
     },
 
     loadChildren: () =>
@@ -144,7 +144,7 @@ export const routes: Routes = [
     ],
 
     data: {
-      role: 'Proprietaire'
+      role: 'proprietaire'
     },
 
     loadChildren: () =>
@@ -166,7 +166,7 @@ export const routes: Routes = [
     ],
 
     data: {
-      role: 'SuperAdmin'
+      role: 'super_admin'
     },
 
     loadChildren: () =>

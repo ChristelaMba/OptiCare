@@ -71,18 +71,28 @@ export class MesRendezVous implements OnInit {
 
     return (
       new Date(rdv.date) >= aujourdhui &&
-      rdv.statut !== 'annule'
+      rdv.statut !== 'annule' &&
+      rdv.statut !== 'non_honore'
     );
   }
 
+  /**
+   * 'libre' est un état de créneau, pas un rendez-vous réel du patient :
+   * on ne l'affiche jamais dans cet écran (voir StatutRendezVous). Le
+   * mock peut en renvoyer pour exercer la valeur — on les écarte ici.
+   */
+  private readonly rendezVousReels = computed(() =>
+    this.rendezVous().filter(rdv => rdv.statut !== 'libre')
+  );
+
   rendezVousAVenir = computed(() =>
-    this.rendezVous().filter(rdv =>
+    this.rendezVousReels().filter(rdv =>
       this.estAVenir(rdv)
     )
   );
 
   rendezVousPasses = computed(() =>
-    this.rendezVous().filter(rdv =>
+    this.rendezVousReels().filter(rdv =>
       !this.estAVenir(rdv)
     )
   );
@@ -230,13 +240,17 @@ export class MesRendezVous implements OnInit {
     const libelles:
       Record<StatutRendezVous, string> = {
 
-      confirme: 'Confirmé',
+      libre: 'Libre',
 
-      en_attente: 'En attente',
+      reserve: 'En attente',
+
+      confirme: 'Confirmé',
 
       annule: 'Annulé',
 
-      termine: 'Terminé'
+      termine: 'Terminé',
+
+      non_honore: 'Non honoré'
 
     };
 

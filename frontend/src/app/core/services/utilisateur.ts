@@ -14,7 +14,7 @@ export interface CreerPersonnelPayload {
   telephone: string;
   ville: string;
   email: string;
-  role: Extract<RoleUtilisateur, 'Opticien' | 'Secretaire'>;
+  role: Extract<RoleUtilisateur, 'opticien' | 'secretaire'>;
 }
 
 /**

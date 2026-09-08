@@ -686,6 +686,10 @@ input {
   background: var(--neutral);
 }
 
+.legend-dot.noshow {
+  background: #b0397a;
+}
+
 
 /* =========================================================
    LISTE DES RENDEZ-VOUS
@@ -760,6 +764,10 @@ input {
 
 .appointment-card.status-completed {
   border-left-color: var(--neutral);
+}
+
+.appointment-card.status-noshow {
+  border-left-color: #b0397a;
 }
 
 
@@ -921,6 +929,11 @@ input {
   background: var(--neutral-light);
 
   color: var(--neutral);
+}
+
+.status-noshow .status-badge {
+  background: #fdeef6;
+  color: #a83371;
 }
 
 
