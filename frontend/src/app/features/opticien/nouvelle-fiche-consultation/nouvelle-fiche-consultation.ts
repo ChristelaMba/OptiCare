@@ -1,5 +1,16 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed
+} from '@angular/core';
+
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
+
 import {
   FormBuilder,
   FormGroup,
@@ -7,233 +18,500 @@ import {
   Validators
 } from '@angular/forms';
 
-import { FicheConsultationService } from '../../../core/services/fiche-consultation';
-import { PriseEnCharge as PriseEnChargeService } from '../../../core/services/prise-en-charge';
-import { Auth } from '../../../core/services/auth';
-import { NouvelleFicheConsultationPayload } from '../../../models/fiche-consultation.model';
+import {
+  FicheConsultationService
+} from '../../../core/services/fiche-consultation';
+
+import {
+  PriseEnCharge as PriseEnChargeService
+} from '../../../core/services/prise-en-charge';
+
+import {
+  Auth
+} from '../../../core/services/auth';
+
+import {
+  NouvelleFicheConsultationPayload
+} from '../../../models/fiche-consultation.model';
+
 
 @Component({
   selector: 'app-nouvelle-fiche-consultation',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule
+  ],
   templateUrl: './nouvelle-fiche-consultation.html',
   styleUrl: './nouvelle-fiche-consultation.css'
 })
-export class NouvelleFicheConsultation implements OnInit {
+export class NouvelleFicheConsultation
+  implements OnInit {
+
+
+  // =========================================================
+  // SERVICES
+  // =========================================================
 
   private readonly auth = inject(Auth);
-  private readonly priseEnChargeService = inject(PriseEnChargeService);
 
-  patientNom = 'Jean Dupont';
+  private readonly priseEnChargeService =
+    inject(PriseEnChargeService);
 
-  patientRef = '9482-A';
+  private readonly route =
+    inject(ActivatedRoute);
+
+  private readonly router =
+    inject(Router);
+
+  private readonly fb =
+    inject(FormBuilder);
+
+  private readonly ficheConsultationService =
+    inject(FicheConsultationService);
+
+
+  // =========================================================
+  // INFORMATIONS PATIENT
+  // =========================================================
+
+  patientNom = '';
+
+  patientRef = '';
+
+
+  // =========================================================
+  // FORMULAIRE
+  // =========================================================
 
   form: FormGroup;
 
-  /*
-   * Signaux, pas de simples propriétés : ce projet tourne sans zone.js
-   * (aucune dépendance zone.js, pas de provideZonelessChangeDetection()
-   * explicite non plus). Une propriété simple modifiée depuis un callback
-   * subscribe() ne redéclenche pas le rendu ici (constaté en testant en
-   * direct). Même pattern que historique-rdv.ts/mes-rendez-vous.ts.
-   */
-  readonly enSoumission = signal(false);
 
-  /* =====================================================
-     DOSSIER VISUEL
-     ---------------------------------------------------
-     2026-09-02 (B1) : dossierVisuelId est maintenant le paramètre de
-     route lui-même (opticien.routes.ts : nouvelle-fiche-consultation/:dossierVisuelId),
-     plus un placeholder ni un lookup PatientService — l'écran appelant
-     (dossier-visuel-patient.ts) a déjà résolu le patient et transmet sa
-     vraie référence. resoudrePatient()/PatientService, devenus
-     redondants, ont été retirés — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
-  ===================================================== */
+  // =========================================================
+  // ETAT
+  // =========================================================
+
+  readonly enSoumission =
+    signal(false);
+
 
   dossierVisuelId = '';
-
-  /* =====================================================
-     PRISE EN CHARGE
-     ---------------------------------------------------
-     Ouverte automatiquement à l'arrivée sur l'écran — c'est elle qui,
-     une fois terminée, verrouille définitivement la fiche (§5 du
-     cahier des charges). Voir JOURNAL-MODIFICATIONS-PARTAGEES.md pour
-     le détail du flux et ce qui reste symbolique côté verrouillage.
-  ===================================================== */
 
   cabinetId = '';
 
   opticienId = '';
 
-  readonly priseEnChargeId = signal('');
 
-  readonly priseEnChargeStatut = signal<'initiee' | 'enCours' | 'terminee' | null>(null);
+  // =========================================================
+  // PRISE EN CHARGE
+  // =========================================================
 
-  readonly enClotureConsultation = signal(false);
+  readonly priseEnChargeId =
+    signal('');
 
-  readonly erreurPriseEnCharge = signal(false);
+  readonly priseEnChargeStatut =
+    signal<
+      'initiee'
+      | 'enCours'
+      | 'terminee'
+      | null
+    >(null);
 
-  readonly erreurEnregistrement = signal(false);
 
-  /**
-   * true tant que la prise en charge n'est pas terminée. Redevient false
-   * dès que terminerConsultation() aboutit — la fiche passe alors en
-   * lecture seule (voir verrouillerFormulaire()).
-   *
-   * ⚠️ Ce verrouillage est UNIQUEMENT côté interface (désactivation du
-   * FormGroup). Rien n'empêche aujourd'hui un appel direct à l'API de
-   * modifier la fiche malgré tout — voir le journal des modifications
-   * partagées pour le détail de ce qui manque côté back pour que ce soit
-   * une vraie garantie.
-   */
-  readonly modifiable = computed(() => this.priseEnChargeStatut() !== 'terminee');
+  readonly enClotureConsultation =
+    signal(false);
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private ficheConsultationService: FicheConsultationService
-  ) {
-    this.form = this.fb.group({
 
-      // Renommé de "symptomes" à "plaintes" le 2026-09-02 (B2), pour
-      // matcher Plaintes du §5 — voir fiche-consultation.model.ts.
-      plaintes: this.fb.group({
-        visionFlouLoin: [false],
-        visionFlouPres: [false],
-        visionDouble: [false],
-        larmoiement: [false],
-        demangeaisons: [false]
-      }),
+  readonly erreurPriseEnCharge =
+    signal(false);
 
-      // "cephalees" retiré (B2) : pas d'équivalent dans Plaintes du §5.
-      // Passe par ce champ texte libre désormais (voir placeholder).
-      autresPlaintes: [''],
 
-      od: this.fb.group({
-        sphere: [null],
-        cylindre: [null],
-        axe: [
-          null,
-          [
-            Validators.min(0),
-            Validators.max(180)
-          ]
-        ],
-        add: [null]
-      }),
+  readonly erreurEnregistrement =
+    signal(false);
 
-      og: this.fb.group({
-        sphere: [null],
-        cylindre: [null],
-        axe: [
-          null,
-          [
-            Validators.min(0),
-            Validators.max(180)
-          ]
-        ],
-        add: [null]
-      }),
 
-      observations: [
-        '',
-        Validators.required
-      ]
+  readonly modifiable =
+    computed(() =>
+      this.priseEnChargeStatut() !== 'terminee'
+    );
 
-    });
+
+  // =========================================================
+  // CONSTRUCTEUR
+  // =========================================================
+
+  constructor() {
+
+    this.form =
+      this.fb.group({
+
+        // -----------------------------------------------------
+        // PLAINTES
+        // -----------------------------------------------------
+
+        plaintes: this.fb.group({
+
+          visionFlouLoin: [false],
+
+          visionFlouPres: [false],
+
+          visionDouble: [false],
+
+          larmoiement: [false],
+
+          demangeaisons: [false]
+
+        }),
+
+
+        // -----------------------------------------------------
+        // AUTRES PLAINTES
+        // -----------------------------------------------------
+
+        autresPlaintes: [''],
+
+
+        // -----------------------------------------------------
+        // OEIL DROIT
+        // -----------------------------------------------------
+
+        od: this.fb.group({
+
+          sphere: [null],
+
+          cylindre: [null],
+
+          axe: [
+            null,
+            [
+              Validators.min(0),
+              Validators.max(180)
+            ]
+          ],
+
+          add: [null]
+
+        }),
+
+
+        // -----------------------------------------------------
+        // OEIL GAUCHE
+        // -----------------------------------------------------
+
+        og: this.fb.group({
+
+          sphere: [null],
+
+          cylindre: [null],
+
+          axe: [
+            null,
+            [
+              Validators.min(0),
+              Validators.max(180)
+            ]
+          ],
+
+          add: [null]
+
+        }),
+
+
+        // -----------------------------------------------------
+        // OBSERVATIONS
+        // -----------------------------------------------------
+
+        observations: [
+          '',
+          Validators.required
+        ]
+
+      });
+
   }
+
+
+  // =========================================================
+  // INITIALISATION
+  // =========================================================
 
   ngOnInit(): void {
 
-    const idFromRoute =
-      this.route.snapshot.paramMap.get('dossierVisuelId');
+    /*
+     * IMPORTANT :
+     *
+     * On récupère maintenant le dossier depuis
+     * les query params.
+     *
+     * Exemple :
+     *
+     * /opticien/nouvelle-fiche-consultation
+     * ?dossierVisuelId=dv2
+     */
 
-    if (idFromRoute) {
-      this.dossierVisuelId = idFromRoute;
-    }
+    const dossierId =
+      this.route.snapshot
+        .queryParamMap
+        .get('dossierVisuelId');
 
-    this.opticienId = this.auth.utilisateur()?.id ?? '';
-    this.cabinetId = this.auth.utilisateur()?.cabinetId ?? '';
 
-    if (this.dossierVisuelId) {
-      this.demarrerPriseEnCharge();
-    }
+    // -------------------------------------------------------
+    // DOSSIER MANQUANT
+    // -------------------------------------------------------
 
-  }
+    if (!dossierId) {
 
-  /**
-   * Ouvre la prise en charge dès l'arrivée sur l'écran (point 1 du flux
-   * demandé) — avant même que l'opticien ait rempli quoi que ce soit,
-   * puisque c'est cet acte-là (« je commence à m'occuper de ce patient »)
-   * que PriseEnCharge est censée représenter, pas la sauvegarde de la
-   * fiche elle-même.
-   */
-  private demarrerPriseEnCharge(): void {
-
-    this.priseEnChargeService.creer({
-      dossierVisuelId: this.dossierVisuelId,
-      cabinetId: this.cabinetId,
-      type: 'consultation',
-      statut: 'initiee',
-      opticienResponsableId: this.opticienId,
-      dateDebut: new Date()
-    }).subscribe({
-
-      next: (priseEnCharge) => {
-        this.priseEnChargeId.set(priseEnCharge.id);
-        this.priseEnChargeStatut.set(priseEnCharge.statut);
-      },
-
-      error: () => {
-        // GET/PATCH restent non confirmés au §8 ; POST /prise-en-charge
-        // l'est. Une erreur ici est donc un vrai échec réseau/serveur,
-        // pas juste une route non confirmée. On n'empêche pas l'opticien de
-        // remplir la fiche pour autant, mais enregistrer()/terminerConsultation()
-        // restent bloqués tant que priseEnChargeId est vide (voir le template).
-        this.erreurPriseEnCharge.set(true);
-      }
-
-    });
-  }
-
-  /**
-   * Destination réelle : dossier-visuel-patient.ts (opticien.routes.ts
-   * n'a pas de route /opticien/patients/:id/dossier-visuel — corrigé le
-   * 2026-09-02 en même temps que le passage à dossierVisuelId). Sa
-   * route s'appelle elle aussi :dossierVisuelId depuis le même jour
-   * (renommée séparément, elle attendait encore :patientId au départ) —
-   * voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
-   */
-  annuler(): void {
-
-    if (this.dossierVisuelId) {
+      console.error(
+        'Identifiant du dossier visuel manquant.'
+      );
 
       this.router.navigate([
-        '/opticien/dossier-visuel-patient',
-        this.dossierVisuelId
+        '/opticien/mes-patients'
       ]);
 
       return;
     }
 
-    this.router.navigate(['/opticien']);
+
+    // -------------------------------------------------------
+    // CONSERVATION DU DOSSIER
+    // -------------------------------------------------------
+
+    this.dossierVisuelId =
+      dossierId;
+
+
+    // -------------------------------------------------------
+    // INFORMATIONS AUTHENTIFICATION
+    // -------------------------------------------------------
+
+    this.opticienId =
+      this.auth.utilisateur()?.id ?? '';
+
+
+    this.cabinetId =
+      this.auth.utilisateur()?.cabinetId ?? '';
+
+
+    // -------------------------------------------------------
+    // INFORMATIONS DU PATIENT
+    // -------------------------------------------------------
+
+    this.chargerInformationsPatient();
+
+
+    // -------------------------------------------------------
+    // CREATION DE LA PRISE EN CHARGE
+    // -------------------------------------------------------
+
+    this.demarrerPriseEnCharge();
+
   }
 
+
+  // =========================================================
+  // INFORMATIONS PATIENT
+  // =========================================================
+
+  private chargerInformationsPatient(): void {
+
+    /*
+     * Données frontend temporaires.
+     *
+     * Elles correspondent aux patients de MesPatients.
+     */
+
+    const patients: Record<
+      string,
+      {
+        nom: string;
+        ref: string;
+      }
+    > = {
+
+
+      dv1: {
+        nom: 'Jean Dupont',
+        ref: '9482-A'
+      },
+
+
+      dv2: {
+        nom: 'Alice Mbarga',
+        ref: '9482-B'
+      },
+
+
+      dv3: {
+        nom: 'Paul Ndi',
+        ref: '9482-C'
+      },
+
+
+      dv4: {
+        nom: 'Sophie Kamdem',
+        ref: '9482-D'
+      },
+
+
+      dv5: {
+        nom: 'Michel Tchoumi',
+        ref: '9482-E'
+      },
+
+
+      dv6: {
+        nom: 'Clara Ngono',
+        ref: '9482-F'
+      }
+
+    };
+
+
+    const patient =
+      patients[this.dossierVisuelId];
+
+
+    if (!patient) {
+
+      this.patientNom =
+        'Patient inconnu';
+
+      this.patientRef =
+        '';
+
+      return;
+    }
+
+
+    this.patientNom =
+      patient.nom;
+
+
+    this.patientRef =
+      patient.ref;
+
+  }
+
+
+  // =========================================================
+  // DEMARRER PRISE EN CHARGE
+  // =========================================================
+
+  private demarrerPriseEnCharge(): void {
+
+    this.priseEnChargeService
+      .creer({
+
+        dossierVisuelId:
+          this.dossierVisuelId,
+
+        cabinetId:
+          this.cabinetId,
+
+        type:
+          'consultation',
+
+        statut:
+          'initiee',
+
+        opticienResponsableId:
+          this.opticienId,
+
+        dateDebut:
+          new Date()
+
+      })
+      .subscribe({
+
+        next: (priseEnCharge) => {
+
+          this.priseEnChargeId
+            .set(priseEnCharge.id);
+
+
+          this.priseEnChargeStatut
+            .set(priseEnCharge.statut);
+
+        },
+
+
+        error: (error) => {
+
+          console.error(
+            'Erreur création prise en charge :',
+            error
+          );
+
+          this.erreurPriseEnCharge
+            .set(true);
+
+        }
+
+      });
+
+  }
+
+
+  // =========================================================
+  // ANNULER
+  // =========================================================
+
+  annuler(): void {
+
+    if (!this.dossierVisuelId) {
+
+      this.router.navigate([
+        '/opticien/mes-patients'
+      ]);
+
+      return;
+    }
+
+
+    this.router.navigate(
+      ['/opticien/dossier-visuel-patient'],
+      {
+        queryParams: {
+          dossierVisuelId:
+            this.dossierVisuelId
+        }
+      }
+    );
+
+  }
+
+
+  // =========================================================
+  // ENREGISTRER
+  // =========================================================
+
   enregistrer(): void {
+
+    // -------------------------------------------------------
+    // FORMULAIRE VERROUILLE
+    // -------------------------------------------------------
 
     if (!this.modifiable()) {
       return;
     }
 
+
+    // -------------------------------------------------------
+    // PRISE EN CHARGE MANQUANTE
+    // -------------------------------------------------------
+
     if (!this.priseEnChargeId()) {
-      // Vrai manque frontend à ne pas laisser passer silencieusement :
-      // sans prise en charge valide, la fiche n'a pas de référence à
-      // laquelle se rattacher (§5). On bloque plutôt que d'envoyer un
-      // priseEnChargeId vide.
-      this.erreurPriseEnCharge.set(true);
+
+      this.erreurPriseEnCharge
+        .set(true);
+
       return;
     }
+
+
+    // -------------------------------------------------------
+    // FORMULAIRE INVALIDE
+    // -------------------------------------------------------
 
     if (this.form.invalid) {
 
@@ -242,95 +520,172 @@ export class NouvelleFicheConsultation implements OnInit {
       return;
     }
 
-    this.enSoumission.set(true);
 
-    const valeurs = this.form.getRawValue();
+    this.enSoumission
+      .set(true);
 
-    const payload: NouvelleFicheConsultationPayload = {
 
-      dossierVisuelId: this.dossierVisuelId,
+    const valeurs =
+      this.form.getRawValue();
 
-      priseEnChargeId: this.priseEnChargeId(),
 
-      cabinetId: this.cabinetId,
+    // -------------------------------------------------------
+    // PAYLOAD
+    // -------------------------------------------------------
 
-      opticienId: this.opticienId,
+    const payload:
+      NouvelleFicheConsultationPayload = {
 
-      plaintes: valeurs.plaintes,
+        dossierVisuelId:
+          this.dossierVisuelId,
 
-      autresPlaintes: valeurs.autresPlaintes,
+        priseEnChargeId:
+          this.priseEnChargeId(),
 
-      prescriptionOD: valeurs.od,
+        cabinetId:
+          this.cabinetId,
 
-      prescriptionOG: valeurs.og,
+        opticienId:
+          this.opticienId,
 
-      observations: valeurs.observations
+        plaintes:
+          valeurs.plaintes,
 
-    };
+        autresPlaintes:
+          valeurs.autresPlaintes,
 
-    this.ficheConsultationService.creer(payload).subscribe({
+        prescriptionOD:
+          valeurs.od,
 
-      next: () => {
+        prescriptionOG:
+          valeurs.og,
 
-        this.enSoumission.set(false);
+        observations:
+          valeurs.observations
 
-        this.router.navigate([
-          '/opticien/dossier-visuel-patient',
-          this.dossierVisuelId
-        ]);
-      },
+      };
 
-      error: () => {
-        this.enSoumission.set(false);
-        this.erreurEnregistrement.set(true);
-      }
 
-    });
+    // -------------------------------------------------------
+    // CREATION DE LA FICHE
+    // -------------------------------------------------------
+
+    this.ficheConsultationService
+      .creer(payload)
+      .subscribe({
+
+        next: () => {
+
+          this.enSoumission
+            .set(false);
+
+
+          this.router.navigate(
+            ['/opticien/dossier-visuel-patient'],
+            {
+              queryParams: {
+                dossierVisuelId:
+                  this.dossierVisuelId
+              }
+            }
+          );
+
+        },
+
+
+        error: (error) => {
+
+          console.error(
+            'Erreur enregistrement fiche :',
+            error
+          );
+
+
+          this.enSoumission
+            .set(false);
+
+
+          this.erreurEnregistrement
+            .set(true);
+
+        }
+
+      });
+
   }
 
-  /**
-   * Bouton distinct de enregistrer() (point 3 du flux demandé) : termine
-   * réellement la prise en charge plutôt que juste sauvegarder la fiche.
-   * C'est cette transition — statut 'terminee' — que le §5 désigne comme
-   * déclencheur du verrouillage définitif de FicheConsultation.modifiable.
-   */
+
+  // =========================================================
+  // TERMINER LA CONSULTATION
+  // =========================================================
+
   terminerConsultation(): void {
 
     if (!this.priseEnChargeId()) {
-      this.erreurPriseEnCharge.set(true);
+
+      this.erreurPriseEnCharge
+        .set(true);
+
       return;
     }
 
-    this.enClotureConsultation.set(true);
 
-    this.priseEnChargeService.mettreAJourStatut(
-      this.priseEnChargeId(),
-      'terminee'
-    ).subscribe({
+    this.enClotureConsultation
+      .set(true);
 
-      next: (priseEnCharge) => {
 
-        this.priseEnChargeStatut.set(priseEnCharge.statut);
-        this.enClotureConsultation.set(false);
-        this.verrouillerFormulaire();
-      },
+    this.priseEnChargeService
+      .mettreAJourStatut(
+        this.priseEnChargeId(),
+        'terminee'
+      )
+      .subscribe({
 
-      error: () => {
-        this.enClotureConsultation.set(false);
-        this.erreurPriseEnCharge.set(true);
-      }
+        next: (priseEnCharge) => {
 
-    });
+          this.priseEnChargeStatut
+            .set(priseEnCharge.statut);
+
+
+          this.enClotureConsultation
+            .set(false);
+
+
+          this.verrouillerFormulaire();
+
+        },
+
+
+        error: (error) => {
+
+          console.error(
+            'Erreur clôture consultation :',
+            error
+          );
+
+
+          this.enClotureConsultation
+            .set(false);
+
+
+          this.erreurPriseEnCharge
+            .set(true);
+
+        }
+
+      });
+
   }
 
-  /**
-   * Point 4 du flux demandé : passe le formulaire en lecture seule une
-   * fois modifiable === false. form.disable() désactive nativement tous
-   * les FormControl (inputs, checkboxes, textarea) — c'est la seule
-   * partie de ce verrouillage qui a un effet réel ; voir le commentaire
-   * sur `modifiable` plus haut pour ce qui n'est PAS garanti.
-   */
+
+  // =========================================================
+  // VERROUILLER LE FORMULAIRE
+  // =========================================================
+
   private verrouillerFormulaire(): void {
+
     this.form.disable();
+
   }
+
 }

@@ -1,8 +1,5 @@
 /* =========================================================
-   OPTICARE — PATIENT LAYOUT
-   Palette :
-   Bleu primaire  #2563EB
-   Vert secondaire #16A34A
+   VARIABLES
 ========================================================= */
 
 :host {
@@ -13,44 +10,54 @@
   --primary-light: #eff6ff;
   --primary-soft: #dbeafe;
 
-  --secondary: #16a34a;
-  --secondary-dark: #15803d;
-  --secondary-light: #f0fdf4;
-  --secondary-soft: #dcfce7;
-
-  --text: #172033;
-  --text-secondary: #64748b;
+  --text-main: #172033;
+  --text-body: #475569;
   --text-muted: #94a3b8;
 
   --background: #f7f9fc;
   --surface: #ffffff;
+  --surface-soft: #f8fafc;
 
-  --border: #e5e7eb;
-  --border-light: #eef2f7;
+  --border: #e6ebf2;
+  --border-soft: #edf1f6;
 
   --danger: #dc2626;
-  --danger-light: #fef2f2;
 
-  --sidebar-width: 270px;
+  --sidebar-width: 250px;
 
-  display: block;
-  width: 100%;
-  min-height: 100vh;
+  font-family:
+    Inter,
+    "Segoe UI",
+    Arial,
+    sans-serif;
 }
 
 
 /* =========================================================
-   LAYOUT GLOBAL
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   LAYOUT
 ========================================================= */
 
 .patient-layout {
-  display: flex;
-
   width: 100%;
   min-height: 100vh;
 
+  display: flex;
+
   background: var(--background);
-  color: var(--text);
+  color: var(--text-main);
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 
@@ -61,50 +68,27 @@
 .patient-sidebar {
   position: fixed;
 
-  top: 0;
   left: 0;
+  top: 0;
   bottom: 0;
 
+  z-index: 100;
+
   width: var(--sidebar-width);
-  height: 100vh;
 
   display: flex;
   flex-direction: column;
+
+  padding: 20px 14px 14px;
 
   background: var(--surface);
 
   border-right: 1px solid var(--border);
 
-  z-index: 1000;
-
-  overflow-x: hidden;
-  overflow-y: auto;
-
   transition:
-    transform 0.28s ease,
-    box-shadow 0.28s ease;
-}
-
-
-/* =========================================================
-   SIDEBAR SCROLLBAR
-========================================================= */
-
-.patient-sidebar::-webkit-scrollbar {
-  width: 5px;
-}
-
-.patient-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.patient-sidebar::-webkit-scrollbar-thumb {
-  background: #dbe2ea;
-  border-radius: 10px;
-}
-
-.patient-sidebar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
 }
 
 
@@ -113,348 +97,225 @@
 ========================================================= */
 
 .sidebar-brand {
-  min-height: 82px;
+  position: relative;
 
   display: flex;
   align-items: center;
 
-  padding: 0 20px;
+  gap: 10px;
 
-  border-bottom: 1px solid var(--border-light);
-
-  flex-shrink: 0;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  min-width: 0;
-
-  color: inherit;
-  text-decoration: none;
+  padding: 3px 7px 20px;
 }
 
 .brand-logo {
-  width: 42px;
-  height: 42px;
-
-  min-width: 42px;
+  width: 36px;
+  height: 36px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
   background: var(--primary);
   color: #ffffff;
 
-  font-size: 18px;
+  flex-shrink: 0;
+}
 
-  box-shadow:
-    0 6px 15px rgba(37, 99, 235, 0.18);
+.brand-logo svg {
+  width: 21px;
+  height: 21px;
 }
 
 .brand-text {
-  min-width: 0;
-
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
 .brand-text strong {
-  color: var(--text);
+  color: var(--text-main);
 
-  font-size: 18px;
-  font-weight: 800;
-
-  letter-spacing: -0.4px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .brand-text span {
+  margin-top: 1px;
+
   color: var(--text-muted);
 
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 9px;
 }
 
-
-/* =========================================================
-   CLOSE MENU
-========================================================= */
-
-.close-menu {
+.sidebar-close {
   display: none;
-
-  width: 34px;
-  height: 34px;
-
-  margin-left: auto;
-
-  align-items: center;
-  justify-content: center;
-
-  border: 0;
-  border-radius: 8px;
-
-  background: var(--primary-light);
-  color: var(--primary);
-
-  cursor: pointer;
-
-  transition: 0.2s ease;
-}
-
-.close-menu:hover {
-  background: var(--primary-soft);
 }
 
 
 /* =========================================================
-   CHANGEMENT D'ESPACE
+   ESPACE
 ========================================================= */
 
-.space-switcher {
+.space-selector {
   position: relative;
 
-  margin: 16px 14px 5px;
-
-  z-index: 20;
+  margin-bottom: 22px;
 }
 
-
-/* bouton */
-
-.space-switcher-button {
+.space-selector-button {
   width: 100%;
+
+  padding: 9px;
 
   display: flex;
   align-items: center;
-  gap: 10px;
 
-  padding: 10px;
+  gap: 9px;
 
   border: 1px solid var(--border);
   border-radius: 11px;
 
-  background: #ffffff;
-
-  color: var(--text);
+  background: var(--surface-soft);
+  color: var(--text-main);
 
   cursor: pointer;
 
   text-align: left;
-
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
-.space-switcher-button:hover {
-  border-color: var(--primary-soft);
-  background: var(--primary-light);
-}
-
-.space-switcher-button:focus-visible {
-  outline: 3px solid var(--primary-soft);
-  outline-offset: 2px;
-}
-
-
-/* icone */
-
-.space-switcher-icon {
-  width: 34px;
-  height: 34px;
-
-  min-width: 34px;
+.space-avatar {
+  width: 29px;
+  height: 29px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  border-radius: 8px;
 
-  background: var(--primary-light);
+  background: var(--primary-soft);
   color: var(--primary);
-
-  font-size: 14px;
-}
-
-
-/* texte */
-
-.space-switcher-content {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  flex: 1;
-}
-
-.space-switcher-content small {
-  color: var(--text-muted);
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-}
-
-.space-switcher-content strong {
-  color: var(--text);
 
   font-size: 11px;
   font-weight: 700;
 }
 
+.space-info {
+  min-width: 0;
 
-/* chevron */
+  flex: 1;
 
-.space-chevron {
-  color: var(--text-muted);
-
-  font-size: 11px;
-
-  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.space-chevron.rotate {
-  transform: rotate(180deg);
+.space-info small {
+  color: var(--text-muted);
+
+  font-size: 8px;
+}
+
+.space-info strong {
+  margin-top: 2px;
+
+  color: var(--text-main);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chevron {
+  width: 15px;
+  height: 15px;
+
+  color: var(--text-muted);
 }
 
 
 /* =========================================================
-   MENU DES ESPACES
+   ESPACE DROPDOWN
 ========================================================= */
 
-.spaces-menu {
+.space-dropdown {
   position: absolute;
 
   top: calc(100% + 7px);
   left: 0;
   right: 0;
 
-  padding: 6px;
+  z-index: 200;
 
-  background: #ffffff;
+  padding: 5px;
+
+  background: var(--surface);
 
   border: 1px solid var(--border);
-
-  border-radius: 12px;
+  border-radius: 11px;
 
   box-shadow:
     0 15px 35px rgba(15, 23, 42, 0.12);
-
-  animation: spaceMenuIn 0.18s ease;
 }
-
-@keyframes spaceMenuIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-/* option */
 
 .space-option {
-  position: relative;
+  width: 100%;
 
   display: flex;
   align-items: center;
+
   gap: 9px;
 
-  padding: 9px;
+  padding: 8px;
 
-  border-radius: 9px;
+  border: 0;
+  border-radius: 8px;
 
-  color: var(--text);
+  background: transparent;
 
-  text-decoration: none;
+  text-align: left;
 
-  transition: background 0.2s ease;
+  cursor: pointer;
 }
 
-.space-option:hover {
-  background: var(--primary-light);
-}
-
+.space-option:hover,
 .space-option.active {
   background: var(--primary-light);
 }
 
-
-/* icon option */
-
-.space-option-icon {
-  width: 31px;
-  height: 31px;
-
-  min-width: 31px;
+.option-icon {
+  width: 27px;
+  height: 27px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 8px;
+  border-radius: 7px;
 
-  background: #f1f5f9;
+  background: var(--primary-soft);
+  color: var(--primary);
 
-  color: var(--text-secondary);
-
-  font-size: 12px;
-}
-
-.space-option.active .space-option-icon {
-  background: var(--primary);
-  color: #ffffff;
-}
-
-
-/* texte option */
-
-.space-option > span:nth-child(2) {
-  min-width: 0;
-
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.space-option strong {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
+.space-option span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.space-option strong {
+  color: var(--text-main);
+
+  font-size: 10px;
+}
+
 .space-option small {
+  margin-top: 2px;
+
   color: var(--text-muted);
 
-  font-size: 9px;
-}
-
-.space-option > i {
-  color: var(--primary);
-
-  font-size: 11px;
-}
-
-.space-option:not(.active) > i {
-  display: none;
+  font-size: 8px;
 }
 
 
@@ -462,242 +323,237 @@
    NAVIGATION
 ========================================================= */
 
-.sidebar-nav,
-.sidebar-secondary {
+.sidebar-navigation {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 
-  padding: 19px 13px 0;
+  gap: 3px;
 }
 
-.nav-title {
-  padding: 0 11px 9px;
+.nav-label {
+  padding: 0 10px;
+  margin-bottom: 6px;
 
   color: var(--text-muted);
 
-  font-size: 9px;
-  font-weight: 800;
+  font-size: 8px;
+  font-weight: 700;
 
-  letter-spacing: 0.09em;
+  letter-spacing: 1px;
 }
 
 
 /* =========================================================
-   NAV ITEM
+   NAV LINK
 ========================================================= */
 
-.nav-item {
+.nav-link {
   position: relative;
 
-  min-height: 45px;
+  min-height: 40px;
+
+  padding: 0 11px;
 
   display: flex;
   align-items: center;
-  gap: 12px;
 
-  padding: 0 12px;
+  gap: 10px;
 
+  border: 1px solid transparent;
   border-radius: 9px;
 
-  color: var(--text-secondary);
+  color: var(--text-body);
 
   text-decoration: none;
 
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
+
+  overflow: hidden;
 
   transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
 }
 
-.nav-item:hover {
-  background: var(--primary-light);
+.nav-link svg {
+  width: 17px;
+  height: 17px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   NAV LINK HOVER
+========================================================= */
+
+.nav-link:hover {
+  background: var(--surface-soft);
   color: var(--primary);
 }
 
-.nav-item.active {
+
+/* =========================================================
+   NAV LINK ACTIF
+========================================================= */
+
+.nav-link.active {
   background: var(--primary-light);
+
   color: var(--primary);
 
-  font-weight: 700;
+  font-weight: 600;
+
+  border-color: transparent;
 }
 
 
-/* barre gauche */
+/* =========================================================
+   BORDURE BLEUE GAUCHE DU BOUTON ACTIF
+   Elle épouse l'arrondi du bouton
+========================================================= */
 
-.nav-item.active::before {
+.nav-link.active::before {
   content: "";
 
   position: absolute;
 
   left: 0;
-  top: 8px;
-  bottom: 8px;
+  top: 0;
+  bottom: 0;
 
   width: 3px;
 
-  border-radius: 0 4px 4px 0;
-
   background: var(--primary);
+
+  border-radius: 9px 0 0 9px;
+
+  pointer-events: none;
 }
 
 
 /* =========================================================
-   ICONES NAV
+   SÉPARATEUR
 ========================================================= */
 
-.nav-icon {
-  width: 22px;
-  height: 22px;
-
-  min-width: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: inherit;
-
-  font-size: 15px;
-}
-
-.nav-item.active .nav-icon {
-  color: var(--primary);
-}
-
-
-/* =========================================================
-   BADGE NOTIFICATION
-========================================================= */
-
-.message-badge {
-  min-width: 20px;
-  height: 20px;
-
-  margin-left: auto;
-
-  padding: 0 5px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 20px;
-
-  background: var(--secondary);
-  color: #ffffff;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  box-shadow:
-    0 3px 8px rgba(22, 163, 74, 0.18);
-}
-
-
-/* =========================================================
-   SEPARATEUR
-========================================================= */
-
-.sidebar-separator {
+.nav-separator {
   height: 1px;
 
-  margin: 20px 20px 0;
+  margin: 14px 8px;
 
-  background: var(--border-light);
+  background: var(--border-soft);
 }
 
 
 /* =========================================================
-   BAS SIDEBAR
+   NOTIFICATION SIDEBAR
 ========================================================= */
 
-.sidebar-bottom {
-  margin-top: auto;
+.nav-icon-wrapper {
+  position: relative;
 
-  padding: 14px 13px 18px;
-}
-
-
-/* =========================================================
-   HELP CARD
-========================================================= */
-
-.help-card {
-  width: 100%;
+  width: 17px;
+  height: 17px;
 
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  padding: 11px;
-
-  margin-bottom: 13px;
-
-  border: 1px solid var(--secondary-soft);
-  border-radius: 11px;
-
-  background: var(--secondary-light);
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  justify-content: center;
 }
 
-.help-card:hover {
-  background: #e9f9ed;
+.nav-icon-wrapper svg {
+  width: 17px;
+  height: 17px;
+}
 
-  border-color: #bbf7d0;
+.sidebar-notification-badge {
+  position: absolute;
 
-  transform: translateY(-1px);
+  top: -6px;
+  right: -7px;
+
+  min-width: 15px;
+  height: 15px;
+
+  padding: 0 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--danger);
+  color: #ffffff;
+
+  border: 2px solid var(--surface);
+
+  font-size: 7px;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   AIDE
+========================================================= */
+
+.sidebar-help {
+  margin-top: auto;
+
+  padding: 12px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: var(--surface-soft);
 }
 
 .help-icon {
-  width: 33px;
-  height: 33px;
+  width: 25px;
+  height: 25px;
 
-  min-width: 33px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  border-radius: 7px;
 
-  background: #ffffff;
+  background: var(--primary-soft);
+  color: var(--primary);
 
-  color: var(--secondary);
-
-  font-size: 14px;
-}
-
-.help-content {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.help-content strong {
-  color: var(--text);
-
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.help-content small {
-  color: var(--text-secondary);
+.sidebar-help div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-help strong {
+  color: var(--text-main);
 
   font-size: 9px;
+}
+
+.sidebar-help span {
+  margin-top: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+
+  line-height: 1.4;
 }
 
 
@@ -708,21 +564,198 @@
 .sidebar-profile {
   display: flex;
   align-items: center;
+
   gap: 9px;
 
-  padding: 10px;
+  padding: 15px 7px 3px;
+}
 
-  border: 1px solid var(--border);
-  border-radius: 11px;
+.profile-avatar,
+.topbar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  background: #ffffff;
+  border-radius: 50%;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+
+  font-weight: 700;
 }
 
 .profile-avatar {
-  width: 37px;
-  height: 37px;
+  width: 32px;
+  height: 32px;
 
-  min-width: 37px;
+  font-size: 10px;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-details strong {
+  color: var(--text-main);
+
+  font-size: 10px;
+}
+
+.profile-details span {
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.patient-main {
+  min-width: 0;
+
+  width: calc(100% - var(--sidebar-width));
+
+  margin-left: var(--sidebar-width);
+
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.patient-topbar {
+  height: 72px;
+
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  background: var(--surface);
+
+  border-bottom: 1px solid var(--border);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.topbar-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-label {
+  color: var(--primary);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.topbar-title h1 {
+  margin: 3px 0 0;
+
+  color: var(--text-main);
+
+  font-family:
+    Poppins,
+    Inter,
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 17px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   TOPBAR ACTIONS
+========================================================= */
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+
+/* =========================================================
+   NOTIFICATION HEADER
+========================================================= */
+
+.notification-button {
+  position: relative;
+
+  width: 39px;
+  height: 39px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface);
+
+  color: var(--text-body);
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.notification-button:hover {
+  background: var(--primary-light);
+
+  border-color: var(--primary-soft);
+
+  color: var(--primary);
+
+  transform: translateY(-1px);
+}
+
+.notification-icon {
+  width: 18px;
+  height: 18px;
+}
+
+
+/* =========================================================
+   NOTIFICATION BADGE
+========================================================= */
+
+.notification-badge {
+  position: absolute;
+
+  top: -5px;
+  right: -5px;
+
+  min-width: 17px;
+  height: 17px;
+
+  padding: 0 4px;
 
   display: flex;
   align-items: center;
@@ -730,245 +763,125 @@
 
   border-radius: 50%;
 
-  background: var(--primary);
-
+  background: #dc2626;
   color: #ffffff;
 
-  font-size: 10px;
+  border: 2px solid var(--surface);
+
+  font-size: 8px;
   font-weight: 800;
+
+  line-height: 1;
+
+  box-shadow:
+    0 2px 5px rgba(220, 38, 38, 0.25);
 }
 
-.profile-info {
-  min-width: 0;
 
-  flex: 1;
+/* =========================================================
+   THEME BUTTON
+========================================================= */
 
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.theme-button {
+  width: 39px;
+  height: 39px;
 
-.profile-info strong {
-  overflow: hidden;
-
-  color: var(--text);
-
-  font-size: 10px;
-  font-weight: 700;
-
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.profile-info span {
-  color: var(--text-muted);
-
-  font-size: 9px;
-}
-
-.profile-menu {
-  width: 28px;
-  height: 28px;
+  padding: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border: 0;
-  border-radius: 7px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 
-  background: transparent;
+  background: var(--surface);
 
-  color: var(--text-muted);
+  color: var(--text-body);
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
-.profile-menu:hover {
+.theme-button:hover {
   background: var(--primary-light);
+
+  border-color: var(--primary-soft);
+
   color: var(--primary);
 }
 
-
-/* =========================================================
-   CONTENU PRINCIPAL
-========================================================= */
-
-.patient-main {
-  width: calc(100% - var(--sidebar-width));
-
-  min-width: 0;
-  min-height: 100vh;
-
-  margin-left: var(--sidebar-width);
-
-  background: var(--background);
+.theme-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 
 /* =========================================================
-   CONTENU DES PAGES
+   TOPBAR PROFIL
+========================================================= */
+
+.topbar-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding-left: 5px;
+
+  color: inherit;
+
+  text-decoration: none;
+}
+
+.topbar-avatar {
+  width: 35px;
+  height: 35px;
+
+  font-size: 10px;
+}
+
+.topbar-profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-profile-info strong {
+  color: var(--text-main);
+
+  font-size: 10px;
+}
+
+.topbar-profile-info small {
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   CONTENU
 ========================================================= */
 
 .patient-content {
   width: 100%;
-  min-height: calc(100vh - 64px);
+
+  min-height: calc(100vh - 72px);
 }
 
 
 /* =========================================================
-   HEADER MOBILE
+   MOBILE HEADER
 ========================================================= */
 
 .mobile-header {
   display: none;
-
-  position: sticky;
-
-  top: 0;
-
-  width: 100%;
-  height: 64px;
-
-  padding: 0 18px;
-
-  align-items: center;
-  justify-content: space-between;
-
-  background: #ffffff;
-
-  border-bottom: 1px solid var(--border);
-
-  z-index: 900;
-}
-
-
-/* =========================================================
-   MOBILE MENU BUTTON
-========================================================= */
-
-.mobile-menu-button {
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid var(--border);
-  border-radius: 9px;
-
-  background: #ffffff;
-
-  color: var(--text-secondary);
-
-  cursor: pointer;
-
-  font-size: 16px;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.mobile-menu-button:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-soft);
-  color: var(--primary);
-}
-
-
-/* =========================================================
-   MOBILE BRAND
-========================================================= */
-
-.mobile-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  color: var(--text);
-
-  text-decoration: none;
-
-  font-size: 15px;
-}
-
-.mobile-brand strong {
-  font-weight: 800;
-}
-
-.mobile-brand-icon {
-  width: 30px;
-  height: 30px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 8px;
-
-  background: var(--primary);
-  color: #ffffff;
-
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   MOBILE NOTIFICATION
-========================================================= */
-
-.mobile-notification {
-  position: relative;
-
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid var(--border);
-  border-radius: 9px;
-
-  background: #ffffff;
-
-  color: var(--text-secondary);
-
-  cursor: pointer;
-
-  font-size: 16px;
-
-  transition: 0.2s ease;
-}
-
-.mobile-notification:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-soft);
-  color: var(--primary);
-}
-
-
-/* point notification */
-
-.mobile-notification span {
-  position: absolute;
-
-  top: 8px;
-  right: 8px;
-
-  width: 7px;
-  height: 7px;
-
-  border: 2px solid #ffffff;
-
-  border-radius: 50%;
-
-  background: var(--secondary);
 }
 
 
@@ -977,135 +890,317 @@
 ========================================================= */
 
 .sidebar-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  background: rgba(15, 23, 42, 0.42);
-
-  backdrop-filter: blur(2px);
-
-  z-index: 950;
-
-  animation: overlayFade 0.2s ease;
-}
-
-@keyframes overlayFade {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  display: none;
 }
 
 
 /* =========================================================
-   TABLETTE
+   DARK MODE
 ========================================================= */
 
-@media (max-width: 1100px) {
+.patient-layout.dark-mode {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
 
-  :host {
-    --sidebar-width: 245px;
-  }
+  --primary-light: #172554;
+  --primary-soft: #1e3a8a;
 
-  .sidebar-brand {
-    padding-left: 17px;
-    padding-right: 17px;
-  }
+  --text-main: #f1f5f9;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
 
-  .nav-item {
-    font-size: 11px;
-  }
+  --background: #0f172a;
+  --surface: #111827;
+  --surface-soft: #172033;
 
+  --border: #263244;
+  --border-soft: #202b3d;
+
+  --danger: #ef4444;
+
+  background: var(--background);
+  color: var(--text-main);
 }
 
 
 /* =========================================================
-   RESPONSIVE <= 900px
+   DARK MODE — BOUTON ACTIF
+========================================================= */
+
+.patient-layout.dark-mode .nav-link.active {
+  background: var(--primary-light);
+
+  color: var(--primary);
+}
+
+.patient-layout.dark-mode .nav-link.active::before {
+  background: var(--primary);
+}
+
+
+/* =========================================================
+   DARK MODE — BADGES
+========================================================= */
+
+.patient-layout.dark-mode .notification-badge,
+.patient-layout.dark-mode .sidebar-notification-badge {
+  border-color: var(--surface);
+}
+
+
+/* =========================================================
+   RESPONSIVE
 ========================================================= */
 
 @media (max-width: 900px) {
 
+  :host {
+    --sidebar-width: 235px;
+  }
+
+  .patient-topbar {
+    padding: 0 20px;
+  }
+
+  .topbar-profile-info {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
   .patient-sidebar {
     transform: translateX(-100%);
-
-    box-shadow: none;
   }
 
   .patient-sidebar.sidebar-open {
     transform: translateX(0);
-
-    box-shadow:
-      12px 0 35px rgba(15, 23, 42, 0.15);
   }
+
+
+  /* =======================================================
+     OVERLAY MOBILE
+  ======================================================== */
+
+  .sidebar-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 90;
+
+    display: block;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    backdrop-filter: blur(2px);
+  }
+
+
+  /* =======================================================
+     MAIN MOBILE
+  ======================================================== */
 
   .patient-main {
     width: 100%;
+
     margin-left: 0;
   }
 
-  .mobile-header {
-    display: flex;
+
+  /* =======================================================
+     TOPBAR DESKTOP CACHÉE
+  ======================================================== */
+
+  .patient-topbar {
+    display: none;
   }
 
-  .close-menu {
-    display: flex;
-  }
 
-  .patient-content {
-    min-height: calc(100vh - 64px);
-  }
-
-}
-
-
-/* =========================================================
-   MOBILE <= 600px
-========================================================= */
-
-@media (max-width: 600px) {
+  /* =======================================================
+     MOBILE HEADER
+  ======================================================== */
 
   .mobile-header {
-    height: 60px;
+    position: sticky;
 
-    padding: 0 13px;
+    top: 0;
+
+    z-index: 80;
+
+    height: 62px;
+
+    padding: 0 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: var(--surface);
+
+    border-bottom: 1px solid var(--border);
   }
 
-  .mobile-menu-button,
-  .mobile-notification {
-    width: 38px;
-    height: 38px;
+
+  /* =======================================================
+     MOBILE MENU
+  ======================================================== */
+
+  .mobile-menu-button {
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: var(--surface);
+
+    cursor: pointer;
   }
+
+  .mobile-menu-button span {
+    width: 15px;
+    height: 1.5px;
+
+    border-radius: 2px;
+
+    background: var(--text-body);
+  }
+
+
+  /* =======================================================
+     MOBILE BRAND
+  ======================================================== */
 
   .mobile-brand {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+  }
+
+  .mobile-brand strong {
+    color: var(--text-main);
+
     font-size: 14px;
   }
 
   .mobile-brand-icon {
-    width: 29px;
-    height: 29px;
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: var(--primary);
+    color: #ffffff;
   }
 
+  .mobile-brand-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+
+  /* =======================================================
+     MOBILE ACTIONS
+  ======================================================== */
+
+  .mobile-header-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+  }
+
+  .mobile-notification,
+  .mobile-theme-button {
+    position: relative;
+
+    width: 35px;
+    height: 35px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: var(--surface);
+
+    color: var(--text-body);
+
+    cursor: pointer;
+  }
+
+  .mobile-notification svg,
+  .mobile-theme-button svg {
+    width: 17px;
+    height: 17px;
+  }
+
+
+  /* =======================================================
+     MOBILE NOTIFICATION BADGE
+  ======================================================== */
+
+  .mobile-notification span {
+    position: absolute;
+
+    top: -5px;
+    right: -5px;
+
+    min-width: 16px;
+    height: 16px;
+
+    padding: 0 3px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    border: 2px solid var(--surface);
+
+    font-size: 7px;
+    font-weight: 800;
+  }
+
+
+  /* =======================================================
+     CONTENU MOBILE
+  ======================================================== */
+
   .patient-content {
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 62px);
   }
 
 }
 
 
-/* =========================================================
-   TRÈS PETITS ÉCRANS
-========================================================= */
-
-@media (max-width: 380px) {
-
-  .patient-sidebar {
-    width: 285px;
-    max-width: 88vw;
-  }
+@media (max-width: 400px) {
 
   .mobile-header {
     padding: 0 10px;
@@ -1115,45 +1210,9 @@
     font-size: 13px;
   }
 
-}
-
-
-/* =========================================================
-   FOCUS ACCESSIBILITÉ
-========================================================= */
-
-.nav-item:focus-visible,
-.space-switcher-button:focus-visible,
-.space-option:focus-visible,
-.mobile-menu-button:focus-visible,
-.mobile-notification:focus-visible,
-.close-menu:focus-visible,
-.profile-menu:focus-visible,
-.help-card:focus-visible {
-  outline: 3px solid var(--primary-soft);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   RÉDUCTION DES ANIMATIONS
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  .patient-sidebar,
-  .nav-item,
-  .space-switcher-button,
-  .space-option,
-  .space-chevron,
-  .help-card,
-  .profile-menu,
-  .mobile-menu-button,
-  .mobile-notification,
-  .sidebar-overlay,
-  .spaces-menu {
-    transition: none;
-    animation: none;
+  .mobile-brand-icon {
+    width: 28px;
+    height: 28px;
   }
 
 }

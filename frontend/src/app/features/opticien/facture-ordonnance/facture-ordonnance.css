@@ -1,0 +1,1333 @@
+/* =========================================================
+   FACTURE & ORDONNANCE — OPTICARE
+========================================================= */
+
+:host {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: #eff6ff;
+
+  --success: #16a34a;
+  --success-soft: #f0fdf4;
+
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+
+  --text: #172033;
+  --text-soft: #64748b;
+  --border: #e2e8f0;
+  --surface: #ffffff;
+  --background: #f8fafc;
+
+  display: block;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.page-header {
+  padding: 28px 32px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-left {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 22px;
+}
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+.back-icon {
+  font-size: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: var(--primary-soft);
+  font-size: 25px;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.header-title p {
+  margin: 5px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 30px 0 60px;
+}
+
+
+/* =========================================================
+   PATIENT CARD
+========================================================= */
+
+.patient-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.patient-avatar {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.patient-info h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.patient-info p {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.patient-reference {
+  text-align: right;
+}
+
+.patient-reference span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.patient-reference strong {
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  padding: 18px;
+
+  border-radius: 16px;
+  border: 1px solid var(--border);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.quick-action.secondary {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.quick-action.primary {
+  background: var(--primary-soft);
+  border-color: #bfdbfe;
+  color: var(--primary-dark);
+}
+
+.quick-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+
+  font-size: 21px;
+}
+
+.quick-action strong {
+  display: block;
+  font-size: 15px;
+}
+
+.quick-action small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.quick-arrow {
+  margin-left: auto;
+  font-size: 20px;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.success-message,
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 20px;
+  padding: 14px 16px;
+
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.success-message {
+  background: var(--success-soft);
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.error-message {
+  background: var(--danger-soft);
+  border: 1px solid #fecaca;
+  color: var(--danger);
+}
+
+.message-icon {
+  width: 25px;
+  height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   DOCUMENT CARD
+========================================================= */
+
+.document-card {
+  margin-top: 24px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+
+.tab {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 18px 22px;
+
+  border: 0;
+  background: transparent;
+
+  color: var(--text-soft);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.tab::after {
+  content: '';
+
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: -1px;
+
+  height: 3px;
+
+  background: transparent;
+  border-radius: 3px 3px 0 0;
+}
+
+.tab.active {
+  color: var(--primary);
+}
+
+.tab.active::after {
+  background: var(--primary);
+}
+
+
+/* =========================================================
+   DOCUMENT CONTENT
+========================================================= */
+
+.document-content {
+  padding: 28px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.section-kicker {
+  display: block;
+  margin-bottom: 5px;
+
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.document-status {
+  padding: 7px 12px;
+  border-radius: 999px;
+
+  background: #f1f5f9;
+  color: var(--text-soft);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   INVOICE TABLE
+========================================================= */
+
+.invoice-table {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table-header,
+.invoice-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 100px 180px 45px;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-header {
+  padding: 13px 14px;
+  background: #f8fafc;
+
+  color: var(--text-soft);
+
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.invoice-row {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.invoice-row input,
+.form-group textarea {
+  box-sizing: border-box;
+  width: 100%;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.invoice-row input {
+  height: 40px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+.invoice-row input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.amount-field {
+  position: relative;
+}
+
+.amount-field input {
+  padding-right: 50px;
+}
+
+.amount-field span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: var(--text-soft);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.delete-button {
+  width: 34px;
+  height: 34px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: var(--danger-soft);
+  color: var(--danger);
+
+  font-size: 20px;
+
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #fee2e2;
+}
+
+
+/* =========================================================
+   ADD LINE
+========================================================= */
+
+.add-line-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 15px;
+
+  border: 0;
+  background: transparent;
+
+  color: var(--primary);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.add-line-button span {
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+  background: var(--primary-soft);
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.total-box {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 25px;
+  padding-top: 20px;
+
+  border-top: 1px solid var(--border);
+}
+
+.total-box > div {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.total-box span {
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.total-box strong {
+  color: var(--text);
+  font-size: 22px;
+}
+
+
+/* =========================================================
+   FORM ORDONNANCE
+========================================================= */
+
+.form-group {
+  margin-top: 10px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group textarea {
+  min-height: 230px;
+  resize: vertical;
+
+  padding: 14px;
+
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.document-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 44px;
+
+  padding: 0 18px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.primary-button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.primary-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.2);
+}
+
+.secondary-button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.secondary-button:hover {
+  background: #f8fafc;
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+.history-card {
+  margin-top: 24px;
+  padding: 25px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.history-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  background: var(--primary-soft);
+
+  font-size: 18px;
+}
+
+.history-main {
+  flex: 1;
+}
+
+.history-main strong {
+  display: block;
+  font-size: 14px;
+}
+
+.history-main span {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.history-main p {
+  margin: 7px 0 0;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.history-amount {
+  text-align: right;
+}
+
+.history-amount strong {
+  display: block;
+  font-size: 14px;
+}
+
+.history-amount span {
+  display: inline-block;
+  margin-top: 5px;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  background: #eff6ff;
+  color: var(--primary);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.history-amount span.paid {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+
+/* =========================================================
+   TRACKING REMINDER
+========================================================= */
+
+.tracking-reminder {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin-top: 24px;
+  padding: 20px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+
+  background: var(--primary-soft);
+}
+
+.tracking-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  background: white;
+
+  font-size: 21px;
+}
+
+.tracking-text {
+  flex: 1;
+}
+
+.tracking-text strong {
+  display: block;
+  color: var(--primary-dark);
+  font-size: 14px;
+}
+
+.tracking-text p {
+  margin: 5px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tracking-button {
+  flex-shrink: 0;
+
+  min-height: 40px;
+  padding: 0 15px;
+
+  border: 1px solid var(--primary);
+  border-radius: 9px;
+
+  background: white;
+  color: var(--primary);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.tracking-button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .page-header {
+    padding: 22px 20px;
+  }
+
+  .content {
+    width: min(100% - 28px, 700px);
+    padding-top: 20px;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-card {
+    align-items: flex-start;
+  }
+
+  .patient-reference {
+    display: none;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .invoice-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .delete-button {
+    justify-self: end;
+  }
+
+  .document-content {
+    padding: 20px;
+  }
+
+  .tabs {
+    padding: 0 10px;
+  }
+
+  .tab {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .document-actions {
+    flex-direction: column-reverse;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .tracking-reminder {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .tracking-button {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .header-title h1 {
+    font-size: 22px;
+  }
+
+  .title-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .patient-card {
+    padding: 16px;
+  }
+
+  .patient-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .patient-info h2 {
+    font-size: 16px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .total-box {
+    justify-content: stretch;
+  }
+
+  .total-box > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .total-box strong {
+    font-size: 18px;
+  }
+
+  .history-item {
+    align-items: flex-start;
+  }
+
+  .history-amount {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  :host {
+    --text: #f1f5f9;
+    --text-soft: #94a3b8;
+    --border: #334155;
+    --surface: #111827;
+    --background: #0f172a;
+  }
+
+  .page-header,
+  .patient-card,
+  .document-card,
+  .history-card {
+    background: #111827;
+  }
+
+  .page {
+    background: #0f172a;
+  }
+
+  .table-header {
+    background: #1e293b;
+  }
+
+  .invoice-row input,
+  .form-group textarea {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+
+  .secondary-button {
+    background: #111827;
+    color: #f1f5f9;
+  }
+
+  .secondary-button:hover {
+    background: #1e293b;
+  }
+
+  .document-status {
+    background: #1e293b;
+  }
+
+  .tracking-icon {
+    background: #1e293b;
+  }
+
+  .tracking-text p {
+    color: #cbd5e1;
+  }
+
+  .tracking-button {
+    background: #111827;
+  }
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+
+  .page-header,
+  .quick-actions,
+  .tabs,
+  .document-actions,
+  .tracking-reminder,
+  .history-card {
+    display: none !important;
+  }
+
+  .page {
+    background: white;
+  }
+
+  .content {
+    width: 100%;
+    padding: 0;
+  }
+
+  .document-card {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .document-content {
+    padding: 0;
+  }
+}
+/* =========================================================
+   DARK MODE OPTICARE
+   Compatible avec la classe .dark de l'application
+========================================================= */
+
+:host-context(.dark) {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-soft: #172554;
+
+  --success: #4ade80;
+  --success-soft: #052e16;
+
+  --danger: #f87171;
+  --danger-soft: #450a0a;
+
+  --text: #f8fafc;
+  --text-soft: #94a3b8;
+  --border: #334155;
+  --surface: #111827;
+  --background: #0f172a;
+}
+
+
+/* Page */
+
+:host-context(.dark) .page {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+
+/* Header */
+
+:host-context(.dark) .page-header {
+  background: #111827;
+  border-color: #334155;
+}
+
+:host-context(.dark) .back-link {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .back-link:hover {
+  color: #60a5fa;
+}
+
+
+/* Patient */
+
+:host-context(.dark) .patient-card {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: none;
+}
+
+:host-context(.dark) .patient-avatar {
+  background: #172554;
+  color: #60a5fa;
+}
+
+
+/* Actions rapides */
+
+:host-context(.dark) .quick-action.secondary {
+  background: #111827;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:host-context(.dark) .quick-action.primary {
+  background: #172554;
+  border-color: #1e40af;
+  color: #93c5fd;
+}
+
+:host-context(.dark) .quick-icon {
+  background: #1e293b;
+}
+
+
+/* Messages */
+
+:host-context(.dark) .success-message {
+  background: #052e16;
+  border-color: #166534;
+  color: #86efac;
+}
+
+:host-context(.dark) .error-message {
+  background: #450a0a;
+  border-color: #991b1b;
+  color: #fca5a5;
+}
+
+
+/* Carte documents */
+
+:host-context(.dark) .document-card,
+:host-context(.dark) .history-card {
+  background: #111827;
+  border-color: #334155;
+  box-shadow: none;
+}
+
+
+/* Onglets */
+
+:host-context(.dark) .tabs {
+  border-color: #334155;
+}
+
+:host-context(.dark) .tab {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .tab.active {
+  color: #60a5fa;
+}
+
+
+/* Tableau facture */
+
+:host-context(.dark) .invoice-table {
+  border-color: #334155;
+}
+
+:host-context(.dark) .table-header {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:host-context(.dark) .invoice-row {
+  border-color: #334155;
+}
+
+:host-context(.dark) .invoice-row input,
+:host-context(.dark) .form-group textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:host-context(.dark) .invoice-row input::placeholder,
+:host-context(.dark) .form-group textarea::placeholder {
+  color: #64748b;
+}
+
+:host-context(.dark) .invoice-row input:focus,
+:host-context(.dark) .form-group textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+
+/* Bouton supprimer */
+
+:host-context(.dark) .delete-button {
+  background: #450a0a;
+  color: #f87171;
+}
+
+:host-context(.dark) .delete-button:hover {
+  background: #7f1d1d;
+}
+
+
+/* Ajouter une ligne */
+
+:host-context(.dark) .add-line-button {
+  color: #60a5fa;
+}
+
+:host-context(.dark) .add-line-button span {
+  background: #172554;
+}
+
+
+/* Total */
+
+:host-context(.dark) .total-box {
+  border-color: #334155;
+}
+
+:host-context(.dark) .total-box strong {
+  color: #f8fafc;
+}
+
+
+/* Statut */
+
+:host-context(.dark) .document-status {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+
+/* Boutons */
+
+:host-context(.dark) .secondary-button {
+  background: #111827;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+:host-context(.dark) .secondary-button:hover {
+  background: #1e293b;
+}
+
+:host-context(.dark) .primary-button {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+
+/* Historique */
+
+:host-context(.dark) .history-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:host-context(.dark) .history-icon {
+  background: #172554;
+}
+
+:host-context(.dark) .history-main strong,
+:host-context(.dark) .history-amount strong {
+  color: #f8fafc;
+}
+
+
+/* Rappel suivi commande */
+
+:host-context(.dark) .tracking-reminder {
+  background: #172554;
+  border-color: #1e40af;
+}
+
+:host-context(.dark) .tracking-icon {
+  background: #1e293b;
+}
+
+:host-context(.dark) .tracking-text strong {
+  color: #93c5fd;
+}
+
+:host-context(.dark) .tracking-text p {
+  color: #cbd5e1;
+}
+
+:host-context(.dark) .tracking-button {
+  background: #111827;
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+:host-context(.dark) .tracking-button:hover {
+  background: #2563eb;
+  color: white;
+}

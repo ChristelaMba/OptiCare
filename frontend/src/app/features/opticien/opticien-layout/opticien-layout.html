@@ -1,0 +1,789 @@
+<div class="opticien-layout">
+
+  <!-- =====================================================
+       OVERLAY MOBILE
+  ====================================================== -->
+
+  @if (menuOuvert()) {
+
+    <div
+      class="sidebar-overlay"
+      (click)="fermerMenu()">
+    </div>
+
+  }
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside
+    class="opticien-sidebar"
+    [class.sidebar-open]="menuOuvert()">
+
+    <!-- LOGO -->
+
+    <div class="sidebar-brand">
+
+      <div class="brand-logo">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <path
+            d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+
+          <circle
+            cx="12"
+            cy="12"
+            r="3"/>
+
+        </svg>
+      </div>
+
+      <div class="brand-text">
+
+        <strong>OptiCare</strong>
+
+        <span>Espace opticien</span>
+
+      </div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav class="sidebar-nav">
+
+      <div class="nav-section-title">
+        MENU PRINCIPAL
+      </div>
+
+
+      <!-- MES PATIENTS -->
+
+      <a
+        routerLink="mes-patients"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <path
+            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+
+          <circle
+            cx="9"
+            cy="7"
+            r="4"/>
+
+          <path
+            d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+
+          <path
+            d="M16 3.13a4 4 0 0 1 0 7.75"/>
+
+        </svg>
+
+        <span>Mes patients</span>
+
+      </a>
+
+
+      <!-- DOSSIER VISUEL -->
+
+      <a
+        routerLink="dossier-visuel-patient"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <path
+            d="M3 5h18v14H3z"/>
+
+          <circle
+            cx="8"
+            cy="10"
+            r="2"/>
+
+          <path
+            d="M13 10h5"/>
+
+          <path
+            d="M13 14h5"/>
+
+          <path
+            d="M6 16c.5-1.5 3.5-1.5 4 0"/>
+
+        </svg>
+
+        <span>Dossier visuel</span>
+
+      </a>
+
+
+      <!-- NOUVELLE CONSULTATION -->
+
+      <a
+        routerLink="nouvelle-fiche-consultation"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <rect
+            x="4"
+            y="3"
+            width="16"
+            height="18"
+            rx="2"/>
+
+          <path
+            d="M8 7h8"/>
+
+          <path
+            d="M8 11h8"/>
+
+          <path
+            d="M8 15h4"/>
+
+          <path
+            d="M17 15v4"/>
+
+          <path
+            d="M15 17h4"/>
+
+        </svg>
+
+        <span>Nouvelle consultation</span>
+
+      </a>
+
+
+      <!-- SUIVI COMMANDES -->
+
+      <a
+        routerLink="suivi-commande"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <path
+            d="M3 7h18"/>
+
+          <path
+            d="M5 7v12h14V7"/>
+
+          <path
+            d="M8 7l2-4h4l2 4"/>
+
+          <path
+            d="M9 12h6"/>
+
+          <path
+            d="M9 16h4"/>
+
+        </svg>
+
+        <span>Suivi des commandes</span>
+
+      </a>
+
+
+      <!-- FACTURES -->
+
+      <a
+        routerLink="facture-ordonnance"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <path
+            d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z"/>
+
+          <path
+            d="M9 7h6"/>
+
+          <path
+            d="M9 11h6"/>
+
+          <path
+            d="M9 15h4"/>
+
+        </svg>
+
+        <span>Factures & ordonnances</span>
+
+      </a>
+
+    </nav>
+
+
+    <!-- ESPACE AIDE -->
+
+    <div class="sidebar-help">
+
+      <div class="help-icon">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <circle
+            cx="12"
+            cy="12"
+            r="9"/>
+
+          <path
+            d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-.9.8-1.7 1.2-1.7 2.7"/>
+
+          <path
+            d="M12 17h.01"/>
+
+        </svg>
+
+      </div>
+
+      <div class="help-content">
+
+        <strong>Besoin d'aide ?</strong>
+
+        <span>Notre équipe est disponible.</span>
+
+        <button type="button">
+          Contacter le support
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- PROFIL SIDEBAR -->
+
+    <div class="sidebar-profile">
+
+      <div class="profile-avatar">
+        JD
+      </div>
+
+      <div class="profile-info">
+
+        <strong>Jean Dupont</strong>
+
+        <span>Opticien</span>
+
+      </div>
+
+      <button
+        type="button"
+        class="profile-more"
+        aria-label="Options du profil">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <circle
+            cx="5"
+            cy="12"
+            r="1"/>
+
+          <circle
+            cx="12"
+            cy="12"
+            r="1"/>
+
+          <circle
+            cx="19"
+            cy="12"
+            r="1"/>
+
+        </svg>
+
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="main-content">
+
+
+    <!-- ===================================================
+         TOPBAR
+    ==================================================== -->
+
+    <header class="topbar">
+
+      <!-- MENU MOBILE -->
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        aria-label="Ouvrir le menu"
+        (click)="toggleMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <path
+            d="M4 6h16"/>
+
+          <path
+            d="M4 12h16"/>
+
+          <path
+            d="M4 18h16"/>
+
+        </svg>
+
+      </button>
+
+
+      <!-- RECHERCHE -->
+
+      <div class="topbar-search">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8">
+
+          <circle
+            cx="11"
+            cy="11"
+            r="7"/>
+
+          <path
+            d="m20 20-4-4"/>
+
+        </svg>
+
+        <input
+          type="search"
+          placeholder="Rechercher un patient, une commande..." />
+
+      </div>
+
+
+      <!-- ACTIONS -->
+
+      <div class="topbar-actions">
+
+
+        <!-- =================================================
+             NOTIFICATIONS
+        ================================================== -->
+
+        <div class="notification-wrapper">
+
+          <button
+            type="button"
+            class="topbar-button notification-button"
+            aria-label="Notifications"
+            [attr.aria-expanded]="notificationsOuvertes()"
+            (click)="toggleNotifications()">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <path
+                d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+
+              <path
+                d="M10 21h4"/>
+
+            </svg>
+
+
+            @if (nombreNotifications() > 0) {
+
+              <span class="notification-badge">
+                {{ nombreNotifications() }}
+              </span>
+
+            }
+
+          </button>
+
+
+          <!-- =================================================
+               DROPDOWN NOTIFICATIONS
+          ================================================== -->
+
+          @if (notificationsOuvertes()) {
+
+            <div class="notification-panel">
+
+
+              <!-- HEADER -->
+
+              <div class="notification-header">
+
+                <div>
+
+                  <h3>
+                    Notifications
+                  </h3>
+
+                  <span>
+                    @if (nombreNotifications() > 0) {
+                      {{ nombreNotifications() }} non lue(s)
+                    } @else {
+                      Toutes les notifications sont lues
+                    }
+                  </span>
+
+                </div>
+
+
+                @if (nombreNotifications() > 0) {
+
+                  <button
+                    type="button"
+                    class="mark-all-button"
+                    (click)="marquerToutesCommeLues()">
+
+                    Tout lire
+
+                  </button>
+
+                }
+
+              </div>
+
+
+              <!-- LISTE -->
+
+              <div class="notification-list">
+
+                @for (
+                  notification of notifications;
+                  track notification.id
+                ) {
+
+                  <button
+                    type="button"
+                    class="notification-item"
+                    [class.unread]="!notification.lue"
+                    (click)="marquerCommeLue(notification.id)">
+
+
+                    <!-- ICONE -->
+
+                    <div
+                      class="notification-icon"
+                      [class.icon-commande]="notification.type === 'commande'"
+                      [class.icon-consultation]="notification.type === 'consultation'"
+                      [class.icon-patient]="notification.type === 'patient'">
+
+                      @if (notification.type === 'commande') {
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8">
+
+                          <path
+                            d="M3 7h18"/>
+
+                          <path
+                            d="M5 7v12h14V7"/>
+
+                          <path
+                            d="M8 7l2-4h4l2 4"/>
+
+                          <path
+                            d="m9 13 2 2 4-4"/>
+
+                        </svg>
+
+                      }
+
+                      @if (notification.type === 'consultation') {
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8">
+
+                          <rect
+                            x="4"
+                            y="4"
+                            width="16"
+                            height="17"
+                            rx="2"/>
+
+                          <path
+                            d="M8 2v4"/>
+
+                          <path
+                            d="M16 2v4"/>
+
+                          <path
+                            d="M4 9h16"/>
+
+                          <path
+                            d="M8 13h3"/>
+
+                          <path
+                            d="M8 17h5"/>
+
+                        </svg>
+
+                      }
+
+                      @if (notification.type === 'patient') {
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8">
+
+                          <circle
+                            cx="12"
+                            cy="8"
+                            r="3"/>
+
+                          <path
+                            d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>
+
+                          <path
+                            d="M19 8v5"/>
+
+                          <path
+                            d="M16.5 10.5h5"/>
+
+                        </svg>
+
+                      }
+
+                    </div>
+
+
+                    <!-- CONTENU -->
+
+                    <div class="notification-content">
+
+                      <div class="notification-title-row">
+
+                        <strong>
+                          {{ notification.titre }}
+                        </strong>
+
+                        @if (!notification.lue) {
+
+                          <span class="unread-dot"></span>
+
+                        }
+
+                      </div>
+
+                      <p>
+                        {{ notification.message }}
+                      </p>
+
+                      <span class="notification-time">
+                        {{ notification.temps }}
+                      </span>
+
+                    </div>
+
+                  </button>
+
+                }
+
+              </div>
+
+
+              <!-- FOOTER -->
+
+              <div class="notification-footer">
+
+                <span>
+                  Notifications récentes
+                </span>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- =================================================
+             THEME
+        ================================================== -->
+
+        <button
+          type="button"
+          class="topbar-button"
+          aria-label="Changer le thème"
+          (click)="toggleTheme()">
+
+          @if (modeSombre()) {
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <circle
+                cx="12"
+                cy="12"
+                r="4"/>
+
+              <path
+                d="M12 2v2"/>
+
+              <path
+                d="M12 20v2"/>
+
+              <path
+                d="m4.93 4.93 1.41 1.41"/>
+
+              <path
+                d="m17.66 17.66 1.41 1.41"/>
+
+              <path
+                d="M2 12h2"/>
+
+              <path
+                d="M20 12h2"/>
+
+              <path
+                d="m6.34 17.66-1.41 1.41"/>
+
+              <path
+                d="m19.07 4.93-1.41 1.41"/>
+
+            </svg>
+
+          } @else {
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <path
+                d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"/>
+
+            </svg>
+
+          }
+
+        </button>
+
+
+        <!-- =================================================
+             PROFIL TOPBAR
+        ================================================== -->
+
+        <div class="topbar-profile">
+
+          <div class="topbar-profile-avatar">
+            JD
+          </div>
+
+          <div class="topbar-profile-info">
+
+            <strong>
+              Jean Dupont
+            </strong>
+
+            <span>
+              Opticien
+            </span>
+
+          </div>
+
+          <svg
+            class="profile-chevron"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+
+            <path
+              d="m6 9 6 6 6-6"/>
+
+          </svg>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         PAGE
+    ==================================================== -->
+
+    <div class="page-container">
+
+      <router-outlet></router-outlet>
+
+    </div>
+
+  </main>
+
+</div>

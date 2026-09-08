@@ -1,102 +1,63 @@
-import { Component, HostListener, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, signal } from '@angular/core';
+import {
+  RouterLink,
+  RouterOutlet,
+  RouterLinkActive
+} from '@angular/router';
 
 @Component({
   selector: 'app-patient-layout',
   standalone: true,
-
   imports: [
     RouterLink,
-    RouterLinkActive,
-    RouterOutlet
+    RouterOutlet,
+    RouterLinkActive
   ],
-
   templateUrl: './patient-layout.html',
   styleUrl: './patient-layout.css'
 })
 export class PatientLayout {
 
-  /**
-   * Menu responsive
-   */
   readonly menuOuvert = signal(false);
-
-  /**
-   * Menu de changement d'espace
-   */
   readonly espacesOuverts = signal(false);
+  readonly modeSombre = signal(false);
 
+  constructor() {
+    const theme = localStorage.getItem('opticare-theme');
 
-  /**
-   * Ouvre / ferme le sidebar sur mobile
-   */
+    if (theme === 'dark') {
+      this.modeSombre.set(true);
+    }
+  }
+
   toggleMenu(): void {
-
-    this.menuOuvert.update(
-      ouvert => !ouvert
-    );
-
+    this.menuOuvert.update(value => !value);
   }
 
-
-  /**
-   * Ferme le sidebar
-   */
   fermerMenu(): void {
-
     this.menuOuvert.set(false);
-
+    this.espacesOuverts.set(false);
   }
 
-
-  /**
-   * Ouvre / ferme le sélecteur d'espace
-   */
   toggleEspaces(): void {
-
-    this.espacesOuverts.update(
-      ouvert => !ouvert
-    );
-
+    this.espacesOuverts.update(value => !value);
   }
 
-
-  /**
-   * Sélection d'un espace
-   */
   selectionnerEspace(
     espace: 'patient' | 'secretaire'
   ): void {
 
     this.espacesOuverts.set(false);
-
     this.menuOuvert.set(false);
-
   }
 
+  toggleTheme(): void {
 
-  /**
-   * Fermer les menus avec Escape
-   */
-  @HostListener('document:keydown.escape')
-  fermerMenusAvecEscape(): void {
+    this.modeSombre.update(value => !value);
 
-    this.menuOuvert.set(false);
-    this.espacesOuverts.set(false);
-
+    localStorage.setItem(
+      'opticare-theme',
+      this.modeSombre() ? 'dark' : 'light'
+    );
   }
-
-
-
-  @HostListener('window:resize')
-  gererRedimensionnement(): void {
-
-    if (window.innerWidth > 900) {
-
-      this.menuOuvert.set(false);
-
-    }
-
-  }
-
 }

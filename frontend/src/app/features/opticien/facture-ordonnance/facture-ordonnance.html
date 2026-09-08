@@ -1,1 +1,681 @@
-<p>facture-ordonnance works!</p>
+<div class="page">
+
+  <!-- =====================================================
+       EN-TÊTE
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-left">
+
+      <button
+        type="button"
+        class="back-link"
+        (click)="retourPatient()"
+      >
+        <span class="back-icon">←</span>
+        Retour au dossier
+      </button>
+
+      <div class="header-title">
+
+        <div class="title-icon">
+          📄
+        </div>
+
+        <div>
+          <h1>Facture & ordonnance</h1>
+
+          <p>
+            Gérez les documents du patient.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       PATIENT
+  ====================================================== -->
+
+  <main class="content">
+
+    <section class="patient-card">
+
+      <div class="patient-avatar">
+        {{ initiales() }}
+      </div>
+
+      <div class="patient-info">
+
+        <span class="eyebrow">
+          Patient
+        </span>
+
+        <h2>
+          {{ patientNom() }}
+        </h2>
+
+        <p>
+          {{ patientTelephone() }}
+        </p>
+
+      </div>
+
+      <div class="patient-reference">
+
+        <span>
+          Référence patient
+        </span>
+
+        <strong>
+          {{ patientReference() }}
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACTIONS RAPIDES
+    ====================================================== -->
+
+    <section class="quick-actions">
+
+      <button
+        type="button"
+        class="quick-action secondary"
+        (click)="retourPatient()"
+      >
+
+        <span class="quick-icon">
+          👁️
+        </span>
+
+        <span>
+          <strong>
+            Voir le dossier
+          </strong>
+
+          <small>
+            Retour au dossier visuel
+          </small>
+        </span>
+
+        <span class="quick-arrow">
+          →
+        </span>
+
+      </button>
+
+
+      <!-- IMPORTANT :
+           BOUTON SUIVI DE COMMANDE -->
+
+      <button
+        type="button"
+        class="quick-action primary"
+        (click)="voirSuiviCommande()"
+      >
+
+        <span class="quick-icon">
+          👓
+        </span>
+
+        <span>
+          <strong>
+            Suivre la commande
+          </strong>
+
+          <small>
+            Voir l’avancement de fabrication
+          </small>
+        </span>
+
+        <span class="quick-arrow">
+          →
+        </span>
+
+      </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         MESSAGES
+    ====================================================== -->
+
+    @if (messageSucces()) {
+
+      <div class="success-message">
+
+        <span class="message-icon">
+          ✓
+        </span>
+
+        <span>
+          {{ messageSucces() }}
+        </span>
+
+      </div>
+
+    }
+
+
+    @if (messageErreur()) {
+
+      <div class="error-message">
+
+        <span class="message-icon">
+          !
+        </span>
+
+        <span>
+          {{ messageErreur() }}
+        </span>
+
+      </div>
+
+    }
+
+
+    <!-- =====================================================
+         ONGLET
+    ====================================================== -->
+
+    <section class="document-card">
+
+      <div class="tabs">
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="
+            ongletActif() === 'facture'
+          "
+          (click)="changerOnglet('facture')"
+        >
+
+          <span>
+            🧾
+          </span>
+
+          Facture
+
+        </button>
+
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="
+            ongletActif() === 'ordonnance'
+          "
+          (click)="changerOnglet('ordonnance')"
+        >
+
+          <span>
+            📋
+          </span>
+
+          Ordonnance
+
+        </button>
+
+      </div>
+
+
+      <!-- ===================================================
+           FACTURE
+      ==================================================== -->
+
+      @if (ongletActif() === 'facture') {
+
+        <div class="document-content">
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-kicker">
+                Facturation
+              </span>
+
+              <h2>
+                Nouvelle facture
+              </h2>
+
+            </div>
+
+            <span class="document-status">
+              Brouillon
+            </span>
+
+          </div>
+
+
+          <!-- LIGNES -->
+
+          <div class="invoice-table">
+
+            <div class="table-header">
+
+              <span>
+                Prestation / produit
+              </span>
+
+              <span>
+                Quantité
+              </span>
+
+              <span>
+                Montant
+              </span>
+
+              <span></span>
+
+            </div>
+
+
+            @for (
+              ligne of lignesFacture();
+              track ligne.id
+            ) {
+
+              <div class="invoice-row">
+
+                <input
+                  type="text"
+                  class="description-input"
+                  [value]="ligne.description"
+                  (input)="
+                    modifierDescription(
+                      ligne.id,
+                      $event
+                    )
+                  "
+                  placeholder="Description"
+                />
+
+
+                <input
+                  type="number"
+                  class="quantity-input"
+                  min="1"
+                  [value]="ligne.quantite"
+                  (input)="
+                    modifierQuantite(
+                      ligne.id,
+                      $event
+                    )
+                  "
+                />
+
+
+                <div class="amount-field">
+
+                  <input
+                    type="number"
+                    min="0"
+                    [value]="ligne.montant"
+                    (input)="
+                      modifierMontant(
+                        ligne.id,
+                        $event
+                      )
+                    "
+                  />
+
+                  <span>
+                    FCFA
+                  </span>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  class="delete-button"
+                  title="Supprimer"
+                  (click)="
+                    supprimerLigne(ligne.id)
+                  "
+                >
+                  ×
+                </button>
+
+              </div>
+
+            }
+
+          </div>
+
+
+          <!-- AJOUT -->
+
+          <button
+            type="button"
+            class="add-line-button"
+            (click)="ajouterLigne()"
+          >
+
+            <span>
+              +
+            </span>
+
+            Ajouter une prestation
+
+          </button>
+
+
+          <!-- TOTAL -->
+
+          <div class="total-box">
+
+            <div>
+
+              <span>
+                Total
+              </span>
+
+              <strong>
+                {{ montantTotal() | number:'1.0-0' }}
+                FCFA
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- ACTIONS -->
+
+          <div class="document-actions">
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="imprimer()"
+            >
+              🖨️ Imprimer
+            </button>
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="genererEtEnvoyer()"
+            >
+              ✓ Générer et envoyer au patient
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- ===================================================
+           ORDONNANCE
+      ==================================================== -->
+
+      @if (ongletActif() === 'ordonnance') {
+
+        <div class="document-content">
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-kicker">
+                Prescription
+              </span>
+
+              <h2>
+                Nouvelle ordonnance
+              </h2>
+
+            </div>
+
+            <span class="document-status">
+              Brouillon
+            </span>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="ordonnance">
+              Produits / soins prescrits
+            </label>
+
+            <textarea
+              id="ordonnance"
+              rows="10"
+              [value]="ordonnanceContenu()"
+              (input)="
+                modifierOrdonnance($event)
+              "
+              placeholder="Saisissez les produits ou soins prescrits..."
+            ></textarea>
+
+          </div>
+
+
+          <div class="document-actions">
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="imprimer()"
+            >
+              🖨️ Imprimer
+            </button>
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="genererEtEnvoyer()"
+            >
+              ✓ Générer et envoyer au patient
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+    </section>
+
+
+    <!-- =====================================================
+         HISTORIQUE FACTURES
+    ====================================================== -->
+
+    @if (ongletActif() === 'facture') {
+
+      <section class="history-card">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-kicker">
+              Historique
+            </span>
+
+            <h2>
+              Factures déjà émises
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="history-list">
+
+          @for (
+            facture of factures();
+            track facture.id
+          ) {
+
+            <div class="history-item">
+
+              <div class="history-icon">
+                🧾
+              </div>
+
+              <div class="history-main">
+
+                <strong>
+                  {{ facture.numero }}
+                </strong>
+
+                <span>
+                  Émise le {{ facture.date }}
+                </span>
+
+              </div>
+
+              <div class="history-amount">
+
+                <strong>
+                  {{ facture.montantTotal | number:'1.0-0' }}
+                  FCFA
+                </strong>
+
+                <span
+                  [class.paid]="
+                    facture.statut === 'payee'
+                  "
+                >
+                  {{
+                    facture.statut === 'payee'
+                      ? 'Payée'
+                      : 'Émise'
+                  }}
+                </span>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+
+
+    <!-- =====================================================
+         HISTORIQUE ORDONNANCES
+    ====================================================== -->
+
+    @if (ongletActif() === 'ordonnance') {
+
+      <section class="history-card">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-kicker">
+              Historique
+            </span>
+
+            <h2>
+              Ordonnances déjà émises
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="history-list">
+
+          @for (
+            ordonnance of ordonnances();
+            track ordonnance.id
+          ) {
+
+            <div class="history-item">
+
+              <div class="history-icon">
+                📋
+              </div>
+
+              <div class="history-main">
+
+                <strong>
+                  Ordonnance
+                </strong>
+
+                <span>
+                  Émise le {{ ordonnance.date }}
+                </span>
+
+                <p>
+                  {{ ordonnance.contenu }}
+                </p>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+
+
+    <!-- =====================================================
+         RAPPEL SUIVI
+    ====================================================== -->
+
+    <section class="tracking-reminder">
+
+      <div class="tracking-icon">
+        👓
+      </div>
+
+      <div class="tracking-text">
+
+        <strong>
+          Vous avez une commande en cours ?
+        </strong>
+
+        <p>
+          Consultez son état de fabrication et
+          mettez à jour son statut depuis le suivi
+          de commande.
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="tracking-button"
+        (click)="voirSuiviCommande()"
+      >
+        Voir le suivi →
+      </button>
+
+    </section>
+
+  </main>
+
+</div>

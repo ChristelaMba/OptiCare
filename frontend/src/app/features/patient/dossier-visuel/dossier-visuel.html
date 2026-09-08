@@ -1,9 +1,5 @@
-<div class="dossier-page">
 
-  <!-- =====================================================
-       INTRODUCTION DE LA PAGE
-       La sidebar + topbar appartiennent à PatientLayout
-  ====================================================== -->
+<div class="dossier-page">
 
   <section class="page-intro">
 
@@ -12,7 +8,7 @@
       <div class="title-row">
 
         <div class="title-icon">
-          <i class="fa-solid fa-eye"></i>
+          <span class="icon-eye">◉</span>
         </div>
 
         <div class="title-content">
@@ -24,7 +20,6 @@
           <h1>Mon dossier visuel</h1>
 
           @if (dossier(); as patient) {
-
             <p class="patient-summary">
               <span>{{ patient.prenom }} {{ patient.nom }}</span>
               <span class="separator">•</span>
@@ -32,7 +27,6 @@
               <span class="separator">•</span>
               <span>{{ patient.sexe }}</span>
             </p>
-
           }
 
         </div>
@@ -42,24 +36,16 @@
     </div>
 
     @if (!chargement() && !erreur()) {
-
       <div class="status-badge">
-        <i class="fa-solid fa-circle-check"></i>
+        <span class="status-icon">✓</span>
         <span>Dossier à jour</span>
       </div>
-
     }
 
   </section>
 
 
-  <!-- =====================================================
-       CONTENU
-  ====================================================== -->
-
   <main class="dossier-container">
-
-    <!-- CHARGEMENT -->
 
     @if (chargement()) {
 
@@ -80,14 +66,12 @@
     }
 
 
-    <!-- ERREUR -->
-
     @if (erreur(); as message) {
 
       <section class="error-card">
 
         <div class="error-icon">
-          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>!</span>
         </div>
 
         <div>
@@ -101,7 +85,7 @@
             class="btn-primary"
             (click)="chargerDossier()"
           >
-            <i class="fa-solid fa-rotate-right"></i>
+            <span class="button-icon">↻</span>
             Réessayer
           </button>
 
@@ -112,8 +96,6 @@
     }
 
 
-    <!-- DOSSIER -->
-
     @if (!chargement() && !erreur()) {
 
       @if (dossierVide()) {
@@ -121,7 +103,7 @@
         <section class="empty-state">
 
           <div class="empty-icon">
-            <i class="fa-solid fa-folder-open"></i>
+            <span class="folder-icon">□</span>
           </div>
 
           <span class="empty-label">
@@ -141,21 +123,15 @@
             routerLink="/"
             class="btn-primary"
           >
-            <i class="fa-solid fa-location-dot"></i>
+            <span class="button-icon">⌖</span>
             Trouver un cabinet
           </a>
 
         </section>
 
-      }
-
-      @else {
+      } @else {
 
         <div class="dossier-grid">
-
-          <!-- =================================================
-               HISTORIQUE
-          ================================================== -->
 
           <section class="history-card">
 
@@ -164,7 +140,7 @@
               <div class="section-heading">
 
                 <span class="section-icon blue">
-                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <span>◷</span>
                 </span>
 
                 <div>
@@ -197,22 +173,22 @@
                   <div class="timeline-content">
 
                     <span class="timeline-date">
-                      <i class="fa-regular fa-calendar"></i>
+                      <span class="small-icon">◷</span>
                       {{ fiche.date | date:'dd MMMM yyyy':'':'fr' }}
                     </span>
 
-                    <strong>
+                    <span class="timeline-motif">
                       {{ fiche.motif }}
-                    </strong>
+                    </span>
 
                     <span class="cabinet">
-                      <i class="fa-solid fa-location-dot"></i>
+                      <span class="small-icon">⌖</span>
                       {{ fiche.cabinet }}
                     </span>
 
                     <span class="view-link">
                       Voir le détail
-                      <i class="fa-solid fa-arrow-right"></i>
+                      <span class="arrow-icon">→</span>
                     </span>
 
                   </div>
@@ -226,13 +202,7 @@
           </section>
 
 
-          <!-- =================================================
-               COLONNE DROITE
-          ================================================== -->
-
           <div class="details-column">
-
-            <!-- DETAIL CONSULTATION -->
 
             @if (ficheSelectionnee(); as fiche) {
 
@@ -259,7 +229,7 @@
                   </div>
 
                   <div class="consultation-icon">
-                    <i class="fa-solid fa-stethoscope"></i>
+                    <span>⌁</span>
                   </div>
 
                 </div>
@@ -270,7 +240,7 @@
                   <div class="info-section">
 
                     <h3>
-                      <i class="fa-regular fa-comment"></i>
+                      <span class="info-icon">▱</span>
                       Plaintes déclarées
                     </h3>
 
@@ -288,7 +258,7 @@
                   <div class="info-section">
 
                     <h3>
-                      <i class="fa-solid fa-notes-medical"></i>
+                      <span class="info-icon">≡</span>
                       Observations
                     </h3>
 
@@ -301,15 +271,13 @@
                 }
 
 
-                <!-- PRESCRIPTION -->
-
                 @if (fiche.prescription; as prescription) {
 
                   <div class="prescription-section">
 
                     <div class="subsection-title">
 
-                      <i class="fa-solid fa-prescription-bottle-medical"></i>
+                      <span class="prescription-icon">▣</span>
 
                       <h3>Prescription</h3>
 
@@ -317,8 +285,6 @@
 
 
                     <div class="eyes-grid">
-
-                      <!-- OEIL DROIT -->
 
                       <div class="eye-card">
 
@@ -329,11 +295,17 @@
                           </div>
 
                           <div>
-                            <strong>Œil droit</strong>
-                            <span>OD</span>
+                            <span class="eye-name">
+                              Œil droit
+                            </span>
+
+                            <span>
+                              OD
+                            </span>
                           </div>
 
                         </div>
+
 
                         <div class="prescription-values">
 
@@ -384,8 +356,6 @@
                       </div>
 
 
-                      <!-- OEIL GAUCHE -->
-
                       <div class="eye-card">
 
                         <div class="eye-header">
@@ -395,11 +365,17 @@
                           </div>
 
                           <div>
-                            <strong>Œil gauche</strong>
-                            <span>OG</span>
+                            <span class="eye-name">
+                              Œil gauche
+                            </span>
+
+                            <span>
+                              OG
+                            </span>
                           </div>
 
                         </div>
+
 
                         <div class="prescription-values">
 
@@ -460,8 +436,6 @@
             }
 
 
-            <!-- DOCUMENTS -->
-
             <section class="documents-card">
 
               <div class="section-header">
@@ -469,12 +443,15 @@
                 <div class="section-heading">
 
                   <span class="section-icon green">
-                    <i class="fa-solid fa-folder-open"></i>
+                    <span>□</span>
                   </span>
 
                   <div>
                     <h2>Documents liés</h2>
-                    <p>Ordonnances et documents médicaux</p>
+
+                    <p>
+                      Ordonnances et documents médicaux
+                    </p>
                   </div>
 
                 </div>
@@ -496,12 +473,14 @@
                       <div class="document-left">
 
                         <div class="pdf-icon">
-                          <i class="fa-solid fa-file-pdf"></i>
+                          <span>PDF</span>
                         </div>
 
                         <div>
 
-                          <strong>{{ doc.nom }}</strong>
+                          <span class="document-name">
+                            {{ doc.nom }}
+                          </span>
 
                           <span>
                             {{ doc.date | date:'dd MMM yyyy':'':'fr' }}
@@ -516,13 +495,15 @@
 
                       </div>
 
+
                       <button
                         type="button"
                         class="download-button"
                         title="Télécharger"
+                        aria-label="Télécharger le document"
                         (click)="telechargerDocument(doc)"
                       >
-                        <i class="fa-solid fa-download"></i>
+                        <span>↓</span>
                       </button>
 
                     </div>
@@ -531,13 +512,13 @@
 
                 </div>
 
-              }
-
-              @else {
+              } @else {
 
                 <div class="no-documents">
 
-                  <i class="fa-regular fa-file"></i>
+                  <span class="no-document-icon">
+                    □
+                  </span>
 
                   <p>
                     Aucun document associé à cette consultation.
@@ -550,8 +531,6 @@
             </section>
 
 
-            <!-- PDF -->
-
             <div class="download-all">
 
               <button
@@ -560,7 +539,7 @@
                 [disabled]="!dossierPdfDisponible()"
                 (click)="telechargerDocument(ficheSelectionnee()?.dossierPdf)"
               >
-                <i class="fa-solid fa-file-pdf"></i>
+                <span class="button-icon">↓</span>
                 Télécharger le PDF de cette consultation
               </button>
 
@@ -577,3 +556,4 @@
   </main>
 
 </div>
+
