@@ -1,0 +1,780 @@
+<div
+  class="patient-layout"
+  [class.dark-mode]="modeSombre()"
+>
+
+  <!-- =====================================================
+       OVERLAY MOBILE
+  ====================================================== -->
+
+  @if (menuOuvert()) {
+
+    <div
+      class="sidebar-overlay"
+      (click)="fermerMenu()"
+    ></div>
+
+  }
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside
+    class="patient-sidebar"
+    [class.sidebar-open]="menuOuvert()"
+  >
+
+    <!-- ===================================================
+         LOGO
+    ==================================================== -->
+
+    <div class="sidebar-brand">
+
+      <div class="brand-logo">
+
+        <svg
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 16s4.5-7 12-7 12 7 12 7-4.5 7-12 7S4 16 4 16Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+
+          <circle
+            cx="16"
+            cy="16"
+            r="3.5"
+            fill="currentColor"
+          />
+        </svg>
+
+      </div>
+
+
+      <div class="brand-text">
+
+        <strong>
+          OptiCare
+        </strong>
+
+        <span>
+          Espace patient
+        </span>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="sidebar-close"
+        (click)="fermerMenu()"
+        aria-label="Fermer le menu"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         NAVIGATION
+    ==================================================== -->
+
+    <nav class="sidebar-navigation">
+
+      <span class="nav-label">
+        MENU
+      </span>
+
+
+      <!-- TABLEAU DE BORD -->
+
+      <a
+        routerLink="/patient"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span>
+          Tableau de bord
+        </span>
+
+      </a>
+
+
+      <!-- DOSSIER VISUEL -->
+
+      <a
+        routerLink="/patient/dossier-visuel"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M3.5 12s3.8-6 8.5-6 8.5 6 8.5 6-3.8 6-8.5 6-8.5-6-8.5-6Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+
+          <circle
+            cx="12"
+            cy="12"
+            r="2.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+        </svg>
+
+        <span>
+          Dossier visuel
+        </span>
+
+      </a>
+
+
+      <!-- MES RENDEZ-VOUS -->
+
+      <a
+        routerLink="/patient/rendez-vous"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <rect
+            x="4"
+            y="5"
+            width="16"
+            height="15"
+            rx="2"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+
+          <path
+            d="M8 3v4M16 3v4M4 10h16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <span>
+          Mes rendez-vous
+        </span>
+
+      </a>
+
+
+      <!-- MES AVIS -->
+
+      <a
+        routerLink="/patient/mes-avis"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="m12 4 2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7L12 4Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span>
+          Mes avis
+        </span>
+
+      </a>
+
+
+      <!-- =================================================
+           NOTIFICATIONS
+      ================================================== -->
+
+      <a
+        routerLink="/patient/notifications"
+        routerLinkActive="active"
+        class="nav-link notification-nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <span class="nav-icon-wrapper">
+
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M18 9.5a6 6 0 0 0-12 0c0 6.5-2.5 7.5-2.5 9h17c0-1.5-2.5-2.5-2.5-9Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M9.8 21h4.4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+          </svg>
+
+
+          <span class="sidebar-notification-badge">
+            2
+          </span>
+
+        </span>
+
+        <span>
+          Notifications
+        </span>
+
+      </a>
+
+
+      <!-- =================================================
+           SÉPARATEUR
+      ================================================== -->
+
+      <div class="nav-separator"></div>
+
+
+      <!-- =================================================
+           MON COMPTE
+      ================================================== -->
+
+      <span class="nav-label">
+        MON COMPTE
+      </span>
+
+
+      <!-- MON PROFIL -->
+
+      <a
+        routerLink="/patient/profil"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+
+          <path
+            d="M5 20c.8-3.5 3.2-5.5 7-5.5s6.2 2 7 5.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <span>
+          Mon profil
+        </span>
+
+      </a>
+
+
+      <!-- PARAMÈTRES -->
+
+      <a
+        routerLink="/patient/parametres"
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="fermerMenu()"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+
+          <path
+            d="M19.4 15a1.8 1.8 0 0 0 .3 2l.1.1-1.8 1.8-.1-.1a1.8 1.8 0 0 0-2-.3 1.8 1.8 0 0 0-1.1 1.6v.2h-2.6v-.2a1.8 1.8 0 0 0-1.1-1.6 1.8 1.8 0 0 0-2 .3l-.1.1-1.8-1.8.1-.1a1.8 1.8 0 0 0 .3-2 1.8 1.8 0 0 0-1.6-1.1H5.8v-2.6H6a1.8 1.8 0 0 0 1.6-1.1 1.8 1.8 0 0 0-.3-2l-.1-.1L9 6.3l.1.1a1.8 1.8 0 0 0 2 .3 1.8 1.8 0 0 0 1.1-1.6v-.2h2.6v.2a1.8 1.8 0 0 0 1.1 1.6 1.8 1.8 0 0 0 2-.3l.1-.1 1.8 1.8-.1.1a1.8 1.8 0 0 0-.3 2 1.8 1.8 0 0 0 1.6 1.1h.2v2.6h-.2a1.8 1.8 0 0 0-1.6 1.1Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.35"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span>
+          Paramètres
+        </span>
+
+      </a>
+
+    </nav>
+
+
+    <!-- ===================================================
+         AIDE
+    ==================================================== -->
+
+    <div class="sidebar-help">
+
+      <div class="help-icon">
+        ?
+      </div>
+
+      <div>
+
+        <strong>
+          Besoin d'aide ?
+        </strong>
+
+        <span>
+          Notre équipe est là pour vous.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PROFIL SIDEBAR
+    ==================================================== -->
+
+    <div class="sidebar-profile">
+
+      <div class="profile-avatar">
+        JD
+      </div>
+
+      <div class="profile-details">
+
+        <strong>
+          Jean Dupont
+        </strong>
+
+        <span>
+          Patient
+        </span>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <div class="patient-main">
+
+
+    <!-- ===================================================
+         TOPBAR DESKTOP
+    ==================================================== -->
+
+    <header class="patient-topbar">
+
+      <div class="topbar-title">
+
+        <span class="topbar-label">
+          ESPACE PATIENT
+        </span>
+
+        <h1>
+          Mon espace santé
+        </h1>
+
+      </div>
+
+
+      <div class="topbar-actions">
+
+
+        <!-- =================================================
+             NOTIFICATIONS
+        ================================================== -->
+
+        <button
+          type="button"
+          class="notification-button"
+          routerLink="/patient/notifications"
+          aria-label="Voir mes notifications"
+          title="Notifications"
+        >
+
+          <svg
+            class="notification-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+
+            <path
+              d="M18 9.5a6 6 0 0 0-12 0c0 6.5-2.5 7.5-2.5 9h17c0-1.5-2.5-2.5-2.5-9Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M9.8 21h4.4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
+
+          <span class="notification-badge">
+            2
+          </span>
+
+        </button>
+
+
+        <!-- =================================================
+             MODE SOMBRE / CLAIR
+        ================================================== -->
+
+        <button
+          type="button"
+          class="theme-button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="
+            modeSombre()
+              ? 'Activer le mode clair'
+              : 'Activer le mode sombre'
+          "
+          [title]="
+            modeSombre()
+              ? 'Mode clair'
+              : 'Mode sombre'
+          "
+        >
+
+          @if (!modeSombre()) {
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+
+              <circle
+                cx="12"
+                cy="12"
+                r="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+
+              <path
+                d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+
+            </svg>
+
+          } @else {
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+
+              <path
+                d="M20 15.5A8 8 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+
+            </svg>
+
+          }
+
+        </button>
+
+
+        <!-- =================================================
+             PROFIL
+        ================================================== -->
+
+        <a
+          routerLink="/patient/profil"
+          class="topbar-profile"
+          aria-label="Mon profil"
+        >
+
+          <span class="topbar-avatar">
+            JD
+          </span>
+
+          <span class="topbar-profile-info">
+
+            <strong>
+              Jean Dupont
+            </strong>
+
+            <small>
+              Patient
+            </small>
+
+          </span>
+
+        </a>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         MOBILE HEADER
+    ==================================================== -->
+
+    <header class="mobile-header">
+
+
+      <!-- MENU -->
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        (click)="toggleMenu()"
+        aria-label="Ouvrir le menu"
+      >
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+      </button>
+
+
+      <!-- BRAND -->
+
+      <div class="mobile-brand">
+
+        <div class="mobile-brand-icon">
+
+          <svg
+            viewBox="0 0 32 32"
+            aria-hidden="true"
+          >
+
+            <path
+              d="M4 16s4.5-7 12-7 12 7 12 7-4.5 7-12 7S4 16 4 16Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+
+            <circle
+              cx="16"
+              cy="16"
+              r="3.5"
+              fill="currentColor"
+            />
+
+          </svg>
+
+        </div>
+
+        <strong>
+          OptiCare
+        </strong>
+
+      </div>
+
+
+      <!-- ACTIONS MOBILE -->
+
+      <div class="mobile-header-actions">
+
+
+        <!-- NOTIFICATION -->
+
+        <button
+          type="button"
+          class="mobile-notification"
+          routerLink="/patient/notifications"
+          aria-label="Voir mes notifications"
+          title="Notifications"
+        >
+
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+
+            <path
+              d="M18 9.5a6 6 0 0 0-12 0c0 6.5-2.5 7.5-2.5 9h17c0-1.5-2.5-2.5-2.5-9Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M9.8 21h4.4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
+          <span>
+            2
+          </span>
+
+        </button>
+
+
+        <!-- THEME -->
+
+        <button
+          type="button"
+          class="mobile-theme-button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="
+            modeSombre()
+              ? 'Activer le mode clair'
+              : 'Activer le mode sombre'
+          "
+        >
+
+          @if (!modeSombre()) {
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+
+              <circle
+                cx="12"
+                cy="12"
+                r="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+
+              <path
+                d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+
+            </svg>
+
+          } @else {
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+
+              <path
+                d="M20 15.5A8 8 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+
+            </svg>
+
+          }
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         CONTENU DES PAGES
+    ==================================================== -->
+
+    <main class="patient-content">
+
+      <router-outlet></router-outlet>
+
+    </main>
+
+  </div>
+
+</div>

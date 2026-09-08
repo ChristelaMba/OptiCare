@@ -1,0 +1,493 @@
+<div class="reviews-page">
+
+  <section class="page-intro">
+
+    <div class="intro-left">
+
+      <div class="title-row">
+
+        <div class="title-icon">
+          <span class="icon-star">★</span>
+        </div>
+
+        <div class="title-content">
+
+          <span class="page-label">
+            EXPÉRIENCE PATIENT
+          </span>
+
+          <h1>Mes avis</h1>
+
+          <p class="page-description">
+            Partagez votre expérience et consultez
+            les avis que vous avez publiés.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="status-badge">
+      <span class="badge-star">★</span>
+      <span>Votre expérience compte</span>
+    </div>
+
+  </section>
+
+
+  <main class="reviews-container">
+
+    @if (cabinetsEligibles().length > 0) {
+
+      <section class="reviews-section">
+
+        <div class="section-heading">
+
+          <div class="section-title-group">
+
+            <span class="section-icon blue">
+              <span class="simple-icon">⌂</span>
+            </span>
+
+            <div>
+
+              <span class="section-label">
+                VOTRE EXPÉRIENCE
+              </span>
+
+              <h2>Établissements éligibles</h2>
+
+              <p>
+                Vous avez récemment visité ces établissements.
+                Partagez votre expérience.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="cabinets-grid">
+
+          @for (cabinet of cabinetsEligibles(); track cabinet.id) {
+
+            <article class="cabinet-card">
+
+              <div class="cabinet-info">
+
+                <div class="cabinet-icon">
+                  <span class="eye-icon">◉</span>
+                </div>
+
+                <div class="cabinet-text">
+
+                  <h3>{{ cabinet.nom }}</h3>
+
+                  <p class="cabinet-date">
+
+                    <span class="calendar-icon">▣</span>
+
+                    Visite le {{ cabinet.dateVisite }}
+
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="ouvrirFormulaire(cabinet)"
+              >
+                <span class="button-icon">✎</span>
+                <span>Laisser un avis</span>
+              </button>
+
+            </article>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+
+
+    @if (cabinetEnCoursDeNotation() || avisEnEdition()) {
+
+      <section class="form-card">
+
+        <div class="form-header">
+
+          <div class="section-title-group">
+
+            <span class="section-icon green">
+              <span class="simple-icon">✎</span>
+            </span>
+
+            <div>
+
+              <span class="section-label">
+                VOTRE RETOUR
+              </span>
+
+              <h2>
+
+                @if (avisEnEdition()) {
+                  Modifier votre avis
+                } @else if (cabinetEnCoursDeNotation()) {
+                  Rédiger votre avis
+                }
+
+              </h2>
+
+              <p>
+
+                @if (avisEnEdition(); as avis) {
+
+                  Votre avis pour
+                  <strong>{{ avis.cabinetNom }}</strong>
+
+                } @else if (cabinetEnCoursDeNotation(); as cabinet) {
+
+                  Partagez votre expérience chez
+                  <strong>{{ cabinet.nom }}</strong>
+
+                }
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-body">
+
+          <div class="form-field">
+
+            <label>
+              Votre note globale
+            </label>
+
+            <p class="field-help">
+              Évaluez votre expérience de 1 à 5 étoiles.
+            </p>
+
+            <div
+              class="stars-input"
+              (mouseleave)="quitterSurvol()"
+            >
+
+              @for (etoile of etoiles(5); track etoile) {
+
+                <button
+                  type="button"
+                  class="star-button"
+                  (mouseenter)="survolerEtoile(etoile)"
+                  (click)="choisirNote(etoile)"
+                  [attr.aria-label]="'Noter ' + etoile + ' étoiles'"
+                >
+
+                  <span
+                    class="star-shape"
+                    [class.star-selected]="
+                      etoile <= (noteSurvolee() || noteChoisie())
+                    "
+                  >
+                    ★
+                  </span>
+
+                </button>
+
+              }
+
+            </div>
+
+            @if (noteChoisie() > 0) {
+
+              <span class="selected-rating">
+
+                {{ noteChoisie() }} / 5
+
+                <span>étoiles</span>
+
+              </span>
+
+            }
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label for="commentaire">
+              Votre commentaire
+            </label>
+
+            <p class="field-help">
+              Décrivez votre expérience avec quelques mots.
+            </p>
+
+            <div class="textarea-wrapper">
+
+              <span class="textarea-icon">☰</span>
+
+              <textarea
+                id="commentaire"
+                rows="5"
+                placeholder="Partagez les détails de votre expérience..."
+                [(ngModel)]="commentaireSaisi"
+              ></textarea>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-actions">
+
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="annulerFormulaire()"
+            >
+              <span class="button-icon">×</span>
+              Annuler
+            </button>
+
+
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="!formulaireValide || enSoumission()"
+              (click)="publier()"
+            >
+
+              @if (enSoumission()) {
+
+                <span class="button-loader"></span>
+                Publication...
+
+              } @else {
+
+                <span class="button-icon">➤</span>
+
+                @if (avisEnEdition()) {
+                  Enregistrer
+                } @else {
+                  Publier l'avis
+                }
+
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    }
+
+
+    <section class="reviews-section">
+
+      <div class="section-heading">
+
+        <div class="section-title-group">
+
+          <span class="section-icon purple">
+            <span class="simple-icon">💬</span>
+          </span>
+
+          <div>
+
+            <span class="section-label">
+              VOS PUBLICATIONS
+            </span>
+
+            <h2>Avis publiés</h2>
+
+            <p>
+              Retrouvez ici les avis que vous avez partagés.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        @if (avisPublies().length > 0) {
+
+          <span class="count-badge">
+            {{ avisPublies().length }}
+            <span>avis</span>
+          </span>
+
+        }
+
+      </div>
+
+
+      @if (avisPublies().length === 0) {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+            <span>💬</span>
+          </div>
+
+          <span class="empty-label">
+            VOS PUBLICATIONS
+          </span>
+
+          <h3>Aucun avis publié</h3>
+
+          <p>
+            Vous n'avez encore publié aucun avis.
+            Après une consultation, vous pourrez
+            partager votre expérience avec la communauté OptiCare.
+          </p>
+
+        </div>
+
+      } @else {
+
+        <div class="reviews-grid">
+
+          @for (avis of avisPublies(); track avis.id) {
+
+            <article class="review-card">
+
+              <div class="review-header">
+
+                <div class="review-establishment">
+
+                  <div class="review-icon">
+                    <span class="eye-icon">◉</span>
+                  </div>
+
+                  <div>
+
+                    <h3>{{ avis.cabinetNom }}</h3>
+
+                    <div class="review-meta">
+
+                      <div class="stars-display">
+
+                        @for (etoile of etoiles(5); track etoile) {
+
+                          <span
+                            class="review-star"
+                            [class.review-star-active]="etoile <= avis.note"
+                          >
+                            ★
+                          </span>
+
+                        }
+
+                      </div>
+
+                      <span class="rating-text">
+                        {{ avis.note }}/5
+                      </span>
+
+                      <span class="review-date">
+
+                        <span class="small-calendar">▣</span>
+
+                        {{ avis.datePublication }}
+
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="review-actions">
+
+                  <button
+                    type="button"
+                    class="icon-action"
+                    title="Modifier"
+                    aria-label="Modifier l'avis"
+                    (click)="ouvrirEdition(avis)"
+                  >
+                    <span>✎</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="icon-action danger"
+                    title="Supprimer"
+                    aria-label="Supprimer l'avis"
+                    (click)="supprimer(avis)"
+                  >
+                    <span>×</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+
+              <div class="review-comment">
+
+                <span class="quote-icon">“</span>
+
+                <p>
+                  {{ avis.commentaire }}
+                </p>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      }
+
+    </section>
+
+
+    <section class="review-information">
+
+      <div class="information-icon">
+        <span>♡</span>
+      </div>
+
+      <div>
+
+        <strong>
+          Votre avis nous aide à améliorer nos services
+        </strong>
+
+        <p>
+          Vos retours permettent à OptiCare et aux établissements
+          partenaires d'améliorer continuellement l'expérience
+          proposée aux patients.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

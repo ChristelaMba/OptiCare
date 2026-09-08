@@ -1,0 +1,15 @@
+<main class="min-h-screen flex items-center justify-center bg-surface-bg p-margin-mobile">
+  <div class="w-full max-w-[480px] text-center bg-surface-container-lowest rounded-xl shadow-md p-space-8">
+    <span class="material-symbols-outlined text-error text-[48px]">block</span>
+    <h1 class="font-heading text-headline-h2 text-on-surface font-bold mt-space-4 mb-2">Accès refusé</h1>
+    <p class="font-body text-body-base text-text-muted mb-space-8">
+      Vous n'avez pas les droits nécessaires pour accéder à cette page.
+    </p>
+    <a
+      [routerLink]="routeRetour()"
+      class="inline-flex items-center justify-center gap-2 h-[48px] px-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md"
+    >
+      {{ estConnecte() ? 'Retour à mon espace' : 'Se connecter' }}
+    </a>
+  </div>
+</main>

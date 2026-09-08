@@ -1,0 +1,1763 @@
+/* =========================================================
+   OPTICARE — AGENDA
+   STYLE IDENTIQUE À L'ESPACE PATIENT
+========================================================= */
+
+
+/* =========================================================
+   VARIABLES — MODE CLAIR
+========================================================= */
+
+:host {
+  display: block;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --primary-light: #eff6ff;
+  --primary-soft: #dbeafe;
+
+  --text-main: #172033;
+  --text-dark: #1e293b;
+  --text-body: #475569;
+  --text-muted: #94a3b8;
+
+  --background: #f7f9fc;
+
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --border: #e6ebf2;
+  --border-soft: #edf1f6;
+
+  --success: #15803d;
+  --success-light: #ecfdf3;
+
+  --warning: #c2410c;
+  --warning-light: #fff7ed;
+
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+
+  --neutral: #64748b;
+  --neutral-light: #f1f5f9;
+
+  color: var(--text-main);
+}
+
+
+/* =========================================================
+   MODE SOMBRE
+========================================================= */
+
+:host-context(.dark-mode) {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+
+  --primary-light: #172554;
+  --primary-soft: #1e3a8a;
+
+  --text-main: #f1f5f9;
+  --text-dark: #f1f5f9;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --background: #0f172a;
+
+  --surface: #111827;
+  --surface-soft: #172033;
+
+  --border: #263244;
+  --border-soft: #202b3d;
+
+  --success: #4ade80;
+  --success-light: #052e1a;
+
+  --warning: #fb923c;
+  --warning-light: #431407;
+
+  --danger: #ef4444;
+  --danger-light: #450a0a;
+
+  --neutral: #94a3b8;
+  --neutral-light: #1e293b;
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.agenda-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 30px 34px 50px;
+
+  color: var(--text-main);
+
+  background: transparent;
+}
+
+
+/* =========================================================
+   EN-TÊTE
+========================================================= */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  min-width: 0;
+}
+
+.title-content {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   ICÔNE DU TITRE
+========================================================= */
+
+.title-icon {
+  width: 50px;
+  height: 50px;
+
+  flex: 0 0 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.title-icon svg {
+  width: 21px;
+  height: 21px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   TITRE
+========================================================= */
+
+.eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--primary);
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.1px;
+}
+
+.page-heading h1 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 27px;
+
+  font-weight: 750;
+
+  line-height: 1.2;
+}
+
+.page-heading p {
+  margin: 6px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   BARRE DE L'AGENDA
+========================================================= */
+
+.agenda-toolbar {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 13px 16px;
+
+  margin-bottom: 20px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 3px 15px rgba(15, 23, 42, 0.03);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   NAVIGATION DATE
+========================================================= */
+
+.date-navigation {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+.icon-button,
+.today-button {
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+
+  color: var(--text-body);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.icon-button {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border-radius: 8px;
+}
+
+.icon-button svg {
+  width: 14px;
+  height: 14px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.today-button {
+  height: 34px;
+
+  padding: 0 13px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+
+  font-weight: 650;
+}
+
+.icon-button:hover,
+.today-button:hover {
+  border-color: var(--primary);
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   DATE ACTUELLE
+========================================================= */
+
+.current-date {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  color: var(--text-dark);
+
+  font-size: 13px;
+}
+
+.current-date svg {
+  width: 15px;
+  height: 15px;
+
+  flex: 0 0 15px;
+
+  fill: none;
+
+  stroke: var(--primary);
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   SÉLECTEUR JOUR / SEMAINE
+========================================================= */
+
+.view-selector {
+  display: flex;
+
+  align-items: center;
+
+  padding: 3px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border-soft);
+
+  border-radius: 8px;
+}
+
+.view-button {
+  padding: 7px 13px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.view-button:hover {
+  color: var(--primary);
+}
+
+.view-button.active {
+  background: var(--surface);
+
+  color: var(--primary);
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.07);
+}
+
+
+/* =========================================================
+   STATISTIQUES
+========================================================= */
+
+.agenda-stats {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 14px;
+
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 5px 18px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================================
+   ICÔNES STATISTIQUES
+========================================================= */
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+}
+
+.stat-icon svg {
+  width: 17px;
+  height: 17px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* TOTAL */
+
+.stat-icon.blue {
+  background: var(--primary-light);
+
+  color: var(--primary);
+}
+
+
+/* CONFIRMÉS */
+
+.stat-icon.green {
+  background: var(--success-light);
+
+  color: var(--success);
+}
+
+
+/* ATTENTE */
+
+.stat-icon.orange {
+  background: var(--warning-light);
+
+  color: var(--warning);
+}
+
+
+/* ANNULÉS */
+
+.stat-icon.red {
+  background: var(--danger-light);
+
+  color: var(--danger);
+}
+
+
+/* =========================================================
+   TEXTES STATISTIQUES
+========================================================= */
+
+.stat-card span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.stat-card strong {
+  color: var(--text-dark);
+
+  font-size: 19px;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   CARTE PRINCIPALE AGENDA
+========================================================= */
+
+.agenda-card {
+  overflow: hidden;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.035);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   HEADER CARTE
+========================================================= */
+
+.agenda-card-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 19px 21px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.section-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: var(--primary);
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.9px;
+}
+
+.agenda-card-header h2 {
+  margin: 0;
+
+  color: var(--text-dark);
+
+  font-size: 16px;
+
+  font-weight: 700;
+}
+
+.agenda-card-header p {
+  margin: 5px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   LÉGENDE
+========================================================= */
+
+.legend {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 14px;
+}
+
+.legend-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+}
+
+.legend-dot.confirmed {
+  background: var(--success);
+}
+
+.legend-dot.pending {
+  background: var(--warning);
+}
+
+.legend-dot.cancelled {
+  background: var(--danger);
+}
+
+.legend-dot.completed {
+  background: var(--neutral);
+}
+
+.legend-dot.noshow {
+  background: #b0397a;
+}
+
+
+/* =========================================================
+   LISTE DES RENDEZ-VOUS
+========================================================= */
+
+.appointments-list {
+  padding: 8px 18px 18px;
+}
+
+
+/* =========================================================
+   CARTE RENDEZ-VOUS
+========================================================= */
+
+.appointment-card {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    82px
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding: 14px 12px;
+
+  margin-top: 8px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-left: 3px solid var(--primary);
+
+  border-radius: 10px;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.appointment-card:hover {
+  transform: translateX(2px);
+
+  box-shadow:
+    0 5px 15px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================================
+   BARRE DE STATUT
+========================================================= */
+
+.appointment-card.status-confirmed {
+  border-left-color: var(--success);
+}
+
+.appointment-card.status-pending {
+  border-left-color: var(--warning);
+}
+
+.appointment-card.status-cancelled {
+  border-left-color: var(--danger);
+}
+
+.appointment-card.status-completed {
+  border-left-color: var(--neutral);
+}
+
+.appointment-card.status-noshow {
+  border-left-color: #b0397a;
+}
+
+
+/* =========================================================
+   HEURE
+========================================================= */
+
+.appointment-time {
+  padding-left: 5px;
+}
+
+.appointment-time strong {
+  display: block;
+
+  color: var(--text-dark);
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+.appointment-time span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   PATIENT
+========================================================= */
+
+.appointment-patient {
+  display: flex;
+
+  align-items: center;
+
+  min-width: 0;
+
+  gap: 11px;
+}
+
+.patient-avatar {
+  width: 37px;
+  height: 37px;
+
+  flex: 0 0 37px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.patient-details {
+  min-width: 0;
+}
+
+.patient-details h3 {
+  margin: 0;
+
+  overflow: hidden;
+
+  color: var(--text-dark);
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+.patient-details p {
+  overflow: hidden;
+
+  margin: 4px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   BADGE STATUT
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 6px 9px;
+
+  border-radius: 6px;
+
+  background: var(--success-light);
+
+  color: var(--success);
+
+  font-size: 9px;
+
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+.status-badge svg {
+  width: 11px;
+  height: 11px;
+
+  flex: 0 0 11px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.status-pending .status-badge {
+  background: var(--warning-light);
+
+  color: var(--warning);
+}
+
+.status-cancelled .status-badge {
+  background: var(--danger-light);
+
+  color: var(--danger);
+}
+
+.status-completed .status-badge {
+  background: var(--neutral-light);
+
+  color: var(--neutral);
+}
+
+.status-noshow .status-badge {
+  background: #fdeef6;
+  color: #a83371;
+}
+
+
+/* =========================================================
+   ACTION DÉTAILS
+========================================================= */
+
+.details-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 7px;
+
+  background: var(--surface);
+
+  color: var(--text-body);
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.details-button:hover {
+  border-color: var(--primary);
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  transform: translateX(1px);
+}
+
+.details-button svg {
+  width: 12px;
+  height: 12px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   ÉTAT VIDE
+========================================================= */
+
+.empty-agenda {
+  min-height: 380px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  border-radius: 15px;
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+}
+
+.empty-icon svg {
+  width: 25px;
+  height: 25px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.empty-agenda h3 {
+  margin: 0;
+
+  color: var(--text-dark);
+
+  font-size: 15px;
+}
+
+.empty-agenda p {
+  max-width: 420px;
+
+  margin: 6px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   ANIMATION CHARGEMENT
+========================================================= */
+
+.loading-icon {
+  animation: agenda-spin 1s linear infinite;
+}
+
+@keyframes agenda-spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   MODALE
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.48);
+
+  backdrop-filter: blur(4px);
+}
+
+.appointment-modal {
+  width: 100%;
+
+  max-width: 540px;
+
+  overflow: hidden;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 25px 70px rgba(15, 23, 42, 0.20);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+/* =========================================================
+   HEADER MODALE
+========================================================= */
+
+.modal-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 22px 23px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.modal-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--primary);
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.modal-header h2 {
+  margin: 0;
+
+  color: var(--text-dark);
+
+  font-size: 19px;
+
+  font-weight: 700;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+
+  flex: 0 0 32px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: var(--surface-soft);
+
+  color: var(--text-body);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--primary-light);
+
+  color: var(--primary);
+}
+
+.modal-close svg {
+  width: 15px;
+  height: 15px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   PATIENT DANS LA MODALE
+========================================================= */
+
+.modal-patient {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  margin: 20px 23px;
+
+  padding: 14px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+
+  border-radius: 11px;
+}
+
+.modal-avatar {
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.modal-patient h3 {
+  margin: 0;
+
+  color: var(--text-dark);
+
+  font-size: 14px;
+}
+
+.modal-patient p {
+  margin: 4px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   INFORMATIONS MODALE
+========================================================= */
+
+.details-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 1px;
+
+  margin: 0 23px;
+
+  overflow: hidden;
+
+  background: var(--border);
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+}
+
+.detail-item {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 13px;
+
+  background: var(--surface);
+}
+
+.detail-label {
+  color: var(--text-muted);
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
+}
+
+.detail-item strong {
+  color: var(--text-dark);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   ACTIONS MODALE
+========================================================= */
+
+.modal-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  padding: 20px 23px;
+}
+
+.btn-success,
+.btn-danger,
+.btn-secondary {
+  min-height: 37px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 13px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* =========================================================
+   ICÔNES BOUTONS MODALE
+========================================================= */
+
+.btn-success svg,
+.btn-danger svg,
+.btn-secondary svg {
+  width: 14px;
+  height: 14px;
+
+  flex: 0 0 14px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.9;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   CONFIRMER
+========================================================= */
+
+.btn-success {
+  border: none;
+
+  background: var(--primary);
+
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background: var(--primary-dark);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ANNULER
+========================================================= */
+
+.btn-danger {
+  border: 1px solid var(--danger-light);
+
+  background: var(--danger-light);
+
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  filter: brightness(0.96);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   BOUTON SECONDAIRE
+========================================================= */
+
+.btn-secondary {
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+
+  color: var(--text-body);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary);
+
+  background: var(--primary-light);
+
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   TRANSITIONS MODE SOMBRE
+========================================================= */
+
+.agenda-toolbar,
+.stat-card,
+.agenda-card,
+.appointment-card,
+.details-button,
+.view-selector,
+.modal-close,
+.modal-patient,
+.detail-item,
+.btn-secondary {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLETTE LARGE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .agenda-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .agenda-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .current-date {
+    order: -1;
+
+    width: 100%;
+  }
+
+  .appointment-card {
+    grid-template-columns:
+      75px
+      minmax(0, 1fr)
+      auto;
+  }
+
+  .appointment-action {
+    grid-column: 3;
+  }
+
+}
+
+
+/* =========================================================
+   TABLETTE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .agenda-page {
+    padding: 24px 20px 40px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+  }
+
+  .agenda-card-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .appointment-card {
+    grid-template-columns:
+      70px
+      1fr;
+
+    gap: 12px;
+  }
+
+  .appointment-status {
+    grid-column: 2;
+  }
+
+  .appointment-action {
+    grid-column: 2;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .agenda-page {
+    padding: 18px 14px 30px;
+  }
+
+  .page-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    margin-bottom: 22px;
+  }
+
+  .page-heading {
+    width: 100%;
+  }
+
+  .page-heading h1 {
+    font-size: 23px;
+  }
+
+  .page-heading p {
+    font-size: 12px;
+  }
+
+  .agenda-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    padding: 12px;
+  }
+
+  .date-navigation {
+    width: 100%;
+  }
+
+  .current-date {
+    order: 0;
+
+    width: 100%;
+  }
+
+  .view-selector {
+    width: 100%;
+  }
+
+  .view-button {
+    flex: 1;
+  }
+
+  .agenda-stats {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 9px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-icon {
+    width: 35px;
+    height: 35px;
+
+    flex-basis: 35px;
+  }
+
+  .stat-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .stat-card strong {
+    font-size: 17px;
+  }
+
+  .appointments-list {
+    padding: 8px 10px 14px;
+  }
+
+  .appointment-card {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+    padding: 13px;
+  }
+
+  .appointment-status,
+  .appointment-action {
+    grid-column: auto;
+  }
+
+  .details-button {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  .legend {
+    width: 100%;
+
+    gap: 9px;
+  }
+
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .appointment-modal {
+    max-height: 90vh;
+
+    overflow-y: auto;
+  }
+
+}
+
+
+/* =========================================================
+   PETIT MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .agenda-page {
+    padding: 16px 12px 28px;
+  }
+
+  .agenda-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .today-button {
+    flex: 1;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-success,
+  .btn-danger,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .page-heading {
+    gap: 12px;
+  }
+
+  .title-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-basis: 44px;
+  }
+
+  .title-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .page-heading h1 {
+    font-size: 21px;
+  }
+
+  .modal-header {
+    padding: 18px;
+  }
+
+  .modal-patient {
+    margin: 16px 18px;
+  }
+
+  .details-grid {
+    margin: 0 18px;
+  }
+
+  .modal-actions {
+    padding: 18px;
+  }
+
+}
