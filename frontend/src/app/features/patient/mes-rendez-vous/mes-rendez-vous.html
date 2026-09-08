@@ -1,3 +1,4 @@
+
 <section class="content">
 
   <!-- =====================================================
@@ -9,11 +10,8 @@
     <div class="header-content">
 
       <span class="eyebrow">
-
-        <i class="fa-solid fa-calendar-check"></i>
-
+        <span class="icon-symbol">◫</span>
         ESPACE PATIENT
-
       </span>
 
       <h1>Mes rendez-vous</h1>
@@ -26,16 +24,12 @@
     </div>
 
     <button
-    routerLink="prise-rdv"
+      routerLink="prise-rdv"
       type="button"
       class="btn-primary"
-
     >
-
-      <i class="fa-solid fa-plus"></i>
-
+      <span class="icon-symbol">＋</span>
       <span>Prendre un rendez-vous</span>
-
     </button>
 
   </header>
@@ -50,9 +44,7 @@
     <section class="state-card loading-state">
 
       <div class="state-icon">
-
-        <i class="fa-solid fa-spinner fa-spin"></i>
-
+        <span class="spinner-icon"></span>
       </div>
 
       <div>
@@ -82,7 +74,9 @@
 
       <div class="state-icon">
 
-        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span class="warning-icon">
+          !
+        </span>
 
       </div>
 
@@ -102,7 +96,9 @@
           (click)="chargerRendezVous()"
         >
 
-          <i class="fa-solid fa-rotate-right"></i>
+          <span class="icon-symbol">
+            ↻
+          </span>
 
           Réessayer
 
@@ -120,7 +116,6 @@
   ====================================================== -->
 
   @if (!chargement() && !erreur()) {
-
 
     <!-- ===================================================
          RÉSUMÉ
@@ -153,7 +148,9 @@
 
           <span class="stat-icon upcoming">
 
-            <i class="fa-regular fa-calendar"></i>
+            <span class="icon-symbol">
+              ▣
+            </span>
 
           </span>
 
@@ -181,7 +178,9 @@
 
           <span class="stat-icon past">
 
-            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="icon-symbol">
+              ◷
+            </span>
 
           </span>
 
@@ -260,7 +259,9 @@
 
         <div class="search-field">
 
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="icon-symbol">
+            ⌕
+          </span>
 
           <input
             type="text"
@@ -276,7 +277,9 @@
 
         <div class="select-wrapper">
 
-          <i class="fa-solid fa-sliders"></i>
+          <span class="icon-symbol">
+            ☷
+          </span>
 
           <select
             [value]="filtreStatut()"
@@ -326,7 +329,9 @@
 
         <div class="empty-icon">
 
-          <i class="fa-regular fa-calendar-xmark"></i>
+          <span class="empty-calendar-icon">
+            ×
+          </span>
 
         </div>
 
@@ -367,9 +372,12 @@
           <button
             type="button"
             class="btn-secondary"
+            routerLink="prise-rdv"
           >
 
-            <i class="fa-solid fa-plus"></i>
+            <span class="icon-symbol">
+              ＋
+            </span>
 
             Planifier une consultation
 
@@ -397,7 +405,6 @@
             class="rdv-card"
             [attr.data-statut]="rdv.statut"
           >
-
 
             <!-- ===========================================
                  DATE
@@ -435,7 +442,9 @@
 
                   <span class="rdv-type">
 
-                    <i class="fa-solid fa-eye"></i>
+                    <span class="icon-symbol">
+                      ◉
+                    </span>
 
                     CONSULTATION OPHTALMOLOGIQUE
 
@@ -481,7 +490,9 @@
 
                 <div class="info-item">
 
-                  <i class="fa-regular fa-clock"></i>
+                  <span class="info-icon">
+                    ◷
+                  </span>
 
                   <div>
 
@@ -504,7 +515,9 @@
 
                 <div class="info-item">
 
-                  <i class="fa-solid fa-hospital"></i>
+                  <span class="info-icon">
+                    ▣
+                  </span>
 
                   <div>
 
@@ -527,7 +540,9 @@
 
                   <div class="info-item">
 
-                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="info-icon">
+                      ●
+                    </span>
 
                     <div>
 
@@ -536,13 +551,10 @@
                       </span>
 
                       <a href="#">
-
                         Voir l'emplacement
-
-                        <i
-                          class="fa-solid fa-arrow-up-right-from-square"
-                        ></i>
-
+                        <span class="external-icon">
+                          ↗
+                        </span>
                       </a>
 
                     </div>
@@ -555,7 +567,7 @@
 
 
               <!-- =========================================
-                   FOOTER DU RDV
+                   FOOTER DU RENDEZ-VOUS
               ========================================== -->
 
               <div class="rdv-footer">
@@ -565,7 +577,9 @@
 
                 <span class="appointment-date">
 
-                  <i class="fa-regular fa-calendar"></i>
+                  <span class="icon-symbol">
+                    ▣
+                  </span>
 
                   {{ rdv.date | date:'EEEE d MMMM yyyy':'':'fr' }}
 
@@ -577,7 +591,9 @@
                 <div class="rdv-actions">
 
 
-                  <!-- CONFIRMÉ -->
+                  <!-- =====================================
+                       CONFIRMÉ
+                  ====================================== -->
 
                   @if (rdv.statut === 'confirme') {
 
@@ -586,7 +602,9 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-regular fa-calendar-plus"></i>
+                      <span class="action-icon">
+                        ＋
+                      </span>
 
                       Ajouter au calendrier
 
@@ -598,7 +616,9 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-solid fa-calendar-days"></i>
+                      <span class="action-icon">
+                        ↻
+                      </span>
 
                       Reprogrammer
 
@@ -611,7 +631,9 @@
                       (click)="annulerRendezVous(rdv)"
                     >
 
-                      <i class="fa-solid fa-ban"></i>
+                      <span class="action-icon">
+                        ×
+                      </span>
 
                       Annuler
 
@@ -620,7 +642,10 @@
                   }
 
 
-                  <!-- EN ATTENTE (créneau réservé, à confirmer par la secrétaire) -->
+                  <!-- =====================================
+                       EN ATTENTE
+                       API : reserve
+                  ====================================== -->
 
                   @else if (rdv.statut === 'reserve') {
 
@@ -629,16 +654,34 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-regular fa-eye"></i>
+                      <span class="action-icon">
+                        ◉
+                      </span>
 
                       Voir les détails
+
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn danger"
+                      (click)="annulerRendezVous(rdv)"
+                    >
+
+                      <span class="action-icon">
+                        ×
+                      </span>
+
+                      Annuler
 
                     </button>
 
                   }
 
 
-                  <!-- TERMINÉ -->
+                  <!-- =====================================
+                       TERMINÉ
+                  ====================================== -->
 
                   @else if (rdv.statut === 'termine') {
 
@@ -647,7 +690,9 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-regular fa-eye"></i>
+                      <span class="action-icon">
+                        ◉
+                      </span>
 
                       Voir les détails
 
@@ -656,7 +701,9 @@
                   }
 
 
-                  <!-- ANNULÉ -->
+                  <!-- =====================================
+                       ANNULÉ
+                  ====================================== -->
 
                   @else if (rdv.statut === 'annule') {
 
@@ -665,7 +712,9 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-regular fa-eye"></i>
+                      <span class="action-icon">
+                        ◉
+                      </span>
 
                       Voir les détails
 
@@ -674,7 +723,9 @@
                   }
 
 
-                  <!-- NON HONORÉ (patient absent) -->
+                  <!-- =====================================
+                       NON HONORÉ
+                  ====================================== -->
 
                   @else if (rdv.statut === 'non_honore') {
 
@@ -683,7 +734,9 @@
                       class="action-btn"
                     >
 
-                      <i class="fa-regular fa-eye"></i>
+                      <span class="action-icon">
+                        ◉
+                      </span>
 
                       Voir les détails
 
@@ -708,3 +761,5 @@
   }
 
 </section>
+
+

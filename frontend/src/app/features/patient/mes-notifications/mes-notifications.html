@@ -1,1 +1,579 @@
-<p>mes-notifications works!</p>
+
+<section class="content">
+
+  <!-- =====================================================
+       EN-TÊTE DE LA PAGE
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <span class="eyebrow">
+        <span class="eyebrow-icon">●</span>
+        ESPACE PATIENT
+      </span>
+
+      <h1>Mes notifications</h1>
+
+      <p>
+        Retrouvez ici toutes les informations importantes
+        concernant votre espace patient.
+      </p>
+
+    </div>
+
+
+    @if (notificationsNonLues() > 0) {
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="toutMarquerCommeLu()"
+      >
+
+        <span class="button-icon">
+          ✓
+        </span>
+
+        <span>
+          Tout marquer comme lu
+        </span>
+
+      </button>
+
+    }
+
+  </header>
+
+
+  <!-- =====================================================
+       CHARGEMENT
+  ====================================================== -->
+
+  @if (chargement()) {
+
+    <section class="state-card loading-state">
+
+      <div class="state-icon loading-icon">
+        <span class="spinner-icon"></span>
+      </div>
+
+      <div>
+
+        <strong>
+          Chargement des notifications
+        </strong>
+
+        <p>
+          Nous récupérons vos dernières notifications...
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       ERREUR
+  ====================================================== -->
+
+  @if (erreur(); as message) {
+
+    <section class="state-card error-state">
+
+      <div class="state-icon error-icon">
+        <span class="warning-icon">!</span>
+      </div>
+
+      <div class="state-content">
+
+        <strong>
+          Impossible de charger vos notifications
+        </strong>
+
+        <p>
+          {{ message }}
+        </p>
+
+        <button
+          type="button"
+          class="btn-retry"
+          (click)="chargerNotifications()"
+        >
+
+          <span class="retry-icon">
+            ↻
+          </span>
+
+          Réessayer
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  @if (!chargement() && !erreur()) {
+
+
+    <!-- ===================================================
+         RÉSUMÉ
+    ==================================================== -->
+
+    <section class="notification-overview">
+
+      <div class="overview-intro">
+
+        <span class="section-label">
+          CENTRE DE NOTIFICATIONS
+        </span>
+
+        <h2>
+          Vos dernières informations
+        </h2>
+
+        <p>
+          Restez informé de l'activité de votre espace patient.
+        </p>
+
+      </div>
+
+
+      <div class="notification-counter">
+
+        <span class="counter-icon">
+          <span class="bell-icon">
+            ♢
+          </span>
+        </span>
+
+        <div>
+
+          <strong>
+            {{ notificationsNonLues() }}
+          </strong>
+
+          <span>
+            notification{{ notificationsNonLues() > 1 ? 's' : '' }}
+            non lue{{ notificationsNonLues() > 1 ? 's' : '' }}
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         NAVIGATION + RECHERCHE
+    ==================================================== -->
+
+    <div class="notification-navigation">
+
+
+      <!-- FILTRES -->
+
+      <div class="tabs">
+
+        <!-- Toutes -->
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="filtreActif() === 'toutes'"
+          (click)="changerFiltre('toutes')"
+        >
+
+          <span>
+            Toutes
+          </span>
+
+          <strong>
+            {{ notifications().length }}
+          </strong>
+
+        </button>
+
+
+        <!-- Non lues -->
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="filtreActif() === 'non-lues'"
+          (click)="changerFiltre('non-lues')"
+        >
+
+          <span>
+            Non lues
+          </span>
+
+          <strong>
+            {{ notificationsNonLues() }}
+          </strong>
+
+        </button>
+
+
+        <!-- Rendez-vous -->
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="filtreActif() === 'rendez-vous'"
+          (click)="changerFiltre('rendez-vous')"
+        >
+
+          <span class="tab-icon">
+            ◫
+          </span>
+
+          Rendez-vous
+
+        </button>
+
+
+        <!-- Dossier -->
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="filtreActif() === 'dossier'"
+          (click)="changerFiltre('dossier')"
+        >
+
+          <span class="tab-icon">
+            ▤
+          </span>
+
+          Dossier
+
+        </button>
+
+
+        <!-- Messages -->
+
+        <button
+          type="button"
+          class="tab"
+          [class.active]="filtreActif() === 'message'"
+          (click)="changerFiltre('message')"
+        >
+
+          <span class="tab-icon">
+            ▱
+          </span>
+
+          Messages
+
+        </button>
+
+      </div>
+
+
+      <!-- RECHERCHE -->
+
+      <div class="search-field">
+
+        <span class="search-icon">
+          ⌕
+        </span>
+
+        <input
+          type="text"
+          placeholder="Rechercher une notification..."
+          [value]="recherche()"
+          (input)="recherche.set($any($event.target).value)"
+        />
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         LISTE VIDE
+    ==================================================== -->
+
+    @if (listeVide()) {
+
+      <section class="empty-state">
+
+        <div class="empty-icon">
+
+          <span class="empty-bell">
+            ♢
+          </span>
+
+          <span class="empty-slash">
+            /
+          </span>
+
+        </div>
+
+        <span class="section-label">
+          AUCUNE NOTIFICATION
+        </span>
+
+        <h2>
+          Aucune notification à afficher
+        </h2>
+
+        <p>
+
+          @if (recherche()) {
+
+            Aucune notification ne correspond
+            à votre recherche.
+
+          }
+
+          @else if (filtreActif() === 'non-lues') {
+
+            Vous avez lu toutes vos notifications.
+
+          }
+
+          @else {
+
+            Vous n'avez aucune notification
+            pour le moment.
+
+          }
+
+        </p>
+
+      </section>
+
+    }
+
+
+    <!-- ===================================================
+         LISTE DES NOTIFICATIONS
+    ==================================================== -->
+
+    @else {
+
+      <div class="notification-list">
+
+        @for (
+          notification of notificationsFiltrees();
+          track notification.id
+        ) {
+
+          <article
+            class="notification-card"
+            [class.unread]="!notification.lue"
+            [class.read]="notification.lue"
+            [class]="classeNotification(notification.type)"
+          >
+
+
+            <!-- ===========================================
+                 ICÔNE
+            ============================================ -->
+
+            <div class="notification-icon">
+
+              @switch (notification.type) {
+
+                @case ('rendez-vous') {
+
+                  <span class="type-icon calendar-symbol">
+                    ◫
+                  </span>
+
+                }
+
+                @case ('dossier') {
+
+                  <span class="type-icon document-symbol">
+                    ▤
+                  </span>
+
+                }
+
+                @case ('message') {
+
+                  <span class="type-icon message-symbol">
+                    ▱
+                  </span>
+
+                }
+
+                @case ('rappel') {
+
+                  <span class="type-icon reminder-symbol">
+                    ◷
+                  </span>
+
+                }
+
+                @case ('systeme') {
+
+                  <span class="type-icon system-symbol">
+                    i
+                  </span>
+
+                }
+
+                @default {
+
+                  <span class="type-icon">
+                    •
+                  </span>
+
+                }
+
+              }
+
+            </div>
+
+
+            <!-- ===========================================
+                 CONTENU
+            ============================================ -->
+
+            <div class="notification-content">
+
+              <div class="notification-header">
+
+                <div class="notification-title">
+
+                  @if (!notification.lue) {
+
+                    <span class="unread-dot"></span>
+
+                  }
+
+                  <h3>
+                    {{ notification.titre }}
+                  </h3>
+
+                </div>
+
+                <span class="notification-date">
+
+                  {{ notification.date | date:'dd MMM yyyy, HH:mm':'':'fr' }}
+
+                </span>
+
+              </div>
+
+
+              <p class="notification-message">
+                {{ notification.message }}
+              </p>
+
+
+              <!-- =========================================
+                   ACTIONS
+              ========================================== -->
+
+              <div class="notification-actions">
+
+                @if (!notification.lue) {
+
+                  <button
+                    type="button"
+                    class="action-btn"
+                    (click)="marquerCommeLue(notification)"
+                  >
+
+                    <span class="action-icon">
+                      ✓
+                    </span>
+
+                    Marquer comme lue
+
+                  </button>
+
+                }
+
+
+                @if (notification.lien) {
+
+                  <a
+                    class="action-btn primary-action"
+                    (click)="marquerCommeLue(notification)"
+                  >
+
+                    <span class="action-icon">
+                      →
+                    </span>
+
+                    Voir les détails
+
+                  </a>
+
+                }
+
+
+                <button
+                  type="button"
+                  class="delete-btn"
+                  title="Supprimer"
+                  aria-label="Supprimer"
+                  (click)="supprimerNotification(notification)"
+                >
+
+                  <span class="delete-icon">
+                    ×
+                  </span>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+
+      <!-- =================================================
+           SUPPRIMER TOUT
+      ================================================== -->
+
+      @if (notifications().length > 0) {
+
+        <div class="clear-all">
+
+          <button
+            type="button"
+            class="clear-button"
+            (click)="supprimerToutes()"
+          >
+
+            <span class="clear-icon">
+              ×
+            </span>
+
+            Supprimer toutes les notifications
+
+          </button>
+
+        </div>
+
+      }
+
+    }
+
+  }
+
+</section>
+

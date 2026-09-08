@@ -1,126 +1,134 @@
 <div class="agenda-page">
 
   <!-- =====================================================
-       EN-TÊTE DE PAGE
-       La sidebar + topbar sont fournies par SecretaireLayout
+       EN-TÊTE
   ====================================================== -->
 
   <section class="page-header">
 
-    <div class="page-heading">
+```
+<div class="page-heading">
 
-      <div class="title-icon">
-        <i class="fa-regular fa-calendar-days"></i>
-      </div>
+  <div class="title-icon">
 
-      <div class="title-content">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4.5" width="18" height="17" rx="2.5"></rect>
+      <path d="M16 2.5v4M8 2.5v4M3 9h18"></path>
+      <path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01"></path>
+    </svg>
 
-        <span class="eyebrow">
-          GESTION DU CABINET
-        </span>
+  </div>
 
-        <h1>Agenda</h1>
+  <div class="title-content">
 
-        <p>
-          Gérez les rendez-vous et le planning des patients.
-        </p>
+    <span class="eyebrow">
+      GESTION DU CABINET
+    </span>
 
-      </div>
+    <h1>Agenda</h1>
 
-    </div>
+    <p>
+      Gérez les rendez-vous et le planning des patients.
+    </p>
+
+  </div>
+
+</div>
+```
 
   </section>
 
-
   <!-- =====================================================
-       BARRE DE NAVIGATION DE L'AGENDA
+       BARRE DE NAVIGATION
   ====================================================== -->
 
   <section class="agenda-toolbar">
 
-    <div class="date-navigation">
+```
+<div class="date-navigation">
 
-      <button
-        type="button"
-        class="icon-button"
-        title="Jour précédent"
-        (click)="changerJour(-1)"
-      >
+  <button
+    type="button"
+    class="icon-button"
+    title="Jour précédent"
+    (click)="changerJour(-1)"
+  >
 
-        <i class="fa-solid fa-chevron-left"></i>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6"></path>
+    </svg>
 
-      </button>
-
-
-      <button
-        type="button"
-        class="today-button"
-        (click)="allerAujourdHui()"
-      >
-
-        Aujourd'hui
-
-      </button>
+  </button>
 
 
-      <button
-        type="button"
-        class="icon-button"
-        title="Jour suivant"
-        (click)="changerJour(1)"
-      >
-
-        <i class="fa-solid fa-chevron-right"></i>
-
-      </button>
-
-    </div>
+  <button
+    type="button"
+    class="today-button"
+    (click)="allerAujourdHui()"
+  >
+    Aujourd'hui
+  </button>
 
 
-    <!-- DATE -->
+  <button
+    type="button"
+    class="icon-button"
+    title="Jour suivant"
+    (click)="changerJour(1)"
+  >
 
-    <div class="current-date">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 18l6-6-6-6"></path>
+    </svg>
 
-      <i class="fa-regular fa-calendar"></i>
+  </button>
 
-      <strong>
-        {{ dateFormatee() }}
-      </strong>
-
-    </div>
-
-
-    <!-- VUE -->
-
-    <div class="view-selector">
-
-      <button
-        type="button"
-        class="view-button"
-        [class.active]="vueActive() === 'jour'"
-        (click)="changerVue('jour')"
-      >
-
-        Jour
-
-      </button>
+</div>
 
 
-      <button
-        type="button"
-        class="view-button"
-        [class.active]="vueActive() === 'semaine'"
-        (click)="changerVue('semaine')"
-      >
+<!-- DATE -->
 
-        Semaine
+<div class="current-date">
 
-      </button>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="3" y="4.5" width="18" height="17" rx="2.5"></rect>
+    <path d="M16 2.5v4M8 2.5v4M3 9h18"></path>
+  </svg>
 
-    </div>
+  <strong>
+    {{ dateFormatee() }}
+  </strong>
+
+</div>
+
+
+<!-- VUE -->
+
+<div class="view-selector">
+
+  <button
+    type="button"
+    class="view-button"
+    [class.active]="vueActive() === 'jour'"
+    (click)="changerVue('jour')"
+  >
+    Jour
+  </button>
+
+
+  <button
+    type="button"
+    class="view-button"
+    [class.active]="vueActive() === 'semaine'"
+    (click)="changerVue('semaine')"
+  >
+    Semaine
+  </button>
+
+</div>
+```
 
   </section>
-
 
   <!-- =====================================================
        STATISTIQUES
@@ -128,108 +136,113 @@
 
   <section class="agenda-stats">
 
+```
+<!-- TOTAL -->
 
-    <!-- TOTAL -->
+<div class="stat-card">
 
-    <div class="stat-card">
+  <div class="stat-icon blue">
 
-      <div class="stat-icon blue">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4.5" width="18" height="17" rx="2.5"></rect>
+      <path d="M16 2.5v4M8 2.5v4M3 9h18"></path>
+      <path d="M8 13h4M8 17h7"></path>
+    </svg>
 
-        <i class="fa-regular fa-calendar-check"></i>
+  </div>
 
-      </div>
+  <div>
 
-      <div>
+    <span>Rendez-vous</span>
 
-        <span>
-          Rendez-vous
-        </span>
+    <strong>
+      {{ rendezVous().length }}
+    </strong>
 
-        <strong>
-          {{ rendezVous().length }}
-        </strong>
+  </div>
 
-      </div>
-
-    </div>
-
-
-    <!-- CONFIRMÉS -->
-
-    <div class="stat-card">
-
-      <div class="stat-icon green">
-
-        <i class="fa-solid fa-circle-check"></i>
-
-      </div>
-
-      <div>
-
-        <span>
-          Confirmés
-        </span>
-
-        <strong>
-          {{ nombreConfirmes() }}
-        </strong>
-
-      </div>
-
-    </div>
+</div>
 
 
-    <!-- EN ATTENTE -->
+<!-- CONFIRMÉS -->
 
-    <div class="stat-card">
+<div class="stat-card">
 
-      <div class="stat-icon orange">
+  <div class="stat-icon green">
 
-        <i class="fa-regular fa-clock"></i>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8 12l2.5 2.5L16 9"></path>
+    </svg>
 
-      </div>
+  </div>
 
-      <div>
+  <div>
 
-        <span>
-          En attente
-        </span>
+    <span>Confirmés</span>
 
-        <strong>
-          {{ nombreAttente() }}
-        </strong>
+    <strong>
+      {{ nombreConfirmes() }}
+    </strong>
 
-      </div>
+  </div>
 
-    </div>
+</div>
 
 
-    <!-- ANNULÉS -->
+<!-- EN ATTENTE -->
 
-    <div class="stat-card">
+<div class="stat-card">
 
-      <div class="stat-icon red">
+  <div class="stat-icon orange">
 
-        <i class="fa-solid fa-circle-xmark"></i>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 7v5l3 2"></path>
+    </svg>
 
-      </div>
+  </div>
 
-      <div>
+  <div>
 
-        <span>
-          Annulés
-        </span>
+    <span>En attente</span>
 
-        <strong>
-          {{ nombreAnnules() }}
-        </strong>
+    <strong>
+      {{ nombreAttente() }}
+    </strong>
 
-      </div>
+  </div>
 
-    </div>
+</div>
+
+
+<!-- ANNULÉS -->
+
+<div class="stat-card">
+
+  <div class="stat-icon red">
+
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8.5 8.5l7 7M15.5 8.5l-7 7"></path>
+    </svg>
+
+  </div>
+
+  <div>
+
+    <span>Annulés</span>
+
+    <strong>
+      {{ nombreAnnules() }}
+    </strong>
+
+  </div>
+
+</div>
+```
 
   </section>
-
 
   <!-- =====================================================
        AGENDA
@@ -237,74 +250,443 @@
 
   <section class="agenda-card">
 
+```
+<!-- HEADER -->
 
-    <!-- HEADER -->
+<div class="agenda-card-header">
 
-    <div class="agenda-card-header">
+  <div>
 
-      <div>
+    <span class="section-label">
+      PLANNING
+    </span>
 
-        <span class="section-label">
-          PLANNING
-        </span>
+    <h2>
+      Rendez-vous du jour
+    </h2>
 
-        <h2>
-          Rendez-vous du jour
-        </h2>
+    <p>
+      Consultez et gérez les rendez-vous programmés.
+    </p>
 
-        <p>
-          Consultez et gérez les rendez-vous programmés.
-        </p>
+  </div>
+
+
+  <!-- LÉGENDE -->
+
+  <div class="legend">
+
+    <span class="legend-item">
+      <span class="legend-dot confirmed"></span>
+      Confirmé
+    </span>
+
+    <span class="legend-item">
+      <span class="legend-dot pending"></span>
+      En attente
+    </span>
+
+    <span class="legend-item">
+      <span class="legend-dot cancelled"></span>
+      Annulé
+    </span>
+
+    <span class="legend-item">
+      <span class="legend-dot completed"></span>
+      Honoré
+    </span>
+
+    <span class="legend-item">
+      <span class="legend-dot absent"></span>
+      Non honoré
+    </span>
+
+  </div>
+
+</div>
+
+
+<!-- =================================================
+     LISTE DES RENDEZ-VOUS
+================================================== -->
+
+<div class="appointments-list">
+
+  @for (
+    rdv of rendezVous();
+    track rdv.id
+  ) {
+
+    <article
+      class="appointment-card"
+      [class.status-confirmed]="rdv.statut === 'confirme'"
+      [class.status-pending]="rdv.statut === 'reserve'"
+      [class.status-cancelled]="rdv.statut === 'annule'"
+      [class.status-completed]="rdv.statut === 'termine'"
+      [class.status-absent]="rdv.statut === 'non_honore'"
+    >
+
+      <!-- HEURE -->
+
+      <div class="appointment-time">
+
+        <strong>
+          {{ rdv.heureDebut }}
+        </strong>
+
+        @if (duree(rdv)) {
+
+          <span>
+            {{ duree(rdv) }}
+          </span>
+
+        }
 
       </div>
 
 
-      <!-- LÉGENDE -->
+      <!-- PATIENT -->
 
-      <div class="legend">
+      <div class="appointment-patient">
 
-        <span class="legend-item">
+        <div class="patient-avatar">
+          {{ nomAffiche(rdv).charAt(0).toUpperCase() }}
+        </div>
 
-          <span class="legend-dot confirmed"></span>
+        <div class="patient-details">
 
-          Confirmé
+          <h3>
+            {{ nomAffiche(rdv) }}
+          </h3>
+
+          <p>
+            {{ rdv.motif }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATUT -->
+
+      <div class="appointment-status">
+
+        <span class="status-badge">
+
+          @if (rdv.statut === 'confirme') {
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M8 12l2.5 2.5L16 9"></path>
+            </svg>
+
+          }
+
+          @else if (rdv.statut === 'reserve') {
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+
+          }
+
+          @else if (rdv.statut === 'annule') {
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M8.5 8.5l7 7M15.5 8.5l-7 7"></path>
+            </svg>
+
+          }
+
+          @else if (rdv.statut === 'non_honore') {
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M8 9l8 8M16 9l-8 8"></path>
+            </svg>
+
+          }
+
+          @else {
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12l4 4L19 6"></path>
+              <path d="M5 18h5M15 18h4"></path>
+            </svg>
+
+          }
+
+          {{ statutLabel(rdv.statut) }}
 
         </span>
 
+      </div>
 
-        <span class="legend-item">
 
-          <span class="legend-dot pending"></span>
+      <!-- ACTION -->
 
-          En attente
+      <div class="appointment-action">
 
+        <button
+          type="button"
+          class="details-button"
+          title="Voir les détails"
+          (click)="ouvrirDetails(rdv)"
+        >
+
+          <span>
+            Détails
+          </span>
+
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+
+        </button>
+
+      </div>
+
+    </article>
+
+  }
+
+
+  <!-- =================================================
+       CHARGEMENT
+  ================================================== -->
+
+  @if (chargement()) {
+
+    <div class="empty-agenda">
+
+      <div class="empty-icon">
+
+        <svg
+          class="loading-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+          ></circle>
+
+          <path d="M12 3v4"></path>
+
+        </svg>
+
+      </div>
+
+      <h3>
+        Chargement...
+      </h3>
+
+      <p>
+        Récupération des rendez-vous en cours.
+      </p>
+
+    </div>
+
+  }
+
+
+  <!-- =================================================
+       ERREUR
+  ================================================== -->
+
+  @else if (erreur()) {
+
+    <div class="empty-agenda">
+
+      <div class="empty-icon">
+
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l10 18H2L12 3z"></path>
+          <path d="M12 9v5M12 17h.01"></path>
+        </svg>
+
+      </div>
+
+      <h3>
+        Une erreur est survenue
+      </h3>
+
+      <p>
+        {{ erreur() }}
+      </p>
+
+    </div>
+
+  }
+
+
+  <!-- =================================================
+       AUCUN RENDEZ-VOUS
+  ================================================== -->
+
+  @else if (rendezVous().length === 0) {
+
+    <div class="empty-agenda">
+
+      <div class="empty-icon">
+
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="4.5" width="18" height="17" rx="2.5"></rect>
+          <path d="M16 2.5v4M8 2.5v4M3 9h18"></path>
+          <path d="M8 13l8 6M16 13l-8 6"></path>
+        </svg>
+
+      </div>
+
+      <h3>
+        Aucun rendez-vous
+      </h3>
+
+      <p>
+        Aucun rendez-vous n'est programmé pour cette journée.
+      </p>
+
+    </div>
+
+  }
+
+</div>
+```
+
+  </section>
+
+  <!-- =====================================================
+       MODALE DÉTAILS
+  ====================================================== -->
+
+@if (rendezVousActif(); as rdv) {
+
+```
+<div
+  class="modal-overlay"
+  (click)="fermerDetails()"
+>
+
+  <section
+    class="appointment-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- HEADER -->
+
+    <div class="modal-header">
+
+      <div>
+
+        <span class="modal-eyebrow">
+          RENDEZ-VOUS
         </span>
 
+        <h2>
+          Détails du rendez-vous
+        </h2>
 
-        <span class="legend-item">
+      </div>
 
-          <span class="legend-dot cancelled"></span>
 
-          Annulé
+      <button
+        type="button"
+        class="modal-close"
+        title="Fermer"
+        (click)="fermerDetails()"
+      >
 
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+
+      </button>
+
+    </div>
+
+
+    <!-- PATIENT -->
+
+    <div class="modal-patient">
+
+      <div class="modal-avatar">
+        {{ nomAffiche(rdv).charAt(0).toUpperCase() }}
+      </div>
+
+      <div>
+
+        <h3>
+          {{ nomAffiche(rdv) }}
+        </h3>
+
+        <p>
+          {{ rdv.motif }}
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- INFORMATIONS -->
+
+    <div class="details-grid">
+
+      <div class="detail-item">
+
+        <span class="detail-label">
+          Date
         </span>
 
+        <strong>
+          {{ dateFormatee() }}
+        </strong>
 
-        <span class="legend-item">
+      </div>
 
-          <span class="legend-dot completed"></span>
 
-          Honoré
+      <div class="detail-item">
 
+        <span class="detail-label">
+          Heure
         </span>
 
+        <strong>
+          {{ rdv.heureDebut }}
+        </strong>
 
-        <span class="legend-item">
+      </div>
 
-          <span class="legend-dot noshow"></span>
 
-          Non honoré
+      @if (duree(rdv)) {
 
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Durée
+          </span>
+
+          <strong>
+            {{ duree(rdv) }}
+          </strong>
+
+        </div>
+
+      }
+
+
+      <div class="detail-item">
+
+        <span class="detail-label">
+          Statut
+        </span>
+
+        <span class="status-badge">
+          {{ statutLabel(rdv.statut) }}
         </span>
 
       </div>
@@ -312,203 +694,90 @@
     </div>
 
 
-    <!-- =================================================
-         LISTE DES RENDEZ-VOUS
-    ================================================== -->
+    <!-- ACTIONS -->
 
-    <div class="appointments-list">
+    <div class="modal-actions">
 
+      <!-- RÉSERVÉ / EN ATTENTE -->
 
-      @for (
-        rdv of rendezVous();
-        track rdv.id
-      ) {
+      @if (rdv.statut === 'reserve') {
 
-        <article
-          class="appointment-card"
-          [class.status-confirmed]="rdv.statut === 'confirme'"
-          [class.status-pending]="rdv.statut === 'reserve'"
-          [class.status-cancelled]="rdv.statut === 'annule'"
-          [class.status-completed]="rdv.statut === 'termine'"
-          [class.status-noshow]="rdv.statut === 'non_honore'"
+        <button
+          type="button"
+          class="btn-success"
+          (click)="confirmerRendezVous()"
         >
 
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M8 12l2.5 2.5L16 9"></path>
+          </svg>
 
-          <!-- HEURE -->
+          Confirmer
 
-          <div class="appointment-time">
-
-            <strong>
-              {{ rdv.heureDebut }}
-            </strong>
-
-            @if (duree(rdv)) {
-              <span>
-                {{ duree(rdv) }}
-              </span>
-            }
-
-          </div>
-
-
-          <!-- PATIENT -->
-
-          <div class="appointment-patient">
-
-            <div class="patient-avatar">
-
-              {{ nomAffiche(rdv).charAt(0) }}
-
-            </div>
-
-
-            <div class="patient-details">
-
-              <h3>
-                {{ nomAffiche(rdv) }}
-              </h3>
-
-              <p>
-                {{ rdv.motif }}
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- STATUT -->
-
-          <div class="appointment-status">
-
-            <span class="status-badge">
-
-              @if (rdv.statut === 'confirme') {
-
-                <i class="fa-solid fa-circle-check"></i>
-
-              }
-
-              @else if (rdv.statut === 'reserve') {
-
-                <i class="fa-regular fa-clock"></i>
-
-              }
-
-              @else if (rdv.statut === 'annule') {
-
-                <i class="fa-solid fa-circle-xmark"></i>
-
-              }
-
-              @else if (rdv.statut === 'non_honore') {
-
-                <i class="fa-solid fa-user-xmark"></i>
-
-              }
-
-              @else {
-
-                <i class="fa-solid fa-check-double"></i>
-
-              }
-
-              {{ statutLabel(rdv.statut) }}
-
-            </span>
-
-          </div>
-
-
-          <!-- ACTION -->
-
-          <div class="appointment-action">
-
-            <button
-              type="button"
-              class="details-button"
-              title="Voir les détails"
-              (click)="ouvrirDetails(rdv)"
-            >
-
-              <span>
-                Détails
-              </span>
-
-              <i class="fa-solid fa-chevron-right"></i>
-
-            </button>
-
-          </div>
-
-        </article>
+        </button>
 
       }
 
 
-      <!-- =================================================
-           CHARGEMENT / ERREUR / AUCUN RENDEZ-VOUS
-      ================================================== -->
+      <!-- ANNULATION -->
 
-      @if (chargement()) {
+      @if (
+        rdv.statut === 'confirme' ||
+        rdv.statut === 'reserve'
+      ) {
 
-        <div class="empty-agenda">
+        <button
+          type="button"
+          class="btn-danger"
+          (click)="annulerRendezVous()"
+        >
 
-          <div class="empty-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
 
-            <i class="fa-solid fa-spinner fa-spin"></i>
+          Annuler
 
-          </div>
+        </button>
 
-          <h3>
-            Chargement...
-          </h3>
+      }
 
-          <p>
-            Récupération des rendez-vous en cours.
-          </p>
 
-        </div>
+      <!-- RENDEZ-VOUS CONFIRMÉ -->
 
-      } @else if (erreur()) {
+      @if (rdv.statut === 'confirme') {
 
-        <div class="empty-agenda">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="marquerHonore()"
+        >
 
-          <div class="empty-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12l4 4L19 6"></path>
+            <path d="M5 18h5M15 18h4"></path>
+          </svg>
 
-            <i class="fa-solid fa-triangle-exclamation"></i>
+          Marquer comme honoré
 
-          </div>
+        </button>
 
-          <h3>
-            Une erreur est survenue
-          </h3>
 
-          <p>
-            {{ erreur() }}
-          </p>
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="marquerAbsent()"
+        >
 
-        </div>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M8 9l8 8M16 9l-8 8"></path>
+          </svg>
 
-      } @else if (rendezVous().length === 0) {
+          Marquer absent
 
-        <div class="empty-agenda">
-
-          <div class="empty-icon">
-
-            <i class="fa-regular fa-calendar-xmark"></i>
-
-          </div>
-
-          <h3>
-            Aucun rendez-vous
-          </h3>
-
-          <p>
-            Aucun rendez-vous n'est programmé pour cette journée.
-          </p>
-
-        </div>
+        </button>
 
       }
 
@@ -516,220 +785,9 @@
 
   </section>
 
+</div>
 
-  <!-- =====================================================
-       MODALE DÉTAILS
-  ====================================================== -->
 
-  @if (rendezVousActif(); as rdv) {
-
-    <div
-      class="modal-overlay"
-      (click)="fermerDetails()"
-    >
-
-      <section
-        class="appointment-modal"
-        (click)="$event.stopPropagation()"
-      >
-
-
-        <!-- HEADER MODALE -->
-
-        <div class="modal-header">
-
-          <div>
-
-            <span class="modal-eyebrow">
-              RENDEZ-VOUS
-            </span>
-
-            <h2>
-              Détails du rendez-vous
-            </h2>
-
-          </div>
-
-
-          <button
-            type="button"
-            class="modal-close"
-            (click)="fermerDetails()"
-          >
-
-            <i class="fa-solid fa-xmark"></i>
-
-          </button>
-
-        </div>
-
-
-        <!-- PATIENT -->
-
-        <div class="modal-patient">
-
-          <div class="modal-avatar">
-
-            {{ nomAffiche(rdv).charAt(0) }}
-
-          </div>
-
-          <div>
-
-            <h3>
-              {{ nomAffiche(rdv) }}
-            </h3>
-
-            <p>
-              {{ rdv.motif }}
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <!-- INFORMATIONS -->
-
-        <div class="details-grid">
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Date
-            </span>
-
-            <strong>
-              {{ dateFormatee() }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Heure
-            </span>
-
-            <strong>
-              {{ rdv.heureDebut }}
-            </strong>
-
-          </div>
-
-
-          @if (duree(rdv)) {
-
-            <div class="detail-item">
-
-              <span class="detail-label">
-                Durée
-              </span>
-
-              <strong>
-                {{ duree(rdv) }}
-              </strong>
-
-            </div>
-
-          }
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Statut
-            </span>
-
-            <span class="status-badge">
-
-              {{ statutLabel(rdv.statut) }}
-
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <!-- ACTIONS -->
-
-        <div class="modal-actions">
-
-
-          @if (rdv.statut === 'reserve') {
-
-            <button
-              type="button"
-              class="btn-success"
-              (click)="confirmerRendezVous()"
-            >
-
-              <i class="fa-solid fa-circle-check"></i>
-
-              Confirmer
-
-            </button>
-
-          }
-
-
-          @if (
-            rdv.statut === 'confirme' ||
-            rdv.statut === 'reserve'
-          ) {
-
-            <button
-              type="button"
-              class="btn-danger"
-              (click)="annulerRendezVous()"
-            >
-
-              <i class="fa-solid fa-xmark"></i>
-
-              Annuler
-
-            </button>
-
-          }
-
-
-          @if (rdv.statut === 'confirme') {
-
-            <button
-              type="button"
-              class="btn-secondary"
-              (click)="marquerHonore()"
-            >
-
-              <i class="fa-solid fa-check-double"></i>
-
-              Marquer comme honoré
-
-            </button>
-
-            <button
-              type="button"
-              class="btn-danger"
-              (click)="marquerAbsent()"
-            >
-
-              <i class="fa-solid fa-user-xmark"></i>
-
-              Marquer absent
-
-            </button>
-
-          }
-
-        </div>
-
-      </section>
-
-    </div>
-
-  }
+}
 
 </div>

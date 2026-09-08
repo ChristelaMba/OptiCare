@@ -1,10 +1,5 @@
 <div class="reviews-page">
 
-  <!-- =====================================================
-       EN-TÊTE DE PAGE
-       La sidebar et la topbar sont fournies par PatientLayout
-  ====================================================== -->
-
   <section class="page-intro">
 
     <div class="intro-left">
@@ -12,7 +7,7 @@
       <div class="title-row">
 
         <div class="title-icon">
-          <i class="fa-regular fa-star"></i>
+          <span class="icon-star">★</span>
         </div>
 
         <div class="title-content">
@@ -21,9 +16,7 @@
             EXPÉRIENCE PATIENT
           </span>
 
-          <h1>
-            Mes avis
-          </h1>
+          <h1>Mes avis</h1>
 
           <p class="page-description">
             Partagez votre expérience et consultez
@@ -37,28 +30,14 @@
     </div>
 
     <div class="status-badge">
-
-      <i class="fa-solid fa-star"></i>
-
-      <span>
-        Votre expérience compte
-      </span>
-
+      <span class="badge-star">★</span>
+      <span>Votre expérience compte</span>
     </div>
 
   </section>
 
 
-  <!-- =====================================================
-       CONTENU PRINCIPAL
-  ====================================================== -->
-
   <main class="reviews-container">
-
-
-    <!-- =================================================
-         CABINETS ÉLIGIBLES
-    ================================================== -->
 
     @if (cabinetsEligibles().length > 0) {
 
@@ -69,7 +48,7 @@
           <div class="section-title-group">
 
             <span class="section-icon blue">
-              <i class="fa-solid fa-building-circle-check"></i>
+              <span class="simple-icon">⌂</span>
             </span>
 
             <div>
@@ -78,9 +57,7 @@
                 VOTRE EXPÉRIENCE
               </span>
 
-              <h2>
-                Établissements éligibles
-              </h2>
+              <h2>Établissements éligibles</h2>
 
               <p>
                 Vous avez récemment visité ces établissements.
@@ -96,28 +73,23 @@
 
         <div class="cabinets-grid">
 
-          @for (
-            cabinet of cabinetsEligibles();
-            track cabinet.id
-          ) {
+          @for (cabinet of cabinetsEligibles(); track cabinet.id) {
 
             <article class="cabinet-card">
 
               <div class="cabinet-info">
 
                 <div class="cabinet-icon">
-                  <i class="fa-solid fa-eye"></i>
+                  <span class="eye-icon">◉</span>
                 </div>
 
-                <div>
+                <div class="cabinet-text">
 
-                  <h3>
-                    {{ cabinet.nom }}
-                  </h3>
+                  <h3>{{ cabinet.nom }}</h3>
 
                   <p class="cabinet-date">
 
-                    <i class="fa-regular fa-calendar"></i>
+                    <span class="calendar-icon">▣</span>
 
                     Visite le {{ cabinet.dateVisite }}
 
@@ -133,11 +105,8 @@
                 class="btn-primary"
                 (click)="ouvrirFormulaire(cabinet)"
               >
-
-                <i class="fa-solid fa-pen-to-square"></i>
-
-                Laisser un avis
-
+                <span class="button-icon">✎</span>
+                <span>Laisser un avis</span>
               </button>
 
             </article>
@@ -151,14 +120,7 @@
     }
 
 
-    <!-- =================================================
-         FORMULAIRE
-    ================================================== -->
-
-    @if (
-      cabinetEnCoursDeNotation() ||
-      avisEnEdition()
-    ) {
+    @if (cabinetEnCoursDeNotation() || avisEnEdition()) {
 
       <section class="form-card">
 
@@ -167,7 +129,7 @@
           <div class="section-title-group">
 
             <span class="section-icon green">
-              <i class="fa-regular fa-pen-to-square"></i>
+              <span class="simple-icon">✎</span>
             </span>
 
             <div>
@@ -178,19 +140,10 @@
 
               <h2>
 
-                @if (avisEnEdition(); as avis) {
-
+                @if (avisEnEdition()) {
                   Modifier votre avis
-
-                }
-
-                @else if (
-                  cabinetEnCoursDeNotation();
-                  as cabinet
-                ) {
-
+                } @else if (cabinetEnCoursDeNotation()) {
                   Rédiger votre avis
-
                 }
 
               </h2>
@@ -200,21 +153,12 @@
                 @if (avisEnEdition(); as avis) {
 
                   Votre avis pour
-                  <strong>
-                    {{ avis.cabinetNom }}
-                  </strong>
+                  <strong>{{ avis.cabinetNom }}</strong>
 
-                }
-
-                @else if (
-                  cabinetEnCoursDeNotation();
-                  as cabinet
-                ) {
+                } @else if (cabinetEnCoursDeNotation(); as cabinet) {
 
                   Partagez votre expérience chez
-                  <strong>
-                    {{ cabinet.nom }}
-                  </strong>
+                  <strong>{{ cabinet.nom }}</strong>
 
                 }
 
@@ -228,9 +172,6 @@
 
 
         <div class="form-body">
-
-
-          <!-- NOTE -->
 
           <div class="form-field">
 
@@ -247,32 +188,24 @@
               (mouseleave)="quitterSurvol()"
             >
 
-              @for (
-                etoile of etoiles(5);
-                track etoile
-              ) {
+              @for (etoile of etoiles(5); track etoile) {
 
                 <button
                   type="button"
                   class="star-button"
                   (mouseenter)="survolerEtoile(etoile)"
                   (click)="choisirNote(etoile)"
-                  [attr.aria-label]="
-                    'Noter ' + etoile + ' étoiles'
-                  "
+                  [attr.aria-label]="'Noter ' + etoile + ' étoiles'"
                 >
 
-                  <i
-                    class="fa-star"
-                    [class.fa-solid]="
-                      etoile <=
-                      (noteSurvolee() || noteChoisie())
+                  <span
+                    class="star-shape"
+                    [class.star-selected]="
+                      etoile <= (noteSurvolee() || noteChoisie())
                     "
-                    [class.fa-regular]="
-                      etoile >
-                      (noteSurvolee() || noteChoisie())
-                    "
-                  ></i>
+                  >
+                    ★
+                  </span>
 
                 </button>
 
@@ -280,16 +213,13 @@
 
             </div>
 
-
             @if (noteChoisie() > 0) {
 
               <span class="selected-rating">
 
                 {{ noteChoisie() }} / 5
 
-                <span>
-                  étoiles
-                </span>
+                <span>étoiles</span>
 
               </span>
 
@@ -297,8 +227,6 @@
 
           </div>
 
-
-          <!-- COMMENTAIRE -->
 
           <div class="form-field">
 
@@ -312,7 +240,7 @@
 
             <div class="textarea-wrapper">
 
-              <i class="fa-regular fa-comment"></i>
+              <span class="textarea-icon">☰</span>
 
               <textarea
                 id="commentaire"
@@ -326,8 +254,6 @@
           </div>
 
 
-          <!-- ACTIONS -->
-
           <div class="form-actions">
 
             <button
@@ -335,46 +261,31 @@
               class="btn-secondary"
               (click)="annulerFormulaire()"
             >
-
-              <i class="fa-solid fa-xmark"></i>
-
+              <span class="button-icon">×</span>
               Annuler
-
             </button>
 
 
             <button
               type="button"
               class="btn-primary"
-              [disabled]="
-                !formulaireValide ||
-                enSoumission()
-              "
+              [disabled]="!formulaireValide || enSoumission()"
               (click)="publier()"
             >
 
               @if (enSoumission()) {
 
                 <span class="button-loader"></span>
-
                 Publication...
 
-              }
+              } @else {
 
-              @else {
-
-                <i class="fa-solid fa-paper-plane"></i>
+                <span class="button-icon">➤</span>
 
                 @if (avisEnEdition()) {
-
                   Enregistrer
-
-                }
-
-                @else {
-
+                } @else {
                   Publier l'avis
-
                 }
 
               }
@@ -390,10 +301,6 @@
     }
 
 
-    <!-- =================================================
-         AVIS PUBLIÉS
-    ================================================== -->
-
     <section class="reviews-section">
 
       <div class="section-heading">
@@ -401,7 +308,7 @@
         <div class="section-title-group">
 
           <span class="section-icon purple">
-            <i class="fa-solid fa-comments"></i>
+            <span class="simple-icon">💬</span>
           </span>
 
           <div>
@@ -410,9 +317,7 @@
               VOS PUBLICATIONS
             </span>
 
-            <h2>
-              Avis publiés
-            </h2>
+            <h2>Avis publiés</h2>
 
             <p>
               Retrouvez ici les avis que vous avez partagés.
@@ -426,11 +331,8 @@
         @if (avisPublies().length > 0) {
 
           <span class="count-badge">
-
             {{ avisPublies().length }}
-
-            avis
-
+            <span>avis</span>
           </span>
 
         }
@@ -438,25 +340,19 @@
       </div>
 
 
-      <!-- AUCUN AVIS -->
-
       @if (avisPublies().length === 0) {
 
         <div class="empty-state">
 
           <div class="empty-icon">
-
-            <i class="fa-regular fa-comment-dots"></i>
-
+            <span>💬</span>
           </div>
 
           <span class="empty-label">
             VOS PUBLICATIONS
           </span>
 
-          <h3>
-            Aucun avis publié
-          </h3>
+          <h3>Aucun avis publié</h3>
 
           <p>
             Vous n'avez encore publié aucun avis.
@@ -466,59 +362,38 @@
 
         </div>
 
-      }
-
-
-      <!-- AVIS -->
-
-      @else {
+      } @else {
 
         <div class="reviews-grid">
 
-          @for (
-            avis of avisPublies();
-            track avis.id
-          ) {
+          @for (avis of avisPublies(); track avis.id) {
 
             <article class="review-card">
-
-
-              <!-- HEADER AVIS -->
 
               <div class="review-header">
 
                 <div class="review-establishment">
 
                   <div class="review-icon">
-
-                    <i class="fa-solid fa-eye"></i>
-
+                    <span class="eye-icon">◉</span>
                   </div>
 
                   <div>
 
-                    <h3>
-                      {{ avis.cabinetNom }}
-                    </h3>
+                    <h3>{{ avis.cabinetNom }}</h3>
 
                     <div class="review-meta">
 
                       <div class="stars-display">
 
-                        @for (
-                          etoile of etoiles(5);
-                          track etoile
-                        ) {
+                        @for (etoile of etoiles(5); track etoile) {
 
-                          <i
-                            class="fa-star"
-                            [class.fa-solid]="
-                              etoile <= avis.note
-                            "
-                            [class.fa-regular]="
-                              etoile > avis.note
-                            "
-                          ></i>
+                          <span
+                            class="review-star"
+                            [class.review-star-active]="etoile <= avis.note"
+                          >
+                            ★
+                          </span>
 
                         }
 
@@ -529,7 +404,11 @@
                       </span>
 
                       <span class="review-date">
+
+                        <span class="small-calendar">▣</span>
+
                         {{ avis.datePublication }}
+
                       </span>
 
                     </div>
@@ -539,31 +418,26 @@
                 </div>
 
 
-                <!-- ACTIONS -->
-
                 <div class="review-actions">
 
                   <button
                     type="button"
                     class="icon-action"
                     title="Modifier"
+                    aria-label="Modifier l'avis"
                     (click)="ouvrirEdition(avis)"
                   >
-
-                    <i class="fa-solid fa-pen"></i>
-
+                    <span>✎</span>
                   </button>
-
 
                   <button
                     type="button"
                     class="icon-action danger"
                     title="Supprimer"
+                    aria-label="Supprimer l'avis"
                     (click)="supprimer(avis)"
                   >
-
-                    <i class="fa-solid fa-trash"></i>
-
+                    <span>×</span>
                   </button>
 
                 </div>
@@ -571,11 +445,9 @@
               </div>
 
 
-              <!-- COMMENTAIRE -->
-
               <div class="review-comment">
 
-                <i class="fa-solid fa-quote-left"></i>
+                <span class="quote-icon">“</span>
 
                 <p>
                   {{ avis.commentaire }}
@@ -594,16 +466,10 @@
     </section>
 
 
-    <!-- =================================================
-         INFORMATION
-    ================================================== -->
-
     <section class="review-information">
 
       <div class="information-icon">
-
-        <i class="fa-solid fa-shield-heart"></i>
-
+        <span>♡</span>
       </div>
 
       <div>
@@ -621,7 +487,6 @@
       </div>
 
     </section>
-
 
   </main>
 

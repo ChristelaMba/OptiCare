@@ -1,23 +1,25 @@
 <div class="dossier-page">
 
-  <!-- =========================
+  <!-- =====================================================
        HEADER
-  ========================== -->
+  ====================================================== -->
 
   <header class="page-header">
 
     <div class="header-left">
 
       <a
-        routerLink="/secretaire/agenda"
+        routerLink="/opticien/patients"
         class="back-link"
+        aria-label="Retour à la liste des patients"
       >
         <span class="material-symbols-outlined">
           arrow_back
         </span>
 
-        Retour
+        <span>Retour</span>
       </a>
+
 
       <div class="title-block">
 
@@ -37,11 +39,16 @@
 
     </div>
 
+
+    <!-- =========================
+         NOUVELLE FICHE
+    ========================== -->
+
     @if (patient()) {
 
       <button
-        class="primary-button"
         type="button"
+        class="primary-button"
         [disabled]="!dossierModifiable()"
         (click)="nouvelleFiche()"
       >
@@ -50,7 +57,9 @@
           add
         </span>
 
-        Nouvelle fiche
+        <span>
+          Nouvelle fiche
+        </span>
 
       </button>
 
@@ -59,15 +68,22 @@
   </header>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        LOADING
-  ========================== -->
+  ====================================================== -->
 
   @if (isLoading()) {
 
-    <section class="loading-card">
+    <section
+      class="loading-card"
+      aria-live="polite"
+    >
 
-      <div class="loading-spinner"></div>
+      <div
+        class="loading-spinner"
+        aria-hidden="true"
+      ></div>
 
       <p>
         Chargement du dossier...
@@ -78,13 +94,17 @@
   }
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        ERROR
-  ========================== -->
+  ====================================================== -->
 
   @if (!isLoading() && errorMessage()) {
 
-    <section class="error-card">
+    <section
+      class="error-card"
+      role="alert"
+    >
 
       <div class="error-icon">
 
@@ -111,21 +131,25 @@
   }
 
 
+
+  <!-- =====================================================
+       CONTENU DU DOSSIER
+  ====================================================== -->
+
   @if (!isLoading() && patient()) {
 
-    <!-- =========================
+    <!-- ===================================================
          PATIENT PROFILE
-    ========================== -->
+    ==================================================== -->
 
     <section class="patient-card">
 
       <div class="patient-main">
 
         <div class="patient-avatar">
-
           {{ initiales(patient()!) }}
-
         </div>
+
 
         <div class="patient-identity">
 
@@ -135,6 +159,7 @@
               {{ patient()!.prenom }}
               {{ patient()!.nom }}
             </h2>
+
 
             @if (dossierModifiable()) {
 
@@ -162,6 +187,7 @@
 
           </div>
 
+
           <p class="patient-id">
             ID patient · {{ patient()!.id }}
           </p>
@@ -170,6 +196,11 @@
 
       </div>
 
+
+
+      <!-- =================================================
+           PATIENT DETAILS
+      ================================================== -->
 
       <div class="patient-details">
 
@@ -198,6 +229,7 @@
         </div>
 
 
+
         <div class="detail-item">
 
           <span class="detail-icon">
@@ -223,6 +255,7 @@
         </div>
 
 
+
         <div class="detail-item">
 
           <span class="detail-icon">
@@ -240,12 +273,13 @@
             </span>
 
             <strong>
-              {{ patient()!.telephone }}
+              {{ patient()!.telephone || 'Non renseigné' }}
             </strong>
 
           </div>
 
         </div>
+
 
 
         <div class="detail-item">
@@ -277,9 +311,10 @@
     </section>
 
 
-    <!-- =========================
+
+    <!-- ===================================================
          QUICK STATS
-    ========================== -->
+    ==================================================== -->
 
     <section class="stats-grid">
 
@@ -306,6 +341,7 @@
         </div>
 
       </article>
+
 
 
       <article class="stat-card">
@@ -343,6 +379,7 @@
       </article>
 
 
+
       <article class="stat-card">
 
         <div class="stat-icon violet">
@@ -360,9 +397,7 @@
           </span>
 
           <strong>
-
             {{ derniereFiche()?.cabinet || '—' }}
-
           </strong>
 
         </div>
@@ -372,9 +407,10 @@
     </section>
 
 
-    <!-- =========================
-         CONSULTATION HISTORY
-    ========================== -->
+
+    <!-- ===================================================
+         HISTORY
+    ==================================================== -->
 
     <section class="history-section">
 
@@ -397,11 +433,12 @@
 
         </div>
 
+
         @if (dossierModifiable()) {
 
           <button
-            class="secondary-button desktop-action"
             type="button"
+            class="secondary-button desktop-action"
             (click)="nouvelleFiche()"
           >
 
@@ -409,7 +446,9 @@
               add
             </span>
 
-            Ajouter une fiche
+            <span>
+              Ajouter une fiche
+            </span>
 
           </button>
 
@@ -418,7 +457,10 @@
       </div>
 
 
-      <!-- EMPTY STATE -->
+
+      <!-- =================================================
+           EMPTY STATE
+      ================================================== -->
 
       @if (fiches().length === 0) {
 
@@ -432,19 +474,22 @@
 
           </div>
 
+
           <h3>
             Aucun historique disponible
           </h3>
+
 
           <p>
             Ce patient ne possède encore aucune fiche de consultation.
           </p>
 
+
           @if (dossierModifiable()) {
 
             <button
-              class="primary-button"
               type="button"
+              class="primary-button"
               (click)="nouvelleFiche()"
             >
 
@@ -452,7 +497,9 @@
                 add
               </span>
 
-              Créer la première fiche
+              <span>
+                Créer la première fiche
+              </span>
 
             </button>
 
@@ -463,21 +510,31 @@
       }
 
 
-      <!-- TIMELINE -->
+
+      <!-- =================================================
+           TIMELINE
+      ================================================== -->
 
       @if (fiches().length > 0) {
 
         <div class="timeline">
 
-          @for (
-            fiche of fiches();
-            track fiche.id
-          ) {
+          @for (fiche of fiches(); track fiche.id) {
 
             <article
               class="consultation-card"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="
+                'Ouvrir la fiche du ' +
+                (fiche.date | date:'dd MMMM yyyy')
+              "
               (click)="ouvrirFiche(fiche)"
+              (keydown.enter)="ouvrirFicheClavier($event, fiche)"
+              (keydown.space)="ouvrirFicheClavier($event, fiche)"
             >
+
+              <!-- MARQUEUR -->
 
               <div class="timeline-marker">
 
@@ -488,24 +545,30 @@
               </div>
 
 
+
+              <!-- CONTENU -->
+
               <div class="consultation-content">
 
                 <div class="consultation-top">
 
-                  <div>
+                  <div class="consultation-heading">
 
                     <span class="consultation-date">
 
                       {{ fiche.date | date:'dd MMMM yyyy' }}
 
                       @if (fiche.heure) {
-                        · {{ fiche.heure }}
+                        <span>
+                          · {{ fiche.heure }}
+                        </span>
                       }
 
                     </span>
 
+
                     <h3>
-                      {{ fiche.motif }}
+                      {{ fiche.motif || 'Consultation visuelle' }}
                     </h3>
 
                   </div>
@@ -517,12 +580,19 @@
                     [class.draft]="fiche.modifiable"
                   >
 
-                    {{ fiche.modifiable ? 'Modifiable' : 'Verrouillée' }}
+                    {{
+                      fiche.modifiable
+                        ? 'Modifiable'
+                        : 'Verrouillée'
+                    }}
 
                   </span>
 
                 </div>
 
+
+
+                <!-- META -->
 
                 <div class="consultation-meta">
 
@@ -532,7 +602,7 @@
                       person
                     </span>
 
-                    {{ fiche.opticien }}
+                    {{ fiche.opticien || 'Opticien non renseigné' }}
 
                   </span>
 
@@ -543,12 +613,15 @@
                       business
                     </span>
 
-                    {{ fiche.cabinet }}
+                    {{ fiche.cabinet || 'Cabinet non renseigné' }}
 
                   </span>
 
                 </div>
 
+
+
+                <!-- DIAGNOSTIC -->
 
                 @if (fiche.diagnostic) {
 
@@ -567,9 +640,14 @@
                 }
 
 
+
+                <!-- ACTION -->
+
                 <div class="open-link">
 
-                  Ouvrir la fiche
+                  <span>
+                    Ouvrir la fiche
+                  </span>
 
                   <span class="material-symbols-outlined">
                     arrow_forward
