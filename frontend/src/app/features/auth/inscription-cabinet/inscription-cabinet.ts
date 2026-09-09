@@ -10,6 +10,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Auth } from '../../../core/services/auth';
+import { messageErreurInscription } from '../../../core/utils/api-errors';
 
 function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErrors | null {
   const motDePasse = groupe.get('motDePasse')?.value;
@@ -93,11 +94,7 @@ export class InscriptionCabinet {
         },
         error: (erreur: HttpErrorResponse) => {
           this.chargement.set(false);
-          this.erreur.set(
-            erreur.status === 409
-              ? 'Cet email est déjà utilisé. Essayez de vous connecter.'
-              : "Une erreur est survenue lors de la création du compte. Réessayez.",
-          );
+          this.erreur.set(messageErreurInscription(erreur));
         },
       });
   }

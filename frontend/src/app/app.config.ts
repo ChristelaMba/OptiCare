@@ -16,14 +16,19 @@ import { mockPriseEnChargeInterceptor } from './core/interceptors/mock-prise-en-
 import { mockPatientInterceptor } from './core/interceptors/mock-patient-interceptor';
 import { mockFicheConsultationInterceptor } from './core/interceptors/mock-fiche-consultation-interceptor';
 import { mockCommandeInterceptor } from './core/interceptors/mock-commande-interceptor';
-import { mockAuthInterceptor } from './core/interceptors/mock-auth-interceptor';
 
-// OUTIL DE DEV UNIQUEMENT — court-circuite les appels /cabinets,
-// /admin/cabinets, /admin/utilisateurs, /rendezvous, /statistiques,
-// /prises-en-charge, /commandes et /auth avec des données factices tant
-// que le back-end n'est pas branché (cf. core/mocks/*.ts). Jamais actif en
-// prod (environment.production === true fait passer chaque intercepteur en
-// no-op). À retirer une fois l'API réelle disponible.
+// OUTIL DE DEV UNIQUEMENT — court-circuite les appels encore sans route
+// back-end confirmée (/admin/utilisateurs, /statistiques, /prises-en-charge,
+// /commandes, /consultations, /patients, et pour l'instant TOUT le domaine
+// cabinets + rendez-vous — voir POINTS-A-CONFIRMER-BACKEND.md) avec des
+// données factices (cf. core/mocks/*.ts). Jamais actif en prod
+// (environment.production === true fait passer chaque intercepteur en no-op).
+//
+// 2026-09-07 : `mockAuthInterceptor` retiré — `/auth/login` et
+// `/auth/register/{patient,cabinet}` tapent maintenant la vraie API
+// (testé, voir JOURNAL-MODIFICATIONS-PARTAGEES.md, entrée du 07/09).
+// Les mocks cabinets + rendez-vous sont CONSERVÉS : aucune de leurs routes
+// n'existe encore côté back (toutes en 404 au 07/09).
 const interceptors = environment.production
   ? [authInterceptor, errorInterceptor]
   : [
@@ -35,7 +40,6 @@ const interceptors = environment.production
       mockPatientInterceptor,
       mockFicheConsultationInterceptor,
       mockCommandeInterceptor,
-      mockAuthInterceptor,
       authInterceptor,
       errorInterceptor,
     ];

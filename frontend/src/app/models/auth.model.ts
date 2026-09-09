@@ -1,4 +1,4 @@
-import { Utilisateur } from './utilisateur.model';
+import { RoleUtilisateur, Utilisateur } from './utilisateur.model';
 
 export interface InscriptionPatientPayload {
   nom: string;
@@ -48,7 +48,52 @@ export interface ConnexionPayload {
   password: string;
 }
 
+/**
+ * Forme **interne** au front, produite par `Auth` après normalisation de la
+ * réponse réelle. Les écrans ne consomment que celle-ci.
+ */
 export interface AuthResponse {
   token: string;
   utilisateur: Utilisateur;
+}
+
+/**
+ * Forme **brute** renvoyée par l'API réelle (Laravel) sur
+ * `POST /auth/login` et `POST /auth/register/{patient,cabinet}`.
+ * Vérifiée en conditions réelles le 07/09 (voir POINTS-A-CONFIRMER-BACKEND.md,
+ * section « Auth ») :
+ *
+ *   { "status": "success", "message": "...",
+ *     "data": { "user": { ...snake_case... }, "token": "17|abc…", "role": "patient" } }
+ *
+ * `Auth.normaliserEnveloppe()` convertit ceci vers `AuthResponse`.
+ */
+export interface ApiUtilisateurBrut {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  ville: string;
+  role: RoleUtilisateur;
+  cabinet_id: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+  email_verified_at?: string | null;
+  /** Profil imbriqué spécifique au rôle (ex. `patient: { date_naissance, adresse }`). Ignoré côté front pour l'instant. */
+  patient?: unknown;
+  proprietaire?: unknown;
+  opticien?: unknown;
+  secretaire?: unknown;
+}
+
+export interface ApiAuthEnveloppe {
+  status: string;
+  message: string;
+  data: {
+    user: ApiUtilisateurBrut;
+    token: string;
+    role: RoleUtilisateur;
+  };
 }
