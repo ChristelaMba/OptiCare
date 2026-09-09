@@ -1,10 +1,12 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { libelleRole, RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
 import {
+  ApiAuthEnveloppe,
+  ApiUtilisateurBrut,
   AuthResponse,
   ConnexionPayload,
   InscriptionCabinetPayload,
@@ -41,14 +43,20 @@ export class Auth {
 
   registerPatient(payload: InscriptionPatientPayload): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${BASE_URL}/auth/register/patient`, payload)
-      .pipe(tap((reponse) => this.ouvrirSession(reponse, true)));
+      .post<ApiAuthEnveloppe>(`${BASE_URL}/auth/register/patient`, payload)
+      .pipe(
+        map((brut) => Auth.normaliserEnveloppe(brut)),
+        tap((reponse) => this.ouvrirSession(reponse, true)),
+      );
   }
 
   registerCabinet(payload: InscriptionCabinetPayload): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${BASE_URL}/auth/register/cabinet`, payload)
-      .pipe(tap((reponse) => this.ouvrirSession(reponse, true)));
+      .post<ApiAuthEnveloppe>(`${BASE_URL}/auth/register/cabinet`, payload)
+      .pipe(
+        map((brut) => Auth.normaliserEnveloppe(brut)),
+        tap((reponse) => this.ouvrirSession(reponse, true)),
+      );
   }
 
   /**
@@ -57,8 +65,39 @@ export class Auth {
    */
   login(payload: ConnexionPayload, seSouvenir: boolean): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${BASE_URL}/auth/login`, payload)
-      .pipe(tap((reponse) => this.ouvrirSession(reponse, seSouvenir)));
+      .post<ApiAuthEnveloppe>(`${BASE_URL}/auth/login`, payload)
+      .pipe(
+        map((brut) => Auth.normaliserEnveloppe(brut)),
+        tap((reponse) => this.ouvrirSession(reponse, seSouvenir)),
+      );
+  }
+
+  /**
+   * Normalise la réponse réelle de l'API (`{ status, message, data: { user, token, role } }`,
+   * `user` en snake_case, `id` numérique) vers la forme interne `AuthResponse`
+   * consommée par les écrans. Vérifiée en conditions réelles le 07/09 —
+   * voir `ApiAuthEnveloppe` (auth.model.ts) et POINTS-A-CONFIRMER-BACKEND.md.
+   */
+  private static normaliserEnveloppe(brut: ApiAuthEnveloppe): AuthResponse {
+    return {
+      token: brut.data.token,
+      utilisateur: Auth.normaliserUtilisateur(brut.data.user),
+    };
+  }
+
+  private static normaliserUtilisateur(u: ApiUtilisateurBrut): Utilisateur {
+    return {
+      id: String(u.id),
+      role: u.role,
+      nom: u.nom,
+      prenom: u.prenom,
+      email: u.email,
+      telephone: u.telephone,
+      ville: u.ville,
+      cabinetId: u.cabinet_id != null ? String(u.cabinet_id) : undefined,
+      actif: u.is_active,
+      dateCreation: u.created_at ? new Date(u.created_at) : new Date(),
+    };
   }
 
   logout(): void {

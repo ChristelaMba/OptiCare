@@ -40,12 +40,17 @@ function erreurIdentifiantsIncorrects(url: string): Observable<never> {
 }
 
 /**
+ * ⚠️ DÉSACTIVÉ DEPUIS LE 07/09 — plus enregistré dans `app.config.ts`.
+ * `/auth/login` et `/auth/register/{patient,cabinet}` tapent maintenant la
+ * vraie API (routes confirmées fonctionnelles ce jour-là ; voir
+ * POINTS-A-CONFIRMER-BACKEND.md et JOURNAL-MODIFICATIONS-PARTAGEES.md).
+ * Ce fichier et `auth-mock-data.ts` sont conservés uniquement comme
+ * référence / filet de secours ; ils peuvent être supprimés une fois la
+ * bascule jugée définitivement stable.
+ *
  * OUTIL DE DEV UNIQUEMENT — court-circuite /auth/login et /auth/register*
  * avec les comptes factices de `auth-mock-data.ts` (voir ce fichier pour
- * la liste des comptes de test disponibles). Seule route parmi tous les
- * domaines du projet à n'avoir eu aucun mock jusqu'ici (04/09) — ces 3
- * écrans n'avaient jamais été exercés de bout en bout, même en factice.
- * À retirer une fois l'authentification réelle disponible.
+ * la liste des comptes de test disponibles).
  */
 export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
   if (environment.production || !req.url.startsWith(BASE_URL)) {
