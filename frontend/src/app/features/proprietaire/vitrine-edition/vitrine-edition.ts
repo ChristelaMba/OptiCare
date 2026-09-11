@@ -4,18 +4,20 @@ import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
-import { Cabinet as CabinetModel, HoraireOuverture, ModifierCabinetPayload } from '../../../models/cabinet.model';
+import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
 
 type JourSemaine = HoraireOuverture['jour'];
 
 const JOURS: JourSemaine[] = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 const MAX_PHOTOS = 4;
 
-const LABEL_STATUT: Record<CabinetModel['statutValidation'], string> = {
-  profilIncomplet: 'Profil incomplet',
-  enAttente: 'En attente de validation',
+// 2026-09-11 : vocabulaire aligné sur l'API réelle (voir StatutCabinet,
+// models/cabinet.model.ts) — 'profilIncomplet' n'existe plus, remplacé par
+// 'en_attente' (le back n'a jamais confirmé de distinction séparée).
+const LABEL_STATUT: Record<CabinetModel['status'], string> = {
+  en_attente: 'En attente de validation',
   valide: 'Publié',
-  rejete: 'Rejeté',
+  refuse: 'Refusé',
 };
 
 /**
@@ -139,10 +141,11 @@ export class VitrineEdition implements OnInit {
       tiktok: cabinet.liensExternes.tiktok ?? '',
     });
 
-    // Les 7 groupes existent déjà (valeurs neutres posées à la construction du
-    // formulaire) — on les met à jour avec les vraies valeurs du cabinet. Jour
-    // manquant côté back (cabinet créé avant que les horaires soient
-    // obligatoires) : le groupe garde sa valeur neutre « fermé » par défaut.
+    // `cabinet.horaires` est toujours `[]` en provenance de l'API réelle
+    // (absent du contrat confirmé — voir Cabinet.horaires) : les 7 groupes
+    // gardent donc systématiquement leur valeur neutre « fermé » posée à la
+    // construction du formulaire. Code de pré-remplissage conservé tel quel
+    // pour le jour où ce champ sera confirmé côté back.
     const parJour = new Map(cabinet.horaires.map((h) => [h.jour, h]));
     JOURS.forEach((jour, index) => {
       const horaire = parJour.get(jour);
@@ -174,7 +177,10 @@ export class VitrineEdition implements OnInit {
     this.enregistrementReussi.set(false);
 
     const valeurs = this.formulaire.getRawValue();
-    const payload: ModifierCabinetPayload = {
+    // ⚠️ `horaires` volontairement absent du payload envoyé — voir la même
+    // remarque dans completer-profil-cabinet.ts et le commentaire sur
+    // `Cabinet.horaires` (models/cabinet.model.ts).
+    const payload: ProfilCabinetPayload = {
       nom: valeurs.nom,
       adresse: valeurs.adresse,
       telephone: valeurs.telephone,
@@ -183,18 +189,15 @@ export class VitrineEdition implements OnInit {
       description: valeurs.description,
       quartier: valeurs.quartier,
       whatsappNumero: valeurs.whatsappNumero,
-      horaires: valeurs.horaires as HoraireOuverture[],
       logoUrl: valeurs.logoUrl || undefined,
       photos: valeurs.photos.filter((url: string) => url.trim()),
-      liensExternes: {
-        siteWeb: valeurs.siteWeb || undefined,
-        facebook: valeurs.facebook || undefined,
-        instagram: valeurs.instagram || undefined,
-        tiktok: valeurs.tiktok || undefined,
-      },
+      siteWeb: valeurs.siteWeb || undefined,
+      facebook: valeurs.facebook || undefined,
+      instagram: valeurs.instagram || undefined,
+      tiktok: valeurs.tiktok || undefined,
     };
 
-    this.cabinetService.mettreAJour(this.cabinetId, payload).subscribe({
+    this.cabinetService.mettreAJourProfil(this.cabinetId, payload).subscribe({
       next: (cabinet) => {
         this.envoiEnCours.set(false);
         this.enregistrementReussi.set(true);

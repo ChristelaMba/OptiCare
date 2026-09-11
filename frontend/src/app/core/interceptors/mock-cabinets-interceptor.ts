@@ -23,13 +23,21 @@ function erreur404(url: string): Observable<never> {
 }
 
 /**
+ * ⚠️ DÉSACTIVÉ DEPUIS LE 11/09 — plus enregistré dans `app.config.ts`.
+ * `/cabinets`, `/cabinets/{id}`, `/cabinets/{id}/profile`, `/admin/cabinets`
+ * et `/admin/cabinets/{id}/{verify,reject}` tapent maintenant la vraie API
+ * (routes confirmées et testées ce jour-là ; voir POINTS-A-CONFIRMER-BACKEND.md
+ * et JOURNAL-MODIFICATIONS-PARTAGEES.md). Ce fichier et
+ * `cabinets-mock-data.ts` sont conservés comme référence / filet de secours,
+ * à jour du modèle `Cabinet` réel — noter que les réponses ici sont
+ * enveloppées dans `{ data: { cabinet(s) } }` pour matcher exactement la
+ * forme brute que `core/services/cabinet.ts` sait dénormaliser, au cas où
+ * ce mock serait un jour réactivé pour un test hors-ligne.
+ *
  * OUTIL DE DEV UNIQUEMENT — court-circuite les appels vers `/cabinets` et
- * `/admin/cabinets` avec le jeu de données de `cabinets-mock-data.ts`, tant
- * que le back-end n'est pas branché. Actif seulement en environnement de
- * développement (voir enregistrement conditionnel dans `app.config.ts`).
- * Mute `cabinetsFactices` en mémoire pour que créer/valider/rejeter se
+ * `/admin/cabinets` avec le jeu de données de `cabinets-mock-data.ts`.
+ * Mute `cabinetsFactices` en mémoire pour que profil/valider/refuser se
  * comportent comme un vrai backend le temps d'une session.
- * À retirer une fois l'API réelle disponible.
  */
 export const mockCabinetsInterceptor: HttpInterceptorFn = (req, next) => {
   if (environment.production || !req.url.startsWith(BASE_URL)) {
@@ -41,59 +49,67 @@ export const mockCabinetsInterceptor: HttpInterceptorFn = (req, next) => {
 
   // GET /admin/cabinets — tous les cabinets (Super Admin).
   if (req.method === 'GET' && req.url === `${BASE_URL}/admin/cabinets`) {
-    return reponse(cabinetsFactices);
+    return reponse({ data: { cabinets: cabinetsFactices } });
   }
 
-  // PATCH /cabinets/{id}/valider
-  const idValider = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)\/valider$/)?.[1];
-  if (req.method === 'PATCH' && idValider) {
-    const cabinet = cabinetsFactices.find((c) => c.id === idValider);
+  // PUT /admin/cabinets/{id}/verify
+  const idVerify = segmentApres(`${BASE_URL}/admin/cabinets/`)?.match(/^([^/]+)\/verify$/)?.[1];
+  if (req.method === 'PUT' && idVerify) {
+    const cabinet = cabinetsFactices.find((c) => c.id === idVerify);
     if (!cabinet) return erreur404(req.url);
-    cabinet.statutValidation = 'valide';
-    return reponse(cabinet);
+    cabinet.status = 'valide';
+    return reponse({ data: { cabinet: { id: cabinet.id, status: cabinet.status, is_verified: true, valide_le: new Date().toISOString(), valide_par: 'dev-super-admin' } } });
   }
 
-  // PATCH /cabinets/{id}/rejeter
-  const idRejeter = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)\/rejeter$/)?.[1];
-  if (req.method === 'PATCH' && idRejeter) {
-    const cabinet = cabinetsFactices.find((c) => c.id === idRejeter);
+  // PUT /admin/cabinets/{id}/reject
+  const idReject = segmentApres(`${BASE_URL}/admin/cabinets/`)?.match(/^([^/]+)\/reject$/)?.[1];
+  if (req.method === 'PUT' && idReject) {
+    const cabinet = cabinetsFactices.find((c) => c.id === idReject);
     if (!cabinet) return erreur404(req.url);
-    cabinet.statutValidation = 'rejete';
-    return reponse(cabinet);
+    const motif = (req.body as { motif_refus?: string } | null)?.motif_refus ?? '';
+    cabinet.status = 'refuse';
+    return reponse({ data: { cabinet: { id: cabinet.id, status: cabinet.status, is_verified: false, motif_refus: motif } } });
   }
 
-  // PATCH /cabinets/{id}/completer-profil
-  const idCompleter = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)\/completer-profil$/)?.[1];
-  if (req.method === 'PATCH' && idCompleter) {
-    const cabinet = cabinetsFactices.find((c) => c.id === idCompleter);
+  // PATCH /cabinets/{id}/profile
+  const idProfil = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)\/profile$/)?.[1];
+  if (req.method === 'PATCH' && idProfil) {
+    const cabinet = cabinetsFactices.find((c) => c.id === idProfil);
     if (!cabinet) return erreur404(req.url);
-    Object.assign(cabinet, req.body, { statutValidation: 'enAttente' as const });
-    return reponse(cabinet);
-  }
-
-  // PATCH /cabinets/{id} — édition continue depuis vitrine-edition. Distinct de
-  // /completer-profil ci-dessus : ne touche PAS statutValidation.
-  const idModifier = req.method === 'PATCH' ? segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)$/)?.[1] : null;
-  if (req.method === 'PATCH' && idModifier) {
-    const cabinet = cabinetsFactices.find((c) => c.id === idModifier);
-    if (!cabinet) return erreur404(req.url);
-    Object.assign(cabinet, req.body);
-    return reponse(cabinet);
+    const corps = (req.body ?? {}) as Record<string, unknown>;
+    // Aplati → imbriqué, symétrique de Cabinet.construireCorpsProfil() côté service.
+    if ('nom' in corps) cabinet.nom = corps['nom'] as string;
+    if ('adresse' in corps) cabinet.adresse = corps['adresse'] as string;
+    if ('ville' in corps) cabinet.ville = corps['ville'] as string;
+    if ('quartier' in corps) cabinet.quartier = corps['quartier'] as string;
+    if ('telephone' in corps) cabinet.telephone = corps['telephone'] as string;
+    if ('email' in corps) cabinet.email = corps['email'] as string;
+    if ('whatsapp_numero' in corps) cabinet.whatsappNumero = corps['whatsapp_numero'] as string;
+    if ('slogan' in corps) cabinet.slogan = corps['slogan'] as string;
+    if ('description' in corps) cabinet.description = corps['description'] as string;
+    if ('logo_url' in corps) cabinet.logoUrl = corps['logo_url'] as string;
+    if ('photos' in corps) cabinet.photos = corps['photos'] as string[];
+    if ('site_web' in corps) cabinet.liensExternes.siteWeb = corps['site_web'] as string;
+    if ('facebook' in corps) cabinet.liensExternes.facebook = corps['facebook'] as string;
+    if ('instagram' in corps) cabinet.liensExternes.instagram = corps['instagram'] as string;
+    if ('tiktok' in corps) cabinet.liensExternes.tiktok = corps['tiktok'] as string;
+    if ('abonnement_premium' in corps) cabinet.abonnementPremium = corps['abonnement_premium'] as boolean;
+    return reponse({ data: { cabinet } });
   }
 
   // GET /cabinets/{id}
   const idDetail = segmentApres(`${BASE_URL}/cabinets/`)?.match(/^([^/]+)$/)?.[1];
   if (req.method === 'GET' && idDetail) {
     const cabinet = cabinetsFactices.find((c) => c.id === idDetail);
-    return cabinet ? reponse(cabinet) : erreur404(req.url);
+    return cabinet ? reponse({ data: { cabinet } }) : erreur404(req.url);
   }
 
   // GET /cabinets — vitrine publique, cabinets validés uniquement.
-  if (req.method === 'GET' && req.url === `${BASE_URL}/cabinets`) {
-    return reponse(cabinetsFactices.filter((c) => c.statutValidation === 'valide'));
+  if (req.method === 'GET' && req.url.startsWith(`${BASE_URL}/cabinets`) && !req.url.includes('/cabinets/')) {
+    return reponse({ data: { cabinets: cabinetsFactices.filter((c) => c.status === 'valide') } });
   }
 
-  // POST /cabinets — création (statut initial : profil incomplet).
+  // POST /cabinets — création (hors périmètre confirmé, voir cabinet.ts).
   if (req.method === 'POST' && req.url === `${BASE_URL}/cabinets`) {
     const nouveauCabinet: Cabinet = {
       id: `cab-dev-${Date.now()}`,
@@ -101,16 +117,15 @@ export const mockCabinetsInterceptor: HttpInterceptorFn = (req, next) => {
       photos: [],
       liensExternes: {},
       horaires: [],
-      statutValidation: 'profilIncomplet',
+      status: 'en_attente',
       abonnementPremium: false,
       noteMoyenne: 0,
-      qrCodeUrl: '',
-      proprietaireId: 'dev-proprietaire',
+      nombreAvis: 0,
       dateInscription: new Date(),
       ...(req.body as CreerCabinetPayload),
     };
     cabinetsFactices.push(nouveauCabinet);
-    return reponse(nouveauCabinet, 201);
+    return reponse({ data: { cabinet: nouveauCabinet } }, 201);
   }
 
   return next(req);

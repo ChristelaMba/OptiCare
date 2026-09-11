@@ -84,6 +84,18 @@ export class PriseRdv implements OnInit {
 
   /* =====================================================
      CRÉNEAUX
+
+     2026-09-11 : GET /cabinets/{id}/slots?date=... est confirmé réel et
+     fonctionnel (RendezVousService.listerCreneaux()) mais volontairement
+     PAS branché ici — sur tous les cabinets testés, la réponse renvoie
+     toujours `slots: []` (aucune disponibilité configurée nulle part),
+     donc la forme exacte d'un créneau (chaîne "09:00" ? objet avec
+     heure_fin/disponible ?) n'a jamais pu être observée. Brancher cet
+     écran sur une forme devinée serait justement le genre de supposition
+     à éviter — reste sur ce jeu de créneaux codés en dur en attendant un
+     cabinet réel avec de vraies disponibilités à inspecter. Voir
+     POINTS-A-CONFIRMER-BACKEND.md §12. `creer()` (soumission du RDV)
+     reste elle aussi sur le mock — écriture réelle non testée.
   ====================================================== */
 
   creneaux = [

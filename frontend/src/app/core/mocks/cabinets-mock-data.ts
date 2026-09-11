@@ -1,15 +1,19 @@
 import { Cabinet } from '../../models/cabinet.model';
 
 /**
- * OUTIL DE DEV UNIQUEMENT — jeu de cabinets factices utilisé par
- * `mock-cabinets-interceptor.ts` tant que l'API back-end n'est pas branchée.
- * Couvre les 4 statuts de `StatutValidationCabinet` pour que les écrans
- * (validation Super Admin, vitrine publique, etc.) aient toujours de quoi
- * afficher. À retirer une fois l'API réelle disponible.
+ * ⚠️ DÉSACTIVÉ DEPUIS LE 11/09 — plus enregistré dans `app.config.ts`
+ * (voir `mock-cabinets-interceptor.ts`). Conservé comme référence / filet
+ * de secours, à jour du modèle `Cabinet` réel (snake_case→camelCase déjà
+ * fait ici, mêmes noms de champs que `core/services/cabinet.ts`).
+ *
+ * Couvre les 3 valeurs de `StatutCabinet` pour que les écrans (validation
+ * Super Admin, vitrine publique, etc.) aient toujours de quoi afficher si
+ * ce mock est un jour réactivé.
  *
  * `let` (pas `const`) : le tableau est muté en mémoire par l'intercepteur
- * (valider/rejeter/créer) pour simuler un vrai backend le temps d'une
- * session — il repart de ce jeu de données à chaque rechargement de page.
+ * (valider/refuser/mettre à jour le profil) pour simuler un vrai backend
+ * le temps d'une session — il repart de ce jeu de données à chaque
+ * rechargement de page.
  */
 export let cabinetsFactices: Cabinet[] = [
   {
@@ -39,11 +43,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '09:00', fermeture: '14:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'enAttente',
+    status: 'en_attente',
     abonnementPremium: false,
     noteMoyenne: 0,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-001',
-    proprietaireId: 'dev-proprietaire',
+    nombreAvis: 0,
+    proprietaire: { nom: 'Fouda', prenom: 'Aïcha' },
     dateInscription: new Date('2026-08-14T09:12:00'),
   },
   {
@@ -70,17 +74,17 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '08:30', fermeture: '15:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'enAttente',
+    status: 'en_attente',
     abonnementPremium: false,
     noteMoyenne: 0,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-002',
-    proprietaireId: 'dev-proprietaire-2',
+    nombreAvis: 0,
+    proprietaire: { nom: 'Talla', prenom: 'Brice' },
     dateInscription: new Date('2026-08-18T14:30:00'),
   },
   {
     id: 'cab-003',
     nom: 'Optique Bépanda',
-    slogan: 'La bonne vue pour tous',
+    slogan: '',
     description: "Cabinet familial installé depuis peu à Bépanda, en cours de finalisation de son profil.",
     adresse: 'Carrefour Bépanda, en face du marché',
     quartier: 'Bépanda',
@@ -92,11 +96,11 @@ export let cabinetsFactices: Cabinet[] = [
     photos: [],
     liensExternes: {},
     horaires: [],
-    statutValidation: 'profilIncomplet',
+    status: 'en_attente',
     abonnementPremium: false,
     noteMoyenne: 0,
-    qrCodeUrl: '',
-    proprietaireId: 'dev-proprietaire-3',
+    nombreAvis: 0,
+    proprietaire: { nom: 'Onana', prenom: 'Gilbert' },
     dateInscription: new Date('2026-08-19T11:05:00'),
   },
   {
@@ -126,11 +130,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '09:00', fermeture: '13:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: true,
     noteMoyenne: 4.6,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-004',
-    proprietaireId: 'dev-proprietaire-4',
+    nombreAvis: 58,
+    proprietaire: { nom: 'Kamga', prenom: 'Étienne' },
     dateInscription: new Date('2026-05-02T10:00:00'),
   },
   {
@@ -156,11 +160,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '08:00', fermeture: '13:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: false,
     noteMoyenne: 4.1,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-005',
-    proprietaireId: 'dev-proprietaire-5',
+    nombreAvis: 24,
+    proprietaire: { nom: 'Mballa', prenom: 'Rose' },
     dateInscription: new Date('2026-03-20T08:45:00'),
   },
   {
@@ -178,11 +182,11 @@ export let cabinetsFactices: Cabinet[] = [
     photos: [],
     liensExternes: {},
     horaires: [],
-    statutValidation: 'rejete',
+    status: 'refuse',
     abonnementPremium: false,
     noteMoyenne: 0,
-    qrCodeUrl: '',
-    proprietaireId: 'dev-proprietaire-6',
+    nombreAvis: 0,
+    proprietaire: { nom: 'Feudjio', prenom: 'Hervé' },
     dateInscription: new Date('2026-08-05T16:20:00'),
   },
   {
@@ -209,11 +213,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '09:00', fermeture: '13:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'enAttente',
+    status: 'en_attente',
     abonnementPremium: false,
     noteMoyenne: 0,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-007',
-    proprietaireId: 'dev-proprietaire-7',
+    nombreAvis: 0,
+    proprietaire: { nom: 'Djoumessi', prenom: 'Estelle' },
     dateInscription: new Date('2026-08-20T08:50:00'),
   },
   {
@@ -243,11 +247,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '08:00', fermeture: '14:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: true,
     noteMoyenne: 4.3,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-008',
-    proprietaireId: 'dev-proprietaire-8',
+    nombreAvis: 41,
+    proprietaire: { nom: 'Essomba', prenom: 'Paul' },
     dateInscription: new Date('2026-06-11T09:30:00'),
   },
   {
@@ -273,11 +277,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '08:00', fermeture: '14:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: false,
     noteMoyenne: 4.4,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-009',
-    proprietaireId: 'dev-proprietaire-9',
+    nombreAvis: 36,
+    proprietaire: { nom: 'Belinga', prenom: 'Christiane' },
     dateInscription: new Date('2026-04-15T10:15:00'),
   },
   {
@@ -303,11 +307,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '09:00', fermeture: '13:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: false,
     noteMoyenne: 3.9,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-010',
-    proprietaireId: 'dev-proprietaire-10',
+    nombreAvis: 17,
+    proprietaire: { nom: 'Ekwalla', prenom: 'Daniel' },
     dateInscription: new Date('2026-02-28T14:00:00'),
   },
   {
@@ -333,11 +337,11 @@ export let cabinetsFactices: Cabinet[] = [
       { jour: 'Samedi', ouverture: '08:00', fermeture: '13:00', ferme: false },
       { jour: 'Dimanche', ouverture: '00:00', fermeture: '00:00', ferme: true },
     ],
-    statutValidation: 'valide',
+    status: 'valide',
     abonnementPremium: false,
     noteMoyenne: 4.0,
-    qrCodeUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=QR-cab-011',
-    proprietaireId: 'dev-proprietaire-11',
+    nombreAvis: 29,
+    proprietaire: { nom: 'Njoya', prenom: 'Bertrand' },
     dateInscription: new Date('2026-01-10T09:00:00'),
   },
 ];

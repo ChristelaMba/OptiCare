@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
+import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
   RendezVous,
@@ -23,6 +24,7 @@ type Onglet = 'a-venir' | 'passes';
 export class MesRendezVous implements OnInit {
 
   private readonly rdvService = inject(RendezVousService);
+  private readonly auth = inject(Auth);
 
   /* =====================================================
      ÉTATS
@@ -159,7 +161,19 @@ export class MesRendezVous implements OnInit {
     this.chargement.set(true);
     this.erreur.set(null);
 
-    this.rdvService.getMesRendezVous()
+    // 2026-09-11 : GET /patients/{patientId}/rdv réel — patientId résolu
+    // ici (même convention que agenda.ts/historique-rdv.ts pour cabinetId),
+    // pas dans le service. L'écran est derrière authGuard : utilisateur()
+    // ne devrait jamais être null ici, garde défensive quand même.
+    const patientId = this.auth.utilisateur()?.id;
+
+    if (!patientId) {
+      this.chargement.set(false);
+      this.erreur.set('Impossible de charger vos rendez-vous.');
+      return;
+    }
+
+    this.rdvService.getMesRendezVous(patientId)
       .subscribe({
 
         next: (data) => {

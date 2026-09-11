@@ -1,93 +1,174 @@
 import { Service, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Cabinet as CabinetModel, CompleterProfilCabinetPayload, ModifierCabinetPayload } from '../../models/cabinet.model';
+import {
+  ApiCabinetBrut,
+  ApiCabinetEnveloppe,
+  ApiCabinetsEnveloppe,
+  ApiCabinetValidationBrut,
+  ApiCabinetValidationEnveloppe,
+  Cabinet as CabinetModel,
+  CabinetValidationResultat,
+  ProfilCabinetPayload,
+} from '../../models/cabinet.model';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
-// Champs nécessaires à la création d'un cabinet — le reste (statutValidation,
-// noteMoyenne, qrCodeUrl, proprietaireId, dateInscription...) est généré côté
-// back ou complété plus tard via completerProfil (§6.4 du cahier des charges).
+// Champs nécessaires à la création d'un cabinet — hors périmètre du 11/09
+// (la création réelle passe par POST /auth/register/cabinet, déjà branché ;
+// cette méthode `creer()` cible POST /cabinets, route jamais confirmée et
+// non appelée nulle part dans l'app — conservée telle quelle, inchangée).
 export type CreerCabinetPayload = Pick<
   CabinetModel,
   'nom' | 'slogan' | 'description' | 'adresse' | 'quartier' | 'ville' | 'telephone' | 'whatsappNumero' | 'email'
 >;
 
+/** Filtres optionnels de `GET /cabinets` — confirmés le 11/09, tous deux facultatifs. */
+export interface FiltresListePublique {
+  search?: string;
+  premium?: boolean;
+}
+
 /**
  * Un service par ressource, réutilisé par les écrans Cabinets (liste/détail/
- * création, hors périmètre de ce sprint) et par la supervision Super Admin.
- * Même pattern que auth.ts : @Service(), Observable en retour, aucune
- * logique de state ici — chaque composant gère son propre signal de liste.
+ * profil) et par la supervision Super Admin. Même pattern que auth.ts :
+ * @Service(), Observable en retour, aucune logique de state ici — chaque
+ * composant gère son propre signal de liste. Normalisation snake_case →
+ * camelCase à la réception, comme `Auth.normaliserEnveloppe()` — voir les
+ * méthodes statiques privées en bas de fichier.
  */
 @Service()
 export class Cabinet {
   private readonly http = inject(HttpClient);
 
-  /** GET /cabinets — cabinets validés, pour la vitrine publique. */
-  listerPublics(): Observable<CabinetModel[]> {
-    return this.http.get<CabinetModel[]>(`${BASE_URL}/cabinets`);
+  /**
+   * GET /cabinets — liste publique, sans auth (confirmé 11/09).
+   * `search`/`premium` supportés côté back mais non utilisés par
+   * `recherche-cabinets.ts` pour l'instant : cet écran a besoin de la liste
+   * complète pour construire son facette « Quartier » et filtre/trie déjà
+   * tout côté client — un filtrage serveur partiel n'y apporterait rien
+   * aujourd'hui. Les paramètres restent disponibles pour un futur écran
+   * (ex. une recherche serveur allégée) sans changer la signature.
+   */
+  listerPublics(filtres?: FiltresListePublique): Observable<CabinetModel[]> {
+    let params = new HttpParams();
+    if (filtres?.search) params = params.set('search', filtres.search);
+    if (filtres?.premium !== undefined) params = params.set('premium', String(filtres.premium));
+
+    return this.http
+      .get<ApiCabinetsEnveloppe>(`${BASE_URL}/cabinets`, { params })
+      .pipe(map((enveloppe) => enveloppe.data.cabinets.map(Cabinet.normaliserCabinet)));
   }
 
-  /** GET /cabinets/{id} */
+  /** GET /cabinets/{id} — détail public, sans auth (confirmé 11/09). */
   obtenirDetail(id: string): Observable<CabinetModel> {
-    return this.http.get<CabinetModel>(`${BASE_URL}/cabinets/${id}`);
+    return this.http
+      .get<ApiCabinetEnveloppe>(`${BASE_URL}/cabinets/${id}`)
+      .pipe(map((enveloppe) => Cabinet.normaliserCabinet(enveloppe.data.cabinet)));
   }
 
-  /** POST /cabinets — création par le Propriétaire, statut initial « en attente de validation ». */
+  /** POST /cabinets — hors périmètre du 11/09, voir `CreerCabinetPayload` ci-dessus. */
   creer(payload: CreerCabinetPayload): Observable<CabinetModel> {
     return this.http.post<CabinetModel>(`${BASE_URL}/cabinets`, payload);
   }
 
   /**
-   * Complète le profil d'un cabinet (§6.4 du cahier des charges) avant que
-   * son statut ne passe de profilIncomplet à enAttente.
-   *
-   * TODO : route NON confirmée avec le back-end (voir §6.4 et §8 du cahier
-   * des charges — signalé explicitement comme non couvert par le contrat).
-   * `PATCH /cabinets/{id}/completer-profil` est une hypothèse provisoire,
-   * à valider avant toute utilisation réelle.
+   * PATCH /cabinets/{id}/profile — auth requise, rôles `proprietaire` ou
+   * `super_admin` (confirmé 11/09). Remplace les anciens `completerProfil()`
+   * et `mettreAJour()` : une seule route de mise à jour de profil, utilisée
+   * à la fois par `completer-profil-cabinet` (première saisie) et
+   * `vitrine-edition` (édition continue) — voir `ProfilCabinetPayload`.
    */
-  completerProfil(id: string, payload: CompleterProfilCabinetPayload): Observable<CabinetModel> {
-    return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}/completer-profil`, payload);
+  mettreAJourProfil(id: string, payload: ProfilCabinetPayload): Observable<CabinetModel> {
+    return this.http
+      .patch<ApiCabinetEnveloppe>(`${BASE_URL}/cabinets/${id}/profile`, Cabinet.construireCorpsProfil(payload))
+      .pipe(map((enveloppe) => Cabinet.normaliserCabinet(enveloppe.data.cabinet)));
   }
 
-  /**
-   * TODO : route NON confirmée avec le back-end. `PATCH /cabinets/{id}`
-   * figurait dans une version antérieure du contrat d'API (§8) — « Informations
-   * du cabinet mises à jour » — mais a disparu de la version actuelle : seules
-   * `/cabinets/{id}/valider` et `/admin/cabinets` y figurent encore pour {id}.
-   * Utilisée par vitrine-edition pour l'édition continue (nom, coordonnées,
-   * profil, horaires...). Volontairement DISTINCTE de completerProfil() —
-   * ne pas fusionner les deux : completerProfil() fait passer le statut de
-   * profilIncomplet à enAttente côté back, ce qui resoumettrait à tort un
-   * cabinet déjà validé à chaque modification mineure depuis vitrine-edition.
-   * Hypothèse provisoire par symétrie avec l'ancienne version du contrat,
-   * à confirmer avant utilisation réelle.
-   */
-  mettreAJour(id: string, payload: ModifierCabinetPayload): Observable<CabinetModel> {
-    return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}`, payload);
+  /** GET /admin/cabinets — TOUS les cabinets, y compris non validés (Super Admin, confirmé). Le filtre sur status === 'en_attente' se fait côté composant. */
+  listerAdmin(): Observable<CabinetModel[]> {
+    return this.http
+      .get<ApiCabinetsEnveloppe>(`${BASE_URL}/admin/cabinets`)
+      .pipe(map((enveloppe) => enveloppe.data.cabinets.map(Cabinet.normaliserCabinet)));
   }
 
-  /** GET /admin/cabinets — TOUS les cabinets, y compris non validés (Super Admin). Le filtre sur statutValidation === 'enAttente' se fait côté composant. */
-  listerEnAttente(): Observable<CabinetModel[]> {
-    return this.http.get<CabinetModel[]>(`${BASE_URL}/admin/cabinets`);
+  /** PUT /admin/cabinets/{id}/verify — confirmé 11/09. Réponse partielle, voir `CabinetValidationResultat`. */
+  valider(id: string): Observable<CabinetValidationResultat> {
+    return this.http
+      .put<ApiCabinetValidationEnveloppe>(`${BASE_URL}/admin/cabinets/${id}/verify`, {})
+      .pipe(map((enveloppe) => Cabinet.normaliserValidation(enveloppe.data.cabinet)));
   }
 
-  /** PATCH /cabinets/{id}/valider */
-  valider(id: string): Observable<CabinetModel> {
-    return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}/valider`, {});
+  /** PUT /admin/cabinets/{id}/reject — confirmé 11/09. `motifRefus` requis côté back (`motif_refus`). */
+  refuser(id: string, motifRefus: string): Observable<CabinetValidationResultat> {
+    return this.http
+      .put<ApiCabinetValidationEnveloppe>(`${BASE_URL}/admin/cabinets/${id}/reject`, { motif_refus: motifRefus })
+      .pipe(map((enveloppe) => Cabinet.normaliserValidation(enveloppe.data.cabinet)));
   }
 
-  /**
-   * TODO : route NON confirmée avec le back-end — n'apparaît pas dans le
-   * contrat d'API §8 (seule `/valider` y figure), alors que la maquette et
-   * le §9.7 du cahier des charges exigent un bouton « Rejeter ».
-   * `PATCH /cabinets/{id}/rejeter` est une hypothèse provisoire par symétrie
-   * avec `/valider`, à confirmer avant utilisation réelle.
-   */
-  rejeter(id: string): Observable<CabinetModel> {
-    return this.http.patch<CabinetModel>(`${BASE_URL}/cabinets/${id}/rejeter`, {});
+  /** camelCase (front) → snake_case (payload réel), et aplati les 4 liens externes. */
+  private static construireCorpsProfil(payload: ProfilCabinetPayload): Record<string, unknown> {
+    const corps: Record<string, unknown> = {};
+    if (payload.nom !== undefined) corps['nom'] = payload.nom;
+    if (payload.adresse !== undefined) corps['adresse'] = payload.adresse;
+    if (payload.ville !== undefined) corps['ville'] = payload.ville;
+    if (payload.quartier !== undefined) corps['quartier'] = payload.quartier;
+    if (payload.telephone !== undefined) corps['telephone'] = payload.telephone;
+    if (payload.email !== undefined) corps['email'] = payload.email;
+    if (payload.whatsappNumero !== undefined) corps['whatsapp_numero'] = payload.whatsappNumero;
+    if (payload.slogan !== undefined) corps['slogan'] = payload.slogan;
+    if (payload.description !== undefined) corps['description'] = payload.description;
+    if (payload.logoUrl !== undefined) corps['logo_url'] = payload.logoUrl;
+    if (payload.photos !== undefined) corps['photos'] = payload.photos;
+    if (payload.siteWeb !== undefined) corps['site_web'] = payload.siteWeb;
+    if (payload.facebook !== undefined) corps['facebook'] = payload.facebook;
+    if (payload.instagram !== undefined) corps['instagram'] = payload.instagram;
+    if (payload.tiktok !== undefined) corps['tiktok'] = payload.tiktok;
+    if (payload.abonnementPremium !== undefined) corps['abonnement_premium'] = payload.abonnementPremium;
+    return corps;
+  }
+
+  /** snake_case (API réelle) → camelCase (front). Voir commentaire sur `Cabinet.horaires` : toujours `[]` ici, jamais fourni par l'API. */
+  private static normaliserCabinet(brut: ApiCabinetBrut): CabinetModel {
+    return {
+      id: String(brut.id),
+      nom: brut.nom,
+      slogan: brut.slogan ?? '',
+      description: brut.description ?? '',
+      adresse: brut.adresse,
+      quartier: brut.quartier,
+      ville: brut.ville,
+      telephone: brut.telephone,
+      whatsappNumero: brut.whatsapp_numero ?? '',
+      email: brut.email,
+      logoUrl: brut.logo_url ?? '',
+      photos: brut.photos ?? [],
+      liensExternes: {
+        siteWeb: brut.site_web ?? undefined,
+        facebook: brut.facebook ?? undefined,
+        instagram: brut.instagram ?? undefined,
+        tiktok: brut.tiktok ?? undefined,
+      },
+      abonnementPremium: !!brut.abonnement_premium,
+      noteMoyenne: brut.note_moyenne ?? 0,
+      nombreAvis: brut.nb_avis ?? 0,
+      status: brut.status,
+      proprietaire: brut.proprietaire ? { nom: brut.proprietaire.nom, prenom: brut.proprietaire.prenom } : undefined,
+      dateInscription: brut.created_at ? new Date(brut.created_at) : new Date(),
+      horaires: [],
+    };
+  }
+
+  private static normaliserValidation(brut: ApiCabinetValidationBrut): CabinetValidationResultat {
+    return {
+      id: String(brut.id),
+      status: brut.status,
+      estVerifie: brut.is_verified,
+      valideLe: brut.valide_le ? new Date(brut.valide_le) : undefined,
+      validePar: brut.valide_par != null ? String(brut.valide_par) : undefined,
+      motifRefus: brut.motif_refus ?? undefined,
+    };
   }
 }

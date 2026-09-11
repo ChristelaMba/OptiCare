@@ -100,7 +100,7 @@ export class GestionComptes implements OnInit {
 
     // Chargé en parallèle, indépendamment — une erreur ici ne bloque pas la liste des comptes,
     // seuls les noms de cabinet retombent sur « N/A ».
-    this.cabinetService.listerEnAttente().subscribe({
+    this.cabinetService.listerAdmin().subscribe({
       next: (cabinets) => this.cabinets.set(cabinets),
     });
   }

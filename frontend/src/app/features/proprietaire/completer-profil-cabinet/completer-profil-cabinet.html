@@ -31,7 +31,7 @@
               Aller au tableau de bord
             </a>
           </div>
-        } @else if (c.statutValidation !== 'profilIncomplet') {
+        } @else if (c.status === 'valide' || c.status === 'refuse') {
           <!-- Le profil a déjà été complété (statut a déjà avancé) -->
           <div class="text-center py-space-6">
             <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mx-auto mb-space-4">
@@ -136,7 +136,8 @@
             <!-- Horaires -->
             <section class="border-t border-border-subtle pt-space-6">
               <h2 class="font-heading text-headline-h3 text-on-surface mb-1">Horaires d'ouverture</h2>
-              <p class="font-body text-label-sm text-text-muted mb-space-4">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <p class="font-body text-label-sm text-text-muted mb-space-2">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <p class="font-body text-label-sm text-warning mb-space-4">⚠️ Non sauvegardé pour l'instant : en attente d'un champ dédié côté serveur.</p>
               <div class="space-y-space-2" formArrayName="horaires">
                 @for (grp of horaires.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="flex flex-wrap items-center gap-space-3 py-space-2 border-b border-border-subtle last:border-0">
