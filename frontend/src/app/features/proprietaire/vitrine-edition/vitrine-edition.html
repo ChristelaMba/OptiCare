@@ -49,11 +49,11 @@
           <div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full">
             <span
               class="w-2 h-2 rounded-full"
-              [class.bg-success]="c.statutValidation === 'valide'"
-              [class.bg-warning]="c.statutValidation === 'enAttente'"
-              [class.bg-error]="c.statutValidation === 'rejete' || c.statutValidation === 'profilIncomplet'"
+              [class.bg-success]="c.status === 'valide'"
+              [class.bg-warning]="c.status === 'en_attente'"
+              [class.bg-error]="c.status === 'refuse'"
             ></span>
-            <span class="font-badge text-badge text-on-background">Statut : {{ labelStatut[c.statutValidation] }}</span>
+            <span class="font-badge text-badge text-on-background">Statut : {{ labelStatut[c.status] }}</span>
           </div>
           <a
             [href]="lienApercu"
@@ -142,7 +142,8 @@
                 <span class="material-symbols-outlined text-primary">schedule</span>
                 Horaires d'ouverture
               </h2>
-              <p class="font-body text-label-sm text-text-muted mb-space-4">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <p class="font-body text-label-sm text-text-muted mb-space-2">Indispensables pour le calendrier de prise de rendez-vous.</p>
+              <p class="font-body text-label-sm text-warning mb-space-4">⚠️ Non sauvegardé pour l'instant : en attente d'un champ dédié côté serveur.</p>
               <div class="space-y-space-2" formArrayName="horaires">
                 @for (grp of horaires.controls; track $index; let i = $index) {
                   <div [formGroupName]="i" class="flex flex-wrap items-center gap-space-3 py-space-2 border-b border-border-subtle last:border-0">

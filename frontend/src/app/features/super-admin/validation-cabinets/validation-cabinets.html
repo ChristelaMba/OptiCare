@@ -104,24 +104,56 @@
             </div>
 
             <!-- Actions -->
-            <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col sm:flex-row justify-end gap-space-3">
-              <button
-                type="button"
-                [disabled]="actionEnCours() === cabinet.id"
-                (click)="rejeter(cabinet.id)"
-                class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                Rejeter
-              </button>
-              <button
-                type="button"
-                [disabled]="actionEnCours() === cabinet.id"
-                (click)="valider(cabinet.id)"
-                class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Valider' }}
-              </button>
-            </div>
+            @if (cabinetARejeter() === cabinet.id) {
+              <!-- Motif de refus — requis par PUT /admin/cabinets/{id}/reject -->
+              <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col gap-space-3">
+                <label class="font-body text-label-sm text-on-surface-variant">Motif du refus (obligatoire)</label>
+                <textarea
+                  rows="2"
+                  [ngModel]="motifRefus()"
+                  (ngModelChange)="motifRefus.set($event)"
+                  placeholder="Ex. : dossier incomplet, adresse non vérifiable…"
+                  class="w-full px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-error"
+                ></textarea>
+                <div class="flex flex-col sm:flex-row justify-end gap-space-3">
+                  <button
+                    type="button"
+                    [disabled]="actionEnCours() === cabinet.id"
+                    (click)="annulerRejet()"
+                    class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    [disabled]="actionEnCours() === cabinet.id || !motifRefus().trim()"
+                    (click)="confirmerRejet(cabinet.id)"
+                    class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Confirmer le refus' }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col sm:flex-row justify-end gap-space-3">
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === cabinet.id"
+                  (click)="ouvrirFormulaireRejet(cabinet.id)"
+                  class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Rejeter
+                </button>
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === cabinet.id"
+                  (click)="valider(cabinet.id)"
+                  class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Valider' }}
+                </button>
+              </div>
+            }
           </div>
         }
       </div>

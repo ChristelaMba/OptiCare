@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
-import { Cabinet as CabinetModel, CompleterProfilCabinetPayload, HoraireOuverture } from '../../../models/cabinet.model';
+import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
 
 type JourSemaine = HoraireOuverture['jour'];
 
@@ -136,23 +136,25 @@ export class CompleterProfilCabinet implements OnInit {
     this.erreurFormulaire.set(null);
 
     const valeurs = this.formulaire.getRawValue();
-    const payload: CompleterProfilCabinetPayload = {
+    // ⚠️ `horaires` volontairement absent du payload envoyé : le contrat
+    // confirmé de PATCH /cabinets/{id}/profile (11/09) ne l'accepte pas.
+    // Le FormArray reste rempli à l'écran (rien n'est retiré de l'UI) mais
+    // sa valeur n'est pas persistée côté serveur — voir le commentaire sur
+    // `Cabinet.horaires` (models/cabinet.model.ts) et POINTS-A-CONFIRMER-BACKEND.md.
+    const payload: ProfilCabinetPayload = {
       slogan: valeurs.slogan,
       description: valeurs.description,
       quartier: valeurs.quartier,
       whatsappNumero: valeurs.whatsappNumero,
-      horaires: valeurs.horaires as HoraireOuverture[],
       logoUrl: valeurs.logoUrl || undefined,
       photos: valeurs.photos.filter((url: string) => url.trim()),
-      liensExternes: {
-        siteWeb: valeurs.siteWeb || undefined,
-        facebook: valeurs.facebook || undefined,
-        instagram: valeurs.instagram || undefined,
-        tiktok: valeurs.tiktok || undefined,
-      },
+      siteWeb: valeurs.siteWeb || undefined,
+      facebook: valeurs.facebook || undefined,
+      instagram: valeurs.instagram || undefined,
+      tiktok: valeurs.tiktok || undefined,
     };
 
-    this.cabinetService.completerProfil(this.cabinetId, payload).subscribe({
+    this.cabinetService.mettreAJourProfil(this.cabinetId, payload).subscribe({
       next: () => {
         this.envoiEnCours.set(false);
         this.soumissionReussie.set(true);
