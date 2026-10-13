@@ -8,7 +8,8 @@ import {
 
 import {
   ActivatedRoute,
-  Router
+  Router,
+  RouterLink
 } from '@angular/router';
 
 import {
@@ -23,7 +24,7 @@ import {
 } from '../../../core/services/fiche-consultation';
 
 import {
-  PriseEnCharge as PriseEnChargeService
+  PriseEnChargeService
 } from '../../../core/services/prise-en-charge';
 
 import {
@@ -39,7 +40,8 @@ import {
   selector: 'app-nouvelle-fiche-consultation',
   standalone: true,
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterLink
   ],
   templateUrl: './nouvelle-fiche-consultation.html',
   styleUrl: './nouvelle-fiche-consultation.css'
@@ -173,6 +175,11 @@ export class NouvelleFicheConsultation
         // -----------------------------------------------------
         // OEIL DROIT
         // -----------------------------------------------------
+        // avl/avp ajoutés : requis par PrescriptionOeil (§5 du cahier
+        // des charges — acuité visuelle de loin/de près), absents du
+        // formulaire jusqu'ici alors que le payload envoyé au back en
+        // a besoin. Sans eux, l'affectation à prescriptionOD/OG
+        // (typé PrescriptionOeil) échoue à la compilation.
 
         od: this.fb.group({
 
@@ -188,7 +195,11 @@ export class NouvelleFicheConsultation
             ]
           ],
 
-          add: [null]
+          add: [null],
+
+          avl: [''],
+
+          avp: ['']
 
         }),
 
@@ -211,7 +222,11 @@ export class NouvelleFicheConsultation
             ]
           ],
 
-          add: [null]
+          add: [null],
+
+          avl: [''],
+
+          avp: ['']
 
         }),
 
@@ -330,7 +345,7 @@ export class NouvelleFicheConsultation
 
 
       dv1: {
-        nom: 'Jean Dupont',
+        nom: 'Lesline Noteze',
         ref: '9482-A'
       },
 

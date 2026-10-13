@@ -8,19 +8,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-interface PatientOpticien {
-  id: string;
-  dossierVisuelId: string;
-  prenom: string;
-  nom: string;
-  age: number;
-  sexe: 'M' | 'F';
-  telephone: string;
-  quartier: string;
-  derniereConsultation: string | null;
-  nombreConsultations: number;
-  statut: 'Actif' | 'À suivre';
-}
+import {
+  PatientOpticienResume
+} from '../../../models/patient.model';
 
 @Component({
   selector: 'app-mes-patients',
@@ -48,20 +38,20 @@ export class MesPatients {
     signal<'tous' | 'actifs' | 'suivi'>('tous');
 
   patientSelectionne =
-    signal<PatientOpticien | null>(null);
+    signal<PatientOpticienResume | null>(null);
 
 
   // =========================================================
   // PATIENTS
   // =========================================================
 
-  patients = signal<PatientOpticien[]>([
+  patients = signal<PatientOpticienResume[]>([
     {
       id: 'patient-001',
       dossierVisuelId: 'dv1',
-      prenom: 'Jean',
-      nom: 'Dupont',
-      age: 45,
+      prenom: 'Lesline',
+      nom: 'Noteze',
+      age: 25,
       sexe: 'M',
       telephone: '06 12 34 56 78',
       quartier: 'Bonanjo',
@@ -223,7 +213,7 @@ export class MesPatients {
   // =========================================================
 
   initiales(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): string {
 
     const prenom =
@@ -291,7 +281,7 @@ export class MesPatients {
   // =========================================================
 
   selectionnerPatient(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): void {
 
     this.patientSelectionne.set(patient);
@@ -309,7 +299,7 @@ export class MesPatients {
   // =========================================================
 
   voirDossier(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): void {
 
     if (!patient?.dossierVisuelId) {
@@ -336,7 +326,7 @@ export class MesPatients {
   // =========================================================
 
   nouvelleConsultation(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): void {
 
     if (!patient?.dossierVisuelId) {
@@ -363,7 +353,7 @@ export class MesPatients {
   // =========================================================
 
   voirFactures(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): void {
 
     this.router.navigate(
@@ -384,7 +374,7 @@ export class MesPatients {
   // =========================================================
 
   voirCommandes(
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): void {
 
     this.router.navigate(
@@ -400,9 +390,6 @@ export class MesPatients {
   }
 
 
-  // =========================================================
-  // AJOUT PATIENT
-  // =========================================================
 
   ajouterPatient(): void {
 
@@ -412,13 +399,10 @@ export class MesPatients {
   }
 
 
-  // =========================================================
-  // TRACK
-  // =========================================================
-
+  
   trackPatient(
     index: number,
-    patient: PatientOpticien
+    patient: PatientOpticienResume
   ): string {
 
     return patient.id;

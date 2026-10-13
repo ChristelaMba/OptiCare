@@ -2,27 +2,8 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-interface LigneFacture {
-  id: number;
-  description: string;
-  quantite: number;
-  montant: number;
-}
-
-interface Facture {
-  id: string;
-  numero: string;
-  date: string;
-  montantTotal: number;
-  statut: 'emise' | 'payee';
-  lignes: LigneFacture[];
-}
-
-interface Ordonnance {
-  id: string;
-  date: string;
-  contenu: string;
-}
+import { Facture, LigneFacture } from '../../../models/facture.model';
+import { Ordonnance } from '../../../models/ordonnance.model';
 
 @Component({
   selector: 'app-facture-ordonnance',
@@ -51,7 +32,7 @@ export class FactureOrdonnance implements OnInit {
      PATIENT
   ===================================================== */
 
-  patientNom = signal('Jean Dupont');
+  patientNom = signal('MArtin Atangana');
   patientTelephone = signal('06 12 34 56 78');
   patientReference = signal('9482-A');
 
@@ -169,7 +150,7 @@ Port permanent`
     > = {
 
       'patient-001': {
-        nom: 'Jean Dupont',
+        nom: 'Lesline Noteze',
         telephone: '06 12 34 56 78',
         reference: '9482-A'
       },

@@ -17,13 +17,6 @@ const LATENCE_MS = 400;
 function reponse<T>(body: T, status = 200): Observable<HttpResponse<T>> {
   return of(new HttpResponse({ body, status })).pipe(delay(LATENCE_MS));
 }
-
-/**
- * Corps d'erreur identique à celui confirmé en conditions réelles le 04/09
- * (voir le commentaire sur ConnexionPayload, auth.model.ts) : un vrai
- * POST /auth/login avec des identifiants invalides a renvoyé exactement
- * cette forme sur le serveur de Lionel — pas une supposition.
- */
 function erreurIdentifiantsIncorrects(url: string): Observable<never> {
   return throwError(
     () =>
@@ -38,26 +31,10 @@ function erreurIdentifiantsIncorrects(url: string): Observable<never> {
       }),
   ).pipe(delay(LATENCE_MS));
 }
-
-/**
- * ⚠️ DÉSACTIVÉ DEPUIS LE 07/09 — plus enregistré dans `app.config.ts`.
- * `/auth/login` et `/auth/register/{patient,cabinet}` tapent maintenant la
- * vraie API (routes confirmées fonctionnelles ce jour-là ; voir
- * POINTS-A-CONFIRMER-BACKEND.md et JOURNAL-MODIFICATIONS-PARTAGEES.md).
- * Ce fichier et `auth-mock-data.ts` sont conservés uniquement comme
- * référence / filet de secours ; ils peuvent être supprimés une fois la
- * bascule jugée définitivement stable.
- *
- * OUTIL DE DEV UNIQUEMENT — court-circuite /auth/login et /auth/register*
- * avec les comptes factices de `auth-mock-data.ts` (voir ce fichier pour
- * la liste des comptes de test disponibles).
- */
 export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
   if (environment.production || !req.url.startsWith(BASE_URL)) {
     return next(req);
   }
-
-  // POST /auth/login
   if (req.method === 'POST' && req.url === `${BASE_URL}/auth/login`) {
     const payload = req.body as ConnexionPayload;
     const utilisateur = utilisateursFactices.find((u) => u.telephone === payload.telephone);
@@ -73,8 +50,6 @@ export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
     };
     return reponse(corps);
   }
-
-  // POST /auth/register/patient
   if (req.method === 'POST' && req.url === `${BASE_URL}/auth/register/patient`) {
     const payload = req.body as InscriptionPatientPayload;
     const nouveau: Utilisateur = {
@@ -88,16 +63,11 @@ export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
       actif: true,
       dateCreation: new Date(),
     };
-
-    // Poussé dans la liste factice pour pouvoir se reconnecter avec ce
-    // compte tout de suite après, dans la même session de page.
     utilisateursFactices.push({ ...nouveau, motDePasse: payload.password });
 
     const corps: AuthResponse = { token: `mock-token-${nouveau.id}`, utilisateur: nouveau };
     return reponse(corps, 201);
   }
-
-  // POST /auth/register/cabinet
   if (req.method === 'POST' && req.url === `${BASE_URL}/auth/register/cabinet`) {
     const payload = req.body as InscriptionCabinetPayload;
     const nouveau: Utilisateur = {
@@ -110,12 +80,6 @@ export const mockAuthInterceptor: HttpInterceptorFn = (req, next) => {
       ville: payload.ville,
       actif: true,
       dateCreation: new Date(),
-      // Pas de cabinetId : ce mock simule uniquement la création du compte
-      // (ce qui est demandé), pas la création d'un Cabinet complet dans
-      // cabinets-mock-data.ts. Conséquence connue, pas cachée : l'écran
-      // /proprietaire/completer-profil-cabinet vers lequel on redirige
-      // ensuite (§6.2) n'aura pas de cabinet réel à compléter tant que ce
-      // câblage plus large n'est pas fait séparément.
     };
 
     utilisateursFactices.push({ ...nouveau, motDePasse: payload.password });

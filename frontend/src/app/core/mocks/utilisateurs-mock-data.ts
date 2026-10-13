@@ -40,7 +40,7 @@ export let utilisateursFactices: Utilisateur[] = [
   { id: 'user-019', role: 'secretaire', nom: 'Feudjio', prenom: 'Hervé', email: 'h.feudjio@thevisionlab.cm', telephone: '+237 6 97 70 60 50', ville: 'Douala', cabinetId: 'cab-011', actif: false, dateCreation: new Date('2026-01-16T09:00:00') },
 
   // --- Patients (aucun cabinetId) ---
-  { id: 'user-020', role: 'patient', nom: 'Dupont', prenom: 'Jean', email: 'jean.dupont@gmail.com', telephone: '+237 6 70 11 22 33', ville: 'Douala', actif: true, dateCreation: new Date('2026-01-05T10:00:00') },
+  { id: 'user-020', role: 'patient', nom: 'Noteze', prenom: 'lesline', email: 'lesline@gmail.com', telephone: '+237 6 70 11 22 33', ville: 'Douala', actif: true, dateCreation: new Date('2026-01-05T10:00:00') },
   { id: 'user-021', role: 'patient', nom: 'Laurent', prenom: 'Marie', email: 'marie.laurent@gmail.com', telephone: '+237 6 81 22 33 44', ville: 'Douala', actif: true, dateCreation: new Date('2026-02-14T10:00:00') },
   { id: 'user-022', role: 'patient', nom: 'Bernard', prenom: 'Thomas', email: 'thomas.bernard@gmail.com', telephone: '+237 6 92 33 44 55', ville: 'Douala', actif: true, dateCreation: new Date('2026-03-01T10:00:00') },
   { id: 'user-023', role: 'patient', nom: 'Lemaire', prenom: 'Pierre', email: 'pierre.lemaire@gmail.com', telephone: '+237 6 53 44 55 66', ville: 'Douala', actif: true, dateCreation: new Date('2026-03-10T10:00:00') },

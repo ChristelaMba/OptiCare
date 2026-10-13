@@ -24,7 +24,6 @@ import {
   FicheConsultationService
 } from '../../../core/services/fiche-consultation';
 
-
 @Component({
   selector: 'app-dossier-visuel-patient',
   standalone: true,
@@ -46,10 +45,12 @@ export class DossierVisuelPatient implements OnInit {
 
 
   // =========================================================
-  // IDENTIFIANT DU DOSSIER
+  // IDENTIFIANTS
   // =========================================================
 
   dossierVisuelId = '';
+
+  patientId = '';
 
 
   // =========================================================
@@ -101,33 +102,20 @@ export class DossierVisuelPatient implements OnInit {
 
   ngOnInit(): void {
 
-    /*
-     * IMPORTANT :
-     *
-     * La route est :
-     *
-     * /opticien/dossier-visuel-patient
-     *
-     * et non :
-     *
-     * /opticien/dossier-visuel-patient/:dossierVisuelId
-     *
-     * Donc on récupère l'identifiant
-     * depuis les query params.
-     *
-     * Exemple :
-     *
-     * /opticien/dossier-visuel-patient?dossierVisuelId=dv2
-     */
+    const params = this.route.snapshot.queryParamMap;
 
-    const id =
-      this.route.snapshot
-        .queryParamMap
-        .get('dossierVisuelId');
+    const dossierVisuelId =
+      params.get('dossierVisuelId');
+
+    const patientId =
+      params.get('patientId');
 
 
-    // Aucun identifiant trouvé
-    if (!id) {
+    // =======================================================
+    // DOSSIER VISUEL MANQUANT
+    // =======================================================
+
+    if (!dossierVisuelId) {
 
       this.errorMessage.set(
         'Identifiant du dossier visuel introuvable.'
@@ -139,11 +127,27 @@ export class DossierVisuelPatient implements OnInit {
     }
 
 
-    // On conserve l'identifiant
-    this.dossierVisuelId = id;
+    // =======================================================
+    // PATIENT MANQUANT
+    // =======================================================
+
+    if (!patientId) {
+
+      this.errorMessage.set(
+        'Identifiant du patient introuvable.'
+      );
+
+      this.isLoading.set(false);
+
+      return;
+    }
 
 
-    // Chargement du dossier
+    this.dossierVisuelId = dossierVisuelId;
+
+    this.patientId = patientId;
+
+
     this.chargerDossier();
 
   }
@@ -160,178 +164,8 @@ export class DossierVisuelPatient implements OnInit {
     this.errorMessage.set(null);
 
 
-    /*
-     * =======================================================
-     * DONNEES FRONTEND TEMPORAIRES
-     * =======================================================
-     *
-     * Pour le moment, il n'y a pas encore de récupération
-     * réelle depuis le backend pour cette partie.
-     *
-     * On associe donc chaque dossier visuel à son patient.
-     *
-     * dv1 -> Jean Dupont
-     * dv2 -> Alice Mbarga
-     * dv3 -> Paul Ndi
-     * dv4 -> Sophie Kamdem
-     * dv5 -> Michel Tchoumi
-     * dv6 -> Clara Ngono
-     */
-
-    setTimeout(() => {
-
-      const patientsMock: Record<string, Patient> = {
-
-
-        // ===================================================
-        // JEAN DUPONT
-        // ===================================================
-
-        dv1: {
-          id: 'patient-001',
-          nom: 'Dupont',
-          prenom: 'Jean',
-          age: 45,
-          sexe: 'M',
-          telephone: '06 12 34 56 78',
-          quartier: 'Bonanjo',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv1'
-        } as Patient,
-
-
-        // ===================================================
-        // ALICE MBARGA
-        // ===================================================
-
-        dv2: {
-          id: 'patient-002',
-          nom: 'Mbarga',
-          prenom: 'Alice',
-          age: 32,
-          sexe: 'F',
-          telephone: '06 98 45 21 10',
-          quartier: 'Akwa',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv2'
-        } as Patient,
-
-
-        // ===================================================
-        // PAUL NDI
-        // ===================================================
-
-        dv3: {
-          id: 'patient-003',
-          nom: 'Ndi',
-          prenom: 'Paul',
-          age: 57,
-          sexe: 'M',
-          telephone: '06 55 32 14 87',
-          quartier: 'Deido',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv3'
-        } as Patient,
-
-
-        // ===================================================
-        // SOPHIE KAMDEM
-        // ===================================================
-
-        dv4: {
-          id: 'patient-004',
-          nom: 'Kamdem',
-          prenom: 'Sophie',
-          age: 28,
-          sexe: 'F',
-          telephone: '06 74 21 65 43',
-          quartier: 'Makepe',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv4'
-        } as Patient,
-
-
-        // ===================================================
-        // MICHEL TCHOUMI
-        // ===================================================
-
-        dv5: {
-          id: 'patient-005',
-          nom: 'Tchoumi',
-          prenom: 'Michel',
-          age: 63,
-          sexe: 'M',
-          telephone: '06 82 11 43 90',
-          quartier: 'Bonamoussadi',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv5'
-        } as Patient,
-
-
-        // ===================================================
-        // CLARA NGONO
-        // ===================================================
-
-        dv6: {
-          id: 'patient-006',
-          nom: 'Ngono',
-          prenom: 'Clara',
-          age: 39,
-          sexe: 'F',
-          telephone: '06 61 29 38 74',
-          quartier: 'Bali',
-          estUtilisateur: false,
-          dossierVisuelId: 'dv6'
-        } as Patient
-
-      };
-
-
-      // =====================================================
-      // RECHERCHE DU PATIENT
-      // =====================================================
-
-      const patient =
-        patientsMock[this.dossierVisuelId];
-
-
-      // =====================================================
-      // PATIENT INTROUVABLE
-      // =====================================================
-
-      if (!patient) {
-
-        this.patient.set(null);
-
-        this.errorMessage.set(
-          'Patient introuvable pour ce dossier visuel.'
-        );
-
-        this.isLoading.set(false);
-
-        return;
-      }
-
-
-      // =====================================================
-      // PATIENT TROUVE
-      // =====================================================
-
-      this.patient.set(patient);
-
-      this.isLoading.set(false);
-
-    }, 300);
-
-
-    // =======================================================
-    // CHARGEMENT DES FICHES DE CONSULTATION
-    // =======================================================
-
     this.ficheConsultationService
-      .listerParDossierVisuel(
-        this.dossierVisuelId
-      )
+      .listerParPatient(this.patientId)
       .subscribe({
 
         next: (fiches) => {
@@ -341,26 +175,117 @@ export class DossierVisuelPatient implements OnInit {
 
           this.fiches.set(fichesTriees);
 
+
+          // =================================================
+          // RECUPERATION DU PATIENT
+          // =================================================
+          //
+          // Le backend documenté pour l'historique retourne
+          // les consultations avec cabinet + opticien.
+          //
+          // Le résumé API ne documente pas de GET
+          // /patients/{id} permettant de récupérer directement
+          // le profil complet du patient.
+          //
+          // On construit donc ici les informations disponibles
+          // depuis les données de consultation si elles existent.
+          //
+
+          const premiereFiche = fichesTriees[0];
+
+          const patientDepuisFiche =
+            this.extrairePatientDepuisFiche(premiereFiche);
+
+
+          if (patientDepuisFiche) {
+
+            this.patient.set(patientDepuisFiche);
+
+          }
+
+
+          this.isLoading.set(false);
+
         },
 
         error: (error) => {
 
           console.error(
-            'Erreur chargement fiches :',
+            'Erreur chargement dossier patient :',
             error
           );
 
-          /*
-           * Si le backend n'est pas encore disponible
-           * ou ne retourne rien, on conserve simplement
-           * une liste vide.
-           */
-
           this.fiches.set([]);
+
+          this.patient.set(null);
+
+          this.errorMessage.set(
+            this.getMessageErreur(error)
+          );
+
+          this.isLoading.set(false);
 
         }
 
       });
+
+  }
+
+
+  // =========================================================
+  // EXTRACTION DU PATIENT
+  // =========================================================
+
+  private extrairePatientDepuisFiche(
+    fiche: FicheConsultationHistorique | undefined
+  ): Patient | null {
+
+    if (!fiche) {
+      return null;
+    }
+
+
+    const consultation =
+      fiche as FicheConsultationHistorique & {
+        patient?: Partial<Patient>;
+      };
+
+
+    if (!consultation.patient) {
+      return null;
+    }
+
+
+    return {
+      id: String(
+        consultation.patient.id ?? this.patientId
+      ),
+
+      nom:
+        consultation.patient.nom ?? '',
+
+      prenom:
+        consultation.patient.prenom ?? '',
+
+      age:
+        consultation.patient.age,
+
+      sexe:
+        consultation.patient.sexe,
+
+      telephone:
+        consultation.patient.telephone,
+
+      quartier:
+        consultation.patient.quartier,
+
+      estUtilisateur:
+        consultation.patient.estUtilisateur ?? false,
+
+      dossierVisuelId:
+        this.dossierVisuelId
+
+    } as Patient;
 
   }
 
@@ -389,6 +314,52 @@ export class DossierVisuelPatient implements OnInit {
 
 
   // =========================================================
+  // MESSAGE ERREUR
+  // =========================================================
+
+  private getMessageErreur(error: any): string {
+
+    if (error?.error?.message) {
+
+      return error.error.message;
+
+    }
+
+
+    if (error?.message) {
+
+      return error.message;
+
+    }
+
+
+    if (error?.status === 401) {
+
+      return 'Votre session a expiré. Veuillez vous reconnecter.';
+
+    }
+
+
+    if (error?.status === 403) {
+
+      return 'Vous n’avez pas les droits nécessaires pour consulter ce dossier.';
+
+    }
+
+
+    if (error?.status === 404) {
+
+      return 'Patient ou historique de consultations introuvable.';
+
+    }
+
+
+    return 'Impossible de charger le dossier patient.';
+
+  }
+
+
+  // =========================================================
   // INITIALES DU PATIENT
   // =========================================================
 
@@ -406,7 +377,7 @@ export class DossierVisuelPatient implements OnInit {
 
 
   // =========================================================
-  // NOUVELLE FICHE DE CONSULTATION
+  // NOUVELLE FICHE
   // =========================================================
 
   nouvelleFiche(): void {
@@ -425,7 +396,8 @@ export class DossierVisuelPatient implements OnInit {
       ['/opticien/nouvelle-fiche-consultation'],
       {
         queryParams: {
-          dossierVisuelId: this.dossierVisuelId
+          dossierVisuelId: this.dossierVisuelId,
+          patientId: this.patientId
         }
       }
     );
@@ -455,13 +427,15 @@ export class DossierVisuelPatient implements OnInit {
       ['/opticien/facture-ordonnance'],
       {
         queryParams: {
+
           ficheId: fiche.id,
 
           dossierVisuelId:
             this.dossierVisuelId,
 
           patientId:
-            this.patient()?.id ?? ''
+            this.patientId
+
         }
       }
     );
@@ -470,7 +444,7 @@ export class DossierVisuelPatient implements OnInit {
 
 
   // =========================================================
-  // OUVRIR UNE FICHE AU CLAVIER
+  // OUVRIR AU CLAVIER
   // =========================================================
 
   ouvrirFicheClavier(

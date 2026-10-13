@@ -158,6 +158,17 @@ export interface FicheConsultationHistorique {
  * `patientId` retiré le 2026-09-02 (B1) : nouvelle-fiche-consultation.ts
  * ne connaît plus que dossierVisuelId (reçu via la route), plus
  * patientId — voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
+ *
+ * Correction : ce type était déclaré une seconde fois plus bas dans le
+ * fichier (forme minimale avec PlaintesSaisie/PrescriptionOeilSaisie),
+ * ce qui provoquait une erreur TypeScript de duplicate identifier. La
+ * seconde déclaration a été supprimée car cette version-ci est la seule
+ * utilisable par FicheConsultationService.creer() : elle seule porte
+ * dossierVisuelId/priseEnChargeId/cabinetId/opticienId, requis par le
+ * flux réel PriseEnCharge → FicheConsultation du §5. Si
+ * nouvelle-fiche-consultation.ts importait PlaintesSaisie ou
+ * PrescriptionOeilSaisie, remplacer ces imports par Plaintes /
+ * PrescriptionOeil (formes identiques).
  */
 export interface NouvelleFicheConsultationPayload {
 
@@ -199,30 +210,5 @@ export interface NouvelleFicheConsultationPayload {
   /**
    * Observations.
    */
-  observations: string;
-}
-export interface PrescriptionOeilSaisie {
-  sphere: number | null;
-  cylindre: number | null;
-  axe: number | null;
-  add: number | null;
-  avl: string;
-  avp: string;
-}
-
-/** Miroir de Plaintes pour la seconde déclaration dupliquée ci-dessous — voir PrescriptionOeilSaisie. */
-export interface PlaintesSaisie {
-  visionFlouLoin: boolean;
-  visionFlouPres: boolean;
-  visionDouble: boolean;
-  demangeaisons: boolean;
-  larmoiement: boolean;
-}
-
-export interface NouvelleFicheConsultationPayload {
-  plaintes: PlaintesSaisie;
-  autresPlaintes ?: string;
-  prescriptionOD: PrescriptionOeilSaisie;
-  prescriptionOG: PrescriptionOeilSaisie;
   observations: string;
 }

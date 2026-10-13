@@ -40,7 +40,7 @@ export class SuiviCommande implements OnInit {
   // PATIENT
   // =========================================================
 
-  patientNom = signal('Jean Dupont');
+  patientNom = signal('Jean DeDieu');
   patientTelephone = signal('06 12 34 56 78');
 
   // =========================================================
@@ -83,7 +83,7 @@ export class SuiviCommande implements OnInit {
     > = {
 
       'patient-001': {
-        nom: 'Jean Dupont',
+        nom: 'Jean Dedieu',
         telephone: '06 12 34 56 78'
       },
 

@@ -18,10 +18,10 @@ export class DossierVisuelService {
     // return this.http.get<PatientDossier>(this.apiUrl);
 
     const mock: PatientDossier = {
-      prenom: 'Jean',
-      nom: 'Dupont',
-      age: 45,
-      sexe: 'Homme',
+      prenom: 'lesline',
+      nom: 'Noteze',
+      age: 25,
+      sexe: 'Femme',
       fiches: [
         {
           id: '1',

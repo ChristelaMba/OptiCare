@@ -243,10 +243,6 @@ export class MesRendezVous implements OnInit {
       });
   }
 
-  /* =====================================================
-     LIBELLÉ STATUT
-  ===================================================== */
-
   libelleStatut(
     statut: StatutRendezVous
   ): string {
