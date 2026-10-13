@@ -1,0 +1,1470 @@
+/* =========================================================
+   OPTICIEN LAYOUT — OPTICARE
+========================================================= */
+
+:host {
+
+  /* =======================================================
+     COULEURS
+  ======================================================== */
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: #eff6ff;
+
+  --text: #172033;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --border: #e5e7eb;
+
+  --danger: #ef4444;
+
+  display: block;
+
+  min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   MODE SOMBRE
+========================================================= */
+
+:host.dark-mode {
+
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-soft: #172554;
+
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --background: #0f172a;
+  --surface: #111827;
+  --surface-soft: #1e293b;
+
+  --border: #334155;
+
+  --danger: #f87171;
+
+}
+
+
+/* =========================================================
+   LAYOUT PRINCIPAL
+========================================================= */
+
+.opticien-layout {
+
+  min-height: 100vh;
+
+  background: var(--background);
+
+  color: var(--text);
+
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.opticien-sidebar {
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 260px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--surface);
+
+  border-right: 1px solid var(--border);
+
+  z-index: 1000;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.sidebar-brand {
+
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 24px;
+
+  border-bottom: 1px solid var(--border);
+
+}
+
+
+.brand-logo {
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--primary);
+
+  color: white;
+
+  border-radius: 12px;
+
+  flex-shrink: 0;
+
+}
+
+
+.brand-logo svg {
+
+  width: 23px;
+  height: 23px;
+
+}
+
+
+.brand-text {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+}
+
+
+.brand-text strong {
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+  color: var(--text);
+
+}
+
+
+.brand-text span {
+
+  font-size: 11px;
+
+  color: var(--text-secondary);
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.sidebar-nav {
+
+  flex: 1;
+
+  padding: 24px 14px;
+
+  overflow-y: auto;
+
+}
+
+
+.nav-section-title {
+
+  padding: 0 12px;
+
+  margin-bottom: 10px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  color: var(--text-muted);
+
+}
+
+
+.nav-link {
+
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 14px;
+
+  margin-bottom: 4px;
+
+  border-radius: 10px;
+
+  text-decoration: none;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+}
+
+
+.nav-link svg {
+
+  width: 20px;
+  height: 20px;
+
+  flex-shrink: 0;
+
+}
+
+
+.nav-link:hover {
+
+  background: var(--surface-soft);
+
+  color: var(--primary);
+
+}
+
+
+.nav-link.active {
+
+  background: var(--primary-soft);
+
+  color: var(--primary);
+
+}
+
+
+/* =========================================================
+   AIDE
+========================================================= */
+
+.sidebar-help {
+
+  margin: 0 16px 18px;
+
+  padding: 15px;
+
+  display: flex;
+
+  gap: 11px;
+
+  border-radius: 14px;
+
+  background: var(--primary-soft);
+
+}
+
+
+.help-icon {
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: var(--surface);
+
+  color: var(--primary);
+
+  flex-shrink: 0;
+
+}
+
+
+.help-icon svg {
+
+  width: 17px;
+  height: 17px;
+
+}
+
+
+.help-content {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+}
+
+
+.help-content strong {
+
+  font-size: 12px;
+
+  color: var(--text);
+
+}
+
+
+.help-content span {
+
+  font-size: 10px;
+
+  line-height: 1.4;
+
+  color: var(--text-secondary);
+
+}
+
+
+.help-content button {
+
+  width: fit-content;
+
+  padding: 0;
+
+  margin-top: 4px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--primary);
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+}
+
+
+/* =========================================================
+   PROFIL SIDEBAR
+========================================================= */
+
+.sidebar-profile {
+
+  min-height: 76px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 14px 18px;
+
+  border-top: 1px solid var(--border);
+
+}
+
+
+.profile-avatar {
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dbeafe;
+
+  color: #1d4ed8;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  flex-shrink: 0;
+
+}
+
+
+.profile-info {
+
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+}
+
+
+.profile-info strong {
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 12px;
+
+  color: var(--text);
+
+}
+
+
+.profile-info span {
+
+  font-size: 10px;
+
+  color: var(--text-secondary);
+
+}
+
+
+.profile-more {
+
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+}
+
+
+.profile-more:hover {
+
+  background: var(--surface-soft);
+
+  color: var(--text);
+
+}
+
+
+.profile-more svg {
+
+  width: 18px;
+  height: 18px;
+
+}
+
+
+/* =========================================================
+   CONTENU PRINCIPAL
+========================================================= */
+
+.main-content {
+
+  min-height: 100vh;
+
+  margin-left: 260px;
+
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar {
+
+  position: sticky;
+
+  top: 0;
+
+  height: 76px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 30px;
+
+  background: var(--surface);
+
+  border-bottom: 1px solid var(--border);
+
+  z-index: 900;
+
+}
+
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+.topbar-search {
+
+  width: min(430px, 45%);
+
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: var(--surface-soft);
+
+}
+
+
+.topbar-search svg {
+
+  width: 18px;
+  height: 18px;
+
+  color: var(--text-muted);
+
+  flex-shrink: 0;
+
+}
+
+
+.topbar-search input {
+
+  width: 100%;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: var(--text);
+
+  font-size: 12px;
+
+}
+
+
+.topbar-search input::placeholder {
+
+  color: var(--text-muted);
+
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.topbar-actions {
+
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+.topbar-button {
+
+  position: relative;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: var(--surface);
+
+  color: var(--text-secondary);
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+
+}
+
+
+.topbar-button:hover {
+
+  background: var(--surface-soft);
+
+  color: var(--primary);
+
+  border-color: var(--primary);
+
+}
+
+
+.topbar-button svg {
+
+  width: 19px;
+  height: 19px;
+
+}
+
+
+/* =========================================================
+   BADGE NOTIFICATION
+========================================================= */
+
+.notification-wrapper {
+
+  position: relative;
+
+}
+
+
+.notification-button {
+
+  overflow: visible;
+
+}
+
+
+.notification-badge {
+
+  position: absolute;
+
+  top: -4px;
+  right: -4px;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid var(--surface);
+
+  border-radius: 999px;
+
+  background: var(--danger);
+
+  color: white;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================================
+   PANNEAU NOTIFICATIONS
+========================================================= */
+
+.notification-panel {
+
+  position: absolute;
+
+  top: calc(100% + 12px);
+
+  right: 0;
+
+  width: 370px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.14);
+
+  overflow: hidden;
+
+  z-index: 1200;
+
+  animation:
+    notificationAppear 0.18s ease-out;
+
+}
+
+
+@keyframes notificationAppear {
+
+  from {
+
+    opacity: 0;
+
+    transform: translateY(-6px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: translateY(0);
+
+  }
+
+}
+
+
+/* =========================================================
+   HEADER NOTIFICATIONS
+========================================================= */
+
+.notification-header {
+
+  min-height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 15px 18px;
+
+  border-bottom: 1px solid var(--border);
+
+}
+
+
+.notification-header h3 {
+
+  margin: 0 0 4px;
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  color: var(--text);
+
+}
+
+
+.notification-header span {
+
+  font-size: 10px;
+
+  color: var(--text-secondary);
+
+}
+
+
+.mark-all-button {
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--primary);
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+}
+
+
+.mark-all-button:hover {
+
+  text-decoration: underline;
+
+}
+
+
+/* =========================================================
+   LISTE NOTIFICATIONS
+========================================================= */
+
+.notification-list {
+
+  max-height: 360px;
+
+  overflow-y: auto;
+
+}
+
+
+.notification-item {
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 15px 18px;
+
+  border: 0;
+
+  border-bottom: 1px solid var(--border);
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease;
+
+}
+
+
+.notification-item:last-child {
+
+  border-bottom: 0;
+
+}
+
+
+.notification-item:hover {
+
+  background: var(--surface-soft);
+
+}
+
+
+.notification-item.unread {
+
+  background: color-mix(
+    in srgb,
+    var(--primary-soft) 45%,
+    var(--surface)
+  );
+
+}
+
+
+.notification-item.unread:hover {
+
+  background: var(--primary-soft);
+
+}
+
+
+/* =========================================================
+   ICONE NOTIFICATION
+========================================================= */
+
+.notification-icon {
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  flex-shrink: 0;
+
+}
+
+
+.notification-icon svg {
+
+  width: 18px;
+  height: 18px;
+
+}
+
+
+.icon-commande {
+
+  background: #dcfce7;
+
+  color: #16a34a;
+
+}
+
+
+.icon-consultation {
+
+  background: #dbeafe;
+
+  color: #2563eb;
+
+}
+
+
+.icon-patient {
+
+  background: #fef3c7;
+
+  color: #d97706;
+
+}
+
+
+/* =========================================================
+   CONTENU NOTIFICATION
+========================================================= */
+
+.notification-content {
+
+  min-width: 0;
+
+  flex: 1;
+
+}
+
+
+.notification-title-row {
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 4px;
+
+}
+
+
+.notification-title-row strong {
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  color: var(--text);
+
+}
+
+
+.unread-dot {
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--primary);
+
+  flex-shrink: 0;
+
+}
+
+
+.notification-content p {
+
+  margin: 0 0 5px;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  color: var(--text-secondary);
+
+}
+
+
+.notification-time {
+
+  font-size: 9px;
+
+  color: var(--text-muted);
+
+}
+
+
+/* =========================================================
+   FOOTER NOTIFICATIONS
+========================================================= */
+
+.notification-footer {
+
+  min-height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 18px;
+
+  border-top: 1px solid var(--border);
+
+  background: var(--surface-soft);
+
+}
+
+
+.notification-footer span {
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  color: var(--text-muted);
+
+}
+
+
+/* =========================================================
+   PROFIL TOPBAR
+========================================================= */
+
+.topbar-profile {
+
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding-left: 8px;
+
+  cursor: pointer;
+
+}
+
+
+.topbar-profile-avatar {
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dbeafe;
+
+  color: #1d4ed8;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+}
+
+
+.topbar-profile-info {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+}
+
+
+.topbar-profile-info strong {
+
+  font-size: 11px;
+
+  color: var(--text);
+
+}
+
+
+.topbar-profile-info span {
+
+  font-size: 9px;
+
+  color: var(--text-secondary);
+
+}
+
+
+.profile-chevron {
+
+  width: 15px;
+  height: 15px;
+
+  color: var(--text-muted);
+
+}
+
+
+/* =========================================================
+   PAGE CONTAINER
+========================================================= */
+
+.page-container {
+
+  min-height: calc(100vh - 76px);
+
+  padding: 28px 30px;
+
+}
+
+
+/* =========================================================
+   MENU MOBILE
+========================================================= */
+
+.mobile-menu-button {
+
+  display: none;
+
+  width: 40px;
+  height: 40px;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 12px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: var(--surface);
+
+  color: var(--text);
+
+  cursor: pointer;
+
+}
+
+
+.mobile-menu-button svg {
+
+  width: 20px;
+  height: 20px;
+
+}
+
+
+/* =========================================================
+   OVERLAY MOBILE
+========================================================= */
+
+.sidebar-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.45);
+
+  z-index: 950;
+
+}
+
+
+/* =========================================================
+   DARK MODE — NOTIFICATIONS
+========================================================= */
+
+:host.dark-mode .notification-panel {
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.4);
+
+}
+
+
+:host.dark-mode .notification-item.unread {
+
+  background: rgba(37, 99, 235, 0.12);
+
+}
+
+
+:host.dark-mode .notification-item.unread:hover {
+
+  background: rgba(37, 99, 235, 0.18);
+
+}
+
+
+:host.dark-mode .icon-commande {
+
+  background: rgba(22, 163, 74, 0.15);
+
+  color: #4ade80;
+
+}
+
+
+:host.dark-mode .icon-consultation {
+
+  background: rgba(37, 99, 235, 0.15);
+
+  color: #60a5fa;
+
+}
+
+
+:host.dark-mode .icon-patient {
+
+  background: rgba(217, 119, 6, 0.15);
+
+  color: #fbbf24;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1100px
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .opticien-sidebar {
+
+    width: 235px;
+
+  }
+
+  .main-content {
+
+    margin-left: 235px;
+
+  }
+
+  .topbar {
+
+    padding: 0 22px;
+
+  }
+
+  .page-container {
+
+    padding: 24px 22px;
+
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .opticien-sidebar {
+
+    transform: translateX(-100%);
+
+    box-shadow:
+      10px 0 30px rgba(15, 23, 42, 0.12);
+
+  }
+
+
+  .opticien-sidebar.sidebar-open {
+
+    transform: translateX(0);
+
+  }
+
+
+  .main-content {
+
+    margin-left: 0;
+
+  }
+
+
+  .mobile-menu-button {
+
+    display: flex;
+
+  }
+
+
+  .topbar-search {
+
+    width: min(400px, 55%);
+
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 600px
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .topbar {
+
+    height: 68px;
+
+    padding: 0 15px;
+
+  }
+
+
+  .page-container {
+
+    min-height: calc(100vh - 68px);
+
+    padding: 20px 15px;
+
+  }
+
+
+  .topbar-search {
+
+    flex: 1;
+
+    width: auto;
+
+    max-width: none;
+
+  }
+
+
+  .topbar-search input {
+
+    font-size: 11px;
+
+  }
+
+
+  .topbar-profile-info,
+  .profile-chevron {
+
+    display: none;
+
+  }
+
+
+  .notification-panel {
+
+    position: fixed;
+
+    top: 68px;
+
+    right: 12px;
+
+    left: 12px;
+
+    width: auto;
+
+    max-width: none;
+
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 380px
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .topbar {
+
+    padding: 0 10px;
+
+  }
+
+
+  .topbar-actions {
+
+    gap: 5px;
+
+  }
+
+
+  .topbar-button {
+
+    width: 36px;
+    height: 36px;
+
+  }
+
+
+  .topbar-search {
+
+    padding: 0 10px;
+
+  }
+
+
+  .topbar-search svg {
+
+    width: 16px;
+    height: 16px;
+
+  }
+
+
+  .notification-panel {
+
+    right: 8px;
+
+    left: 8px;
+
+  }
+
+
+  .notification-item {
+
+    padding: 13px;
+
+  }
+
+}

@@ -1,0 +1,729 @@
+<div class="patients-page">
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <div class="title-area">
+
+        <span class="eyebrow">
+          ESPACE OPTICIEN
+        </span>
+
+        <h1>Mes patients</h1>
+
+        <p>
+          Consultez les patients de votre cabinet et accédez
+          rapidement à leur dossier visuel.
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="ajouterPatient()"
+      >
+
+        <span class="material-symbols-outlined">
+          person_add
+        </span>
+
+        <span>
+          Nouveau patient
+        </span>
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       STATISTIQUES
+  ====================================================== -->
+
+  <section class="stats-grid">
+
+    <!-- Total -->
+
+    <article class="stat-card">
+
+      <div class="stat-icon blue">
+
+        <span class="material-symbols-outlined">
+          groups
+        </span>
+
+      </div>
+
+      <div class="stat-content">
+
+        <span class="stat-label">
+          Total patients
+        </span>
+
+        <strong>
+          {{ nombrePatients() }}
+        </strong>
+
+      </div>
+
+    </article>
+
+
+    <!-- Actifs -->
+
+    <article class="stat-card">
+
+      <div class="stat-icon green">
+
+        <span class="material-symbols-outlined">
+          person_check
+        </span>
+
+      </div>
+
+      <div class="stat-content">
+
+        <span class="stat-label">
+          Patients actifs
+        </span>
+
+        <strong>
+          {{ nombrePatientsActifs() }}
+        </strong>
+
+      </div>
+
+    </article>
+
+
+    <!-- À suivre -->
+
+    <article class="stat-card">
+
+      <div class="stat-icon orange">
+
+        <span class="material-symbols-outlined">
+          schedule
+        </span>
+
+      </div>
+
+      <div class="stat-content">
+
+        <span class="stat-label">
+          À suivre
+        </span>
+
+        <strong>
+          {{ nombrePatientsASuivre() }}
+        </strong>
+
+      </div>
+
+    </article>
+
+  </section>
+
+
+  <!-- =====================================================
+       BARRE DE RECHERCHE + FILTRES
+  ====================================================== -->
+
+  <section class="toolbar">
+
+    <div class="search-box">
+
+      <span class="material-symbols-outlined search-icon">
+        search
+      </span>
+
+      <input
+        type="search"
+        placeholder="Rechercher un patient..."
+        [value]="recherche()"
+        (input)="rechercher($event)"
+        aria-label="Rechercher un patient"
+      />
+
+      @if (recherche()) {
+
+        <button
+          type="button"
+          class="clear-search"
+          (click)="recherche.set('')"
+          aria-label="Effacer la recherche"
+        >
+
+          <span class="material-symbols-outlined">
+            close
+          </span>
+
+        </button>
+
+      }
+
+    </div>
+
+
+    <div class="filters">
+
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="filtreActif() === 'tous'"
+        (click)="changerFiltre('tous')"
+      >
+        Tous
+      </button>
+
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="filtreActif() === 'actifs'"
+        (click)="changerFiltre('actifs')"
+      >
+        Actifs
+      </button>
+
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="filtreActif() === 'suivi'"
+        (click)="changerFiltre('suivi')"
+      >
+        À suivre
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       TITRE LISTE
+  ====================================================== -->
+
+  <section class="patients-section">
+
+    <div class="section-heading">
+
+      <div>
+
+        <span class="eyebrow">
+          PATIENTÈLE
+        </span>
+
+        <h2>
+          Liste des patients
+        </h2>
+
+        <p>
+          {{ patientsFiltres().length }}
+          patient(s) affiché(s)
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         LISTE DES PATIENTS
+    ==================================================== -->
+
+    @if (patientsFiltres().length > 0) {
+
+      <div class="patients-grid">
+
+        @for (
+          patient of patientsFiltres();
+          track trackPatient($index, patient)
+        ) {
+
+          <article class="patient-card">
+
+            <!-- ===============================
+                 TOP CARD
+            ================================ -->
+
+            <div class="patient-card-top">
+
+              <div
+                class="patient-avatar"
+                [class]="couleurAvatar($index)"
+              >
+                {{ initiales(patient) }}
+              </div>
+
+              <div class="patient-identity">
+
+                <h3>
+                  {{ patient.prenom }}
+                  {{ patient.nom }}
+                </h3>
+
+                <span class="patient-id">
+                  {{ patient.id }}
+                </span>
+
+              </div>
+
+
+              <span
+                class="status-badge"
+                [class.status-active]="patient.statut === 'Actif'"
+                [class.status-follow]="patient.statut === 'À suivre'"
+              >
+
+                <span class="status-dot"></span>
+
+                {{ patient.statut }}
+
+              </span>
+
+            </div>
+
+
+            <!-- ===============================
+                 INFORMATIONS
+            ================================ -->
+
+            <div class="patient-info">
+
+              <div class="info-item">
+
+                <span class="info-icon">
+
+                  <span class="material-symbols-outlined">
+                    cake
+                  </span>
+
+                </span>
+
+                <div>
+
+                  <span class="info-label">
+                    Âge
+                  </span>
+
+                  <strong>
+                    {{ patient.age }} ans
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="info-item">
+
+                <span class="info-icon">
+
+                  <span class="material-symbols-outlined">
+                    location_on
+                  </span>
+
+                </span>
+
+                <div>
+
+                  <span class="info-label">
+                    Quartier
+                  </span>
+
+                  <strong>
+                    {{ patient.quartier }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="info-item">
+
+                <span class="info-icon">
+
+                  <span class="material-symbols-outlined">
+                    call
+                  </span>
+
+                </span>
+
+                <div>
+
+                  <span class="info-label">
+                    Téléphone
+                  </span>
+
+                  <strong>
+                    {{ patient.telephone }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- ===============================
+                 DERNIÈRE CONSULTATION
+            ================================ -->
+
+            <div class="last-consultation">
+
+              <div class="last-consultation-icon">
+
+                <span class="material-symbols-outlined">
+                  calendar_today
+                </span>
+
+              </div>
+
+              <div>
+
+                <span>
+                  Dernière consultation
+                </span>
+
+                <strong>
+
+                  @if (patient.derniereConsultation) {
+
+                    {{ patient.derniereConsultation }}
+
+                  } @else {
+
+                    Aucune consultation
+
+                  }
+
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <!-- ===============================
+                 CONSULTATIONS
+            ================================ -->
+
+            <div class="consultation-count">
+
+              <span class="material-symbols-outlined">
+                description
+              </span>
+
+              <span>
+                {{ patient.nombreConsultations }}
+                consultation(s)
+              </span>
+
+            </div>
+
+
+            <!-- ===============================
+                 ACTIONS
+            ================================ -->
+
+            <div class="patient-actions">
+
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="voirDossier(patient)"
+              >
+
+                <span class="material-symbols-outlined">
+                  folder_open
+                </span>
+
+                <span>
+                  Voir le dossier
+                </span>
+
+              </button>
+
+
+              <button
+                type="button"
+                class="icon-button"
+                title="Plus d'actions"
+                aria-label="Plus d'actions"
+                (click)="selectionnerPatient(patient)"
+              >
+
+                <span class="material-symbols-outlined">
+                  more_vert
+                </span>
+
+              </button>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+
+    <!-- ===================================================
+         AUCUN RÉSULTAT
+    ==================================================== -->
+
+    @if (patientsFiltres().length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+
+          <span class="material-symbols-outlined">
+            person_search
+          </span>
+
+        </div>
+
+        <h3>
+          Aucun patient trouvé
+        </h3>
+
+        <p>
+          Aucun patient ne correspond à votre recherche
+          ou au filtre sélectionné.
+        </p>
+
+        @if (recherche()) {
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="recherche.set('')"
+          >
+
+            <span class="material-symbols-outlined">
+              restart_alt
+            </span>
+
+            Réinitialiser la recherche
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+
+  <!-- =====================================================
+       MENU D'ACTIONS PATIENT
+  ====================================================== -->
+
+  @if (patientSelectionne()) {
+
+    <div
+      class="modal-overlay"
+      (click)="fermerApercu()"
+    >
+
+      <aside
+        class="patient-menu"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="menu-header">
+
+          <div>
+
+            <span class="eyebrow">
+              ACTIONS PATIENT
+            </span>
+
+            <h2>
+              {{ patientSelectionne()!.prenom }}
+              {{ patientSelectionne()!.nom }}
+            </h2>
+
+          </div>
+
+          <button
+            type="button"
+            class="close-button"
+            (click)="fermerApercu()"
+            aria-label="Fermer"
+          >
+
+            <span class="material-symbols-outlined">
+              close
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <div class="menu-actions">
+
+          <!-- Dossier -->
+
+          <button
+            type="button"
+            class="menu-action"
+            (click)="voirDossier(patientSelectionne()!); fermerApercu()"
+          >
+
+            <span class="menu-action-icon blue">
+
+              <span class="material-symbols-outlined">
+                visibility
+              </span>
+
+            </span>
+
+            <span class="menu-action-text">
+
+              <strong>
+                Dossier visuel
+              </strong>
+
+              <small>
+                Voir l'historique des consultations
+              </small>
+
+            </span>
+
+            <span class="material-symbols-outlined arrow">
+              chevron_right
+            </span>
+
+          </button>
+
+
+          <!-- Nouvelle consultation -->
+
+          <button
+            type="button"
+            class="menu-action"
+            (click)="nouvelleConsultation(patientSelectionne()!); fermerApercu()"
+          >
+
+            <span class="menu-action-icon green">
+
+              <span class="material-symbols-outlined">
+                add_circle
+              </span>
+
+            </span>
+
+            <span class="menu-action-text">
+
+              <strong>
+                Nouvelle consultation
+              </strong>
+
+              <small>
+                Créer une nouvelle fiche
+              </small>
+
+            </span>
+
+            <span class="material-symbols-outlined arrow">
+              chevron_right
+            </span>
+
+          </button>
+
+
+          <!-- Factures -->
+
+          <button
+            type="button"
+            class="menu-action"
+            (click)="voirFactures(patientSelectionne()!); fermerApercu()"
+          >
+
+            <span class="menu-action-icon violet">
+
+              <span class="material-symbols-outlined">
+                receipt_long
+              </span>
+
+            </span>
+
+            <span class="menu-action-text">
+
+              <strong>
+                Factures & ordonnances
+              </strong>
+
+              <small>
+                Consulter les documents du patient
+              </small>
+
+            </span>
+
+            <span class="material-symbols-outlined arrow">
+              chevron_right
+            </span>
+
+          </button>
+
+
+          <!-- Commandes -->
+
+          <button
+            type="button"
+            class="menu-action"
+            (click)="voirCommandes(patientSelectionne()!); fermerApercu()"
+          >
+
+            <span class="menu-action-icon orange">
+
+              <span class="material-symbols-outlined">
+                local_shipping
+              </span>
+
+            </span>
+
+            <span class="menu-action-text">
+
+              <strong>
+                Suivi des commandes
+              </strong>
+
+              <small>
+                Voir les commandes du patient
+              </small>
+
+            </span>
+
+            <span class="material-symbols-outlined arrow">
+              chevron_right
+            </span>
+
+          </button>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  }
+
+</div>
