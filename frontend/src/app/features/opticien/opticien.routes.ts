@@ -17,7 +17,7 @@ export const OPTICIEN_ROUTES: Routes = [
 
       {
         path: '',
-        redirectTo: 'dossier-visuel-patient/dv1',
+        redirectTo: 'mes-patients',
         pathMatch: 'full'
       },
 

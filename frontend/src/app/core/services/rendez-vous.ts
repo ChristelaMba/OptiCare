@@ -3,15 +3,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  ApiCreationRdvCorps,
   ApiCreneauxEnveloppe,
+  ApiRdvBrut,
+  ApiRdvEnveloppe,
   ApiRdvsEnveloppe,
+  CreneauReel,
   NouveauRendezVousPayload,
   RendezVous,
 } from '../../models/rendez-vous.model';
+import { Auth } from './auth';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
 /**
+ * 19/10/2026 : `creer()` branchée sur POST /rdv (réel), `getMesRendezVous()` mappe la forme réelle.
+ *
  * 2026-09-11 : connectivité testée route par route sur les vrais noms
  * transmis par Lionel (voir POINTS-A-CONFIRMER-BACKEND.md §12). Résultat
  * MIXTE — seules `listerCreneaux()` et `getMesRendezVous()` tapent l'API
@@ -33,10 +40,38 @@ const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 export class RendezVousService {
 
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(Auth);
 
-  /** POST /rendezvous — mock, voir commentaire de tête. À rebrancher sur POST /rdv une fois l'écriture réelle validée. */
+  /**
+   * POST /rdv — ✅ RÉEL, testé le 18/10/2026 (201). Patient connecté : RDV
+   * `confirme` immédiatement, le serveur déduit le patient du token, on
+   * n'envoie donc aucun `visiteur_*`. Visiteur (ou compte non patient) :
+   * RDV `reserve`, en attente de confirmation par le cabinet.
+   * `nomComplet` est scindé : premier mot → `visiteur_prenom`, reste →
+   * `visiteur_nom`. Le serveur exige `visiteur_telephone` pour un visiteur
+   * (sinon 500 SQL, ticket back n°4) : le formulaire le rend obligatoire.
+   */
   creer(payload: NouveauRendezVousPayload): Observable<RendezVous> {
-    return this.http.post<RendezVous>(`${BASE_URL}/rendezvous`, payload);
+    const corps: ApiCreationRdvCorps = {
+      cabinet_id: Number(payload.cabinetId),
+      date: payload.date,
+      heure_debut: payload.heure,
+    };
+    if (payload.motif) corps.motif = payload.motif;
+
+    if (this.auth.role() !== 'patient') {
+      const mots = payload.nomComplet.trim().split(/\s+/);
+      const prenom = mots.length > 1 ? mots[0] : '';
+      const nom = mots.length > 1 ? mots.slice(1).join(' ') : mots[0];
+      corps.visiteur_nom = nom;
+      if (prenom) corps.visiteur_prenom = prenom;
+      corps.visiteur_telephone = payload.telephone;
+      if (payload.email) corps.visiteur_email = payload.email;
+    }
+
+    return this.http
+      .post<ApiRdvEnveloppe>(`${BASE_URL}/rdv`, corps)
+      .pipe(map((enveloppe) => RendezVousService.normaliserRdv(enveloppe.data.rdv)));
   }
 
   /**
@@ -67,11 +102,18 @@ export class RendezVousService {
    * `ApiCreneauxEnveloppe` (rendez-vous.model.ts). Pas encore consommée
    * par un écran (voir `prise-rdv.ts`, laissé inchangé pour cette raison).
    */
-  listerCreneaux(cabinetId: string, date: string): Observable<string[]> {
+  listerCreneaux(cabinetId: string, date: string): Observable<CreneauReel[]> {
     const params = new HttpParams().set('date', date);
     return this.http
       .get<ApiCreneauxEnveloppe>(`${BASE_URL}/cabinets/${cabinetId}/slots`, { params })
-      .pipe(map((enveloppe) => enveloppe.data.slots));
+      .pipe(
+        map((enveloppe) =>
+          enveloppe.data.slots.map((slot) => ({
+            heure: slot.heure_debut,
+            disponible: slot.disponible && !slot.est_reserve && !slot.est_dans_pause,
+          })),
+        ),
+      );
   }
 
   /**
@@ -84,16 +126,31 @@ export class RendezVousService {
    * dans `mes-rendez-vous.ts`, même convention que les autres écrans qui
    * résolvent l'identité côté composant).
    *
-   * ⚠️ Aucune normalisation de champs : la forme exacte d'un `Rdv` réel
-   * n'a jamais été observée peuplée. Le cast `as RendezVous[]` ci-dessous
-   * est donc **non vérifié** — fonctionne aujourd'hui uniquement parce que
-   * la liste est toujours vide. À remplacer par un vrai mapping
-   * (`normaliserRdv()`, même pattern que `Cabinet.normaliserCabinet()`)
-   * dès qu'un RDV réel existera pour en inspecter la forme.
+   * 18/10/2026 : `{patientId}` EST utilisé pour filtrer, et c'est l'id de la
+   * table `patients` (`Utilisateur.patientId`), pas l'id utilisateur
+   * (user 21 → `[]`, patient 13 → ses RDV). Forme réelle mappée par
+   * `normaliserRdv()`.
    */
   getMesRendezVous(patientId: string): Observable<RendezVous[]> {
     return this.http
       .get<ApiRdvsEnveloppe>(`${BASE_URL}/patients/${patientId}/rdv`)
-      .pipe(map((enveloppe) => enveloppe.data.rdvs as RendezVous[]));
+      .pipe(map((enveloppe) => enveloppe.data.rdvs.map(RendezVousService.normaliserRdv)));
+  }
+
+  /** snake_case (API réelle) → camelCase (front). `date` ramenée à `YYYY-MM-DD`. */
+  private static normaliserRdv(brut: ApiRdvBrut): RendezVous {
+    return {
+      id: String(brut.id),
+      cabinetId: String(brut.cabinet_id),
+      cabinetNom: brut.cabinet?.nom ?? '',
+      cabinetAdresse: brut.cabinet
+        ? [brut.cabinet.adresse, brut.cabinet.ville].filter(Boolean).join(', ') || undefined
+        : undefined,
+      motif: brut.motif ?? '',
+      date: brut.date.slice(0, 10),
+      heureDebut: brut.heure_debut,
+      heureFin: brut.heure_fin,
+      statut: brut.statut,
+    };
   }
 }

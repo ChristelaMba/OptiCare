@@ -7,12 +7,17 @@ import {
   Validators
 } from '@angular/forms';
 
+import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
   JourCalendrier,
   NouveauRendezVousPayload
 } from '../../../models/rendez-vous.model';
 import { DatePipe } from '@angular/common';
+
+// Liste de repli : à supprimer quand les créneaux réels fonctionnent (voir bloc « CRÉNEAUX » du composant).
+const CRENEAUX_LOCAUX_INDICATIFS = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '14:30', '15:00', '15:30'];
+const CRENEAUX_LOCAUX_INDISPONIBLES = ['10:30'];
 
 @Component({
   selector: 'app-prise-rdv',
@@ -45,9 +50,8 @@ export class PriseRdv implements OnInit {
      UTILISATEUR
   ====================================================== */
 
-  // TODO :
-  // Remplacer ces valeurs par les informations
-  // provenant du vrai AuthService.
+  // Renseignés dans ngOnInit depuis Auth : seul un compte patient est
+  // traité comme « connecté » ici (POST /rdv déduit alors le patient du token).
   estConnecte = false;
 
   utilisateurNom = '';
@@ -85,34 +89,34 @@ export class PriseRdv implements OnInit {
   /* =====================================================
      CRÉNEAUX
 
-     2026-09-11 : GET /cabinets/{id}/slots?date=... est confirmé réel et
-     fonctionnel (RendezVousService.listerCreneaux()) mais volontairement
-     PAS branché ici — sur tous les cabinets testés, la réponse renvoie
-     toujours `slots: []` (aucune disponibilité configurée nulle part),
-     donc la forme exacte d'un créneau (chaîne "09:00" ? objet avec
-     heure_fin/disponible ?) n'a jamais pu être observée. Brancher cet
-     écran sur une forme devinée serait justement le genre de supposition
-     à éviter — reste sur ce jeu de créneaux codés en dur en attendant un
-     cabinet réel avec de vraies disponibilités à inspecter. Voir
-     POINTS-A-CONFIRMER-BACKEND.md §12. `creer()` (soumission du RDV)
-     reste elle aussi sur le mock — écriture réelle non testée.
+     Source : GET /cabinets/{id}/slots?date=... (RendezVousService.listerCreneaux()).
+
+     TODO(retirer la liste locale) : tant qu'un cabinet n'a ouvert aucune
+     plage horaire (aujourd'hui tous : POST /cabinets/{id}/creneaux est
+     bloqué par le bug serveur CheckRole), `slots` est vide et on affiche
+     CRENEAUX_LOCAUX_INDICATIFS avec un avertissement « horaires
+     indicatifs ». Le serveur ne contrôle pas ces heures (ni plage, ni
+     double réservation — tickets back 1 et 3) : le cabinet confirme le RDV.
+     DÈS QUE les créneaux réels sont disponibles et testés : supprimer
+     CRENEAUX_LOCAUX_INDICATIFS, CRENEAUX_LOCAUX_INDISPONIBLES et la
+     branche de repli de chargerCreneaux() (afficher alors simplement
+     « aucun créneau ce jour-là » si la liste est vide).
+
+     Signals (et non propriétés simples) : l'app tourne sans zone.js, une
+     mutation dans un callback .subscribe() ne redéclencherait pas le rendu.
   ====================================================== */
 
-  creneaux = [
-    '09:00',
-    '09:30',
-    '10:00',
-    '10:30',
-    '11:00',
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30'
-  ];
+  creneaux = signal<string[]>(CRENEAUX_LOCAUX_INDICATIFS);
 
-  creneauxIndisponibles = [
-    '10:30'
-  ];
+  creneauxIndisponibles = signal<string[]>(CRENEAUX_LOCAUX_INDISPONIBLES);
+
+  /** true quand la liste affichée est la liste locale de repli (et non les créneaux réels du cabinet). */
+  creneauxIndicatifs = signal(true);
+
+  chargementCreneaux = signal(false);
+
+  /** Dernière date (YYYY-MM-DD) demandée — écarte les réponses tardives d'une date précédente. */
+  private dateCreneauxDemandee = '';
 
 
   /* =====================================================
@@ -147,7 +151,8 @@ export class PriseRdv implements OnInit {
     private readonly fb: FormBuilder,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly rendezVousService: RendezVousService
+    private readonly rendezVousService: RendezVousService,
+    private readonly auth: Auth
   ) {
 
     this.form = this.fb.group({
@@ -189,6 +194,7 @@ export class PriseRdv implements OnInit {
      * Récupération de l'identifiant du cabinet
      */
     const idFromRoute =
+      this.route.snapshot.paramMap.get('id') ??
       this.route.snapshot.paramMap.get('cabinetId');
 
     if (idFromRoute) {
@@ -200,7 +206,13 @@ export class PriseRdv implements OnInit {
      * Pré-remplissage si l'utilisateur
      * est connecté
      */
-    if (this.estConnecte) {
+    const utilisateur = this.auth.utilisateur();
+
+    if (this.auth.role() === 'patient' && utilisateur) {
+
+      this.estConnecte = true;
+      this.utilisateurNom = `${utilisateur.prenom} ${utilisateur.nom}`;
+      this.utilisateurTelephone = utilisateur.telephone;
 
       this.form.patchValue({
         nomComplet: this.utilisateurNom,
@@ -251,7 +263,7 @@ export class PriseRdv implements OnInit {
      * Si ta route est différente,
      * il faudra simplement modifier '/connexion'.
      */
-    this.router.navigate(['/connexion']);
+    this.router.navigate(['/auth/connexion']);
   }
 
 
@@ -263,7 +275,7 @@ export class PriseRdv implements OnInit {
 
     this.fermerMenu();
 
-    this.router.navigate(['/inscription']);
+    this.router.navigate(['/auth/inscription']);
   }
 
 
@@ -538,6 +550,77 @@ export class PriseRdv implements OnInit {
      * on réinitialise l'heure.
      */
     this.heureSelectionnee = '';
+
+    this.chargerCreneaux(jour.dateComplete);
+  }
+
+
+  /* =====================================================
+     CHARGEMENT DES CRÉNEAUX D'UNE DATE
+  ====================================================== */
+
+  private chargerCreneaux(date: Date): void {
+
+    const dateIso = this.formaterDateLocale(date);
+
+    this.dateCreneauxDemandee = dateIso;
+    this.chargementCreneaux.set(true);
+
+    // Repli sur la liste locale — voir le TODO du bloc « CRÉNEAUX ».
+    const afficherListeLocale = (): void => {
+      this.creneaux.set(CRENEAUX_LOCAUX_INDICATIFS);
+      this.creneauxIndisponibles.set(CRENEAUX_LOCAUX_INDISPONIBLES);
+      this.creneauxIndicatifs.set(true);
+      this.chargementCreneaux.set(false);
+    };
+
+    this.rendezVousService
+      .listerCreneaux(this.cabinetId, dateIso)
+      .subscribe({
+
+        next: (reels) => {
+
+          if (dateIso !== this.dateCreneauxDemandee) {
+            return;
+          }
+
+          if (reels.length === 0) {
+            afficherListeLocale();
+            return;
+          }
+
+          this.creneaux.set(reels.map(c => c.heure));
+          this.creneauxIndisponibles.set(
+            reels.filter(c => !c.disponible).map(c => c.heure)
+          );
+          this.creneauxIndicatifs.set(false);
+          this.chargementCreneaux.set(false);
+        },
+
+        error: () => {
+
+          if (dateIso === this.dateCreneauxDemandee) {
+            afficherListeLocale();
+          }
+        }
+
+      });
+  }
+
+
+  /* =====================================================
+     DATE LOCALE → YYYY-MM-DD
+  ====================================================== */
+
+  // Date locale (pas toISOString) : minuit local au Cameroun (UTC+1)
+  // retombe la veille en UTC et réserverait le mauvais jour.
+  private formaterDateLocale(date: Date): string {
+
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0'),
+    ].join('-');
   }
 
 
@@ -574,7 +657,7 @@ export class PriseRdv implements OnInit {
      * un créneau indisponible.
      */
     if (
-      this.creneauxIndisponibles.includes(heure)
+      this.creneauxIndisponibles().includes(heure)
     ) {
       return;
     }
@@ -660,10 +743,7 @@ export class PriseRdv implements OnInit {
 
       cabinetId: this.cabinetId,
 
-      date:
-        this.dateSelectionnee
-          .toISOString()
-          .split('T')[0],
+      date: this.formaterDateLocale(this.dateSelectionnee),
 
       heure:
         this.heureSelectionnee,
@@ -719,7 +799,7 @@ export class PriseRdv implements OnInit {
     if (this.cabinetId) {
 
       this.router.navigate([
-        '/cabinets',
+        '/cabinet',
         this.cabinetId
       ]);
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { OpticienLayout } from './opticien-layout';
 
@@ -8,6 +9,7 @@ describe('OpticienLayout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideRouter([])],
       imports: [OpticienLayout],
     }).compileComponents();
 

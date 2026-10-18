@@ -161,15 +161,16 @@ export class MesRendezVous implements OnInit {
     this.chargement.set(true);
     this.erreur.set(null);
 
-    // 2026-09-11 : GET /patients/{patientId}/rdv réel — patientId résolu
-    // ici (même convention que agenda.ts/historique-rdv.ts pour cabinetId),
-    // pas dans le service. L'écran est derrière authGuard : utilisateur()
-    // ne devrait jamais être null ici, garde défensive quand même.
-    const patientId = this.auth.utilisateur()?.id;
+    // GET /patients/{patientId}/rdv réel — l'id attendu est celui de la
+    // table `patients` (`user.patient.id` du login), PAS l'id utilisateur :
+    // avec ce dernier la liste est toujours vide. Il manque après une
+    // inscription (le register ne le renvoie pas) et sur les sessions
+    // ouvertes avant le 19/10/2026 : une reconnexion le fournit.
+    const patientId = this.auth.utilisateur()?.patientId;
 
     if (!patientId) {
       this.chargement.set(false);
-      this.erreur.set('Impossible de charger vos rendez-vous.');
+      this.erreur.set("Votre profil patient n'est pas encore chargé. Déconnectez-vous puis reconnectez-vous pour afficher vos rendez-vous.");
       return;
     }
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { FactureOrdonnance } from './facture-ordonnance';
 
@@ -8,6 +9,7 @@ describe('FactureOrdonnance', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideRouter([])],
       imports: [FactureOrdonnance],
     }).compileComponents();
 

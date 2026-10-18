@@ -12,7 +12,7 @@ describe('NouvelleFicheConsultation', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [NouvelleFicheConsultation],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([{ path: '**', children: [] }]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NouvelleFicheConsultation);

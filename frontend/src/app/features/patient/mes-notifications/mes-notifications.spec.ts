@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { registerLocaleData } from '@angular/common';
+import { provideRouter } from '@angular/router';
+import localeFr from '@angular/common/locales/fr';
 
 import { MesNotifications } from './mes-notifications';
+
+// Le template utilise `| date:…:'fr'` : locale à enregistrer avant le rendu (NG0701).
+registerLocaleData(localeFr);
 
 describe('MesNotifications', () => {
   let component: MesNotifications;
@@ -8,6 +14,7 @@ describe('MesNotifications', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideRouter([])],
       imports: [MesNotifications],
     }).compileComponents();
 

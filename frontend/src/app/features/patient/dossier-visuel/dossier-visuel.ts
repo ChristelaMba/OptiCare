@@ -38,6 +38,7 @@ export class DossierVisuel implements OnInit {
   fiches = computed(() => this.dossier()?.fiches ?? []);
   nombreConsultations = computed(() => this.fiches().length);
   dossierVide = computed(() => !this.chargement() && this.fiches().length === 0);
+  historiqueDisponible = computed(() => this.dossier()?.historiqueDisponible ?? false);
 
   // dossierPdf appartient à la fiche de consultation sélectionnée.
   dossierPdfDisponible = computed(() => !!this.ficheSelectionnee()?.dossierPdf);
@@ -82,19 +83,9 @@ export class DossierVisuel implements OnInit {
       return;
     }
 
-    this.dossierService.telechargerDocument(documentMedical.id).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const lien = window.document.createElement('a');
-        lien.href = url;
-        lien.download = documentMedical.nom;
-        lien.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.erreur.set('Impossible de télécharger le document.');
-      }
-    });
+    // Aucune route de téléchargement de document n'existe côté API
+    // (ticket back n°8) : l'ancien appel vers localhost est retiré.
+    this.erreur.set("Le téléchargement de documents n'est pas encore disponible.");
   }
 
   nomComplet(): string {
