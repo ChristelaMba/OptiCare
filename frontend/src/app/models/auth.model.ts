@@ -81,8 +81,8 @@ export interface ApiUtilisateurBrut {
   created_at: string;
   updated_at?: string;
   email_verified_at?: string | null;
-  /** Profil imbriqué spécifique au rôle (ex. `patient: { date_naissance, adresse }`). Ignoré côté front pour l'instant. */
-  patient?: unknown;
+  /** Profil imbriqué spécifique au rôle (ex. `patient: { date_naissance, adresse }`). Seul `patient.id` est exploité (→ `Utilisateur.patientId`). */
+  patient?: { id: number; date_naissance?: string | null; adresse?: string | null } | null;
   proprietaire?: unknown;
   opticien?: unknown;
   secretaire?: unknown;

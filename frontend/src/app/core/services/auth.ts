@@ -95,6 +95,7 @@ export class Auth {
       telephone: u.telephone,
       ville: u.ville,
       cabinetId: u.cabinet_id != null ? String(u.cabinet_id) : undefined,
+      patientId: u.patient?.id != null ? String(u.patient.id) : undefined,
       actif: u.is_active,
       dateCreation: u.created_at ? new Date(u.created_at) : new Date(),
     };

@@ -22,10 +22,14 @@
           @if (dossier(); as patient) {
             <p class="patient-summary">
               <span>{{ patient.prenom }} {{ patient.nom }}</span>
-              <span class="separator">•</span>
-              <span>{{ patient.age }} ans</span>
-              <span class="separator">•</span>
-              <span>{{ patient.sexe }}</span>
+              @if (patient.age) {
+                <span class="separator">•</span>
+                <span>{{ patient.age }} ans</span>
+              }
+              @if (patient.sexe) {
+                <span class="separator">•</span>
+                <span>{{ patient.sexe }}</span>
+              }
             </p>
           }
 
@@ -35,7 +39,7 @@
 
     </div>
 
-    @if (!chargement() && !erreur()) {
+    @if (!chargement() && !erreur() && historiqueDisponible()) {
       <div class="status-badge">
         <span class="status-icon">✓</span>
         <span>Dossier à jour</span>
@@ -110,14 +114,31 @@
             DOSSIER VISUEL
           </span>
 
-          <h2>
-            Votre dossier visuel est encore vide
-          </h2>
+          @if (historiqueDisponible()) {
 
-          <p>
-            Aucune consultation n'est actuellement
-            enregistrée dans votre dossier.
-          </p>
+            <h2>
+              Votre dossier visuel est encore vide
+            </h2>
+
+            <p>
+              Aucune consultation n'est actuellement
+              enregistrée dans votre dossier.
+            </p>
+
+          } @else {
+
+            <h2>
+              L'historique de vos consultations arrive bientôt
+            </h2>
+
+            <p>
+              L'affichage de vos fiches de consultation n'est pas
+              encore disponible. Vos fiches restent conservées et
+              vous y aurez accès dès l'ouverture de cette
+              fonctionnalité.
+            </p>
+
+          }
 
           <a
             routerLink="/"

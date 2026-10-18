@@ -79,8 +79,23 @@ export interface ApiCreneauxEnveloppe {
   message: string;
   data: {
     date: string;
-    slots: string[];
+    slots: ApiSlotBrut[];
   };
+}
+
+/** Élément de `slots` tel que documenté (ROUTES-API-LIONEL §5.1) — jamais encore observé peuplé en réel (aucun cabinet n'a de plage horaire). */
+export interface ApiSlotBrut {
+  heure_debut: string;
+  heure_fin: string;
+  disponible: boolean;
+  est_dans_pause: boolean;
+  est_reserve: boolean;
+}
+
+/** Créneau réel normalisé pour l'écran de prise de RDV. */
+export interface CreneauReel {
+  heure: string;
+  disponible: boolean;
 }
 
 /**
@@ -99,6 +114,46 @@ export interface ApiRdvsEnveloppe {
   status: string;
   message: string;
   data: {
-    rdvs: unknown[];
+    rdvs: ApiRdvBrut[];
+  };
+}
+
+/**
+ * Forme BRUTE d'un RDV, observée le 18/10/2026 sur `GET /patients/{id}/rdv`
+ * et `POST /rdv` (cabinet de test id 8). `date` est un datetime ISO
+ * (`2026-10-21T00:00:00.000000Z`), pas `YYYY-MM-DD`. L'objet `cabinet` n'est
+ * présent que sur la liste d'un patient.
+ */
+export interface ApiRdvBrut {
+  id: number;
+  cabinet_id: number;
+  patient_id: number;
+  date: string;
+  heure_debut: string;
+  heure_fin: string;
+  motif: string | null;
+  statut: StatutRendezVous;
+  source?: 'en_ligne' | 'interne' | 'visiteur';
+  cabinet?: { id: number; nom: string; adresse?: string | null; ville?: string | null };
+}
+
+/** `POST /rdv` — corps documenté (ROUTES-API-LIONEL §6.1). Les champs `visiteur_*` ne sont envoyés que hors session patient. */
+export interface ApiCreationRdvCorps {
+  cabinet_id: number;
+  date: string;
+  heure_debut: string;
+  motif?: string;
+  visiteur_nom?: string;
+  visiteur_prenom?: string;
+  visiteur_telephone?: string;
+  visiteur_email?: string;
+}
+
+export interface ApiRdvEnveloppe {
+  status: string;
+  message: string;
+  data: {
+    rdv: ApiRdvBrut;
+    statut: StatutRendezVous;
   };
 }

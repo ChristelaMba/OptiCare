@@ -683,10 +683,25 @@
 
                 @if (dateSelectionnee) {
 
+                  @if (chargementCreneaux()) {
+
+                    <p class="slots-notice" role="status">
+                      Chargement des créneaux…
+                    </p>
+
+                  } @else if (creneauxIndicatifs()) {
+
+                    <p class="slots-notice slots-notice-warning" role="alert">
+                      Horaires indicatifs : le cabinet n'a pas encore
+                      ouvert ses créneaux, il confirmera votre rendez-vous.
+                    </p>
+
+                  }
+
                   <div class="slots-grid">
 
                     @for (
-                      heure of creneaux;
+                      heure of creneaux();
                       track heure
                     ) {
 
@@ -695,10 +710,10 @@
                         class="slot-button"
                         [class.selected]="heureSelectionnee === heure"
                         [class.unavailable]="
-                          creneauxIndisponibles.includes(heure)
+                          creneauxIndisponibles().includes(heure)
                         "
                         [disabled]="
-                          creneauxIndisponibles.includes(heure)
+                          creneauxIndisponibles().includes(heure)
                         "
                         (click)="selectionnerHeure(heure)"
                       >
@@ -710,7 +725,7 @@
                         </span>
 
                         @if (
-                          creneauxIndisponibles.includes(heure)
+                          creneauxIndisponibles().includes(heure)
                         ) {
 
                           <small>

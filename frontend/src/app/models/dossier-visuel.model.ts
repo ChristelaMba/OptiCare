@@ -35,7 +35,10 @@ export interface FicheConsultationResume {
 export interface PatientDossier {
   prenom: string;
   nom: string;
-  age: number;
-  sexe: string;
+  /** Non fournis par l'API (date de naissance et sexe absents du login). */
+  age?: number;
+  sexe?: string;
   fiches: FicheConsultationResume[];
+  /** false tant que la route des consultations n'est pas utilisable : l'écran n'affirme alors pas « aucune consultation ». */
+  historiqueDisponible: boolean;
 }

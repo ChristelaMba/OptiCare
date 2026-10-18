@@ -14,6 +14,8 @@ export interface Utilisateur {
   telephone: string;
   ville: string;
   cabinetId?: string; // vide pour patient et super_admin
+  /** id de la table `patients` (≠ `id` utilisateur), renvoyé par `POST /auth/login` dans `user.patient.id`. Requis par `GET /patients/{id}/rdv`. Absent après une inscription (le register ne le renvoie pas) et sur les sessions ouvertes avant le 19/10/2026. */
+  patientId?: string;
   actif: boolean;
   dateCreation: Date;
 }
