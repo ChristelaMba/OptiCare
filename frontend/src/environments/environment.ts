@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://votre-api-deployee.com/api'
+  apiUrl: 'https://opticare.alwaysdata.net/api'
 };
