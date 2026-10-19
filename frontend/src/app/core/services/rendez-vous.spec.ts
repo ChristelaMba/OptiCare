@@ -107,9 +107,9 @@ describe('RendezVousService', () => {
     });
 
     expect(resultat).toEqual([
-      { heure: '09:00', disponible: true },
-      { heure: '09:30', disponible: false },
-      { heure: '12:00', disponible: false },
+      { heure: '09:00', disponible: true, estReserve: false, estDansPause: false },
+      { heure: '09:30', disponible: false, estReserve: true, estDansPause: false },
+      { heure: '12:00', disponible: false, estReserve: false, estDansPause: true },
     ]);
   });
 
@@ -145,6 +145,28 @@ describe('RendezVousService', () => {
         heureFin: '10:30',
         statut: 'confirme',
       },
+    ]);
+  });
+
+  it('listerPlages() : GET /cabinets/{id}/creneaux, jour de la semaine converti (dimanche 0 … samedi 6)', () => {
+    configurer(null);
+    let resultat: unknown;
+    service.listerPlages('10').subscribe((r) => (resultat = r));
+
+    http.expectOne((r) => r.url.endsWith('/cabinets/10/creneaux')).flush({
+      status: 'success',
+      message: '',
+      data: {
+        creneaux: [
+          { id: 1, cabinet_id: 10, jour_semaine: 'lundi', heure_debut: '08:00', heure_fin: '17:00', duree_rdv: 30, pause_debut: '12:30', pause_fin: '13:30', est_actif: true },
+          { id: 6, cabinet_id: 10, jour_semaine: 'samedi', heure_debut: '09:00', heure_fin: '13:00', duree_rdv: 30, pause_debut: null, pause_fin: null, est_actif: 0 },
+        ],
+      },
+    });
+
+    expect(resultat).toEqual([
+      { jourSemaine: 1, heureDebut: '08:00', heureFin: '17:00', estActif: true },
+      { jourSemaine: 6, heureDebut: '09:00', heureFin: '13:00', estActif: false },
     ]);
   });
 });

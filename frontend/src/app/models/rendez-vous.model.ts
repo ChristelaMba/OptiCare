@@ -96,6 +96,36 @@ export interface ApiSlotBrut {
 export interface CreneauReel {
   heure: string;
   disponible: boolean;
+  /** `est_reserve` du serveur (⚠ aujourd'hui toujours false : défaut serveur, voir Docs/DIAGNOSTIC-CRENEAUX.md). */
+  estReserve: boolean;
+  estDansPause: boolean;
+}
+
+/** Plage horaire hebdomadaire d'un cabinet, telle que renvoyée par `GET /cabinets/{id}/creneaux`. */
+export interface ApiPlageBrute {
+  id: number;
+  cabinet_id: number;
+  jour_semaine: string;
+  heure_debut: string;
+  heure_fin: string;
+  duree_rdv: number;
+  pause_debut: string | null;
+  pause_fin: string | null;
+  est_actif: boolean | number;
+}
+
+export interface ApiPlagesEnveloppe {
+  status: string;
+  message: string;
+  data: { creneaux: ApiPlageBrute[] };
+}
+
+export interface PlageHoraire {
+  /** Jour au sens de `Date.getDay()` : dimanche 0, lundi 1 … samedi 6. */
+  jourSemaine: number;
+  heureDebut: string;
+  heureFin: string;
+  estActif: boolean;
 }
 
 /**

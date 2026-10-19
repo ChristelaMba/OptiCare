@@ -5,6 +5,9 @@ import { environment } from '../../../environments/environment';
 import {
   ApiCreationRdvCorps,
   ApiCreneauxEnveloppe,
+  ApiPlageBrute,
+  ApiPlagesEnveloppe,
+  PlageHoraire,
   ApiRdvBrut,
   ApiRdvEnveloppe,
   ApiRdvsEnveloppe,
@@ -118,9 +121,31 @@ export class RendezVousService {
           enveloppe.data.slots.map((slot) => ({
             heure: slot.heure_debut,
             disponible: slot.disponible && !slot.est_reserve && !slot.est_dans_pause,
+            estReserve: slot.est_reserve,
+            estDansPause: slot.est_dans_pause,
           })),
         ),
       );
+  }
+
+  /**
+   * GET /cabinets/{id}/creneaux — plages horaires hebdomadaires du cabinet (public, ROUTES-API-LIONEL §4.2).
+   * Sert à griser les jours fermés et à distinguer « le cabinet n'a aucune plage » de « aucun créneau ce jour-là ».
+   */
+  listerPlages(cabinetId: string): Observable<PlageHoraire[]> {
+    return this.http
+      .get<ApiPlagesEnveloppe>(`${BASE_URL}/cabinets/${cabinetId}/creneaux`)
+      .pipe(map((enveloppe) => enveloppe.data.creneaux.map(RendezVousService.normaliserPlage)));
+  }
+
+  private static normaliserPlage(brute: ApiPlageBrute): PlageHoraire {
+    const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    return {
+      jourSemaine: jours.indexOf(brute.jour_semaine.toLowerCase()),
+      heureDebut: brute.heure_debut,
+      heureFin: brute.heure_fin,
+      estActif: !!brute.est_actif,
+    };
   }
 
   /**
