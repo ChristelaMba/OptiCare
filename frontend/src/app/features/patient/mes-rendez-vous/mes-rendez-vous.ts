@@ -200,6 +200,11 @@ export class MesRendezVous implements OnInit {
      ONGLET
   ===================================================== */
 
+  /** Recherche de l'adresse renvoyée par l'API (`cabinet.adresse`, `cabinet.ville`) dans Google Maps. */
+  lienEmplacement(adresse: string): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`;
+  }
+
   changerOnglet(onglet: Onglet): void {
 
     this.ongletActif.set(onglet);

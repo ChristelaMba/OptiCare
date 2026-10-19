@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 
 import { Auth } from '../../../core/services/auth';
+import { Cabinet } from '../../../core/services/cabinet';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
   JourCalendrier,
@@ -36,7 +37,9 @@ export class PriseRdv implements OnInit {
   ====================================================== */
 
   cabinetId = '';
-  cabinetNom = 'Vision Parfaite Clinic';
+
+  /** Nom réel du cabinet, chargé via GET /cabinets/{id} (plus de valeur codée en dur). */
+  cabinetNom = signal('ce cabinet');
 
 
   /* =====================================================
@@ -140,6 +143,9 @@ export class PriseRdv implements OnInit {
 
   reservationConfirmee = signal(false);
 
+  /** true si le serveur a confirmé le RDV (patient connecté) ; false = « reserve », en attente du cabinet (visiteur). */
+  rdvConfirme = signal(false);
+
   erreurSoumission = signal<string | null>(null);
 
 
@@ -152,7 +158,8 @@ export class PriseRdv implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly rendezVousService: RendezVousService,
-    private readonly auth: Auth
+    private readonly auth: Auth,
+    private readonly cabinetService: Cabinet
   ) {
 
     this.form = this.fb.group({
@@ -199,6 +206,12 @@ export class PriseRdv implements OnInit {
 
     if (idFromRoute) {
       this.cabinetId = idFromRoute;
+
+      this.cabinetService.obtenirDetail(idFromRoute).subscribe({
+        next: (cabinet) => this.cabinetNom.set(cabinet.nom),
+        // Nom indisponible : on garde le libellé neutre, la réservation reste possible.
+        error: () => undefined
+      });
     }
 
 
@@ -771,8 +784,9 @@ export class PriseRdv implements OnInit {
       .creer(payload)
       .subscribe({
 
-        next: () => {
+        next: (rdv) => {
           this.enSoumission.set(false);
+          this.rdvConfirme.set(rdv.statut === 'confirme');
           this.reservationConfirmee.set(true);
         },
 
@@ -817,7 +831,7 @@ export class PriseRdv implements OnInit {
 
   allerAccueil(): void {
 
-    this.router.navigate(['/']);
+    this.router.navigate([this.estConnecte ? '/patient/rendez-vous' : '/']);
   }
 
 }
