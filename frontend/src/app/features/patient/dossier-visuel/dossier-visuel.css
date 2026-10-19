@@ -1,0 +1,1402 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+
+  /* =========================
+     MODE CLAIR
+  ========================== */
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+  --primary-soft: #dbeafe;
+
+  --text-main: #172033;
+  --text-dark: #1e293b;
+  --text-body: #475569;
+  --text-muted: #94a3b8;
+
+  --background: #f7f9fc;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --border: #e6ebf2;
+  --border-soft: #edf1f6;
+
+  --success: #15803d;
+  --success-bg: #f0fdf4;
+  --success-border: #dcfce7;
+
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+
+  --separator: #cbd5e1;
+
+  --card-shadow: 0 8px 25px rgba(15, 23, 42, 0.035);
+
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: var(--text-main);
+}
+
+
+/* =========================================================
+   MODE SOMBRE
+   Le .dark-mode vient du PatientLayout
+========================================================= */
+
+:host-context(.dark-mode) {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-light: #172554;
+  --primary-soft: #1e3a8a;
+
+  --text-main: #f8fafc;
+  --text-dark: #e2e8f0;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --background: #0f172a;
+  --surface: #111827;
+  --surface-soft: #1e293b;
+
+  --border: #273449;
+  --border-soft: #334155;
+
+  --success: #4ade80;
+  --success-bg: #052e16;
+  --success-border: #166534;
+
+  --danger: #f87171;
+  --danger-bg: #450a0a;
+  --danger-border: #7f1d1d;
+
+  --separator: #475569;
+
+  --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TYPOGRAPHIE
+========================================================= */
+
+h1,
+h2,
+h3 {
+  font-family: Poppins, Inter, "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+p {
+  letter-spacing: normal;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.dossier-page {
+  width: 100%;
+  min-height: 100%;
+  padding-bottom: 50px;
+
+  background: var(--background);
+  color: var(--text-main);
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+
+/* =========================================================
+   INTRODUCTION
+========================================================= */
+
+.page-intro {
+  width: min(1160px, calc(100% - 56px));
+  margin: 0 auto;
+
+  padding: 28px 0 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.title-icon {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  color: #fff;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #4f8df7
+  );
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.16);
+
+  font-size: 19px;
+}
+
+.icon-eye {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.title-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-label {
+  margin-bottom: 3px;
+
+  color: var(--primary);
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 1.2px;
+}
+
+.title-content h1 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 28px;
+  font-weight: 500;
+
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.patient-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin: 7px 0 0;
+
+  color: var(--text-body);
+
+  font-size: 12px;
+}
+
+.separator {
+  color: var(--separator);
+}
+
+
+/* =========================================================
+   STATUT
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 9px 14px;
+
+  border: 1px solid var(--success-border);
+  border-radius: 999px;
+
+  background: var(--success-bg);
+  color: var(--success);
+
+  font-size: 11px;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+.status-icon {
+  width: 15px;
+  height: 15px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--success-border);
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   CONTENEUR
+========================================================= */
+
+.dossier-container {
+  width: min(1160px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   CARTES
+========================================================= */
+
+.history-card,
+.detail-card,
+.documents-card,
+.loading-card,
+.error-card,
+.empty-state {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 17px;
+
+  box-shadow: var(--card-shadow);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    color 0.25s ease;
+}
+
+
+/* =========================================================
+   GRILLE
+========================================================= */
+
+.dossier-grid {
+  display: grid;
+
+  grid-template-columns: 300px minmax(0, 1fr);
+
+  gap: 20px;
+
+  align-items: start;
+}
+
+
+/* =========================================================
+   HISTORIQUE
+========================================================= */
+
+.history-card {
+  overflow: hidden;
+
+  position: sticky;
+  top: 20px;
+}
+
+.section-header {
+  padding: 17px 19px 14px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-icon {
+  width: 35px;
+  height: 35px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+}
+
+.section-icon.blue {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.section-icon.green {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.section-heading h2 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.section-heading p {
+  margin: 3px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline {
+  padding: 9px;
+}
+
+.timeline-item {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  gap: 11px;
+
+  padding: 13px 11px;
+
+  border: 0;
+  border-radius: 11px;
+
+  background: transparent;
+
+  text-align: left;
+  color: inherit;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.timeline-item:hover {
+  background: var(--surface-soft);
+}
+
+.timeline-item.active {
+  background: var(--primary-light);
+}
+
+.timeline-item.active:hover {
+  background: var(--primary-light);
+}
+
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+
+  margin-top: 5px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: var(--separator);
+
+  box-shadow:
+    0 0 0 4px var(--surface-soft);
+}
+
+.timeline-item.active .timeline-dot {
+  background: var(--primary);
+
+  box-shadow:
+    0 0 0 4px var(--primary-soft);
+}
+
+.timeline-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.timeline-date,
+.cabinet {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.small-icon {
+  font-size: 11px;
+}
+
+.timeline-motif {
+  color: var(--text-main);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: 2px;
+
+  color: var(--primary);
+
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.arrow-icon {
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   COLONNE DROITE
+========================================================= */
+
+.details-column {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+
+/* =========================================================
+   DETAIL CONSULTATION
+========================================================= */
+
+.detail-card {
+  padding: 22px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.small-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 1px;
+}
+
+.detail-header h2 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.detail-header p {
+  margin: 5px 0 0;
+
+  color: var(--text-body);
+
+  font-size: 11px;
+}
+
+.detail-header p span {
+  margin: 0 5px;
+
+  color: var(--separator);
+}
+
+.consultation-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   INFORMATIONS
+========================================================= */
+
+.info-section {
+  padding: 15px 0;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.info-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin: 0 0 7px;
+
+  color: var(--text-main);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.info-icon {
+  color: var(--primary);
+
+  font-size: 14px;
+
+  line-height: 1;
+}
+
+.info-section p {
+  margin: 0;
+
+  color: var(--text-body);
+
+  font-size: 12px;
+  font-weight: 400;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   PRESCRIPTION
+========================================================= */
+
+.prescription-section {
+  padding-top: 17px;
+}
+
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 12px;
+}
+
+.prescription-icon {
+  color: var(--primary);
+
+  font-size: 14px;
+}
+
+.subsection-title h3 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   YEUX
+========================================================= */
+
+.eyes-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.eye-card {
+  padding: 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  background: var(--surface-soft);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.eye-header {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding-bottom: 11px;
+  margin-bottom: 11px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.eye-symbol {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.eye-name {
+  display: block;
+
+  color: var(--text-main);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.eye-header span:last-child {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.prescription-values {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 7px;
+}
+
+.prescription-values > div {
+  padding: 8px;
+
+  border: 1px solid var(--border-soft);
+
+  border-radius: 8px;
+
+  background: var(--surface);
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.prescription-values span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+}
+
+.prescription-values strong {
+  color: var(--text-main);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   DOCUMENTS
+========================================================= */
+
+.documents-card {
+  overflow: hidden;
+}
+
+.documents-list {
+  padding: 5px 20px 10px;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  column-gap: 25px;
+}
+
+.document-item {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.document-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.pdf-icon {
+  width: 35px;
+  height: 35px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.pdf-icon span {
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.document-left .document-name {
+  display: block;
+
+  max-width: 100%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: var(--text-main);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.document-left > div > span:last-child {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.download-button {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: var(--surface);
+  color: var(--text-body);
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.download-button:hover {
+  background: var(--primary-light);
+
+  border-color: var(--primary-soft);
+
+  color: var(--primary);
+}
+
+.download-button span {
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   AUCUN DOCUMENT
+========================================================= */
+
+.no-documents {
+  padding: 28px 20px;
+
+  text-align: center;
+}
+
+.no-document-icon {
+  color: var(--text-muted);
+
+  font-size: 24px;
+}
+
+.no-documents p {
+  max-width: 300px;
+
+  margin: 9px auto 0;
+
+  color: var(--text-muted);
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   BOUTON PRINCIPAL
+========================================================= */
+
+.download-all {
+  display: flex;
+
+  justify-content: flex-end;
+
+  padding-top: 1px;
+}
+
+.btn-primary {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: 0;
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
+
+  color: #fff;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(37, 99, 235, 0.16);
+
+  transition: 0.2s ease;
+}
+
+.button-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 11px 22px rgba(37, 99, 235, 0.23);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+.loading-card {
+  min-height: 220px;
+
+  padding: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 17px;
+}
+
+.loader {
+  width: 27px;
+  height: 27px;
+
+  flex-shrink: 0;
+
+  border: 3px solid var(--primary-soft);
+
+  border-top-color: var(--primary);
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-card h2 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.loading-card p {
+  margin: 4px 0 0;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   ERREUR
+========================================================= */
+
+.error-card {
+  padding: 24px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  border-color: var(--danger-border);
+
+  background: var(--danger-bg);
+}
+
+.error-icon {
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: var(--danger-border);
+  color: var(--danger);
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.error-card h2 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.error-card p {
+  margin: 4px 0 12px;
+
+  color: var(--text-body);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   DOSSIER VIDE
+========================================================= */
+
+.empty-state {
+  padding: 65px 25px;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  font-size: 25px;
+}
+
+.empty-label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 1px;
+}
+
+.empty-state h2 {
+  margin: 5px 0;
+
+  color: var(--text-main);
+
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.empty-state p {
+  max-width: 430px;
+
+  margin: 0 auto 17px;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .dossier-grid {
+    grid-template-columns: 260px minmax(0, 1fr);
+
+    gap: 15px;
+  }
+
+  .documents-list {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card {
+    position: static;
+  }
+}
+
+
+/* =========================================================
+   TABLET PETIT
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .page-intro {
+    padding: 22px 0 18px;
+  }
+
+  .title-content h1 {
+    font-size: 22px;
+  }
+
+  .status-badge {
+    display: none;
+  }
+
+  .dossier-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card {
+    position: static;
+  }
+
+  .timeline {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 4px;
+  }
+
+  .timeline-item {
+    min-height: 95px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .page-intro,
+  .dossier-container {
+    width: calc(100% - 28px);
+  }
+
+  .dossier-grid {
+    gap: 13px;
+  }
+
+  .timeline {
+    display: block;
+  }
+
+  .detail-card {
+    padding: 17px;
+  }
+
+  .eyes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   PETIT MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .page-intro {
+    padding: 19px 0 16px;
+  }
+
+  .title-row {
+    align-items: flex-start;
+  }
+
+  .title-icon {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 11px;
+
+    font-size: 16px;
+  }
+
+  .title-content h1 {
+    font-size: 20px;
+  }
+
+  .patient-summary {
+    font-size: 11px;
+  }
+
+  .detail-header h2 {
+    font-size: 17px;
+  }
+
+  .prescription-values {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .download-all {
+    justify-content: stretch;
+  }
+
+  .download-all .btn-primary {
+    width: 100%;
+  }
+
+  .documents-list {
+    display: block;
+
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .loading-card {
+    padding: 24px 17px;
+  }
+}
+
+
+/* =========================================================
+   TRÈS PETIT MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .page-intro,
+  .dossier-container {
+    width: calc(100% - 20px);
+  }
+
+  .title-icon {
+    width: 37px;
+    height: 37px;
+
+    font-size: 14px;
+  }
+
+  .title-content h1 {
+    font-size: 19px;
+  }
+
+  .page-label {
+    font-size: 9px;
+  }
+
+  .patient-summary {
+    gap: 5px;
+
+    font-size: 10px;
+  }
+
+  .section-header {
+    padding: 15px;
+  }
+
+  .timeline {
+    padding: 6px 8px 10px;
+  }
+
+  .prescription-values {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITÉ
+========================================================= */
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   TRANSITION DARK MODE
+========================================================= */
+
+.dossier-page,
+.history-card,
+.detail-card,
+.documents-card,
+.loading-card,
+.error-card,
+.empty-state,
+.eye-card,
+.prescription-values > div,
+.download-button {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}

@@ -1,0 +1,769 @@
+<div class="page">
+
+  <!-- =====================================================
+       EN-TÊTE
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-left">
+
+      <button
+        type="button"
+        class="back-link"
+        (click)="retourDossier()"
+      >
+        <span class="back-icon">←</span>
+        Retour au dossier
+      </button>
+
+      <div class="header-title">
+
+        <div class="title-icon">
+          👓
+        </div>
+
+        <div>
+          <h1>Suivi de commande</h1>
+          <p>
+            Suivez l'avancement de la commande de votre patient.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       CHARGEMENT
+  ====================================================== -->
+
+  @if (chargement()) {
+
+    <div class="loading-card">
+
+      <div class="spinner"></div>
+
+      <p>Chargement de la commande...</p>
+
+    </div>
+
+  }
+
+
+  <!-- =====================================================
+       ERREUR / AUCUNE COMMANDE
+  ====================================================== -->
+
+  @if (!chargement() && messageErreur()) {
+
+    <div class="empty-state">
+
+      <div class="empty-icon">
+        📦
+      </div>
+
+      <h2>Aucune commande</h2>
+
+      <p>
+        {{ messageErreur() }}
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="retournerPatients()"
+      >
+        Retour à mes patients
+      </button>
+
+    </div>
+
+  }
+
+
+  <!-- =====================================================
+       CONTENU COMMANDE
+  ====================================================== -->
+
+  @if (!chargement() && commande(); as commande) {
+
+    <main class="content">
+
+
+      <!-- =================================================
+           PATIENT
+      ================================================== -->
+
+      <section class="patient-card">
+
+        <div class="patient-avatar">
+          {{ initiales() }}
+        </div>
+
+        <div class="patient-info">
+
+          <span class="eyebrow">
+            Patient
+          </span>
+
+          <h2>
+            {{ patientNom() }}
+          </h2>
+
+          <p>
+            {{ patientTelephone() }}
+          </p>
+
+        </div>
+
+        <div class="patient-reference">
+
+          <span>Référence commande</span>
+
+          <strong>
+            {{ commande.id }}
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           STATUT ACTUEL
+      ================================================== -->
+
+      <section class="section-card">
+
+        <div class="section-header">
+
+          <div>
+            <span class="section-kicker">
+              État de la commande
+            </span>
+
+            <h2>Avancement</h2>
+          </div>
+
+          <span
+            class="status-badge"
+            [ngClass]="statutClasse(commande.statut)"
+          >
+            {{ statutLibelle(commande.statut) }}
+          </span>
+
+        </div>
+
+
+        <!-- Timeline -->
+
+        <div class="timeline">
+
+          <!-- Étape 1 -->
+
+          <div
+            class="timeline-step"
+            [class.active]="etapeTerminee(1, commande.statut)"
+          >
+
+            <div class="timeline-circle">
+              @if (etapeTerminee(1, commande.statut)) {
+                ✓
+              } @else {
+                1
+              }
+            </div>
+
+            <div class="timeline-content">
+
+              <strong>Commande initiée</strong>
+
+              <span>
+                La commande a été créée.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- Étape 2 -->
+
+          <div
+            class="timeline-step"
+            [class.active]="etapeTerminee(2, commande.statut)"
+          >
+
+            <div class="timeline-circle">
+              @if (etapeTerminee(2, commande.statut)) {
+                ✓
+              } @else {
+                2
+              }
+            </div>
+
+            <div class="timeline-content">
+
+              <strong>En cours</strong>
+
+              <span>
+                La commande est en préparation.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- Étape 3 -->
+
+          <div
+            class="timeline-step"
+            [class.active]="etapeTerminee(3, commande.statut)"
+          >
+
+            <div class="timeline-circle">
+              @if (etapeTerminee(3, commande.statut)) {
+                ✓
+              } @else {
+                3
+              }
+            </div>
+
+            <div class="timeline-content">
+
+              <strong>Vérification</strong>
+
+              <span>
+                Vérification finale de la commande.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- Étape 4 -->
+
+          <div
+            class="timeline-step"
+            [class.active]="etapeTerminee(4, commande.statut)"
+          >
+
+            <div class="timeline-circle">
+              @if (etapeTerminee(4, commande.statut)) {
+                ✓
+              } @else {
+                4
+              }
+            </div>
+
+            <div class="timeline-content">
+
+              <strong>Terminée</strong>
+
+              <span>
+                La commande est prête.
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           ACTIONS STATUT
+      ================================================== -->
+
+      <section class="section-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <span class="section-kicker">
+              Gestion
+            </span>
+
+            <h2>Modifier le statut</h2>
+
+          </div>
+
+        </div>
+
+        <div class="status-actions">
+
+          <button
+            type="button"
+            class="status-action"
+            [class.selected]="commande.statut === 'initie'"
+            (click)="changerStatut('initie')"
+          >
+            <span class="action-dot dot-initie"></span>
+            Initiée
+          </button>
+
+
+          <button
+            type="button"
+            class="status-action"
+            [class.selected]="commande.statut === 'enCours'"
+            (click)="changerStatut('enCours')"
+          >
+            <span class="action-dot dot-encours"></span>
+            En cours
+          </button>
+
+
+          <button
+            type="button"
+            class="status-action"
+            [class.selected]="commande.statut === 'enVerification'"
+            (click)="changerStatut('enVerification')"
+          >
+            <span class="action-dot dot-verification"></span>
+            En vérification
+          </button>
+
+
+          <button
+            type="button"
+            class="status-action"
+            [class.selected]="commande.statut === 'termine'"
+            (click)="changerStatut('termine')"
+          >
+            <span class="action-dot dot-termine"></span>
+            Terminée
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           INFORMATIONS COMMANDE
+      ================================================== -->
+
+      <section class="section-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <span class="section-kicker">
+              Détails
+            </span>
+
+            <h2>Informations de la commande</h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Numéro de monture
+            </span>
+
+            <strong>
+              {{ commande.numeroMonture || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Type de verre
+            </span>
+
+            <strong>
+              {{ commande.typeVerre || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Teinte
+            </span>
+
+            <strong>
+              {{ commande.teinte || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Port
+            </span>
+
+            <strong>
+              {{ commande.port || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Antireflet
+            </span>
+
+            <strong>
+              {{ commande.antireflet || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Prise en charge
+            </span>
+
+            <strong>
+              {{ commande.priseEnChargeId }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="description-box">
+
+          <span class="detail-label">
+            Description des foyers
+          </span>
+
+          <p>
+            {{ commande.descriptionFoyers || 'Aucune description.' }}
+          </p>
+
+        </div>
+
+
+        <div class="description-box">
+
+          <span class="detail-label">
+            Autres détails
+          </span>
+
+          <p>
+            {{ commande.autresDetails || 'Aucun détail supplémentaire.' }}
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           DIAGNOSTIC OEIL DROIT / GAUCHE
+      ================================================== -->
+
+      <section class="section-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <span class="section-kicker">
+              Prescription
+            </span>
+
+            <h2>Diagnostic visuel</h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="eyes-grid">
+
+
+          <!-- OEIL DROIT -->
+
+          <div class="eye-card">
+
+            <div class="eye-header">
+
+              <div class="eye-icon">
+                OD
+              </div>
+
+              <div>
+                <h3>Œil droit</h3>
+                <span>OD</span>
+              </div>
+
+            </div>
+
+
+            <div class="prescription-grid">
+
+              <div class="prescription-item">
+
+                <span>Sphère</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilDroit.sphere
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Cylindre</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilDroit.cylindre
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Axe</span>
+
+                <strong>
+                  {{
+                    formatAxe(
+                      commande.diagnosticOeilDroit.axe
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Addition</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilDroit.addition
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- OEIL GAUCHE -->
+
+          <div class="eye-card">
+
+            <div class="eye-header">
+
+              <div class="eye-icon">
+                OG
+              </div>
+
+              <div>
+                <h3>Œil gauche</h3>
+                <span>OG</span>
+              </div>
+
+            </div>
+
+
+            <div class="prescription-grid">
+
+              <div class="prescription-item">
+
+                <span>Sphère</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilGauche.sphere
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Cylindre</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilGauche.cylindre
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Axe</span>
+
+                <strong>
+                  {{
+                    formatAxe(
+                      commande.diagnosticOeilGauche.axe
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="prescription-item">
+
+                <span>Addition</span>
+
+                <strong>
+                  {{
+                    formatDioptrie(
+                      commande.diagnosticOeilGauche.addition
+                    )
+                  }}
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           DATES
+      ================================================== -->
+
+      <section class="dates-grid">
+
+        <div class="date-card">
+
+          <div class="date-icon">
+            📅
+          </div>
+
+          <div>
+
+            <span>
+              Date d'initiation
+            </span>
+
+            <strong>
+              {{ formaterDate(commande.dateInitiation) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="date-card">
+
+          <div class="date-icon">
+            🔄
+          </div>
+
+          <div>
+
+            <span>
+              Dernière mise à jour
+            </span>
+
+            <strong>
+              {{
+                formaterDate(
+                  commande.dateDerniereMiseAJour
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           NOTIFICATION
+      ================================================== -->
+
+      @if (commande.statut === 'termine') {
+
+        <section class="notification-card">
+
+          <div class="notification-icon">
+            ✓
+          </div>
+
+          <div>
+
+            <h3>Commande terminée</h3>
+
+            <p>
+              La commande est prête.
+              @if (commande.notificationEnvoyee) {
+                Une notification a été envoyée au patient.
+              } @else {
+                La notification sera gérée automatiquement
+                par le système.
+              }
+            </p>
+
+          </div>
+
+        </section>
+
+      }
+
+    </main>
+
+  }
+
+</div>

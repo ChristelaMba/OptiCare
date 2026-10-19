@@ -1,0 +1,253 @@
+<div class="page-container">
+  <header class="page-header">
+    <div class="header-content">
+      <span class="eyebrow">ESPACE PATIENT</span>
+      <h1>Compléter mon dossier visuel</h1>
+      <p>
+        Renseignez vos habitudes visuelles et vos antécédents pour aider
+        le professionnel de santé à mieux vous accompagner.
+      </p>
+    </div>
+
+    <div class="header-icon" aria-hidden="true">
+      <i class="fa-solid fa-eye"></i>
+    </div>
+  </header>
+
+  <div class="information-banner">
+    <i class="fa-solid fa-circle-info"></i>
+    <p>
+      Répondez aux questions avec précision. Ces informations ne remplacent
+      pas un examen réalisé par un opticien ou un ophtalmologue.
+    </p>
+  </div>
+
+  <form
+    #dossierForm="ngForm"
+    (ngSubmit)="soumettreFormulaire()"
+    class="dossier-form"
+  >
+    <section class="form-section">
+      <div class="section-heading">
+        <span class="section-icon">
+          <i class="fa-solid fa-glasses"></i>
+        </span>
+
+        <div>
+          <h2>Mes habitudes visuelles</h2>
+          <p>Indiquez les équipements que vous utilisez.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="porteLunettes">Portez-vous des lunettes ?</label>
+          <select
+            id="porteLunettes"
+            name="porteLunettes"
+            [(ngModel)]="informations.porteLunettes"
+          >
+            <option value="">Sélectionner une réponse</option>
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+            <option value="occasionnellement">Occasionnellement</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="porteLentilles">Portez-vous des lentilles ?</label>
+          <select
+            id="porteLentilles"
+            name="porteLentilles"
+            [(ngModel)]="informations.porteLentilles"
+          >
+            <option value="">Sélectionner une réponse</option>
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+            <option value="occasionnellement">Occasionnellement</option>
+          </select>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="dernierExamen">Date du dernier examen visuel</label>
+          <input
+            id="dernierExamen"
+            name="dernierExamen"
+            type="date"
+            [(ngModel)]="informations.dernierExamen"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-heading">
+        <span class="section-icon">
+          <i class="fa-solid fa-eye"></i>
+        </span>
+
+        <div>
+          <h2>Mes symptômes visuels</h2>
+          <p>Cochez les symptômes que vous ressentez actuellement.</p>
+        </div>
+      </div>
+
+      <div class="symptoms-grid">
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="visionFlouLoin"
+            [(ngModel)]="informations.visionFlouLoin"
+          />
+          <span>Vision floue de loin</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="visionFlouPres"
+            [(ngModel)]="informations.visionFlouPres"
+          />
+          <span>Vision floue de près</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="visionDouble"
+            [(ngModel)]="informations.visionDouble"
+          />
+          <span>Vision double</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="demangeaisons"
+            [(ngModel)]="informations.demangeaisons"
+          />
+          <span>Démangeaisons des yeux</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="larmoiement"
+            [(ngModel)]="informations.larmoiement"
+          />
+          <span>Larmoiement</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="douleursOculaires"
+            [(ngModel)]="informations.douleursOculaires"
+          />
+          <span>Douleurs oculaires</span>
+        </label>
+
+        <label class="symptom-option">
+          <input
+            type="checkbox"
+            name="mauxDeTete"
+            [(ngModel)]="informations.mauxDeTete"
+          />
+          <span>Maux de tête fréquents</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-heading">
+        <span class="section-icon">
+          <i class="fa-solid fa-notes-medical"></i>
+        </span>
+
+        <div>
+          <h2>Mes antécédents</h2>
+          <p>Ajoutez les informations utiles à votre suivi visuel.</p>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="antecedentsOculaires">
+          Antécédents ou maladies oculaires
+        </label>
+        <textarea
+          id="antecedentsOculaires"
+          name="antecedentsOculaires"
+          rows="3"
+          placeholder="Ex. : antécédents familiaux, ancienne maladie oculaire..."
+          [(ngModel)]="informations.antecedentsOculaires"
+        ></textarea>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="traitementEnCours">Traitement en cours</label>
+          <textarea
+            id="traitementEnCours"
+            name="traitementEnCours"
+            rows="3"
+            placeholder="Indiquez vos traitements éventuels"
+            [(ngModel)]="informations.traitementEnCours"
+          ></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="allergies">Allergies connues</label>
+          <textarea
+            id="allergies"
+            name="allergies"
+            rows="3"
+            placeholder="Indiquez vos allergies éventuelles"
+            [(ngModel)]="informations.allergies"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="remarques">Autres informations</label>
+        <textarea
+          id="remarques"
+          name="remarques"
+          rows="4"
+          placeholder="Décrivez toute autre information utile concernant votre vision..."
+          [(ngModel)]="informations.remarques"
+        ></textarea>
+      </div>
+    </section>
+
+    <div
+      *ngIf="envoiDemande()"
+      class="form-message"
+      [class.error-message]="typeMessage() === 'erreur'"
+      role="status"
+      aria-live="polite"
+    >
+      <i class="fa-solid fa-circle-info"></i>
+      <span>{{ message() }}</span>
+    </div>
+
+    <footer class="form-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="reinitialiserFormulaire()"
+      >
+        <i class="fa-solid fa-rotate-left"></i>
+        Réinitialiser
+      </button>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="dossierForm.invalid"
+      >
+        <i class="fa-solid fa-floppy-disk"></i>
+        Préparer l'enregistrement
+      </button>
+    </footer>
+  </form>
+</div>

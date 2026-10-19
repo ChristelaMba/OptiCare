@@ -1,0 +1,151 @@
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+
+import { Auth } from '../../../core/services/auth';
+import { RendezVousService } from '../../../core/services/rendez-vous';
+import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
+import { StatutRendezVous } from '../../../models/rendez-vous.model';
+
+const TAILLE_PAGE = 8;
+
+const LABEL_STATUT: Record<StatutRendezVous, string> = {
+  libre: 'Libre',
+  reserve: 'En attente',
+  confirme: 'Confirmé',
+  termine: 'Terminé',
+  annule: 'Annulé',
+  non_honore: 'Non honoré',
+};
+
+/**
+ * Reproduction de la maquette `maquette/historique_des_rendez_vous_opticare_admin/`.
+ * 2026-09-07 : le statut « Non présenté » de la maquette est de retour —
+ * il correspond à la valeur `non_honore` du back-end réel (avant, ce
+ * statut avait été retiré faute d'équivalent dans le modèle). Vocabulaire
+ * complet aligné sur l'API : libre | reserve | confirme | annule |
+ * termine | non_honore. `libre` est un état de créneau et n'apparaît
+ * jamais dans cet historique. Le bouton « Exporter » télécharge un CSV
+ * des lignes actuellement filtrées (fonctionnalité réelle).
+ */
+@Component({
+  selector: 'app-historique-rdv',
+  imports: [DatePipe, FormsModule, RouterLink],
+  templateUrl: './historique-rdv.html',
+  styleUrl: './historique-rdv.css',
+})
+export class HistoriqueRdv implements OnInit {
+  private readonly auth = inject(Auth);
+  private readonly rendezVousService = inject(RendezVousService);
+
+  private readonly cabinetId = this.auth.utilisateur()?.cabinetId ?? null;
+
+  readonly chargement = signal(true);
+  readonly erreur = signal<string | null>(null);
+  private readonly rendezVous = signal<RendezVousAffichage[]>([]);
+
+  readonly labelStatut = LABEL_STATUT;
+  // 'libre' volontairement absent : état de créneau, pas un rendez-vous.
+  readonly statuts: StatutRendezVous[] = ['reserve', 'confirme', 'termine', 'annule', 'non_honore'];
+
+  readonly texteRecherche = signal('');
+  readonly filtreStatut = signal<StatutRendezVous | 'tous'>('tous');
+  readonly filtreOpticien = signal<string>('tous');
+  readonly pageActuelle = signal(1);
+
+  readonly opticiensDisponibles = computed(() =>
+    [...new Set(this.rendezVous().map((r) => r.praticienNom).filter((nom): nom is string => !!nom))].sort((a, b) =>
+      a.localeCompare(b),
+    ),
+  );
+
+  private readonly rendezVousFiltres = computed(() => {
+    const texte = this.texteRecherche().trim().toLowerCase();
+    const statut = this.filtreStatut();
+    const opticien = this.filtreOpticien();
+
+    return [...this.rendezVous()]
+      // 'libre' = état de créneau, jamais listé dans l'historique.
+      .filter((r) => r.statut !== 'libre')
+      // `date` est une chaîne ISO (YYYY-MM-DD) : triable lexicalement, pas besoin de Date/getTime().
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .filter((r) => {
+        const nomPatient = (r.nomPatientAffiche ?? '').toLowerCase();
+        const correspondTexte = !texte || nomPatient.includes(texte) || r.motif.toLowerCase().includes(texte);
+        const correspondStatut = statut === 'tous' || r.statut === statut;
+        const correspondOpticien = opticien === 'tous' || r.praticienNom === opticien;
+        return correspondTexte && correspondStatut && correspondOpticien;
+      });
+  });
+
+  readonly nombrePages = computed(() => Math.max(1, Math.ceil(this.rendezVousFiltres().length / TAILLE_PAGE)));
+  readonly pageAffichee = computed(() => Math.min(this.pageActuelle(), this.nombrePages()));
+  readonly totalResultats = computed(() => this.rendezVousFiltres().length);
+
+  readonly rendezVousPage = computed(() => {
+    const debut = (this.pageAffichee() - 1) * TAILLE_PAGE;
+    return this.rendezVousFiltres().slice(debut, debut + TAILLE_PAGE);
+  });
+
+  readonly numerosPages = computed(() => Array.from({ length: this.nombrePages() }, (_, i) => i + 1));
+
+  ngOnInit(): void {
+    if (!this.cabinetId) {
+      this.chargement.set(false);
+      this.erreur.set("Aucun cabinet rattaché à ce compte — impossible d'afficher l'historique.");
+      return;
+    }
+
+    this.rendezVousService.listerParCabinet(this.cabinetId).subscribe({
+      next: (rendezVous) => {
+        // Pas de cast : RendezVousAffichage n'ajoute qu'un champ optionnel
+        // (nomPatientAffiche) à RendezVous, donc un RendezVous[] est déjà
+        // assignable tel quel. Si ça cesse un jour de compiler ici, c'est
+        // que le contrat a vraiment divergé — et il faut le voir, pas le masquer.
+        this.rendezVous.set(rendezVous);
+        this.chargement.set(false);
+      },
+      error: () => {
+        this.chargement.set(false);
+        this.erreur.set("Impossible de charger l'historique pour le moment. Réessayez plus tard.");
+      },
+    });
+  }
+
+  allerPage(page: number): void {
+    this.pageActuelle.set(Math.min(Math.max(1, page), this.nombrePages()));
+  }
+
+  initiales(nom: string): string {
+    return nom
+      .split(' ')
+      .map((mot) => mot.charAt(0))
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
+
+  /** Export CSV des lignes filtrées — fonctionnalité réelle, purement côté client. */
+  exporterCsv(): void {
+    const lignes = [
+      ['Patient', 'Motif', 'Date', 'Heure', 'Statut', 'Opticien(ne)'],
+      ...this.rendezVousFiltres().map((r) => [
+        r.nomPatientAffiche ?? 'Patient',
+        r.motif,
+        new Date(r.date).toLocaleDateString('fr-FR'),
+        `${r.heureDebut} - ${r.heureFin}`,
+        this.labelStatut[r.statut],
+        r.praticienNom ?? '',
+      ]),
+    ];
+    const csv = lignes.map((ligne) => ligne.map((champ) => `"${champ.replace(/"/g, '""')}"`).join(';')).join('\n');
+    const blob = new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const lien = document.createElement('a');
+    lien.href = url;
+    lien.download = `historique-rendez-vous-${new Date().toISOString().slice(0, 10)}.csv`;
+    lien.click();
+    URL.revokeObjectURL(url);
+  }
+}
