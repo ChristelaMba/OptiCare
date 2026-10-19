@@ -16,20 +16,7 @@
         </a>
       </div>
 
-      <div class="flex items-center gap-space-3">
-        <a
-          routerLink="/auth/connexion"
-          class="font-button text-button text-primary hover:bg-surface-container-high px-space-4 py-space-2 rounded-full transition-colors hidden sm:block"
-        >
-          Connexion
-        </a>
-        <a
-          routerLink="/auth/inscription"
-          class="font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant px-space-6 py-space-2 rounded-full transition-colors shadow-sm hover:shadow-md"
-        >
-          Inscription
-        </a>
-      </div>
+      <app-actions-session />
     </div>
   </nav>
 
@@ -185,33 +172,8 @@
         </div>
       </section>
 
-      <!-- Nos Services -->
-      <!--
-        SUPPOSITION : le modèle Cabinet (§5 du cahier des charges) ne définit
-        aucun champ « services » — contenu générique identique pour tous les
-        cabinets, reproduit tel quel depuis la maquette accueil_cabinet, en
-        attendant que ce champ soit défini côté back-end.
-      -->
-      <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
-        <div class="flex flex-col items-center text-center mb-space-8">
-          <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-2">
-            <span class="material-symbols-outlined text-primary text-3xl">medical_services</span>
-            Nos Services
-          </h2>
-          <p class="font-body text-body-base text-text-muted max-w-2xl">
-            Des soins oculaires complets adaptés à vos besoins, utilisant les dernières technologies de diagnostic.
-          </p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-space-6">
-          @for (service of services; track service.titre) {
-            <div class="bg-surface-bg p-space-6 rounded-xl border border-border-subtle hover:border-primary hover:shadow-md transition-all flex flex-col items-center text-center gap-space-4 group">
-              <span class="material-symbols-outlined text-4xl text-primary group-hover:scale-110 transition-transform bg-primary/10 p-space-4 rounded-full">{{ service.icone }}</span>
-              <span class="font-heading text-headline-h3 text-on-surface">{{ service.titre }}</span>
-              <p class="font-body text-body-base text-text-muted">{{ service.description }}</p>
-            </div>
-          }
-        </div>
-      </section>
+      <!-- « Nos Services » retiré : l'API ne fournit aucun service par cabinet, la liste précédente était
+           écrite en dur et identique pour tous. À rétablir quand le back exposera ce champ. -->
 
       <!-- Localisation & Horaires -->
       <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
@@ -349,7 +311,7 @@
     <footer class="w-full bg-inverse-surface mt-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
         <div class="flex flex-col gap-space-4">
-          <img src="/images/logo-opticare.png" alt="OptiCare" class="h-5 w-auto" />
+          <app-logo-pied-de-page />
           <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
         </div>
         <div class="flex flex-col gap-space-3">
@@ -360,8 +322,8 @@
         </div>
         <div class="flex flex-col gap-space-3">
           <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>
-          <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Mentions légales</a>
-          <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Conditions d'utilisation</a>
+          <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Mentions légales</span>
+          <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Conditions d'utilisation</span>
         </div>
         <div class="flex flex-col gap-space-3">
           <h4 class="font-button text-button text-inverse-on-surface">Contact</h4>

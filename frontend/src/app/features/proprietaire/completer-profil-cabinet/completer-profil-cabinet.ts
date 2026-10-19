@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 type JourSemaine = HoraireOuverture['jour'];
 
@@ -36,7 +37,7 @@ const MAX_PHOTOS = 4;
  */
 @Component({
   selector: 'app-completer-profil-cabinet',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './completer-profil-cabinet.html',
   styleUrl: './completer-profil-cabinet.css',
 })

@@ -7,6 +7,7 @@ import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
 import { StatutRendezVous } from '../../../models/rendez-vous.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 const TAILLE_PAGE = 8;
 
@@ -31,7 +32,7 @@ const LABEL_STATUT: Record<StatutRendezVous, string> = {
  */
 @Component({
   selector: 'app-historique-rdv',
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './historique-rdv.html',
   styleUrl: './historique-rdv.css',
 })

@@ -99,11 +99,57 @@ describe('MesNotifications', () => {
     expect(component.notifications()).toEqual([]);
   });
 
-  it('aucun marquage « lu » ni suppression locale (non branchés)', async () => {
+  it('marquer comme lue : PUT /notifications/{id}/read, puis la notification est lue et le compteur baisse', async () => {
+    await repondre(reponseListe(NOTIFICATIONS, 1));
+
+    component.marquerCommeLue(component.notifications()[0]);
+
+    const req = http.expectOne((r) => r.url.endsWith('/notifications/21/read'));
+    expect(req.request.method).toBe('PUT');
+    expect(component.notifications()[0].lue).toBe(false);
+    req.flush({ status: 'success', message: 'Notification marquée comme lue.', data: null });
+
+    expect(component.notifications()[0].lue).toBe(true);
+    expect(component.notificationsNonLues()).toBe(0);
+    expect(component.erreurAction()).toBeNull();
+  });
+
+  it("échec du marquage : rien ne change à l'écran, message d'erreur", async () => {
+    await repondre(reponseListe(NOTIFICATIONS, 1));
+
+    component.marquerCommeLue(component.notifications()[0]);
+    http.expectOne((r) => r.url.endsWith('/notifications/21/read')).flush({ message: 'boom' }, { status: 500, statusText: 'x' });
+
+    expect(component.notifications()[0].lue).toBe(false);
+    expect(component.notificationsNonLues()).toBe(1);
+    expect(component.erreurAction()).toContain('Impossible de marquer');
+  });
+
+  it('tout marquer comme lu : PUT /notifications/read-all, tout est lu, compteur à 0', async () => {
+    await repondre(reponseListe(NOTIFICATIONS, 1));
+
+    component.toutMarquerCommeLu();
+
+    const req = http.expectOne((r) => r.url.endsWith('/notifications/read-all'));
+    expect(req.request.method).toBe('PUT');
+    req.flush({ status: 'success', message: 'ok', data: null });
+
+    expect(component.notifications().every((n) => n.lue)).toBe(true);
+    expect(component.notificationsNonLues()).toBe(0);
+  });
+
+  it('une notification déjà lue ne déclenche aucun appel', async () => {
+    await repondre(reponseListe(NOTIFICATIONS, 1));
+
+    component.marquerCommeLue(component.notifications()[1]);
+
+    http.expectNone((r) => r.url.includes('/read'));
+    expect(component.notifications()[1].lue).toBe(true);
+  });
+
+  it('plus de suppression locale (aucune route de suppression)', async () => {
     const el = await repondre(reponseListe(NOTIFICATIONS, 1));
 
-    expect(el.textContent).not.toContain('Marquer comme lue');
-    expect(el.textContent).not.toContain('Tout marquer comme lu');
     expect(el.querySelector('.delete-btn')).toBeNull();
     expect(el.querySelector('.clear-button')).toBeNull();
   });

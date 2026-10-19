@@ -369,6 +369,27 @@
 
 
     <!-- ===================================================
+         DÉCONNEXION
+    ==================================================== -->
+
+    <div class="sidebar-logout">
+      <app-bouton-deconnexion classe="logout-button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span>Se déconnecter</span>
+      </app-bouton-deconnexion>
+    </div>
+
+
+    <!-- ===================================================
          AIDE
     ==================================================== -->
 
@@ -561,23 +582,51 @@
              PROFIL
         ================================================== -->
 
-        <div class="topbar-profile" aria-label="Compte connecté">
+        <div class="topbar-profile-menu">
 
-          <span class="topbar-avatar">
-            {{ initiales() }}
-          </span>
+          <button
+            type="button"
+            class="topbar-profile"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuProfilOuvert()"
+            aria-label="Menu du compte"
+            (click)="toggleMenuProfil()"
+          >
 
-          <span class="topbar-profile-info">
+            <span class="topbar-avatar">
+              {{ initiales() }}
+            </span>
 
-            <strong>
-              {{ nomComplet() }}
-            </strong>
+            <span class="topbar-profile-info">
 
-            <small>
-              Patient
-            </small>
+              <strong>
+                {{ nomComplet() }}
+              </strong>
 
-          </span>
+              <small>
+                Patient
+              </small>
+
+            </span>
+
+          </button>
+
+          @if (menuProfilOuvert()) {
+
+            <div class="profile-dropdown" role="menu">
+
+              <div class="profile-dropdown-identity">
+                <strong>{{ nomComplet() }}</strong>
+                <span>Patient</span>
+              </div>
+
+              <app-bouton-deconnexion classe="profile-dropdown-item">
+                <span>Se déconnecter</span>
+              </app-bouton-deconnexion>
+
+            </div>
+
+          }
 
         </div>
 

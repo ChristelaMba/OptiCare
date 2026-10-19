@@ -31,20 +31,7 @@
         </a>
       </div>
 
-      <div class="flex items-center gap-space-3">
-        <a
-          routerLink="/auth/connexion"
-          class="font-button text-button text-primary hover:bg-surface-container-high px-space-4 py-space-2 rounded-full transition-colors"
-        >
-          Connexion
-        </a>
-        <a
-          routerLink="/auth/inscription"
-          class="font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant px-space-6 py-space-2 rounded-full transition-colors shadow-sm hover:shadow-md"
-        >
-          Inscription
-        </a>
-      </div>
+      <app-actions-session />
     </div>
   </nav>
 
@@ -292,10 +279,7 @@
   <footer class="w-full bg-inverse-surface mt-space-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
       <div class="flex flex-col gap-space-4">
-        <!-- Logo bleu sur fond bleu nuit = illisible : pastille blanche, proportions d'origine (840×210) -->
-        <span class="inline-flex w-fit bg-white rounded-lg px-space-3 py-space-2">
-          <img src="/images/logo-opticare.png" alt="OptiCare" width="840" height="210" class="h-8 w-auto object-contain" />
-        </span>
+        <app-logo-pied-de-page />
         <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
       </div>
       <div class="flex flex-col gap-space-3">

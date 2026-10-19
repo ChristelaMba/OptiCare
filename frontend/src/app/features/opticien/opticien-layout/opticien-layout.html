@@ -299,14 +299,14 @@
     <div class="sidebar-profile">
 
       <div class="profile-avatar">
-        JD
+        {{ initiales() }}
       </div>
 
       <div class="profile-info">
 
-        <strong>Jean Dupont</strong>
+        <strong>{{ nomComplet() }}</strong>
 
-        <span>Opticien</span>
+        <span>{{ roleLibelle() }}</span>
 
       </div>
 
@@ -340,6 +340,12 @@
 
       </button>
 
+    </div>
+
+    <div class="sidebar-logout">
+      <app-bouton-deconnexion classe="logout-button">
+        <span>Se déconnecter</span>
+      </app-bouton-deconnexion>
     </div>
 
   </aside>
@@ -446,14 +452,6 @@
             </svg>
 
 
-            @if (nombreNotifications() > 0) {
-
-              <span class="notification-badge">
-                {{ nombreNotifications() }}
-              </span>
-
-            }
-
           </button>
 
 
@@ -463,10 +461,10 @@
 
           @if (notificationsOuvertes()) {
 
+            <!-- TODO : brancher GET /notifications (service `Notification`, déjà utilisé par le portail patient)
+                 quand un compte opticien de test existera pour vérifier la route. D'ici là : état vide
+                 honnête, aucune notification ni compteur inventés. -->
             <div class="notification-panel">
-
-
-              <!-- HEADER -->
 
               <div class="notification-header">
 
@@ -476,186 +474,15 @@
                     Notifications
                   </h3>
 
-                  <span>
-                    @if (nombreNotifications() > 0) {
-                      {{ nombreNotifications() }} non lue(s)
-                    } @else {
-                      Toutes les notifications sont lues
-                    }
-                  </span>
-
                 </div>
 
-
-                @if (nombreNotifications() > 0) {
-
-                  <button
-                    type="button"
-                    class="mark-all-button"
-                    (click)="marquerToutesCommeLues()">
-
-                    Tout lire
-
-                  </button>
-
-                }
-
               </div>
-
-
-              <!-- LISTE -->
 
               <div class="notification-list">
 
-                @for (
-                  notification of notifications;
-                  track notification.id
-                ) {
-
-                  <button
-                    type="button"
-                    class="notification-item"
-                    [class.unread]="!notification.lue"
-                    (click)="marquerCommeLue(notification.id)">
-
-
-                    <!-- ICONE -->
-
-                    <div
-                      class="notification-icon"
-                      [class.icon-commande]="notification.type === 'commande'"
-                      [class.icon-consultation]="notification.type === 'consultation'"
-                      [class.icon-patient]="notification.type === 'patient'">
-
-                      @if (notification.type === 'commande') {
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.8">
-
-                          <path
-                            d="M3 7h18"/>
-
-                          <path
-                            d="M5 7v12h14V7"/>
-
-                          <path
-                            d="M8 7l2-4h4l2 4"/>
-
-                          <path
-                            d="m9 13 2 2 4-4"/>
-
-                        </svg>
-
-                      }
-
-                      @if (notification.type === 'consultation') {
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.8">
-
-                          <rect
-                            x="4"
-                            y="4"
-                            width="16"
-                            height="17"
-                            rx="2"/>
-
-                          <path
-                            d="M8 2v4"/>
-
-                          <path
-                            d="M16 2v4"/>
-
-                          <path
-                            d="M4 9h16"/>
-
-                          <path
-                            d="M8 13h3"/>
-
-                          <path
-                            d="M8 17h5"/>
-
-                        </svg>
-
-                      }
-
-                      @if (notification.type === 'patient') {
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.8">
-
-                          <circle
-                            cx="12"
-                            cy="8"
-                            r="3"/>
-
-                          <path
-                            d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>
-
-                          <path
-                            d="M19 8v5"/>
-
-                          <path
-                            d="M16.5 10.5h5"/>
-
-                        </svg>
-
-                      }
-
-                    </div>
-
-
-                    <!-- CONTENU -->
-
-                    <div class="notification-content">
-
-                      <div class="notification-title-row">
-
-                        <strong>
-                          {{ notification.titre }}
-                        </strong>
-
-                        @if (!notification.lue) {
-
-                          <span class="unread-dot"></span>
-
-                        }
-
-                      </div>
-
-                      <p>
-                        {{ notification.message }}
-                      </p>
-
-                      <span class="notification-time">
-                        {{ notification.temps }}
-                      </span>
-
-                    </div>
-
-                  </button>
-
-                }
-
-              </div>
-
-
-              <!-- FOOTER -->
-
-              <div class="notification-footer">
-
-                <span>
-                  Notifications récentes
-                </span>
+                <p class="notification-empty">
+                  Aucune notification pour le moment.
+                </p>
 
               </div>
 
@@ -740,17 +567,17 @@
         <div class="topbar-profile">
 
           <div class="topbar-profile-avatar">
-            JD
+            {{ initiales() }}
           </div>
 
           <div class="topbar-profile-info">
 
             <strong>
-              Jean Dupont
+              {{ nomComplet() }}
             </strong>
 
             <span>
-              Opticien
+              {{ roleLibelle() }}
             </span>
 
           </div>

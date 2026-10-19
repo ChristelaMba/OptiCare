@@ -1,10 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import {
   RouterLink,
   RouterLinkActive,
   RouterOutlet
 } from '@angular/router';
+import { Auth } from '../../../core/services/auth';
+import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
+import { libelleRole } from '../../../models/utilisateur.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 @Component({
   selector: 'app-secretaire-layout',
@@ -13,13 +17,25 @@ import {
   imports: [
     RouterLink,
     RouterLinkActive,
-    RouterOutlet
-  ],
+    RouterOutlet, BoutonDeconnexion],
 
   templateUrl: './secretaire-layout.html',
   styleUrl: './secretaire-layout.css'
 })
 export class SecretaireLayout {
+
+  /* =====================================================
+     IDENTITÉ DE L'UTILISATEUR CONNECTÉ (plus de nom en dur)
+  ====================================================== */
+
+  private readonly auth = inject(Auth);
+
+  readonly nomComplet = computed(() => nomCompletUtilisateur(this.auth.utilisateur()));
+
+  readonly initiales = computed(() => initialesUtilisateur(this.auth.utilisateur()));
+
+  readonly roleLibelle = computed(() => libelleRole(this.auth.role()));
+
 
   /* =====================================================
      MENU MOBILE

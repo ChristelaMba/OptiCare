@@ -1516,3 +1516,17 @@ input:focus-visible {
 
   outline-offset: 2px;
 }
+
+/* Échec d'un marquage « lu » */
+.action-error {
+margin: 0 0 16px;
+padding: 12px 16px;
+
+border: 1px solid #f3b4b4;
+border-radius: 10px;
+
+background: #fff3f4;
+color: #9b1c1c;
+
+font-size: 14px;
+}

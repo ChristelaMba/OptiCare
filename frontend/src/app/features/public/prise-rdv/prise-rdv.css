@@ -652,13 +652,21 @@
 .rdv-grid {
   display: grid;
 
+  /* minmax(0, …) et non minmax(390px/450px, …) : les minimums (390 + 450 + 24 + 2×48 de marge = 960 px)
+     dépassaient la zone de contenu du layout patient (≈ 865 px à 1135 px d'écran, barre latérale de
+     270 px déduite) → 27 px de défilement horizontal. Les media queries se basent sur la fenêtre,
+     pas sur la zone de contenu : les colonnes doivent donc pouvoir rétrécir. */
   grid-template-columns:
-    minmax(390px, .9fr)
-    minmax(450px, 1.1fr);
+    minmax(0, .9fr)
+    minmax(0, 1.1fr);
 
   gap: 24px;
 
   align-items: start;
+}
+
+.rdv-grid > * {
+  min-width: 0;
 }
 
 .rdv-right-column {

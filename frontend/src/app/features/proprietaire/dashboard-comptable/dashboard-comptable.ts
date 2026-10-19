@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Statistiques as StatistiquesService } from '../../../core/services/statistiques';
 import { StatistiquesCabinet } from '../../../core/mocks/statistiques-mock-data';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 type Periode = 'jour' | 'semaine' | 'mois';
 
@@ -19,7 +20,7 @@ type Periode = 'jour' | 'semaine' | 'mois';
  */
 @Component({
   selector: 'app-dashboard-comptable',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, BoutonDeconnexion],
   templateUrl: './dashboard-comptable.html',
   styleUrl: './dashboard-comptable.css',
 })

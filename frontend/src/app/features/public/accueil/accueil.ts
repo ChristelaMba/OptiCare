@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ActionsSession } from '../actions-session/actions-session';
+import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
 import { catchError, forkJoin, of } from 'rxjs';
 
 import { Avis as AvisService } from '../../../core/services/avis';
@@ -39,7 +41,7 @@ type IdSection = 'specialites' | 'cabinets-partenaires';
  */
 @Component({
   selector: 'app-accueil',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, ActionsSession, LogoPiedDePage],
   templateUrl: './accueil.html',
   styleUrl: './accueil.css',
 })

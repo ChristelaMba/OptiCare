@@ -23,11 +23,18 @@
         <span class="font-body text-body-base">Ma vitrine</span>
       </a>
     </nav>
+    <div class="px-space-4 pt-space-4 border-t border-border-subtle">
+      <app-bouton-deconnexion classe="w-full flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="font-body text-body-base">Se déconnecter</span>
+      </app-bouton-deconnexion>
+    </div>
   </aside>
 
   <!-- Mobile header -->
   <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
     <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+    <app-bouton-deconnexion classe="material-symbols-outlined text-text-muted hover:text-error">logout</app-bouton-deconnexion>
   </header>
 
   <!-- Contenu principal -->

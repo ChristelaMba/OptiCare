@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { Accueil } from './accueil';
+import { Auth } from '../../../core/services/auth';
 
 function cabinetBrut(id: number, nom: string, quartier: string | null, nbAvis = 0) {
   return {
@@ -131,5 +132,17 @@ describe('Accueil', () => {
 
     expect(footer.querySelectorAll('a[href="#"]').length).toBe(0);
     expect(footer.querySelectorAll('[aria-disabled="true"]').length).toBe(5);
+  });
+
+  it('en-tête : utilisateur connecté → son nom à la place de Connexion / Inscription', async () => {
+    TestBed.inject(Auth).simulerConnexion('patient');
+    const el = await afficherCabinets([]);
+    const nav = el.querySelector('nav') as HTMLElement;
+
+    expect(nav.textContent).toContain('Patient Test');
+    expect(nav.textContent).not.toContain('Inscription');
+
+    sessionStorage.clear();
+    localStorage.clear();
   });
 });
