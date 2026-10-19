@@ -24,7 +24,7 @@
     </div>
 
     <button
-      routerLink="prise-rdv"
+      routerLink="/recherche-cabinets"
       type="button"
       class="btn-primary"
     >
@@ -372,7 +372,7 @@
           <button
             type="button"
             class="btn-secondary"
-            routerLink="prise-rdv"
+            routerLink="/recherche-cabinets"
           >
 
             <span class="icon-symbol">
@@ -446,7 +446,7 @@
                       ◉
                     </span>
 
-                    CONSULTATION OPHTALMOLOGIQUE
+                    {{ rdv.motif || 'Consultation' }}
 
                   </span>
 
@@ -550,7 +550,15 @@
                         Adresse
                       </span>
 
-                      <a href="#">
+                      <strong>
+                        {{ rdv.cabinetAdresse }}
+                      </strong>
+
+                      <a
+                        [href]="lienEmplacement(rdv.cabinetAdresse)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Voir l'emplacement
                         <span class="external-icon">
                           ↗

@@ -812,6 +812,8 @@ color: var(--primary);
 font-size: 8px;
 font-weight: 700;
 letter-spacing: 0.7px;
+text-transform: uppercase;
+overflow-wrap: anywhere;
 }
 
 .rdv-type .icon-symbol {

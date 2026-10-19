@@ -1,230 +1,28 @@
-<div class="patient-layout">
+@if (!estConnecte) {
 
   <!-- =====================================================
-       SIDEBAR PATIENT
+       EN-TÊTE PUBLIC (visiteur) — pas de faux portail patient.
+       Un patient connecté est rendu dans PatientLayout (voir public.routes.ts).
   ====================================================== -->
 
-  <aside class="patient-sidebar">
+  <header class="public-header">
 
-    <!-- LOGO -->
-    <div class="sidebar-brand">
+    <a routerLink="/" class="public-brand" aria-label="OptiCare, accueil">
+      <i class="fa-solid fa-eye"></i>
+      <strong>OptiCare</strong>
+    </a>
 
-      <div class="brand-logo">
-        <i class="fa-solid fa-eye"></i>
-      </div>
+    <nav class="public-nav">
 
-      <div class="brand-text">
-        <strong>OptiCare</strong>
-        <span>Patient Portal</span>
-      </div>
+      <a routerLink="/recherche-cabinets">Trouver un cabinet</a>
 
-    </div>
-
-
-    <!-- NAVIGATION -->
-    <nav class="sidebar-nav">
-
-      <span class="nav-title">
-        ESPACE PATIENT
-      </span>
-
-      <!-- TABLEAU DE BORD -->
-      <a
-        routerLink="/patient"
-        class="nav-item"
-      >
-        <span class="nav-icon">
-          <i class="fa-solid fa-grid-2"></i>
-        </span>
-
-        <span class="nav-label">
-          Tableau de bord
-        </span>
-      </a>
-
-
-      <!-- DOSSIER VISUEL -->
-      <a
-        routerLink="/patient/dossier-visuel"
-        class="nav-item"
-      >
-        <span class="nav-icon">
-          <i class="fa-solid fa-folder-medical"></i>
-        </span>
-
-        <span class="nav-label">
-          Mon dossier visuel
-        </span>
-      </a>
-
-
-      <!-- RENDEZ-VOUS -->
-      <a
-        routerLink="/patient/rendez-vous"
-        class="nav-item active"
-      >
-        <span class="nav-icon">
-          <i class="fa-regular fa-calendar"></i>
-        </span>
-
-        <span class="nav-label">
-          Rendez-vous
-        </span>
-      </a>
-
-
-      <!-- MESSAGES -->
-      <a
-        routerLink="/patient/messages"
-        class="nav-item"
-      >
-        <span class="nav-icon">
-          <i class="fa-regular fa-envelope"></i>
-        </span>
-
-        <span class="nav-label">
-          Messages
-        </span>
-
-        <span class="message-badge">
-          2
-        </span>
-      </a>
+      <a routerLink="/auth/connexion" class="public-nav-primary">Connexion</a>
 
     </nav>
 
+  </header>
 
-    <!-- SEPARATION -->
-    <div class="sidebar-separator"></div>
-
-
-    <!-- MON COMPTE -->
-    <nav class="sidebar-secondary">
-
-      <span class="nav-title">
-        MON COMPTE
-      </span>
-
-      <a
-        routerLink="/patient/profil"
-        class="nav-item"
-      >
-        <span class="nav-icon">
-          <i class="fa-regular fa-user"></i>
-        </span>
-
-        <span class="nav-label">
-          Mon profil
-        </span>
-      </a>
-
-
-      <a
-        routerLink="/patient/parametres"
-        class="nav-item"
-      >
-        <span class="nav-icon">
-          <i class="fa-solid fa-gear"></i>
-        </span>
-
-        <span class="nav-label">
-          Paramètres
-        </span>
-      </a>
-
-    </nav>
-
-
-    <!-- ESPACE BAS -->
-    <div class="sidebar-bottom">
-
-      <button
-        type="button"
-        class="help-card"
-      >
-
-        <div class="help-icon">
-          <i class="fa-regular fa-circle-question"></i>
-        </div>
-
-        <div>
-          <strong>
-            Besoin d'aide ?
-          </strong>
-
-          <span>
-            Contactez OptiCare
-          </span>
-        </div>
-
-      </button>
-
-
-      <!-- PROFIL -->
-      <div class="sidebar-profile">
-
-        <div class="profile-avatar">
-          JD
-        </div>
-
-        <div class="profile-info">
-
-          <strong>
-            Jean Dupont
-          </strong>
-
-          <span>
-            Patient
-          </span>
-
-        </div>
-
-        <button
-          type="button"
-          class="profile-menu"
-          title="Options"
-        >
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-
-      </div>
-
-    </div>
-
-  </aside>
-
-
-  <!-- =====================================================
-       CONTENU PRINCIPAL
-  ====================================================== -->
-
-  <div class="patient-main">
-
-
-    <!-- MOBILE HEADER -->
-    <header class="mobile-header">
-
-      <button
-        type="button"
-        class="mobile-menu-button"
-      >
-        <i class="fa-solid fa-bars"></i>
-      </button>
-
-      <div class="mobile-brand">
-        <i class="fa-solid fa-eye"></i>
-        <strong>OptiCare</strong>
-      </div>
-
-      <button
-        type="button"
-        class="mobile-notification"
-      >
-        <i class="fa-regular fa-bell"></i>
-      </button>
-
-    </header>
-
+}
 
     <!-- =================================================
          PAGE PRISE DE RENDEZ-VOUS
@@ -247,9 +45,9 @@
 
             <div class="breadcrumb">
 
-              <a routerLink="/patient">
+              <a [routerLink]="estConnecte ? '/patient' : '/'">
                 <i class="fa-solid fa-house"></i>
-                Tableau de bord
+                {{ estConnecte ? 'Tableau de bord' : 'Accueil' }}
               </a>
 
               <span>/</span>
@@ -286,7 +84,7 @@
                   Réservez votre consultation chez
 
                   <strong>
-                    {{ cabinetNom }}
+                    {{ cabinetNom() }}
                   </strong>
 
                 </p>
@@ -348,19 +146,39 @@
 
             <div class="confirmation-content">
 
-              <span class="eyebrow">
-                RENDEZ-VOUS CONFIRMÉ
-              </span>
+              @if (rdvConfirme()) {
 
-              <h2>
-                Votre rendez-vous est confirmé
-              </h2>
+                <span class="eyebrow">
+                  RENDEZ-VOUS CONFIRMÉ
+                </span>
 
-              <p>
-                Votre consultation chez
-                <strong>{{ cabinetNom }}</strong>
-                est bien enregistrée.
-              </p>
+                <h2>
+                  Votre rendez-vous est confirmé
+                </h2>
+
+                <p>
+                  Votre consultation chez
+                  <strong>{{ cabinetNom() }}</strong>
+                  est bien enregistrée.
+                </p>
+
+              } @else {
+
+                <span class="eyebrow">
+                  DEMANDE ENREGISTRÉE
+                </span>
+
+                <h2>
+                  Votre demande est en attente de confirmation
+                </h2>
+
+                <p>
+                  Votre demande de rendez-vous chez
+                  <strong>{{ cabinetNom() }}</strong>
+                  a bien été transmise. Le cabinet la confirmera.
+                </p>
+
+              }
 
 
               <div class="confirmation-details">
@@ -419,7 +237,7 @@
 
                   <i class="fa-solid fa-house"></i>
 
-                  Retour au tableau de bord
+                  {{ estConnecte ? 'Mes rendez-vous' : "Retour à l'accueil" }}
 
                 </button>
 
@@ -829,7 +647,7 @@
                         id="nomComplet"
                         type="text"
                         formControlName="nomComplet"
-                        placeholder="Jean Dupont"
+                        placeholder="Prénom Nom"
                       />
 
                     </div>
@@ -1032,7 +850,7 @@
                       </span>
 
                       <strong>
-                        {{ cabinetNom }}
+                        {{ cabinetNom() }}
                       </strong>
 
                     </div>
@@ -1111,7 +929,7 @@
 
             <div class="information-icon">
 
-              <i class="fa-solid fa-shield-heart"></i>
+              <i class="fa-solid fa-shield-halved"></i>
 
             </div>
 
@@ -1137,7 +955,3 @@
       </main>
 
     </div>
-
-  </div>
-
-</div>

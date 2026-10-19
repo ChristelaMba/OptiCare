@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { PriseRdv } from '../public/prise-rdv/prise-rdv';
 
 export const PATIENT_ROUTES: Routes = [
 
@@ -64,12 +63,6 @@ export const PATIENT_ROUTES: Routes = [
       }
 
     ]
-  },
-
-
-  {
-    path: 'prise-rdv',
-    component: PriseRdv
   }
 
 ];

@@ -1,9 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
   RouterLink,
   RouterOutlet,
   RouterLinkActive
 } from '@angular/router';
+
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-patient-layout',
@@ -17,6 +19,22 @@ import {
   styleUrl: './patient-layout.css'
 })
 export class PatientLayout {
+
+  private readonly auth = inject(Auth);
+
+  /** Identité de la session (plus de nom codé en dur). */
+  readonly nomComplet = computed(() => {
+    const utilisateur = this.auth.utilisateur();
+    return utilisateur ? `${utilisateur.prenom} ${utilisateur.nom}`.trim() : '';
+  });
+
+  readonly initiales = computed(() => {
+    const utilisateur = this.auth.utilisateur();
+    if (!utilisateur) {
+      return '';
+    }
+    return `${utilisateur.prenom.charAt(0)}${utilisateur.nom.charAt(0)}`.toUpperCase();
+  });
 
   readonly menuOuvert = signal(false);
   readonly espacesOuverts = signal(false);
