@@ -1,18 +1,19 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
-import { Cabinet as CabinetService } from '../../../core/services/cabinet';
-import { libelleRole, RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
-import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { messageErreurApi } from '../../../core/utils/api-errors';
+import { CompteAdmin, libelleRole, RoleUtilisateur, StatsComptes } from '../../../models/utilisateur.model';
 
 type FiltreStatut = 'tous' | 'actif' | 'inactif';
 
 const TAILLE_PAGE = 8;
 
 /**
+ * 19/10/2026 : branché sur GET /admin/users (liste + stats), PUT /admin/users/{id}/toggle-active et /reset-password.
  * Reproduction de la maquette `maquette/gestion_des_comptes_opticare_super_admin/`.
  * Le bouton « Add Account » de la maquette a été retiré : §9.6 du cahier des
  * charges est explicite, les comptes Opticien/Secretaire ne se créent que
@@ -30,12 +31,21 @@ export class GestionComptes implements OnInit {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
   private readonly utilisateurService = inject(UtilisateurService);
-  private readonly cabinetService = inject(CabinetService);
 
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
-  private readonly utilisateurs = signal<UtilisateurModel[]>([]);
-  private readonly cabinets = signal<CabinetModel[]>([]);
+  private readonly utilisateurs = signal<CompteAdmin[]>([]);
+  readonly stats = signal<StatsComptes | null>(null);
+
+  /** Erreur d'une action (activer/désactiver), affichée sans masquer la liste. */
+  readonly erreurAction = signal<string | null>(null);
+
+  // Réinitialisation du mot de passe : formulaire en mémoire uniquement, vidé à la fermeture.
+  readonly compteReinit = signal<CompteAdmin | null>(null);
+  readonly nouveauMotDePasse = signal('');
+  readonly confirmationMotDePasse = signal('');
+  readonly erreurReinit = signal<string | null>(null);
+  readonly succesReinit = signal<string | null>(null);
 
   /** Libellé lisible d'un rôle pour l'affichage (cellule « Rôle » du tableau). */
   readonly libelleRole = libelleRole;
@@ -48,17 +58,6 @@ export class GestionComptes implements OnInit {
   /** id du compte dont une action (activer/désactiver/réinitialiser) est en cours. */
   readonly actionEnCours = signal<string | null>(null);
 
-  private readonly nomsCabinets = computed(() => {
-    const map = new Map<string, string>();
-    for (const cabinet of this.cabinets()) map.set(cabinet.id, cabinet.nom);
-    return map;
-  });
-
-  nomCabinet(utilisateur: UtilisateurModel): string {
-    if (!utilisateur.cabinetId) return 'N/A';
-    return this.nomsCabinets().get(utilisateur.cabinetId) ?? 'N/A';
-  }
-
   private readonly utilisateursFiltres = computed(() => {
     const texte = this.texteRecherche().trim().toLowerCase();
     const role = this.filtreRole();
@@ -68,7 +67,9 @@ export class GestionComptes implements OnInit {
       const correspondTexte =
         !texte ||
         `${u.prenom} ${u.nom}`.toLowerCase().includes(texte) ||
-        (u.email ?? '').toLowerCase().includes(texte);
+        (u.email ?? '').toLowerCase().includes(texte) ||
+        u.telephone.toLowerCase().includes(texte) ||
+        (u.cabinetNom ?? '').toLowerCase().includes(texte);
       const correspondRole = role === 'tous' || u.role === role;
       const correspondStatut = statut === 'tous' || (statut === 'actif' ? u.actif : !u.actif);
       return correspondTexte && correspondRole && correspondStatut;
@@ -84,25 +85,27 @@ export class GestionComptes implements OnInit {
   });
 
   readonly numerosPages = computed(() => Array.from({ length: this.nombrePages() }, (_, i) => i + 1));
+  readonly totalComptes = computed(() => this.utilisateurs().length);
   readonly totalResultats = computed(() => this.utilisateursFiltres().length);
 
   ngOnInit(): void {
-    this.utilisateurService.listerTous().subscribe({
-      next: (utilisateurs) => {
-        this.utilisateurs.set(utilisateurs);
+    this.utilisateurService.listerComptes().subscribe({
+      next: ({ comptes, stats }) => {
+        this.utilisateurs.set(comptes);
+        this.stats.set(stats);
         this.chargement.set(false);
       },
-      error: () => {
+      error: (e: HttpErrorResponse) => {
         this.chargement.set(false);
-        this.erreur.set('Impossible de charger les comptes pour le moment. Réessayez plus tard.');
+        this.erreur.set(this.messageErreur(e, 'Impossible de charger les comptes'));
       },
     });
+  }
 
-    // Chargé en parallèle, indépendamment — une erreur ici ne bloque pas la liste des comptes,
-    // seuls les noms de cabinet retombent sur « N/A ».
-    this.cabinetService.listerAdmin().subscribe({
-      next: (cabinets) => this.cabinets.set(cabinets),
-    });
+  /** « Accès refusé. » sur 403, sinon erreurs 422 du serveur, sinon message générique complété du message serveur. */
+  private messageErreur(e: HttpErrorResponse, debut: string): string {
+    const messageServeur = (e.error as { message?: string } | null)?.message;
+    return messageErreurApi(e, `${debut}.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`);
   }
 
   reinitialiserFiltres(): void {
@@ -116,31 +119,70 @@ export class GestionComptes implements OnInit {
     this.pageActuelle.set(Math.min(Math.max(1, page), this.nombrePages()));
   }
 
-  toggleActivation(utilisateur: UtilisateurModel): void {
+  toggleActivation(utilisateur: CompteAdmin): void {
+    if (this.actionEnCours()) return;
     this.actionEnCours.set(utilisateur.id);
-    const appel = utilisateur.actif
-      ? this.utilisateurService.desactiver(utilisateur.id)
-      : this.utilisateurService.activer(utilisateur.id);
+    this.erreurAction.set(null);
 
-    appel.subscribe({
+    this.utilisateurService.basculerActivation(utilisateur.id).subscribe({
       next: (maj) => {
         this.actionEnCours.set(null);
-        this.utilisateurs.update((liste) => liste.map((u) => (u.id === maj.id ? maj : u)));
+        // État renvoyé par le serveur ; les compteurs `stats` sont recalculés en local.
+        const avait = utilisateur.actif;
+        this.utilisateurs.update((liste) => liste.map((u) => (u.id === maj.id ? { ...u, actif: maj.actif } : u)));
+        if (avait !== maj.actif) {
+          this.stats.update((s) =>
+            s ? { ...s, actifs: s.actifs + (maj.actif ? 1 : -1), inactifs: s.inactifs + (maj.actif ? -1 : 1) } : s,
+          );
+        }
       },
-      error: () => {
+      error: (e: HttpErrorResponse) => {
         this.actionEnCours.set(null);
-        this.erreur.set("L'action a échoué. Réessayez.");
+        this.erreurAction.set(this.messageErreur(e, "L'action a échoué"));
       },
     });
   }
 
-  reinitialiserMotDePasse(utilisateur: UtilisateurModel): void {
-    this.actionEnCours.set(utilisateur.id);
-    this.utilisateurService.reinitialiserMotDePasse(utilisateur.id).subscribe({
-      next: () => this.actionEnCours.set(null),
-      error: () => {
+  ouvrirReinitialisation(utilisateur: CompteAdmin): void {
+    this.compteReinit.set(utilisateur);
+    this.nouveauMotDePasse.set('');
+    this.confirmationMotDePasse.set('');
+    this.erreurReinit.set(null);
+    this.succesReinit.set(null);
+  }
+
+  fermerReinitialisation(): void {
+    this.compteReinit.set(null);
+    this.nouveauMotDePasse.set('');
+    this.confirmationMotDePasse.set('');
+    this.erreurReinit.set(null);
+  }
+
+  confirmerReinitialisation(): void {
+    const compte = this.compteReinit();
+    if (!compte || this.actionEnCours()) return;
+
+    const mdp = this.nouveauMotDePasse();
+    if (mdp.length < 8) {
+      this.erreurReinit.set('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+    if (mdp !== this.confirmationMotDePasse()) {
+      this.erreurReinit.set('La confirmation ne correspond pas au mot de passe.');
+      return;
+    }
+
+    this.actionEnCours.set(compte.id);
+    this.erreurReinit.set(null);
+    this.utilisateurService.reinitialiserMotDePasse(compte.id, mdp, this.confirmationMotDePasse()).subscribe({
+      next: () => {
         this.actionEnCours.set(null);
-        this.erreur.set('La réinitialisation a échoué. Réessayez.');
+        this.fermerReinitialisation();
+        this.succesReinit.set(`Mot de passe de ${compte.prenom} ${compte.nom} réinitialisé.`);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.actionEnCours.set(null);
+        this.erreurReinit.set(this.messageErreur(e, 'La réinitialisation a échoué'));
       },
     });
   }
