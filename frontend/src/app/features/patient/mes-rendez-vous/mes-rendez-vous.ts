@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
+import { messagesValidationApi } from '../../../core/utils/api-errors';
 import {
   RendezVous,
   StatutRendezVous
@@ -215,9 +217,22 @@ export class MesRendezVous implements OnInit {
      ANNULATION
   ===================================================== */
 
+  /** Message d'échec d'annulation, affiché au-dessus de la liste (la liste reste visible). */
+  erreurAnnulation = signal<string | null>(null);
+
+  /** id du RDV dont l'annulation est en cours — bloque le double clic. */
+  annulationEnCours = signal<string | null>(null);
+
   annulerRendezVous(
     rdv: RendezVous
   ): void {
+
+    if (this.annulationEnCours() || rdv.statut === 'annule') {
+      return;
+    }
+
+    this.erreurAnnulation.set(null);
+    this.annulationEnCours.set(rdv.id);
 
     this.rdvService
       .annulerRendezVous(rdv.id)
@@ -225,6 +240,7 @@ export class MesRendezVous implements OnInit {
 
         next: () => {
 
+          // Le RDV passe en « annulé » et migre dans l'historique (onglet « passés »).
           this.rendezVous.update(liste =>
             liste.map(r =>
               r.id === rdv.id
@@ -236,14 +252,22 @@ export class MesRendezVous implements OnInit {
             )
           );
 
+          this.annulationEnCours.set(null);
         },
 
-        error: () => {
+        error: (erreur: HttpErrorResponse) => {
 
-          this.erreur.set(
-            "Impossible d'annuler ce rendez-vous."
+          const detail = messagesValidationApi(erreur).join(' ');
+
+          this.erreurAnnulation.set(
+            erreur.status === 0
+              ? "Impossible d'annuler ce rendez-vous : le serveur est injoignable. Vérifiez votre connexion et réessayez."
+              : detail
+                ? `Impossible d'annuler ce rendez-vous : ${detail}`
+                : "Impossible d'annuler ce rendez-vous pour le moment. Réessayez dans quelques instants."
           );
 
+          this.annulationEnCours.set(null);
         }
 
       });

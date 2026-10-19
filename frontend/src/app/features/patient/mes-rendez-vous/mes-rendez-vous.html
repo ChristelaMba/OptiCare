@@ -118,6 +118,29 @@
   @if (!chargement() && !erreur()) {
 
     <!-- ===================================================
+         ÉCHEC D'ANNULATION (la liste reste visible)
+    ==================================================== -->
+
+    @if (erreurAnnulation(); as messageAnnulation) {
+
+      <div class="cancel-error" role="alert">
+
+        <span>{{ messageAnnulation }}</span>
+
+        <button
+          type="button"
+          class="cancel-error-close"
+          aria-label="Fermer le message"
+          (click)="erreurAnnulation.set(null)"
+        >
+          ×
+        </button>
+
+      </div>
+
+    }
+
+    <!-- ===================================================
          RÉSUMÉ
     ==================================================== -->
 
@@ -636,6 +659,7 @@
                     <button
                       type="button"
                       class="action-btn danger"
+                      [disabled]="annulationEnCours() !== null"
                       (click)="annulerRendezVous(rdv)"
                     >
 
@@ -673,6 +697,7 @@
                     <button
                       type="button"
                       class="action-btn danger"
+                      [disabled]="annulationEnCours() !== null"
                       (click)="annulerRendezVous(rdv)"
                     >
 
