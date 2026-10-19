@@ -2,9 +2,10 @@ import { Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, Vi
 import { DecimalPipe, Location } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { catchError, EMPTY, switchMap } from 'rxjs';
+import { catchError, EMPTY, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { Avis as AvisService, AvisPublic } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
 
@@ -14,7 +15,9 @@ interface ServiceCabinet {
   description: string;
 }
 
-interface AvisPlaceholder {
+/** Avis réel prêt à afficher (nom abrégé, ancienneté relative). */
+interface AvisAffiche {
+  id: number;
   initiales: string;
   nom: string;
   quand: string;
@@ -36,13 +39,6 @@ const SERVICES_GENERIQUES: ServiceCabinet[] = [
   { icone: 'child_care', titre: 'Optométrie pédiatrique', description: 'Des soins doux et spécialisés pour la vision de vos enfants.' },
 ];
 
-/** Placeholder — avis.service.ts n'existe pas encore (sprint ultérieur), comme sur l'accueil. */
-const AVIS_PLACEHOLDER: AvisPlaceholder[] = [
-  { initiales: 'JD', nom: 'Jean Dupont', quand: 'Il y a 2 jours', note: 5, commentaire: "Service exceptionnel et personnel extrêmement professionnel. La clinique est impeccable et le nouvel équipement de diagnostic a rendu l'examen rapide et confortable." },
-  { initiales: 'ML', nom: 'Marie Laurent', quand: 'Il y a 1 semaine', note: 4, commentaire: "Ambiance très accueillante. Ils ont pris le temps d'expliquer chaque étape de l'examen de la vue et m'ont aidé à trouver les montures parfaites." },
-  { initiales: 'SM', nom: 'Sophie Martin', quand: 'Il y a 3 jours', note: 5, commentaire: "Excellent service d'optométrie pédiatrique. L'équipe a été très patiente avec mon fils, rendant son premier examen de la vue amusant et sans stress." },
-];
-
 /** Reproduction de la maquette `maquette/accueil_cabinet/` — page publique d'un cabinet. */
 @Component({
   selector: 'app-vitrine-cabinet',
@@ -53,6 +49,7 @@ const AVIS_PLACEHOLDER: AvisPlaceholder[] = [
 export class VitrineCabinet implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly cabinetService = inject(CabinetService);
+  private readonly avisService = inject(AvisService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
@@ -69,7 +66,9 @@ export class VitrineCabinet implements OnInit {
   readonly erreur = signal<string | null>(null);
 
   readonly services = SERVICES_GENERIQUES;
-  readonly avisPlaceholder = AVIS_PLACEHOLDER;
+  /** Avis réels (GET /cabinets/{id}/avis). Jamais de contenu inventé : liste vide → « Aucun avis pour le moment ». */
+  readonly avis = signal<AvisAffiche[]>([]);
+  readonly chargementAvis = signal(true);
   readonly etoiles = [1, 2, 3, 4, 5];
 
   /** Lien wa.me : whatsappNumero peut contenir espaces/+ dans les données, wa.me n'accepte que des chiffres. */
@@ -83,14 +82,14 @@ export class VitrineCabinet implements OnInit {
   readonly lienGoogleMaps = computed(() => {
     const cabinet = this.cabinet();
     if (!cabinet) return '#';
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cabinet.adresse}, ${cabinet.quartier}, ${cabinet.ville}`)}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.adresseComplete(cabinet))}`;
   });
 
   /** Embed Google Maps sans clé API (mode `output=embed`) — vraie carte plutôt qu'un visuel statique. */
   readonly carteEmbed = computed<SafeResourceUrl | null>(() => {
     const cabinet = this.cabinet();
     if (!cabinet) return null;
-    const requete = encodeURIComponent(`${cabinet.adresse}, ${cabinet.quartier}, ${cabinet.ville}`);
+    const requete = encodeURIComponent(this.adresseComplete(cabinet));
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.google.com/maps?q=${requete}&output=embed`);
   });
 
@@ -104,12 +103,16 @@ export class VitrineCabinet implements OnInit {
           this.chargement.set(true);
           this.erreur.set(null);
           this.cabinet.set(null);
+          this.avis.set([]);
+          this.chargementAvis.set(true);
 
           if (!id) {
             this.chargement.set(false);
             this.erreur.set('Ce cabinet est introuvable.');
             return EMPTY;
           }
+
+          this.chargerAvis(id);
 
           return this.cabinetService.obtenirDetail(id).pipe(
             catchError(() => {
@@ -125,6 +128,42 @@ export class VitrineCabinet implements OnInit {
         this.cabinet.set(cabinet);
         this.chargement.set(false);
       });
+  }
+
+  private chargerAvis(cabinetId: string): void {
+    this.avisService
+      .listerParCabinet(cabinetId)
+      .pipe(
+        catchError(() => of([] as AvisPublic[])),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((liste) => {
+        this.avis.set(
+          liste.map((a) => ({
+            id: a.id,
+            initiales: a.patient ? `${a.patient.prenom.charAt(0)}${a.patient.nom.charAt(0)}`.toUpperCase() : 'P',
+            nom: a.patient ? `${a.patient.prenom} ${a.patient.nom.charAt(0)}.` : 'Patient',
+            quand: VitrineCabinet.ancienneteRelative(a.created_at),
+            note: a.note,
+            commentaire: a.commentaire ?? '',
+          })),
+        );
+        this.chargementAvis.set(false);
+      });
+  }
+
+  private static ancienneteRelative(dateIso: string): string {
+    const jours = Math.floor((Date.now() - new Date(dateIso).getTime()) / 86_400_000);
+    if (!Number.isFinite(jours) || jours < 1) return "Aujourd'hui";
+    if (jours === 1) return 'Hier';
+    if (jours < 7) return `Il y a ${jours} jours`;
+    if (jours < 30) return `Il y a ${Math.floor(jours / 7)} semaine${jours >= 14 ? 's' : ''}`;
+    return `Il y a ${Math.floor(jours / 30)} mois`;
+  }
+
+  /** « adresse, quartier, ville » sans virgule orpheline quand un champ est vide. */
+  adresseComplete(cabinet: CabinetModel): string {
+    return [cabinet.adresse, cabinet.quartier, cabinet.ville].filter((p) => !!p?.trim()).join(', ');
   }
 
   defilerGalerie(direction: -1 | 1): void {

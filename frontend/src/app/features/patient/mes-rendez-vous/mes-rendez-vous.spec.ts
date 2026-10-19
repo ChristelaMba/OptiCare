@@ -130,4 +130,14 @@ describe('MesRendezVous', () => {
     expect(el.querySelector('.error-state')).toBeNull();
     expect(el.querySelector('.rdv-type')).not.toBeNull();
   });
+
+  it("« Consultations passées » ne compte pas les rendez-vous annulés (ils restent dans l'historique)", async () => {
+    const passe = (id: string, statut: RendezVous['statut']): RendezVous => ({ ...rdv(id, 'x'), date: '2020-01-10', statut });
+
+    const el = await afficher([passe('1', 'termine'), passe('2', 'annule'), passe('3', 'annule')]);
+
+    expect(component.rendezVousPasses().length).toBe(3);
+    expect(component.nombreConsultationsPassees()).toBe(1);
+    expect(el.querySelector('.stat-content strong')).not.toBeNull();
+  });
 });

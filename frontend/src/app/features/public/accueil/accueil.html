@@ -120,7 +120,9 @@
                   <span class="font-button text-button text-on-surface">
                     {{ cabinet.noteMoyenne > 0 ? (cabinet.noteMoyenne | number: '1.1-1') : 'Nouveau' }}
                   </span>
-                  <span class="text-text-muted text-label-sm ml-2">{{ cabinet.quartier }}, {{ cabinet.ville }}</span>
+                  @if (localisation(cabinet)) {
+                    <span class="text-text-muted text-label-sm ml-2">{{ localisation(cabinet) }}</span>
+                  }
                 </div>
               </div>
             </a>
@@ -187,15 +189,17 @@
       <div class="text-center mb-space-12">
         <h2 class="font-heading text-headline-h2 text-on-surface">Pourquoi choisir OptiCare ?</h2>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-12 items-center">
-        <div class="relative h-full min-h-[400px] rounded-lg overflow-hidden shadow-md">
+      <!-- items-stretch + image en absolute : l'image prend la hauteur des 3 cartes (au lieu de sa hauteur naturelle,
+           qui créait un grand vide au-dessus des cartes). Sur mobile : hauteur fixe, cartes en dessous. -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-8 lg:gap-space-12 items-stretch">
+        <div class="relative h-64 lg:h-auto lg:min-h-[360px] rounded-lg overflow-hidden shadow-md">
           <img
             alt="Opticien montrant un dossier visuel numérique à une patiente"
-            class="w-full h-full object-cover"
+            class="absolute inset-0 w-full h-full object-cover"
             src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?w=1000&q=80"
           />
         </div>
-        <div class="flex flex-col gap-space-6">
+        <div class="flex flex-col justify-start gap-space-6">
           <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
             <div class="w-12 h-12 shrink-0 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-[24px]">folder_shared</span>
@@ -233,71 +237,38 @@
       </div>
     </section>
 
-    <!-- Avis de nos patients -->
-    <!-- Placeholder éditorial — avis.service.ts n'existe pas encore (sprint ultérieur), comme sur vitrine-cabinet. -->
-    <section class="px-margin-mobile md:px-space-12 py-space-12 bg-surface-container-low rounded-3xl mx-margin-mobile md:mx-space-12 my-space-8">
-      <div class="text-center mb-space-12">
-        <h2 class="font-heading text-headline-h2 text-on-surface">Avis de nos patients</h2>
-        <p class="font-body text-body-base text-text-muted mt-space-2">Ce que disent nos patients de leur expérience</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
-        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
-          <div class="flex items-center gap-1 text-warning">
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-          </div>
-          <p class="font-body text-body-base text-on-surface-variant italic">
-            "Un service impeccable et une équipe très professionnelle. Mon dossier est enfin centralisé !"
-          </p>
-          <div class="mt-auto">
-            <p class="font-button text-button text-on-surface">Jean Dupont</p>
-            <p class="font-body text-label-sm text-text-muted">Patient depuis 2023</p>
-          </div>
+    <!-- Avis de nos patients — avis réels (GET /cabinets/{id}/avis) ; section masquée s'il n'y en a aucun -->
+    @if (avisReels().length > 0) {
+      <section class="px-margin-mobile md:px-space-12 py-space-12 bg-surface-container-low rounded-3xl mx-margin-mobile md:mx-space-12 my-space-8">
+        <div class="text-center mb-space-12">
+          <h2 class="font-heading text-headline-h2 text-on-surface">Avis de nos patients</h2>
+          <p class="font-body text-body-base text-text-muted mt-space-2">Ce que disent nos patients de leur expérience</p>
         </div>
-        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
-          <div class="flex items-center gap-1 text-warning">
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-          </div>
-          <p class="font-body text-body-base text-on-surface-variant italic">
-            "Très pratique pour trouver un cabinet rapidement. L'interface est intuitive et claire."
-          </p>
-          <div class="mt-auto">
-            <p class="font-button text-button text-on-surface">Marie L.</p>
-            <p class="font-body text-label-sm text-text-muted">Patiente régulière</p>
-          </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
+          @for (avis of avisReels(); track avis.id) {
+            <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
+              <div class="flex items-center gap-1 text-warning" [attr.aria-label]="avis.note + ' sur 5'">
+                @for (etoile of etoiles(avis.note); track etoile) {
+                  <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+                }
+              </div>
+              <p class="font-body text-body-base text-on-surface-variant italic">« {{ avis.commentaire }} »</p>
+              <div class="mt-auto">
+                <p class="font-button text-button text-on-surface">{{ avis.auteur }}</p>
+                <p class="font-body text-label-sm text-text-muted">{{ avis.cabinetNom }}</p>
+              </div>
+            </div>
+          }
         </div>
-        <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
-          <div class="flex items-center gap-1 text-warning">
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-            <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-          </div>
-          <p class="font-body text-body-base text-on-surface-variant italic">
-            "Le suivi via WhatsApp est un vrai plus. On se sent vraiment accompagné."
-          </p>
-          <div class="mt-auto">
-            <p class="font-button text-button text-on-surface">Thomas Bernard</p>
-            <p class="font-body text-label-sm text-text-muted">Nouveau patient</p>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    }
 
     <!-- CTA -->
     <section class="px-margin-mobile md:px-space-12 py-space-12 max-w-5xl mx-auto my-space-12">
       <div class="bg-primary rounded-3xl p-space-8 md:p-space-12 text-center text-on-primary">
         <h2 class="font-heading text-headline-h2 text-on-primary mb-space-4">Prêt à prendre soin de votre vue ?</h2>
         <p class="font-body text-body-lg text-primary-fixed mb-space-8">
-          Rejoignez des milliers de patients qui font déjà confiance à OptiCare.
+          Rejoignez OptiCare pour trouver un cabinet d'optique près de chez vous et garder votre dossier visuel à portée de main.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-space-4">
           <a
@@ -321,32 +292,25 @@
   <footer class="w-full bg-inverse-surface mt-space-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
       <div class="flex flex-col gap-space-4">
-        <img src="/images/logo-opticare.png" alt="OptiCare" class="h-5 w-auto" />
+        <!-- Logo bleu sur fond bleu nuit = illisible : pastille blanche, proportions d'origine (840×210) -->
+        <span class="inline-flex w-fit bg-white rounded-lg px-space-3 py-space-2">
+          <img src="/images/logo-opticare.png" alt="OptiCare" width="840" height="210" class="h-8 w-auto object-contain" />
+        </span>
         <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
-          Mentions légales
-        </a>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
-          Conditions d'utilisation
-        </a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Mentions légales</span>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Conditions d'utilisation</span>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Ressources</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
-          Plan du site
-        </a>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
-          Nous contacter
-        </a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Plan du site</span>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Nous contacter</span>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Restez informé</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors focus:outline-none ring-2 ring-transparent focus:ring-inverse-primary rounded" href="#">
-          Newsletter
-        </a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Newsletter</span>
       </div>
     </div>
     <div class="px-margin-mobile md:px-space-12 pb-space-8 max-w-7xl mx-auto border-t border-inverse-on-surface/10 pt-space-4">

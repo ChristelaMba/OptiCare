@@ -229,7 +229,7 @@
               <div>
                 <h3 class="font-heading text-headline-h2 text-on-surface mb-2">Localisation</h3>
                 <p class="font-body text-body-lg text-text-muted leading-relaxed mb-space-4">
-                  {{ cabinet.adresse }}<br />{{ cabinet.quartier }}, {{ cabinet.ville }}
+                  {{ adresseComplete(cabinet) }}
                 </p>
                 <a [href]="lienGoogleMaps()" target="_blank" rel="noopener noreferrer" class="text-primary font-button text-button flex items-center gap-1 hover:underline w-fit">
                   Voir sur Google Maps <span class="material-symbols-outlined text-sm">arrow_forward</span>
@@ -305,14 +305,19 @@
       </section>
 
       <!-- Avis des patients -->
-      <!-- Placeholder : avis.service.ts n'existe pas encore (sprint ultérieur), comme sur l'accueil. -->
+      <!-- Avis réels (GET /cabinets/{id}/avis) ; liste vide → message honnête, jamais de faux avis. -->
       <section class="bg-surface-container-lowest rounded-xl p-space-6 md:p-space-8 shadow-sm border border-border-subtle">
         <h2 class="font-heading text-headline-h2 text-on-surface flex items-center gap-2 mb-space-8">
           <span class="material-symbols-outlined text-primary text-3xl">reviews</span>
           Avis des patients
         </h2>
+        @if (chargementAvis()) {
+          <p class="font-body text-body-base text-text-muted">Chargement des avis…</p>
+        } @else if (avis().length === 0) {
+          <p class="font-body text-body-base text-text-muted">Aucun avis pour le moment.</p>
+        } @else {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
-          @for (avis of avisPlaceholder; track avis.nom) {
+          @for (avis of avis(); track avis.id) {
             <div class="bg-surface-bg p-space-6 rounded-xl border border-border-subtle border-l-4 border-l-primary flex flex-col gap-space-4 shadow-sm hover:shadow-md transition-shadow">
               <div class="flex justify-between items-start">
                 <div class="flex items-center gap-space-3">
@@ -330,10 +335,13 @@
                   }
                 </div>
               </div>
-              <p class="font-body text-body-base text-text-muted leading-relaxed">{{ avis.commentaire }}</p>
+              @if (avis.commentaire) {
+                <p class="font-body text-body-base text-text-muted leading-relaxed">{{ avis.commentaire }}</p>
+              }
             </div>
           }
         </div>
+        }
       </section>
     </main>
 
@@ -357,7 +365,7 @@
         </div>
         <div class="flex flex-col gap-space-3">
           <h4 class="font-button text-button text-inverse-on-surface">Contact</h4>
-          <p class="font-body text-body-base text-inverse-on-surface/70">{{ cabinet.adresse }}, {{ cabinet.quartier }}</p>
+          <p class="font-body text-body-base text-inverse-on-surface/70">{{ adresseComplete(cabinet) }}</p>
           <p class="font-body text-body-base text-inverse-on-surface/70">{{ cabinet.telephone }}</p>
         </div>
       </div>

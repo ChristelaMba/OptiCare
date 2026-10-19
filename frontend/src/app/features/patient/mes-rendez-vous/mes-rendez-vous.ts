@@ -101,6 +101,11 @@ export class MesRendezVous implements OnInit {
     )
   );
 
+  /** Compteur « Consultations passées » : les RDV annulés ne sont pas des consultations (ils restent listés dans l'historique). */
+  nombreConsultationsPassees = computed(() =>
+    this.rendezVousPasses().filter(rdv => rdv.statut !== 'annule').length
+  );
+
   rendezVousFiltres = computed(() => {
 
     const source =

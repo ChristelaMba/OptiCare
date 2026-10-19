@@ -1,11 +1,17 @@
 import {
   Component,
   computed,
+  inject,
   signal
 } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+
+import {
+  ApiNotificationBrute,
+  Notification as NotificationService
+} from '../../../core/services/notification';
 
 
 /* =========================================================
@@ -67,12 +73,14 @@ type FiltreNotification =
 })
 export class MesNotifications {
 
+  private readonly notificationService = inject(NotificationService);
+
 
   /* =======================================================
      ÉTAT
   ======================================================== */
 
-  chargement = signal<boolean>(false);
+  chargement = signal<boolean>(true);
 
   erreur = signal<string | null>(null);
 
@@ -90,13 +98,8 @@ export class MesNotifications {
      NOTIFICATIONS NON LUES
   ======================================================== */
 
-  notificationsNonLues = computed(() => {
-
-    return this.notifications()
-      .filter(notification => !notification.lue)
-      .length;
-
-  });
+  /** Compteur renvoyé par le serveur (`non_lu_count`) — jamais calculé sur des données inventées. */
+  notificationsNonLues = signal<number>(0);
 
 
   /* =======================================================
@@ -215,127 +218,66 @@ export class MesNotifications {
 
     this.erreur.set(null);
 
+    // GET /notifications (réel). Liste vide = état vide honnête du template ;
+    // erreur = bloc d'erreur avec « Réessayer ». Lecture seule : aucun marquage « lu ».
+    this.notificationService.lister().subscribe({
 
-    /*
-     * Données temporaires de démonstration.
-     * Elles pourront être remplacées plus tard
-     * par l'appel à ton backend.
-     */
+      next: ({ notifications, nonLues }) => {
 
-    const donnees: Notification[] = [
+        this.notifications.set(
+          notifications.map(MesNotifications.depuisApi)
+        );
 
-      {
-        id: 'notification-1',
+        this.notificationsNonLues.set(nonLues);
 
-        type: 'rendez-vous',
+        this.chargement.set(false);
 
-        titre: 'Rendez-vous confirmé',
-
-        message:
-          'Votre rendez-vous avec le Dr. Jean Mbarga a été confirmé pour le 10 septembre 2026 à 09h00.',
-
-        date: '2026-09-04T09:30:00',
-
-        lue: false,
-
-        lien: '/patient/rendez-vous'
       },
 
+      error: () => {
 
-      {
-        id: 'notification-2',
+        this.erreur.set(
+          'Impossible de charger vos notifications pour le moment.'
+        );
 
-        type: 'rappel',
-
-        titre: 'Rappel de rendez-vous',
-
-        message:
-          'N’oubliez pas votre consultation prévue le 10 septembre à 09h00.',
-
-        date: '2026-09-03T16:45:00',
-
-        lue: false,
-
-        lien: '/patient/rendez-vous'
-      },
-
-
-      {
-        id: 'notification-3',
-
-        type: 'dossier',
-
-        titre: 'Dossier visuel mis à jour',
-
-        message:
-          'Votre dossier visuel a été mis à jour à la suite de votre dernière consultation.',
-
-        date: '2026-09-02T11:20:00',
-
-        lue: true,
-
-        lien: '/patient/dossier-visuel'
-      },
-
-
-      {
-        id: 'notification-4',
-
-        type: 'message',
-
-        titre: 'Nouveau message',
-
-        message:
-          'Vous avez reçu un nouveau message de votre spécialiste.',
-
-        date: '2026-09-01T14:10:00',
-
-        lue: false,
-
-        lien: '/patient/messages'
-      },
-
-
-      {
-        id: 'notification-5',
-
-        type: 'rendez-vous',
-
-        titre: 'Rendez-vous reprogrammé',
-
-        message:
-          'Votre rendez-vous du 15 septembre a été déplacé à 14h00.',
-
-        date: '2026-08-30T10:15:00',
-
-        lue: true,
-
-        lien: '/patient/rendez-vous'
-      },
-
-
-      {
-        id: 'notification-6',
-
-        type: 'systeme',
-
-        titre: 'Bienvenue sur OptiCare',
-
-        message:
-          'Votre espace patient est maintenant configuré. Vous pouvez consulter votre dossier et gérer vos rendez-vous.',
-
-        date: '2026-08-28T08:00:00',
-
-        lue: true
+        this.chargement.set(false);
 
       }
 
-    ];
+    });
+
+  }
 
 
-    this.notifications.set(donnees);
+  /** Notification brute de l'API → modèle d'affichage. */
+  private static depuisApi(brute: ApiNotificationBrute): Notification {
 
-    this.chargement.set(false);
+    let type: Notification['type'] = 'systeme';
+
+    if (brute.type === 'rdv_rappel') {
+      type = 'rappel';
+    } else if (brute.type.startsWith('rdv_')) {
+      type = 'rendez-vous';
+    }
+
+    return {
+
+      id: String(brute.id),
+
+      type,
+
+      // L'API préfixe ses titres d'un emoji (« 📅 RDV confirmé ») : l'écran a ses propres icônes.
+      titre: brute.title.replace(/^[^\p{L}\p{N}]+/u, ''),
+
+      message: brute.message,
+
+      date: brute.created_at,
+
+      lue: brute.is_read,
+
+      lien: type === 'rendez-vous' || type === 'rappel' ? '/patient/rendez-vous' : undefined
+
+    };
 
   }
 
@@ -349,91 +291,6 @@ export class MesNotifications {
   ): void {
 
     this.filtreActif.set(filtre);
-
-  }
-
-
-  /* =======================================================
-     MARQUER UNE NOTIFICATION COMME LUE
-  ======================================================== */
-
-  marquerCommeLue(
-    notification: Notification
-  ): void {
-
-    this.notifications.update(liste =>
-
-      liste.map(item => {
-
-        if (item.id !== notification.id) {
-
-          return item;
-
-        }
-
-
-        return {
-
-          ...item,
-
-          lue: true
-
-        };
-
-      })
-
-    );
-
-  }
-
-
-  /* =======================================================
-     TOUT MARQUER COMME LU
-  ======================================================== */
-
-  toutMarquerCommeLu(): void {
-
-    this.notifications.update(liste =>
-
-      liste.map(notification => ({
-
-        ...notification,
-
-        lue: true
-
-      }))
-
-    );
-
-  }
-
-
-  /* =======================================================
-     SUPPRIMER UNE NOTIFICATION
-  ======================================================== */
-
-  supprimerNotification(
-    notification: Notification
-  ): void {
-
-    this.notifications.update(liste =>
-
-      liste.filter(
-        item => item.id !== notification.id
-      )
-
-    );
-
-  }
-
-
-  /* =======================================================
-     SUPPRIMER TOUTES LES NOTIFICATIONS
-  ======================================================== */
-
-  supprimerToutes(): void {
-
-    this.notifications.set([]);
 
   }
 

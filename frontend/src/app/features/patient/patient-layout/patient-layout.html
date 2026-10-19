@@ -290,11 +290,10 @@
 
       <!-- MON PROFIL -->
 
-      <a
-        routerLink="/patient/profil"
-        routerLinkActive="active"
-        class="nav-link"
-        (click)="fermerMenu()"
+      <span
+        class="nav-link nav-link-disabled"
+        aria-disabled="true"
+        title="Bientôt disponible"
       >
 
         <svg
@@ -323,16 +322,18 @@
           Mon profil
         </span>
 
-      </a>
+      
+        <small class="nav-soon">Bientôt</small>
+
+      </span>
 
 
       <!-- PARAMÈTRES -->
 
-      <a
-        routerLink="/patient/parametres"
-        routerLinkActive="active"
-        class="nav-link"
-        (click)="fermerMenu()"
+      <span
+        class="nav-link nav-link-disabled"
+        aria-disabled="true"
+        title="Bientôt disponible"
       >
 
         <svg
@@ -359,7 +360,10 @@
           Paramètres
         </span>
 
-      </a>
+      
+        <small class="nav-soon">Bientôt</small>
+
+      </span>
 
     </nav>
 
@@ -557,11 +561,7 @@
              PROFIL
         ================================================== -->
 
-        <a
-          routerLink="/patient/profil"
-          class="topbar-profile"
-          aria-label="Mon profil"
-        >
+        <div class="topbar-profile" aria-label="Compte connecté">
 
           <span class="topbar-avatar">
             {{ initiales() }}
@@ -579,7 +579,7 @@
 
           </span>
 
-        </a>
+        </div>
 
       </div>
 
