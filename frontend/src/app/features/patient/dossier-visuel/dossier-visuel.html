@@ -22,14 +22,6 @@
           @if (dossier(); as patient) {
             <p class="patient-summary">
               <span>{{ patient.prenom }} {{ patient.nom }}</span>
-              @if (patient.age) {
-                <span class="separator">•</span>
-                <span>{{ patient.age }} ans</span>
-              }
-              @if (patient.sexe) {
-                <span class="separator">•</span>
-                <span>{{ patient.sexe }}</span>
-              }
             </p>
           }
 
@@ -38,13 +30,6 @@
       </div>
 
     </div>
-
-    @if (!chargement() && !erreur() && historiqueDisponible()) {
-      <div class="status-badge">
-        <span class="status-icon">✓</span>
-        <span>Dossier à jour</span>
-      </div>
-    }
 
   </section>
 
@@ -114,31 +99,14 @@
             DOSSIER VISUEL
           </span>
 
-          @if (historiqueDisponible()) {
+          <h2>
+            Aucune consultation pour le moment
+          </h2>
 
-            <h2>
-              Votre dossier visuel est encore vide
-            </h2>
-
-            <p>
-              Aucune consultation n'est actuellement
-              enregistrée dans votre dossier.
-            </p>
-
-          } @else {
-
-            <h2>
-              L'historique de vos consultations arrive bientôt
-            </h2>
-
-            <p>
-              L'affichage de vos fiches de consultation n'est pas
-              encore disponible. Vos fiches restent conservées et
-              vous y aurez accès dès l'ouverture de cette
-              fonctionnalité.
-            </p>
-
-          }
+          <p>
+            Vos consultations apparaîtront ici dès qu'un opticien
+            les aura enregistrées dans votre dossier.
+          </p>
 
           <a
             routerLink="/"
@@ -199,13 +167,19 @@
                     </span>
 
                     <span class="timeline-motif">
-                      {{ fiche.motif }}
+                      {{ fiche.motif || 'Motif non précisé' }}
                     </span>
 
                     <span class="cabinet">
                       <span class="small-icon">⌖</span>
-                      {{ fiche.cabinet }}
+                      {{ fiche.cabinet ?? 'Cabinet n°' + fiche.cabinetId }}
                     </span>
+
+                    @if (fiche.opticien) {
+                      <span class="cabinet">Opticien : {{ fiche.opticien }}</span>
+                    }
+
+                    <span class="cabinet">{{ libelleStatut(fiche.statut) }}</span>
 
                     <span class="view-link">
                       Voir le détail
@@ -238,13 +212,19 @@
                     </span>
 
                     <h2>
-                      {{ fiche.motif }}
+                      {{ fiche.motif || 'Motif non précisé' }}
                     </h2>
 
                     <p>
                       {{ fiche.date | date:'dd MMMM yyyy':'':'fr' }}
                       <span>•</span>
-                      {{ fiche.cabinet }}
+                      {{ fiche.cabinet ?? 'Cabinet n°' + fiche.cabinetId }}
+                      @if (fiche.opticien) {
+                        <span>•</span>
+                        Opticien : {{ fiche.opticien }}
+                      }
+                      <span>•</span>
+                      {{ libelleStatut(fiche.statut) }}
                     </p>
 
                   </div>
@@ -468,10 +448,10 @@
                   </span>
 
                   <div>
-                    <h2>Documents liés</h2>
+                    <h2>Mon dossier en PDF</h2>
 
                     <p>
-                      Ordonnances et documents médicaux
+                      Téléchargez le dossier de vos consultations d'un cabinet
                     </p>
                   </div>
 
@@ -479,74 +459,23 @@
 
               </div>
 
-
-              @if (ficheSelectionnee()?.documents?.length) {
-
-                <div class="documents-list">
-
-                  @for (
-                    doc of ficheSelectionnee()?.documents;
-                    track doc.id
-                  ) {
-
-                    <div class="document-item">
-
-                      <div class="document-left">
-
-                        <div class="pdf-icon">
-                          <span>PDF</span>
-                        </div>
-
-                        <div>
-
-                          <span class="document-name">
-                            {{ doc.nom }}
-                          </span>
-
-                          <span>
-                            {{ doc.date | date:'dd MMM yyyy':'':'fr' }}
-
-                            @if (doc.taille) {
-                              <span>•</span>
-                              {{ doc.taille }}
-                            }
-                          </span>
-
-                        </div>
-
-                      </div>
-
-
-                      <button
-                        type="button"
-                        class="download-button"
-                        title="Télécharger"
-                        aria-label="Télécharger le document"
-                        (click)="telechargerDocument(doc)"
-                      >
-                        <span>↓</span>
-                      </button>
-
-                    </div>
-
-                  }
-
-                </div>
-
-              } @else {
-
+              @if (cabinetsDuDossier().length > 1) {
                 <div class="no-documents">
-
-                  <span class="no-document-icon">
-                    □
-                  </span>
-
-                  <p>
-                    Aucun document associé à cette consultation.
-                  </p>
-
+                  <label for="cabinet-pdf">Cabinet</label>
+                  <select
+                    id="cabinet-pdf"
+                    [value]="cabinetPdfEffectif()"
+                    (change)="choisirCabinetPdf($any($event.target).value)"
+                  >
+                    @for (cabinet of cabinetsDuDossier(); track cabinet.id) {
+                      <option [value]="cabinet.id" [selected]="cabinet.id === cabinetPdfEffectif()">{{ cabinet.nom }}</option>
+                    }
+                  </select>
                 </div>
+              }
 
+              @if (erreurPdf(); as messagePdf) {
+                <p class="no-documents" role="alert">{{ messagePdf }}</p>
               }
 
             </section>
@@ -557,11 +486,11 @@
               <button
                 type="button"
                 class="btn-primary"
-                [disabled]="!dossierPdfDisponible()"
-                (click)="telechargerDocument(ficheSelectionnee()?.dossierPdf)"
+                [disabled]="!cabinetPdfEffectif() || telechargementEnCours()"
+                (click)="telechargerDossierPdf()"
               >
                 <span class="button-icon">↓</span>
-                Télécharger le PDF de cette consultation
+                {{ telechargementEnCours() ? 'Téléchargement…' : 'Télécharger mon dossier (PDF)' }}
               </button>
 
             </div>
