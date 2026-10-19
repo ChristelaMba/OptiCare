@@ -113,6 +113,18 @@ describe('RendezVousService', () => {
     ]);
   });
 
+  it('annulerRendezVous() : PUT /rdv/{id}/annuler (route réelle), plus de PATCH /rendezvous', () => {
+    configurer('patient');
+    let resultat: unknown;
+    service.annulerRendezVous('6').subscribe((r) => (resultat = r));
+
+    const req = http.expectOne((r) => r.url.endsWith('/rdv/6/annuler'));
+    expect(req.request.method).toBe('PUT');
+    req.flush({ status: 'success', message: '', data: { rdv: { ...RDV_BRUT, id: 6, statut: 'annule' } } });
+
+    expect(resultat).toMatchObject({ id: '6', statut: 'annule' });
+  });
+
   it('getMesRendezVous() mappe la forme réelle (snake_case, date ISO, cabinet imbriqué)', () => {
     configurer('patient');
     let resultat: unknown;

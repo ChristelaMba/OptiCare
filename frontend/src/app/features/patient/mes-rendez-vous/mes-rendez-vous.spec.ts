@@ -3,7 +3,7 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { MesRendezVous } from './mes-rendez-vous';
 import { RendezVous } from '../../../models/rendez-vous.model';
@@ -75,5 +75,59 @@ describe('MesRendezVous', () => {
     expect(lien.getAttribute('href')).toBe(
       'https://www.google.com/maps/search/?api=1&query=Rue%20TEST%2C%20Douala',
     );
+  });
+
+  const REPONSE_ANNULATION = {
+    status: 'success',
+    message: 'RDV annulé avec succès.',
+    data: {
+      rdv: {
+        id: 7,
+        cabinet_id: 8,
+        patient_id: 3,
+        date: '2099-01-15T00:00:00.000000Z',
+        heure_debut: '10:00',
+        heure_fin: '10:30',
+        motif: 'test',
+        statut: 'annule',
+      },
+    },
+  };
+
+  it("annulation : PUT /rdv/{id}/annuler, le RDV passe en annulé et rejoint l'historique", async () => {
+    const http = TestBed.inject(HttpTestingController);
+    await afficher([rdv('7', 'test')]);
+
+    component.annulerRendezVous(component.rendezVous()[0]);
+
+    const req = http.expectOne((r) => r.url.endsWith('/rdv/7/annuler'));
+    expect(req.request.method).toBe('PUT');
+    req.flush(REPONSE_ANNULATION);
+
+    expect(component.rendezVous()[0].statut).toBe('annule');
+    expect(component.rendezVousAVenir().length).toBe(0);
+    expect(component.rendezVousPasses().length).toBe(1);
+    expect(component.erreurAnnulation()).toBeNull();
+  });
+
+  it("échec d'annulation : la liste reste visible, message dédié, pas le bloc « impossible de charger »", async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const el = await afficher([rdv('7', 'test')]);
+
+    component.annulerRendezVous(component.rendezVous()[0]);
+    http.expectOne((r) => r.url.endsWith('/rdv/7/annuler')).flush(
+      { status: 'error', message: 'Erreur', errors: { general: 'Ce RDV est déjà annulé.' } },
+      { status: 500, statusText: 'Server Error' },
+    );
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.erreur()).toBeNull();
+    expect(component.erreurAnnulation()).toContain("Impossible d'annuler ce rendez-vous");
+    expect(component.erreurAnnulation()).toContain('Ce RDV est déjà annulé.');
+    expect(component.rendezVous()[0].statut).toBe('confirme');
+    expect(el.querySelector('.cancel-error')?.textContent).toContain("Impossible d'annuler");
+    expect(el.querySelector('.error-state')).toBeNull();
+    expect(el.querySelector('.rdv-type')).not.toBeNull();
   });
 });

@@ -89,9 +89,16 @@ export class RendezVousService {
     return this.http.patch<RendezVous>(`${BASE_URL}/rendezvous/${id}`, { statut });
   }
 
-  /** PATCH /rendezvous/{id} — mock, voir commentaire de tête (même route mock que ci-dessus, statut 'annule'). */
+  /**
+   * PUT /rdv/{id}/annuler — ✅ RÉEL, testé le 19/10/2026 (200, `data.rdv.statut = "annule"`).
+   * Remplace l'ancien `PATCH /rendezvous/{id}` (route de mock, inexistante en prod → 404).
+   * Annuler un RDV déjà annulé renvoie 500 côté serveur (ticket back n°7) : l'écran
+   * n'appelle pas la route pour un RDV déjà annulé.
+   */
   annulerRendezVous(id: string): Observable<RendezVous> {
-    return this.http.patch<RendezVous>(`${BASE_URL}/rendezvous/${id}`, { statut: 'annule' });
+    return this.http
+      .put<ApiRdvEnveloppe>(`${BASE_URL}/rdv/${id}/annuler`, {})
+      .pipe(map((enveloppe) => RendezVousService.normaliserRdv(enveloppe.data.rdv)));
   }
 
   /**
