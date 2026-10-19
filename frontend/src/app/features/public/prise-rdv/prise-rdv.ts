@@ -7,7 +7,10 @@ import {
   Validators
 } from '@angular/forms';
 
+import { HttpErrorResponse } from '@angular/common/http';
+
 import { Auth } from '../../../core/services/auth';
+import { messageErreurApi } from '../../../core/utils/api-errors';
 import { Cabinet } from '../../../core/services/cabinet';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
@@ -790,11 +793,22 @@ export class PriseRdv implements OnInit {
           this.reservationConfirmee.set(true);
         },
 
-        error: () => {
+        // 422 métier (ROUTES-API-LIONEL §6.1) : message du serveur tel quel (`errors.general` : créneau déjà
+        // réservé, aucune plage horaire active, téléphone obligatoire pour un visiteur…).
+        error: (erreur: HttpErrorResponse) => {
           this.enSoumission.set(false);
           this.erreurSoumission.set(
-            "Impossible d'enregistrer votre rendez-vous pour le moment. Réessayez dans quelques instants."
+            messageErreurApi(
+              erreur,
+              "Impossible d'enregistrer votre rendez-vous pour le moment. Réessayez dans quelques instants."
+            )
           );
+
+          // Un créneau pris ou fermé : on rafraîchit la liste affichée pour ne plus le proposer.
+          if (erreur.status === 422 && this.dateSelectionnee) {
+            this.heureSelectionnee = '';
+            this.chargerCreneaux(this.dateSelectionnee);
+          }
         }
 
       });

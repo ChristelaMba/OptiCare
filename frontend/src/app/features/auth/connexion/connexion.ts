@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Auth } from '../../../core/services/auth';
+import { messageErreurConnexion } from '../../../core/utils/api-errors';
 
 @Component({
   selector: 'app-connexion',
@@ -62,11 +63,9 @@ export class Connexion {
         },
         error: (erreur: HttpErrorResponse) => {
           this.chargement.set(false);
-          this.erreur.set(
-            erreur.status === 401
-              ? 'Identifiant ou mot de passe incorrect.'
-              : 'Une erreur est survenue lors de la connexion. Réessayez.',
-          );
+          // Message du serveur tel quel (`errors.telephone[0]` : identifiants incorrects, cabinet en attente
+          // de validation, cabinet refusé…), sinon message générique.
+          this.erreur.set(messageErreurConnexion(erreur));
         },
       });
   }

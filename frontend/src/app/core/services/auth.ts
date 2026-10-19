@@ -1,6 +1,6 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { libelleRole, RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
@@ -10,6 +10,7 @@ import {
   AuthResponse,
   ConnexionPayload,
   InscriptionCabinetPayload,
+  InscriptionCabinetResultat,
   InscriptionPatientPayload,
 } from '../../models/auth.model';
 
@@ -50,13 +51,36 @@ export class Auth {
       );
   }
 
-  registerCabinet(payload: InscriptionCabinetPayload): Observable<AuthResponse> {
+  /**
+   * `POST /auth/register/cabinet` — le serveur ne renvoie plus de token (ROUTES-API-LIONEL §1.2) : le cabinet
+   * est `en_attente` jusqu'à validation par le super admin. **Aucune session n'est ouverte** ; l'écran affiche
+   * un message d'attente et renvoie vers la connexion. Fonctionne que le token soit absent ou, par tolérance, présent.
+   */
+  registerCabinet(payload: InscriptionCabinetPayload): Observable<InscriptionCabinetResultat> {
     return this.http
       .post<ApiAuthEnveloppe>(`${BASE_URL}/auth/register/cabinet`, payload)
       .pipe(
-        map((brut) => Auth.normaliserEnveloppe(brut)),
-        tap((reponse) => this.ouvrirSession(reponse, true)),
+        map((brut) => ({
+          utilisateur: Auth.normaliserUtilisateur(brut.data.user),
+          enAttenteDeValidation: brut.data.requires_verification ?? true,
+        })),
       );
+  }
+
+  /**
+   * Recharge l'utilisateur courant depuis `GET /user` (réponse non enveloppée, ROUTES-API-LIONEL §1.6, avec le
+   * bloc `patient` pour un patient) et met la session à jour. Sert à retrouver `patientId` pour les sessions
+   * ouvertes avant que l'inscription ne le renvoie, sans obliger à se reconnecter.
+   */
+  rafraichirUtilisateur(): Observable<Utilisateur> {
+    return this.http.get<ApiUtilisateurBrut>(`${BASE_URL}/user`).pipe(
+      map((brut) => Auth.normaliserUtilisateur(brut)),
+      tap((utilisateur) => {
+        this.utilisateurSignal.set(utilisateur);
+        const stockage = localStorage.getItem(CLE_TOKEN) ? localStorage : sessionStorage;
+        stockage.setItem(CLE_UTILISATEUR, JSON.stringify(utilisateur));
+      }),
+    );
   }
 
   /**
@@ -80,7 +104,7 @@ export class Auth {
    */
   private static normaliserEnveloppe(brut: ApiAuthEnveloppe): AuthResponse {
     return {
-      token: brut.data.token,
+      token: brut.data.token as string,
       utilisateur: Auth.normaliserUtilisateur(brut.data.user),
     };
   }
@@ -101,7 +125,27 @@ export class Auth {
     };
   }
 
+  /**
+   * Déconnexion : `POST /auth/logout` avec le token courant (révocation côté serveur, ROUTES-API-LIONEL §1.4),
+   * puis effacement de la session locale **dans tous les cas** — immédiatement, sans attendre la réponse : un
+   * échec réseau ou une erreur serveur ne bloque jamais la déconnexion. Pas d'appel s'il n'y a pas de token (ou
+   * un faux token de l'outil de dev). L'en-tête est posé explicitement car la session locale est effacée juste
+   * après ; sans token, l'éventuel 401 de l'appel ne relance donc pas `logout()` en boucle.
+   */
   logout(): void {
+    const token = this.tokenSignal();
+
+    if (token && !token.startsWith('dev-fake-token')) {
+      this.http
+        .post(`${BASE_URL}/auth/logout`, {}, { headers: { Authorization: `Bearer ${token}` } })
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
+
+    this.effacerSessionLocale();
+  }
+
+  private effacerSessionLocale(): void {
     this.tokenSignal.set(null);
     this.utilisateurSignal.set(null);
     localStorage.removeItem(CLE_TOKEN);

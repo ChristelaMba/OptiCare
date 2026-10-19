@@ -39,3 +39,40 @@ export function messageErreurInscription(erreur: HttpErrorResponse): string {
   }
   return "Une erreur est survenue lors de la création du compte. Réessayez.";
 }
+
+/**
+ * Message d'erreur pour une action métier (prise de rendez-vous, annulation…), d'après les formes de
+ * ROUTES-API-LIONEL : 422 `errors.general` (chaîne) ou `errors.rdv[]` / `errors.<champ>[]` (tableaux) ;
+ * 403 « Accès refusé ». Priorité : accès refusé → message du serveur → serveur injoignable → message générique.
+ */
+export function messageErreurApi(erreur: HttpErrorResponse, generique: string): string {
+  if (erreur.status === 403) {
+    return 'Accès refusé.';
+  }
+  const details = messagesValidationApi(erreur);
+  if (details.length > 0) {
+    return details.join(' ');
+  }
+  if (erreur.status === 0) {
+    return 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+  }
+  return generique;
+}
+
+/**
+ * Message d'erreur de connexion : `errors.telephone[0]` tel quel (identifiants incorrects, cabinet en
+ * attente de validation, cabinet refusé… — ROUTES-API-LIONEL §1.3), sinon message générique.
+ */
+export function messageErreurConnexion(erreur: HttpErrorResponse): string {
+  const corps = erreur.error as CorpsErreurApi | null;
+  const message = corps?.errors?.['telephone']?.[0];
+  if (message) {
+    return message;
+  }
+  if (erreur.status === 0) {
+    return 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+  }
+  return erreur.status === 401
+    ? 'Identifiant ou mot de passe incorrect.'
+    : 'Une erreur est survenue lors de la connexion. Réessayez.';
+}

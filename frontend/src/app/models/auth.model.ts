@@ -94,7 +94,18 @@ export interface ApiAuthEnveloppe {
   message: string;
   data: {
     user: ApiUtilisateurBrut;
-    token: string;
+    /** Absent après `POST /auth/register/cabinet` (cabinet en attente de validation, ROUTES-API-LIONEL §1.2). */
+    token?: string;
     role: RoleUtilisateur;
+    requires_verification?: boolean;
   };
+}
+
+/**
+ * Résultat de `POST /auth/register/cabinet` : le compte et le cabinet sont créés mais **aucune session**
+ * n'est ouverte (pas de token) tant que le super admin n'a pas validé le cabinet.
+ */
+export interface InscriptionCabinetResultat {
+  utilisateur: Utilisateur;
+  enAttenteDeValidation: boolean;
 }

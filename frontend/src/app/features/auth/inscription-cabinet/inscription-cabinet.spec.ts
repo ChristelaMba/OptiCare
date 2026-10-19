@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { NEVER } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 import { Auth } from '../../../core/services/auth';
 
@@ -99,5 +99,26 @@ describe('InscriptionCabinet', () => {
     expect(cabinet).toContain('Email public du cabinet');
     expect(cabinet).not.toContain('facultatif');
     expect(cabinet).toContain('*');
+  });
+
+  it("inscription réussie : aucun redirection ni session, message d'attente et bouton vers la connexion", () => {
+    const auth = TestBed.inject(Auth);
+    vi.spyOn(auth, 'registerCabinet').mockReturnValue(of({ utilisateur: {} as never, enAttenteDeValidation: true }));
+    const router = TestBed.inject(Router);
+    const navigation = vi.spyOn(router, 'navigateByUrl');
+
+    remplir('');
+    component.onSubmit();
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(component.enAttenteDeValidation()).toBe(true);
+    expect(navigation).not.toHaveBeenCalled();
+    expect(auth.estConnecte()).toBe(false);
+    expect(el.textContent).toContain(
+      "Votre cabinet est en attente de validation par un administrateur. Vous pourrez vous connecter dès qu'il sera valide.",
+    );
+    expect(el.querySelector('form')).toBeNull();
+    expect(el.querySelector('a[href="/auth/connexion"]')?.textContent).toContain('connexion');
   });
 });

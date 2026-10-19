@@ -178,18 +178,33 @@ export class MesRendezVous implements OnInit {
     this.chargement.set(true);
     this.erreur.set(null);
 
-    // GET /patients/{patientId}/rdv réel — l'id attendu est celui de la
-    // table `patients` (`user.patient.id` du login), PAS l'id utilisateur :
-    // avec ce dernier la liste est toujours vide. Il manque après une
-    // inscription (le register ne le renvoie pas) et sur les sessions
-    // ouvertes avant le 19/10/2026 : une reconnexion le fournit.
+    // GET /patients/{patientId}/rdv réel — l'id attendu est celui de la table `patients` (`user.patient.id`,
+    // renvoyé à l'inscription et à la connexion), PAS l'id utilisateur. Une session ouverte avant le 19/10/2026
+    // peut ne pas l'avoir : on le récupère alors via GET /user (plus de « reconnectez-vous »).
     const patientId = this.auth.utilisateur()?.patientId;
 
     if (!patientId) {
-      this.chargement.set(false);
-      this.erreur.set("Votre profil patient n'est pas encore chargé. Déconnectez-vous puis reconnectez-vous pour afficher vos rendez-vous.");
+      this.auth.rafraichirUtilisateur().subscribe({
+        next: (utilisateur) => {
+          if (utilisateur.patientId) {
+            this.chargerPourPatient(utilisateur.patientId);
+          } else {
+            this.chargement.set(false);
+            this.erreur.set('Impossible de charger vos rendez-vous.');
+          }
+        },
+        error: () => {
+          this.chargement.set(false);
+          this.erreur.set('Impossible de charger vos rendez-vous.');
+        }
+      });
       return;
     }
+
+    this.chargerPourPatient(patientId);
+  }
+
+  private chargerPourPatient(patientId: string): void {
 
     this.rdvService.getMesRendezVous(patientId)
       .subscribe({
@@ -272,14 +287,16 @@ export class MesRendezVous implements OnInit {
 
         error: (erreur: HttpErrorResponse) => {
 
-          const detail = messagesValidationApi(erreur).join(' ');
-
+          // 422 : `errors.rdv[0]` du serveur (« Ce RDV est déjà annulé. », « Vous n'êtes pas autorisé… ») ;
+          // 403 : « Accès refusé ».
           this.erreurAnnulation.set(
-            erreur.status === 0
-              ? "Impossible d'annuler ce rendez-vous : le serveur est injoignable. Vérifiez votre connexion et réessayez."
-              : detail
-                ? `Impossible d'annuler ce rendez-vous : ${detail}`
-                : "Impossible d'annuler ce rendez-vous pour le moment. Réessayez dans quelques instants."
+            erreur.status === 403
+              ? 'Accès refusé.'
+              : erreur.status === 0
+                ? "Impossible d'annuler ce rendez-vous : le serveur est injoignable. Vérifiez votre connexion et réessayez."
+                : (messagesValidationApi(erreur)[0]
+                    ? `Impossible d'annuler ce rendez-vous : ${messagesValidationApi(erreur)[0]}`
+                    : "Impossible d'annuler ce rendez-vous pour le moment. Réessayez dans quelques instants.")
           );
 
           this.annulationEnCours.set(null);
