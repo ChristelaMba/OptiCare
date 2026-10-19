@@ -1,22 +1,19 @@
-import { Component, signal } from '@angular/core';
-import {
-  RouterLink,
-  RouterOutlet,
-  RouterLinkActive
-} from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Auth } from '../../../core/services/auth';
 
-@Component({
-  selector: 'app-patient-layout',
-  standalone: true,
-  imports: [
-    RouterLink,
-    RouterOutlet,
-    RouterLinkActive
-  ],
-  templateUrl: './patient-layout.html',
-  styleUrl: './patient-layout.css'
-})
 export class PatientLayout {
+  private readonly auth = inject(Auth);
+
+  readonly nomComplet = computed(() => {
+    const u = this.auth.utilisateur();
+    return u ? `${u.prenom} ${u.nom}` : '';
+  });
+  readonly initiales = computed(() => {
+    const u = this.auth.utilisateur();
+    return u ? `${u.prenom.charAt(0)}${u.nom.charAt(0)}`.toUpperCase() : '';
+  });
+  // ... le reste inchangé
+
 
   readonly menuOuvert = signal(false);
   readonly espacesOuverts = signal(false);

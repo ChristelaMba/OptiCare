@@ -1,65 +1,108 @@
-import { Service } from '@angular/core';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { PatientDossier } from '../../models/dossier-visuel.model';
+import { Observable, map, throwError } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+import { environment } from '../../../environments/environment';
+import { Auth } from './auth';
+import {
+  DocumentMedical,
+  FicheConsultationResume,
+  PatientDossier,
+  PrescriptionOeilAffichage,
+} from '../../models/dossier-visuel.model';
+
+const BASE_URL = environment.apiUrl.replace(/\/$/, '');
+
+/** Premier champ non vide parmi plusieurs noms possibles (l'API n'est documentée qu'en partie). */
+function pick(source: any, ...cles: string[]): any {
+  for (const cle of cles) {
+    const valeur = source?.[cle];
+    if (valeur !== undefined && valeur !== null && valeur !== '') return valeur;
+  }
+  return undefined;
+}
+
+@Injectable({ providedIn: 'root' })
 export class DossierVisuelService {
+  private readonly http = inject(HttpClient);
+  private readonly auth = inject(Auth);
 
-  private apiUrl = 'http://localhost:8000/api/patient/dossier-visuel';
-
-  constructor(private http: HttpClient) {}
-
+  /** GET /patients/{id}/consultations — id = utilisateur connecté. */
   getMonDossier(): Observable<PatientDossier> {
-    // Une fois l'API Laravel prête, décommenter :
-    // return this.http.get<PatientDossier>(this.apiUrl);
+    const utilisateur = this.auth.utilisateur();
+    if (!utilisateur) {
+      return throwError(() => new Error('Aucun utilisateur connecté'));
+    }
 
-    const mock: PatientDossier = {
-      prenom: 'lesline',
-      nom: 'Noteze',
-      age: 25,
-      sexe: 'Femme',
-      fiches: [
-        {
-          id: '1',
-          date: '2024-01-14',
-          motif: 'Examen de la vue standard',
-          cabinet: 'OptiCare Centre Paris',
-          plaintes: 'Baisse d\'acuité visuelle de près, léger inconfort en fin de journée.',
-          observations: 'Presbytie débutante confirmée. Prescription ajustée pour verres progressifs.',
-          prescription: {
-            oeilDroit: { sphere: '-2.50', cylindre: '-1.00', axe: '90°', add: '+1.50', avl: '10/10', avp: 'P2' },
-            oeilGauche: { sphere: '-2.25', cylindre: '-0.75', axe: '85°', add: '+1.50', avl: '10/10', avp: 'P2' }
-          },
-          documents: [
-            { id: 'd1', nom: 'Ordonnance verres progressifs', date: '2024-01-14', taille: '182 Ko' },
-            { id: 'd2', nom: 'Facture consultation', date: '2024-01-14', taille: '96 Ko' }
-          ],
-          dossierPdf: { id: 'pdf1', nom: 'Dossier complet', date: '2024-01-14' }
-        },
-        {
-          id: '2',
-          date: '2022-11-05',
-          motif: 'Adaptation lentilles',
-          cabinet: 'OptiCare Centre Paris',
-          observations: 'Essai de lentilles mensuelles souples. Manipulation acquise.',
-          prescription: {
-            oeilDroit: { sphere: '-2.25', cylindre: '-0.75', axe: '88°' },
-            oeilGauche: { sphere: '-2.00', cylindre: '-0.50', axe: '82°' }
-          },
-          documents: []
-        }
-      ]
-    };
+    return this.http
+      .get<{ data: { consultations: any[] } }>(`${BASE_URL}/patients/${utilisateur.id}/consultations`)
+      .pipe(
+        map((reponse) => {
+          const brutes = reponse.data?.consultations ?? [];
+          console.log('[dossier-visuel] réponse brute :', brutes); // à retirer une fois le mapping validé
 
-    return of(mock);
+          return {
+            prenom: utilisateur.prenom,
+            nom: utilisateur.nom,
+            fiches: brutes
+              .map(DossierVisuelService.normaliserFiche)
+              .sort((a, b) => b.date.localeCompare(a.date)),
+          } as PatientDossier;
+        }),
+      );
   }
 
+  /** Aucune route de téléchargement de document n'existe dans l'API pour l'instant. */
   telechargerDocument(documentId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/documents/${documentId}`, { responseType: 'blob' });
+    return throwError(() => new Error(`Téléchargement indisponible (${documentId})`));
   }
-  
+
+  private static normaliserFiche(c: any): FicheConsultationResume {
+    const p = c.plaintes ?? {};
+    const libellesPlaintes: string[] = [];
+    if (pick(p, 'vision_flou_loin', 'visionFlouLoin', 'plainte_vision_flou_loin'))
+      libellesPlaintes.push("Baisse d'acuité visuelle de loin");
+    if (pick(p, 'vision_flou_pres', 'visionFlouPres', 'plainte_vision_flou_pres'))
+      libellesPlaintes.push("Baisse d'acuité visuelle de près");
+    if (pick(p, 'vision_double', 'visionDouble', 'plainte_vision_double'))
+      libellesPlaintes.push('Vision double');
+    if (pick(p, 'demangeaisons', 'plainte_demangeaisons')) libellesPlaintes.push('Démangeaisons');
+    if (pick(p, 'larmoiement', 'plainte_larmoiement')) libellesPlaintes.push('Larmoiement');
+
+    const autres = pick(p, 'autres', 'plainte_autres') ?? c.plainte_autres;
+    if (autres) libellesPlaintes.push(String(autres));
+
+    const od = c.prescription?.od;
+    const og = c.prescription?.og;
+
+    const dateBrute = String(c.date_consultation ?? c.created_at ?? '').replace(' ', 'T');
+
+    return {
+      id: String(c.id),
+      date: dateBrute.slice(0, 10),
+      motif: c.motif ?? 'Consultation',
+      cabinet: c.cabinet?.nom ?? 'Cabinet',
+      plaintes: libellesPlaintes.length ? libellesPlaintes.join(', ') : undefined,
+      observations: c.observations ?? undefined,
+      prescription: od || og
+        ? {
+            oeilDroit: DossierVisuelService.normaliserOeil(od),
+            oeilGauche: DossierVisuelService.normaliserOeil(og),
+          }
+        : undefined,
+      documents: [] as DocumentMedical[],
+    };
+  }
+
+  private static normaliserOeil(o: any): PrescriptionOeilAffichage {
+    const texte = (v: unknown) => (v === undefined || v === null ? '' : String(v));
+    return {
+      sphere: texte(pick(o, 'sphere')),
+      cylindre: texte(pick(o, 'cylindre')),
+      axe: texte(pick(o, 'axe')),
+      add: texte(pick(o, 'addition', 'add')),
+      avl: texte(pick(o, 'acuite_loin', 'avl')),
+      avp: texte(pick(o, 'acuite_pres', 'avp')),
+    };
+  }
 }

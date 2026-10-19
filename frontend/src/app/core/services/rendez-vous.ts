@@ -55,9 +55,7 @@ export class RendezVousService {
   }
 
   /** PATCH /rendezvous/{id} — mock, voir commentaire de tête (même route mock que ci-dessus, statut 'annule'). */
-  annulerRendezVous(id: string): Observable<RendezVous> {
-    return this.http.patch<RendezVous>(`${BASE_URL}/rendezvous/${id}`, { statut: 'annule' });
-  }
+ 
 
   /**
    * GET /cabinets/{id}/slots?date=YYYY-MM-DD — ✅ RÉEL, confirmé le 11/09
@@ -91,9 +89,33 @@ export class RendezVousService {
    * (`normaliserRdv()`, même pattern que `Cabinet.normaliserCabinet()`)
    * dès qu'un RDV réel existera pour en inspecter la forme.
    */
+    /** GET /patients/{patientId}/rdv — réel. */
   getMesRendezVous(patientId: string): Observable<RendezVous[]> {
     return this.http
       .get<ApiRdvsEnveloppe>(`${BASE_URL}/patients/${patientId}/rdv`)
-      .pipe(map((enveloppe) => enveloppe.data.rdvs as RendezVous[]));
+      .pipe(map((enveloppe) => (enveloppe.data.rdvs ?? []).map(RendezVousService.normaliserRdv)));
+  }
+
+  /** PUT /rdv/{id}/annuler — réel. */
+  annulerRendezVous(id: string): Observable<RendezVous> {
+    return this.http
+      .put<{ data: { rdv: unknown } }>(`${BASE_URL}/rdv/${id}/annuler`, {})
+      .pipe(map((enveloppe) => RendezVousService.normaliserRdv(enveloppe.data.rdv)));
+  }
+
+  /** snake_case (API) → camelCase (front). */
+  private static normaliserRdv(brut: unknown): RendezVous {
+    const r = brut as any;
+    return {
+      id: String(r.id),
+      cabinetId: String(r.cabinet_id),
+      cabinetNom: r.cabinet?.nom ?? 'Cabinet',
+      cabinetAdresse: r.cabinet?.adresse ?? undefined,
+      motif: r.motif ?? '',
+      date: String(r.date).slice(0, 10),
+      heureDebut: String(r.heure_debut ?? '').slice(0, 5),
+      heureFin: String(r.heure_fin ?? '').slice(0, 5),
+      statut: r.statut,
+    };
   }
 }

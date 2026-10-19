@@ -35,7 +35,7 @@ export interface FicheConsultationResume {
 export interface PatientDossier {
   prenom: string;
   nom: string;
-  age: number;
-  sexe: string;
+  age?: number;
+  sexe?: string;
   fiches: FicheConsultationResume[];
 }

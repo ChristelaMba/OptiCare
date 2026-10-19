@@ -401,13 +401,13 @@
     <div class="sidebar-profile">
 
       <div class="profile-avatar">
-        JD
+        {{initiales()}}
       </div>
 
       <div class="profile-details">
 
         <strong>
-          Jean Dupont
+          {{nomComplet()}}
         </strong>
 
         <span>
@@ -567,29 +567,29 @@
              PROFIL
         ================================================== -->
 
-        <a
-          routerLink="/patient/profil"
-          class="topbar-profile"
-          aria-label="Mon profil"
-        >
+   <a
+  routerLink="/patient/profil"
+  class="topbar-profile"
+  aria-label="Mon profil"
+>
 
-          <span class="topbar-avatar">
-            JD
-          </span>
+  <span class="topbar-avatar">
+    {{ initiales() }}
+  </span>
 
-          <span class="topbar-profile-info">
+  <span class="topbar-profile-info">
 
-            <strong>
-              Jean Dupont
-            </strong>
+    <strong>
+      {{ nomComplet() }}
+    </strong>
 
-            <small>
-              Patient
-            </small>
+    <small>
+      Patient
+    </small>
 
-          </span>
+  </span>
 
-        </a>
+</a>
 
       </div>
 
