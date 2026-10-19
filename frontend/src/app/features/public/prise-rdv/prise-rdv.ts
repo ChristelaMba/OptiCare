@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   FormBuilder,
@@ -14,14 +14,21 @@ import { messageErreurApi } from '../../../core/utils/api-errors';
 import { Cabinet } from '../../../core/services/cabinet';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import {
+  CreneauReel,
   JourCalendrier,
-  NouveauRendezVousPayload
+  NouveauRendezVousPayload,
+  PlageHoraire,
+  RendezVous
 } from '../../../models/rendez-vous.model';
 import { DatePipe } from '@angular/common';
 
-// Liste de repli : à supprimer quand les créneaux réels fonctionnent (voir bloc « CRÉNEAUX » du composant).
-const CRENEAUX_LOCAUX_INDICATIFS = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '14:30', '15:00', '15:30'];
-const CRENEAUX_LOCAUX_INDISPONIBLES = ['10:30'];
+/** État d'un créneau affiché : seul « libre » est sélectionnable. */
+type EtatCreneau = 'libre' | 'reserve' | 'pause' | 'deja-vous' | 'indisponible';
+
+interface CreneauAffiche {
+  heure: string;
+  etat: EtatCreneau;
+}
 
 @Component({
   selector: 'app-prise-rdv',
@@ -70,7 +77,7 @@ export class PriseRdv implements OnInit {
 
   moisAffiche = new Date();
 
-  joursCalendrier: JourCalendrier[] = [];
+  joursCalendrier = signal<JourCalendrier[]>([]);
 
   joursSemaine = [
     'Lun',
@@ -87,39 +94,119 @@ export class PriseRdv implements OnInit {
      SÉLECTION
   ====================================================== */
 
-  dateSelectionnee: Date | null = null;
+  // Adossés à des signals : l'app tourne sans zone.js, une propriété simple modifiée hors d'un événement
+  // du gabarit (réponse HTTP, appel direct) ne redéclencherait pas le rendu.
+  private readonly dateSelectionneeSignal = signal<Date | null>(null);
 
-  heureSelectionnee = '';
+  private readonly heureSelectionneeSignal = signal('');
+
+  get dateSelectionnee(): Date | null {
+    return this.dateSelectionneeSignal();
+  }
+
+  set dateSelectionnee(valeur: Date | null) {
+    this.dateSelectionneeSignal.set(valeur);
+  }
+
+  get heureSelectionnee(): string {
+    return this.heureSelectionneeSignal();
+  }
+
+  set heureSelectionnee(valeur: string) {
+    this.heureSelectionneeSignal.set(valeur);
+  }
 
 
   /* =====================================================
-     CRÉNEAUX
+     PLAGES HORAIRES ET CRÉNEAUX
 
-     Source : GET /cabinets/{id}/slots?date=... (RendezVousService.listerCreneaux()).
+     Plages : GET /cabinets/{id}/creneaux (jours ouverts, cabinet sans plage).
+     Créneaux d'une date : GET /cabinets/{id}/slots?date=… ; seuls les créneaux
+     « libres » sont sélectionnables (pause, réservé, déjà pris par le patient et
+     indisponible sont désactivés). Plus aucune liste d'heures locale : si le
+     cabinet n'a aucune plage, un message l'indique ; s'il en a mais qu'aucun
+     créneau n'existe ce jour-là, on l'indique aussi.
 
-     TODO(retirer la liste locale) : tant qu'un cabinet n'a ouvert aucune
-     plage horaire (aujourd'hui tous : POST /cabinets/{id}/creneaux est
-     bloqué par le bug serveur CheckRole), `slots` est vide et on affiche
-     CRENEAUX_LOCAUX_INDICATIFS avec un avertissement « horaires
-     indicatifs ». Le serveur ne contrôle pas ces heures (ni plage, ni
-     double réservation — tickets back 1 et 3) : le cabinet confirme le RDV.
-     DÈS QUE les créneaux réels sont disponibles et testés : supprimer
-     CRENEAUX_LOCAUX_INDICATIFS, CRENEAUX_LOCAUX_INDISPONIBLES et la
-     branche de repli de chargerCreneaux() (afficher alors simplement
-     « aucun créneau ce jour-là » si la liste est vide).
+     ⚠ Défauts serveur connus (Docs/DIAGNOSTIC-CRENEAUX.md) : `est_reserve` reste
+     toujours false et POST /rdv accepte la double réservation et la pause. Le
+     front ne peut donc pas griser un créneau pris par quelqu'un d'autre ; il ne
+     le fait que pour un RDV du patient connecté (garde-fou ci-dessous).
 
      Signals (et non propriétés simples) : l'app tourne sans zone.js, une
      mutation dans un callback .subscribe() ne redéclencherait pas le rendu.
   ====================================================== */
 
-  creneaux = signal<string[]>(CRENEAUX_LOCAUX_INDICATIFS);
+  /** null = pas encore chargées (ou échec) ; [] = le cabinet n'a aucune plage. */
+  plages = signal<PlageHoraire[] | null>(null);
 
-  creneauxIndisponibles = signal<string[]>(CRENEAUX_LOCAUX_INDISPONIBLES);
+  erreurPlages = signal<string | null>(null);
 
-  /** true quand la liste affichée est la liste locale de repli (et non les créneaux réels du cabinet). */
-  creneauxIndicatifs = signal(true);
+  cabinetTelephone = signal('');
+
+  /** Le cabinet n'a ouvert aucune plage horaire active. */
+  aucunePlage = computed(() => {
+    const plages = this.plages();
+    return plages !== null && !plages.some((plage) => plage.estActif);
+  });
+
+  /** Jours de la semaine (Date.getDay()) ayant au moins une plage active. */
+  private joursOuverts = computed(
+    () => new Set((this.plages() ?? []).filter((plage) => plage.estActif).map((plage) => plage.jourSemaine))
+  );
+
+  private creneauxReels = signal<CreneauReel[]>([]);
+
+  /** Date (YYYY-MM-DD) dont les créneaux sont affichés. */
+  private dateAffichee = signal('');
 
   chargementCreneaux = signal(false);
+
+  erreurCreneaux = signal<string | null>(null);
+
+  /** Rendez-vous du patient connecté (garde-fou contre sa propre double réservation). Vide pour un visiteur. */
+  private mesRendezVous = signal<RendezVous[]>([]);
+
+  /** Créneaux affichés, avec leur état. */
+  creneaux = computed<CreneauAffiche[]>(() => {
+    const date = this.dateAffichee();
+    const mesRdv = this.mesRendezVous();
+
+    return this.creneauxReels().map((creneau) => {
+      let etat: EtatCreneau = 'libre';
+
+      if (creneau.estDansPause) {
+        etat = 'pause';
+      } else if (creneau.estReserve) {
+        etat = 'reserve';
+      } else if (
+        // TODO : retirer ce garde-fou quand le serveur détectera lui-même les doubles réservations
+        // (est_reserve fiable et refus 422 de POST /rdv sur un créneau pris) — Docs/DIAGNOSTIC-CRENEAUX.md.
+        mesRdv.some(
+          (rdv) =>
+            rdv.cabinetId === this.cabinetId &&
+            rdv.date === date &&
+            rdv.heureDebut.slice(0, 5) === creneau.heure.slice(0, 5) &&
+            rdv.statut !== 'annule'
+        )
+      ) {
+        etat = 'deja-vous';
+      } else if (!creneau.disponible) {
+        etat = 'indisponible';
+      }
+
+      return { heure: creneau.heure, etat };
+    });
+  });
+
+  libelleEtat(etat: EtatCreneau): string {
+    switch (etat) {
+      case 'reserve': return 'Réservé';
+      case 'pause': return 'Pause';
+      case 'deja-vous': return 'Déjà réservé par vous';
+      case 'indisponible': return 'Indisponible';
+      default: return '';
+    }
+  }
 
   /** Dernière date (YYYY-MM-DD) demandée — écarte les réponses tardives d'une date précédente. */
   private dateCreneauxDemandee = '';
@@ -211,10 +298,15 @@ export class PriseRdv implements OnInit {
       this.cabinetId = idFromRoute;
 
       this.cabinetService.obtenirDetail(idFromRoute).subscribe({
-        next: (cabinet) => this.cabinetNom.set(cabinet.nom),
-        // Nom indisponible : on garde le libellé neutre, la réservation reste possible.
+        next: (cabinet) => {
+          this.cabinetNom.set(cabinet.nom);
+          this.cabinetTelephone.set(cabinet.telephone);
+        },
+        // Nom indisponible : on garde le libellé neutre.
         error: () => undefined
       });
+
+      this.chargerPlages();
     }
 
 
@@ -238,6 +330,7 @@ export class PriseRdv implements OnInit {
       this.form.get('nomComplet')?.disable();
       this.form.get('telephone')?.disable();
 
+      this.chargerMesRendezVous();
     }
 
 
@@ -409,8 +502,10 @@ export class PriseRdv implements OnInit {
         date < aujourdhui;
 
 
-      const estDimanche =
-        date.getDay() === 0;
+      // Jour fermé : aucun plage active ce jour de la semaine (dimanche pour les cabinets de démo).
+      // Tant que les plages ne sont pas chargées (ou si leur chargement échoue), aucun jour n'est proposé.
+      const estFerme =
+        !this.joursOuverts().has(date.getDay());
 
 
       jours.push({
@@ -421,7 +516,7 @@ export class PriseRdv implements OnInit {
 
         disponible:
           !estPasse &&
-          !estDimanche,
+          !estFerme,
 
         horsMois: false,
 
@@ -484,7 +579,7 @@ export class PriseRdv implements OnInit {
     }
 
 
-    this.joursCalendrier = jours;
+    this.joursCalendrier.set(jours);
   }
 
 
@@ -575,20 +670,66 @@ export class PriseRdv implements OnInit {
      CHARGEMENT DES CRÉNEAUX D'UNE DATE
   ====================================================== */
 
+  /** GET /cabinets/{id}/creneaux : jours ouverts du cabinet. Un échec laisse le calendrier fermé avec un message. */
+  chargerPlages(): void {
+
+    this.erreurPlages.set(null);
+
+    this.rendezVousService.listerPlages(this.cabinetId).subscribe({
+
+      next: (plages) => {
+        this.plages.set(plages);
+        this.genererCalendrier();
+      },
+
+      error: () => {
+        this.erreurPlages.set(
+          "Impossible de charger les horaires du cabinet pour le moment. Réessayez dans quelques instants."
+        );
+      }
+
+    });
+  }
+
+  /**
+   * GET /patients/{patientId}/rdv (route qui fonctionne) — uniquement pour un patient connecté : sert à
+   * désactiver les créneaux où il a déjà un rendez-vous non annulé. Un échec n'empêche pas la réservation.
+   */
+  private chargerMesRendezVous(): void {
+
+    const charger = (patientId: string): void => {
+      this.rendezVousService.getMesRendezVous(patientId).subscribe({
+        next: (rdvs) => this.mesRendezVous.set(rdvs),
+        error: () => undefined
+      });
+    };
+
+    const patientId = this.auth.utilisateur()?.patientId;
+
+    if (patientId) {
+      charger(patientId);
+      return;
+    }
+
+    this.auth.rafraichirUtilisateur().subscribe({
+      next: (utilisateur) => {
+        if (utilisateur.patientId) {
+          charger(utilisateur.patientId);
+        }
+      },
+      error: () => undefined
+    });
+  }
+
   private chargerCreneaux(date: Date): void {
 
     const dateIso = this.formaterDateLocale(date);
 
     this.dateCreneauxDemandee = dateIso;
+    this.dateAffichee.set(dateIso);
+    this.creneauxReels.set([]);
+    this.erreurCreneaux.set(null);
     this.chargementCreneaux.set(true);
-
-    // Repli sur la liste locale — voir le TODO du bloc « CRÉNEAUX ».
-    const afficherListeLocale = (): void => {
-      this.creneaux.set(CRENEAUX_LOCAUX_INDICATIFS);
-      this.creneauxIndisponibles.set(CRENEAUX_LOCAUX_INDISPONIBLES);
-      this.creneauxIndicatifs.set(true);
-      this.chargementCreneaux.set(false);
-    };
 
     this.rendezVousService
       .listerCreneaux(this.cabinetId, dateIso)
@@ -600,24 +741,18 @@ export class PriseRdv implements OnInit {
             return;
           }
 
-          if (reels.length === 0) {
-            afficherListeLocale();
-            return;
-          }
-
-          this.creneaux.set(reels.map(c => c.heure));
-          this.creneauxIndisponibles.set(
-            reels.filter(c => !c.disponible).map(c => c.heure)
-          );
-          this.creneauxIndicatifs.set(false);
+          this.creneauxReels.set(reels);
           this.chargementCreneaux.set(false);
         },
 
         error: () => {
 
-          if (dateIso === this.dateCreneauxDemandee) {
-            afficherListeLocale();
+          if (dateIso !== this.dateCreneauxDemandee) {
+            return;
           }
+
+          this.erreurCreneaux.set('Impossible de charger les créneaux pour le moment. Réessayez dans quelques instants.');
+          this.chargementCreneaux.set(false);
         }
 
       });
@@ -673,7 +808,7 @@ export class PriseRdv implements OnInit {
      * un créneau indisponible.
      */
     if (
-      this.creneauxIndisponibles().includes(heure)
+      this.creneaux().find(c => c.heure === heure)?.etat !== 'libre'
     ) {
       return;
     }
@@ -791,6 +926,11 @@ export class PriseRdv implements OnInit {
           this.enSoumission.set(false);
           this.rdvConfirme.set(rdv.statut === 'confirme');
           this.reservationConfirmee.set(true);
+
+          // Le nouveau rendez-vous entre dans le garde-fou du patient connecté.
+          if (this.estConnecte) {
+            this.chargerMesRendezVous();
+          }
         },
 
         // 422 métier (ROUTES-API-LIONEL §6.1) : message du serveur tel quel (`errors.general` : créneau déjà

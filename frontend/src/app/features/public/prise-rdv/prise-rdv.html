@@ -370,7 +370,7 @@
               <div class="calendar-grid">
 
                 @for (
-                  jour of joursCalendrier;
+                  jour of joursCalendrier();
                   track jour.dateComplete.getTime()
                 ) {
 
@@ -499,7 +499,25 @@
                 </div>
 
 
-                @if (dateSelectionnee) {
+                @if (aucunePlage()) {
+
+                  <p class="slots-notice slots-notice-warning" role="status">
+                    Ce cabinet n'a pas encore ouvert ses créneaux. Contactez-le
+                    @if (cabinetTelephone()) {
+                      au
+                      <a [href]="'tel:' + cabinetTelephone()">{{ cabinetTelephone() }}</a>
+                    }
+                    pour convenir d'un rendez-vous.
+                  </p>
+
+                } @else if (erreurPlages()) {
+
+                  <p class="slots-notice slots-notice-warning" role="alert">
+                    {{ erreurPlages() }}
+                    <button type="button" class="slots-retry" (click)="chargerPlages()">Réessayer</button>
+                  </p>
+
+                } @else if (dateSelectionnee) {
 
                   @if (chargementCreneaux()) {
 
@@ -507,56 +525,58 @@
                       Chargement des créneaux…
                     </p>
 
-                  } @else if (creneauxIndicatifs()) {
+                  } @else if (erreurCreneaux()) {
 
                     <p class="slots-notice slots-notice-warning" role="alert">
-                      Horaires indicatifs : le cabinet n'a pas encore
-                      ouvert ses créneaux, il confirmera votre rendez-vous.
+                      {{ erreurCreneaux() }}
                     </p>
 
+                  } @else if (creneaux().length === 0) {
+
+                    <p class="slots-notice" role="status">
+                      Aucun créneau disponible ce jour-là.
+                    </p>
+
+                  } @else {
+
+                    <div class="slots-grid">
+
+                      @for (
+                        creneau of creneaux();
+                        track creneau.heure
+                      ) {
+
+                        <button
+                          type="button"
+                          class="slot-button"
+                          [class.selected]="heureSelectionnee === creneau.heure"
+                          [class.unavailable]="creneau.etat !== 'libre'"
+                          [disabled]="creneau.etat !== 'libre'"
+                          [attr.aria-disabled]="creneau.etat !== 'libre'"
+                          (click)="selectionnerHeure(creneau.heure)"
+                        >
+
+                          <i class="fa-regular fa-clock"></i>
+
+                          <span>
+                            {{ creneau.heure }}
+                          </span>
+
+                          @if (creneau.etat !== 'libre') {
+
+                            <small>
+                              {{ libelleEtat(creneau.etat) }}
+                            </small>
+
+                          }
+
+                        </button>
+
+                      }
+
+                    </div>
+
                   }
-
-                  <div class="slots-grid">
-
-                    @for (
-                      heure of creneaux();
-                      track heure
-                    ) {
-
-                      <button
-                        type="button"
-                        class="slot-button"
-                        [class.selected]="heureSelectionnee === heure"
-                        [class.unavailable]="
-                          creneauxIndisponibles().includes(heure)
-                        "
-                        [disabled]="
-                          creneauxIndisponibles().includes(heure)
-                        "
-                        (click)="selectionnerHeure(heure)"
-                      >
-
-                        <i class="fa-regular fa-clock"></i>
-
-                        <span>
-                          {{ heure }}
-                        </span>
-
-                        @if (
-                          creneauxIndisponibles().includes(heure)
-                        ) {
-
-                          <small>
-                            Indisponible
-                          </small>
-
-                        }
-
-                      </button>
-
-                    }
-
-                  </div>
 
                 }
 
