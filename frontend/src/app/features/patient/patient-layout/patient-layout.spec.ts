@@ -51,4 +51,17 @@ describe('PatientLayout', () => {
     expect(el.querySelector('.sidebar-notification-badge')).toBeNull();
     expect(el.querySelector('.mobile-notification span')).toBeNull();
   });
+
+  it('« Mon profil » et « Paramètres » sont désactivés avec la mention « Bientôt », sans lien mort', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const desactives = el.querySelectorAll('.nav-link-disabled');
+
+    expect(desactives.length).toBe(2);
+    desactives.forEach((entree) => {
+      expect(entree.getAttribute('aria-disabled')).toBe('true');
+      expect(entree.textContent).toContain('Bientôt');
+    });
+    expect(el.querySelector('a[href="/patient/profil"]')).toBeNull();
+    expect(el.querySelector('a[href="/patient/parametres"]')).toBeNull();
+  });
 });

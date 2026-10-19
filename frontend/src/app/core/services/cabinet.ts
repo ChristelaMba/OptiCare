@@ -137,12 +137,14 @@ export class Cabinet {
       nom: brut.nom,
       slogan: brut.slogan ?? '',
       description: brut.description ?? '',
-      adresse: brut.adresse,
-      quartier: brut.quartier,
-      ville: brut.ville,
-      telephone: brut.telephone,
+      // L'API renvoie `null` pour un champ non renseigné (ex. `quartier`) : on normalise en
+      // chaîne vide pour que les écrans (recherche, tri, affichage) n'aient jamais à tester null.
+      adresse: brut.adresse ?? '',
+      quartier: brut.quartier ?? '',
+      ville: brut.ville ?? '',
+      telephone: brut.telephone ?? '',
       whatsappNumero: brut.whatsapp_numero ?? '',
-      email: brut.email,
+      email: brut.email ?? '',
       logoUrl: brut.logo_url ?? '',
       photos: brut.photos ?? [],
       liensExternes: {

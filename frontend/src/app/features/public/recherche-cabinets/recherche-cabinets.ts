@@ -42,7 +42,7 @@ export class RechercheCabinets implements OnInit {
   readonly pageActuelle = signal(1);
 
   readonly quartiersDisponibles = computed(() =>
-    [...new Set(this.cabinets().map((c) => c.quartier))].sort((a, b) => a.localeCompare(b)),
+    [...new Set(this.cabinets().map((c) => c.quartier).filter((q) => !!q?.trim()))].sort((a, b) => a.localeCompare(b)),
   );
 
   private readonly cabinetsFiltres = computed(() => {
@@ -51,8 +51,12 @@ export class RechercheCabinets implements OnInit {
     const noteMin = this.noteMinFiltre();
 
     return this.cabinets().filter((cabinet) => {
+      // Champs potentiellement vides (l'API renvoie null) : jamais d'appel direct sur eux.
       const correspondTexte =
-        !texte || cabinet.nom.toLowerCase().includes(texte) || cabinet.quartier.toLowerCase().includes(texte);
+        !texte ||
+        [cabinet.nom, cabinet.adresse, cabinet.quartier, cabinet.ville].some((champ) =>
+          (champ ?? '').toLowerCase().includes(texte),
+        );
       const correspondQuartier = quartiers.size === 0 || quartiers.has(cabinet.quartier);
       const correspondNote = cabinet.noteMoyenne >= noteMin;
       return correspondTexte && correspondQuartier && correspondNote;
@@ -93,6 +97,11 @@ export class RechercheCabinets implements OnInit {
         this.erreur.set('Impossible de charger les cabinets pour le moment. Réessayez plus tard.');
       },
     });
+  }
+
+  /** « adresse, quartier » sans virgule orpheline quand l'un des deux est vide. */
+  adresseAffichee(cabinet: CabinetModel): string {
+    return [cabinet.adresse, cabinet.quartier].filter((partie) => !!partie?.trim()).join(', ');
   }
 
   toggleQuartier(quartier: string): void {

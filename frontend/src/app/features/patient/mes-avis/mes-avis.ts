@@ -12,9 +12,14 @@ import { CabinetEligible, Avis } from '../../../models/avis.model';
 })
 export class MesAvis {
 
-  cabinetsEligibles = signal<CabinetEligible[]>([
-    { id: 'c1', nom: 'OptiCare Centre', dateVisite: '14/01/2026' }
-  ]);
+  /**
+   * Établissements pour lesquels un avis est possible : ceux d'une consultation
+   * TERMINÉE du patient (`POST /avis` exige un `consultation_id` terminé). Les
+   * consultations sont inaccessibles tant que le bug serveur CheckRole bloque
+   * `GET /patients/{id}/consultations` : liste vide, aucun établissement inventé.
+   * À alimenter (et à brancher sur POST /avis) une fois la route corrigée (Lot 2).
+   */
+  cabinetsEligibles = signal<CabinetEligible[]>([]);
 
   avisPublies = signal<Avis[]>([]);
 

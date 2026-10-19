@@ -1,7 +1,9 @@
 import { AfterViewInit, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { catchError, forkJoin, of } from 'rxjs';
 
+import { Avis as AvisService } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
 
@@ -10,6 +12,19 @@ const NB_CABINETS_VITRINE = 6;
 /** Nombre de cartes visibles avant de cliquer sur « Voir plus ». */
 const NB_CABINETS_VITRINE_INITIAL = 3;
 
+/** Nombre d'avis réels affichés dans « Avis de nos patients ». */
+const NB_AVIS_VITRINE = 3;
+
+/** Avis prêt à afficher (nom abrégé, cabinet concerné). */
+interface AvisAccueil {
+  id: string;
+  note: number;
+  commentaire: string;
+  auteur: string;
+  cabinetNom: string;
+  date: string;
+}
+
 type IdSection = 'specialites' | 'cabinets-partenaires';
 
 /**
@@ -17,7 +32,8 @@ type IdSection = 'specialites' | 'cabinets-partenaires';
  * DESIGN.md + code.html + screen.png) — page marketing d'accueil, distincte
  * d'un écran de recherche/filtrage. Seule la section « Nos cabinets
  * partenaires » consomme une donnée réelle (cabinetService.listerPublics()),
- * le reste (spécialités, proposition de valeur, avis, CTA) est le contenu
+ * les avis viennent de GET /cabinets/{id}/avis (section masquée s'il n'y en a aucun) ;
+ * le reste (spécialités, proposition de valeur, CTA) est le contenu
  * éditorial de la maquette — au même titre que les visuels marketing déjà
  * en dur dans les écrans auth/choix-role, connexion, etc.
  */
@@ -29,6 +45,13 @@ type IdSection = 'specialites' | 'cabinets-partenaires';
 })
 export class Accueil implements OnInit, AfterViewInit, OnDestroy {
   private readonly cabinetService = inject(CabinetService);
+  private readonly avisService = inject(AvisService);
+
+  /**
+   * Avis réels (`GET /cabinets/{id}/avis`). La section « Avis de nos patients »
+   * n'est affichée que si cette liste n'est pas vide : plus de témoignages inventés.
+   */
+  readonly avisReels = signal<AvisAccueil[]>([]);
 
   @ViewChild('specialitesSection') private specialitesSection?: ElementRef<HTMLElement>;
   @ViewChild('cabinetsSection') private cabinetsSection?: ElementRef<HTMLElement>;
@@ -62,9 +85,54 @@ export class Accueil implements OnInit, AfterViewInit, OnDestroy {
       next: (cabinets) => {
         this.cabinets.set(cabinets);
         this.chargementCabinets.set(false);
+        this.chargerAvis(cabinets);
       },
       error: () => this.chargementCabinets.set(false),
     });
+  }
+
+  /** « Quartier, Ville » — la virgule n'apparaît que si les deux existent. */
+  localisation(cabinet: CabinetModel): string {
+    return [cabinet.quartier, cabinet.ville].filter((partie) => !!partie?.trim()).join(', ');
+  }
+
+  /** Avis des cabinets qui en ont (nombreAvis > 0) ; un cabinet en erreur est simplement ignoré. */
+  private chargerAvis(cabinets: CabinetModel[]): void {
+    const avecAvis = cabinets.filter((cabinet) => cabinet.nombreAvis > 0).slice(0, NB_CABINETS_VITRINE);
+
+    if (avecAvis.length === 0) {
+      return;
+    }
+
+    forkJoin(
+      avecAvis.map((cabinet) =>
+        this.avisService.listerParCabinet(cabinet.id).pipe(
+          catchError(() => of([])),
+        ),
+      ),
+    ).subscribe((parCabinet) => {
+      const avis = parCabinet
+        .flatMap((liste, i) =>
+          liste
+            .filter((a) => !!a.commentaire?.trim())
+            .map((a): AvisAccueil => ({
+              id: `${avecAvis[i].id}-${a.id}`,
+              note: a.note,
+              commentaire: a.commentaire as string,
+              auteur: a.patient ? `${a.patient.prenom} ${a.patient.nom.charAt(0)}.`.trim() : 'Patient',
+              cabinetNom: avecAvis[i].nom,
+              date: a.created_at,
+            })),
+        )
+        .sort((a, b) => b.note - a.note || b.date.localeCompare(a.date))
+        .slice(0, NB_AVIS_VITRINE);
+
+      this.avisReels.set(avis);
+    });
+  }
+
+  etoiles(note: number): number[] {
+    return Array.from({ length: Math.max(0, Math.min(5, Math.round(note))) }, (_, i) => i);
   }
 
   ngAfterViewInit(): void {

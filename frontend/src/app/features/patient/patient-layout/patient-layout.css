@@ -1216,3 +1216,24 @@
   }
 
 }
+
+/* Entrées de menu dont la page n'existe pas encore : visibles mais désactivées */
+.nav-link-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.nav-soon {
+  margin-left: auto;
+  padding: 2px 8px;
+
+  border-radius: 999px;
+
+  background: rgba(100, 116, 139, 0.15);
+
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}

@@ -24,26 +24,6 @@
     </div>
 
 
-    @if (notificationsNonLues() > 0) {
-
-      <button
-        type="button"
-        class="btn-primary"
-        (click)="toutMarquerCommeLu()"
-      >
-
-        <span class="button-icon">
-          ✓
-        </span>
-
-        <span>
-          Tout marquer comme lu
-        </span>
-
-      </button>
-
-    }
-
   </header>
 
 
@@ -243,41 +223,6 @@
 
         </button>
 
-
-        <!-- Dossier -->
-
-        <button
-          type="button"
-          class="tab"
-          [class.active]="filtreActif() === 'dossier'"
-          (click)="changerFiltre('dossier')"
-        >
-
-          <span class="tab-icon">
-            ▤
-          </span>
-
-          Dossier
-
-        </button>
-
-
-        <!-- Messages -->
-
-        <button
-          type="button"
-          class="tab"
-          [class.active]="filtreActif() === 'message'"
-          (click)="changerFiltre('message')"
-        >
-
-          <span class="tab-icon">
-            ▱
-          </span>
-
-          Messages
-
-        </button>
 
       </div>
 
@@ -483,30 +428,11 @@
 
               <div class="notification-actions">
 
-                @if (!notification.lue) {
-
-                  <button
-                    type="button"
-                    class="action-btn"
-                    (click)="marquerCommeLue(notification)"
-                  >
-
-                    <span class="action-icon">
-                      ✓
-                    </span>
-
-                    Marquer comme lue
-
-                  </button>
-
-                }
-
-
                 @if (notification.lien) {
 
                   <a
                     class="action-btn primary-action"
-                    (click)="marquerCommeLue(notification)"
+                    [routerLink]="notification.lien"
                   >
 
                     <span class="action-icon">
@@ -520,20 +446,6 @@
                 }
 
 
-                <button
-                  type="button"
-                  class="delete-btn"
-                  title="Supprimer"
-                  aria-label="Supprimer"
-                  (click)="supprimerNotification(notification)"
-                >
-
-                  <span class="delete-icon">
-                    ×
-                  </span>
-
-                </button>
-
               </div>
 
             </div>
@@ -544,32 +456,6 @@
 
       </div>
 
-
-      <!-- =================================================
-           SUPPRIMER TOUT
-      ================================================== -->
-
-      @if (notifications().length > 0) {
-
-        <div class="clear-all">
-
-          <button
-            type="button"
-            class="clear-button"
-            (click)="supprimerToutes()"
-          >
-
-            <span class="clear-icon">
-              ×
-            </span>
-
-            Supprimer toutes les notifications
-
-          </button>
-
-        </div>
-
-      }
 
     }
 
