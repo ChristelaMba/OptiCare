@@ -53,7 +53,7 @@
           type="text"
           [ngModel]="texteRecherche()"
           (ngModelChange)="texteRecherche.set($event); pageActuelle.set(1)"
-          placeholder="Rechercher un compte…"
+          placeholder="Nom, e-mail, téléphone, cabinet…"
           class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
@@ -89,9 +89,23 @@
       }
     </div>
 
-    @if (erreur()) {
-      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
-        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+    @if (stats(); as s) {
+      <p class="font-body text-label-sm text-text-muted" data-testid="stats">
+        {{ s.total }} comptes : {{ s.actifs }} actifs, {{ s.inactifs }} inactifs
+        · {{ s.patient }} patients, {{ s.proprietaire }} propriétaires, {{ s.opticien }} opticiens,
+        {{ s.secretaire }} secrétaires, {{ s.superAdmin }} super admin
+      </p>
+    }
+
+    @if (erreur() || erreurAction()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+        <p class="font-body text-body-base text-error">{{ erreur() ?? erreurAction() }}</p>
+      </div>
+    }
+
+    @if (succesReinit()) {
+      <div class="rounded-lg bg-secondary-container px-space-4 py-space-3" role="status">
+        <p class="font-body text-body-base text-on-secondary-container">{{ succesReinit() }}</p>
       </div>
     }
 
@@ -112,7 +126,7 @@
             @if (chargement()) {
               <tr><td colspan="5" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">Chargement des comptes…</td></tr>
             } @else if (utilisateursPage().length === 0) {
-              <tr><td colspan="5" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">Aucun compte ne correspond à ces critères.</td></tr>
+              <tr><td colspan="5" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">{{ erreur() ? 'Liste indisponible.' : totalComptes() === 0 ? 'Aucun compte.' : 'Aucun compte ne correspond à ces critères.' }}</td></tr>
             } @else {
               @for (utilisateur of utilisateursPage(); track utilisateur.id) {
                 <tr class="hover:bg-surface-container-low transition-colors" [class.opacity-60]="!utilisateur.actif">
@@ -129,12 +143,12 @@
                       </div>
                       <div>
                         <div class="font-body font-medium text-body-base text-on-surface">{{ utilisateur.prenom }} {{ utilisateur.nom }}</div>
-                        <div class="font-body text-label-sm text-text-muted">{{ utilisateur.email }}</div>
+                        <div class="font-body text-label-sm text-text-muted">{{ utilisateur.email ?? utilisateur.telephone }}</div>
                       </div>
                     </div>
                   </td>
                   <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ libelleRole(utilisateur.role) }}</td>
-                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ nomCabinet(utilisateur) }}</td>
+                  <td class="px-space-4 py-4 font-body text-body-base text-on-surface">{{ utilisateur.cabinetNom ?? '—' }}</td>
                   <td class="px-space-4 py-4">
                     @if (utilisateur.actif) {
                       <span class="inline-flex items-center gap-1.5 px-space-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-badge text-badge">
@@ -151,7 +165,7 @@
                       <button
                         type="button"
                         [disabled]="actionEnCours() === utilisateur.id"
-                        (click)="reinitialiserMotDePasse(utilisateur)"
+                        (click)="ouvrirReinitialisation(utilisateur)"
                         title="Réinitialiser le mot de passe"
                         class="p-2 text-text-muted hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
                       >
@@ -226,4 +240,53 @@
       }
     </div>
   </main>
+
+  @if (compteReinit(); as compte) {
+    <div class="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-space-4" role="dialog" aria-modal="true" aria-label="Réinitialiser le mot de passe">
+      <form
+        class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-md p-space-6 flex flex-col gap-space-4"
+        (submit)="$event.preventDefault(); confirmerReinitialisation()"
+      >
+        <h2 class="font-heading text-headline-h2 text-on-surface">Réinitialiser le mot de passe</h2>
+        <p class="font-body text-body-base text-text-muted">{{ compte.prenom }} {{ compte.nom }} · {{ libelleRole(compte.role) }}</p>
+        <label class="font-body text-label-sm text-on-surface-variant flex flex-col gap-1">
+          Nouveau mot de passe (8 caractères minimum)
+          <input
+            type="password"
+            name="nouveauMotDePasse"
+            autocomplete="new-password"
+            [ngModel]="nouveauMotDePasse()"
+            (ngModelChange)="nouveauMotDePasse.set($event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base"
+          />
+        </label>
+        <label class="font-body text-label-sm text-on-surface-variant flex flex-col gap-1">
+          Confirmation
+          <input
+            type="password"
+            name="confirmationMotDePasse"
+            autocomplete="new-password"
+            [ngModel]="confirmationMotDePasse()"
+            (ngModelChange)="confirmationMotDePasse.set($event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base"
+          />
+        </label>
+        @if (erreurReinit()) {
+          <p class="font-body text-body-base text-error" role="alert">{{ erreurReinit() }}</p>
+        }
+        <div class="flex justify-end gap-space-3">
+          <button type="button" (click)="fermerReinitialisation()" class="px-space-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container font-button text-button">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="actionEnCours() === compte.id"
+            class="px-space-4 py-2 rounded-lg bg-primary text-on-primary font-button text-button disabled:opacity-50"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 </div>

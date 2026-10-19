@@ -27,23 +27,16 @@ const ACTION_PAR_STATUT: Partial<Record<RendezVous['statut'], string>> = {
 };
 
 /**
- * 19/10/2026 (lot 2b-1) : `listerParCabinet()` → GET /cabinets/{id}/rdv, `mettreAJourStatut()` → PUT /rdv/{id}/confirmer|terminer|non-honore|annuler.
- * 19/10/2026 : `creer()` branchée sur POST /rdv (réel), `getMesRendezVous()` mappe la forme réelle.
- *
- * 2026-09-11 : connectivité testée route par route sur les vrais noms
- * transmis par Lionel (voir POINTS-A-CONFIRMER-BACKEND.md §12). Résultat
- * MIXTE — seules `listerCreneaux()` et `getMesRendezVous()` tapent l'API
- * réelle. Le reste de ce service (`creer`, `listerParCabinet`,
- * `mettreAJourStatut`, `annulerRendezVous`) continue d'appeler les
- * anciennes routes `/rendezvous`, `/cabinets/{id}/rendezvous`,
- * `/rendez-vous/mes-rendez-vous` — volontairement inchangées, toujours
- * servies par `mock-rendezvous-interceptor.ts` (encore actif dans
- * `app.config.ts`) — parce que leurs équivalents réels sont soit cassés
- * côté back (`PUT /rdv/{id}/confirmer|terminer|non-honore` → 500,
- * `GET /cabinets/{id}/rdv` → 500, même bug de middleware que Cabinets),
- * soit non testés en écriture réelle sur consigne explicite
- * (`POST /rdv` : sondé en validation seulement, 422 propre sur corps
- * vide — jamais testé avec un vrai payload).
+ * Service des rendez-vous — toutes les méthodes appellent l'API réelle (état au 19/10/2026) :
+ * - `creer()` → POST /rdv (§6.1)
+ * - `listerParCabinet()` → GET /cabinets/{id}/rdv (§6.8), sans paramètre `date` (le filtre serveur est défaillant)
+ * - `mettreAJourStatut()` → PUT /rdv/{id}/confirmer|terminer|non-honore|annuler (§6.2, 6.4 à 6.6)
+ * - `annulerRendezVous()` → PUT /rdv/{id}/annuler (§6.2)
+ * - `listerCreneaux()` → GET /cabinets/{id}/slots ; `listerPlages()` → GET /cabinets/{id}/creneaux (§4.2)
+ * - `getMesRendezVous()` → GET /patients/{patientId}/rdv (§6.7)
+ * Plus aucun appel aux anciennes routes `/rendezvous`, `/cabinets/{id}/rendezvous` ni `/rendez-vous/mes-rendez-vous`.
+ * Les routes d'action `PUT /rdv/{id}/confirmer|terminer|non-honore` n'ont pas été testées en écriture sur l'API réelle
+ * (tests unitaires seulement) ; elles renvoyaient 500 lors des tests de septembre (middleware `CheckRole`).
  */
 @Injectable({
   providedIn: 'root'
