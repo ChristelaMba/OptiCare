@@ -38,6 +38,25 @@
           </h1>
         </div>
 
+        @if (enAttenteDeValidation()) {
+          <!-- Inscription réussie : aucune session ouverte, le cabinet attend la validation d'un administrateur. -->
+          <div class="relative z-10 text-center py-space-6" role="status">
+            <div class="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-space-4">
+              <span class="material-symbols-outlined text-success text-[32px]" aria-hidden="true">hourglass_top</span>
+            </div>
+            <h2 class="font-heading text-headline-h2 text-on-surface font-bold mb-space-3">Inscription enregistrée</h2>
+            <p class="font-body text-body-base text-text-muted max-w-[440px] mx-auto mb-space-8">
+              Votre cabinet est en attente de validation par un administrateur. Vous pourrez vous connecter dès qu'il sera valide.
+            </p>
+            <a
+              routerLink="/auth/connexion"
+              class="inline-flex items-center justify-center gap-2 h-[48px] px-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:brightness-110 transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Aller à la connexion
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
+            </a>
+          </div>
+        } @else {
         <!-- Retour vers le choix du rôle + repère d'étape (04/09) :
              cet écran est l'étape 2 sur 2 du parcours d'inscription (§6.2). -->
         <div class="mb-space-4 flex items-center justify-between relative z-10">
@@ -277,6 +296,8 @@
             }
           </button>
         </form>
+
+        }
 
         <div class="mt-space-6 text-center relative z-10">
           <p class="font-body text-body-base text-on-surface-variant">

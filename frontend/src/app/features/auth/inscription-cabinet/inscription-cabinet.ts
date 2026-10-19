@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   AbstractControl,
   FormBuilder,
@@ -25,9 +25,10 @@ function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErro
   styleUrl: './inscription-cabinet.css',
 })
 export class InscriptionCabinet {
+  /** true après une inscription réussie : le cabinet attend la validation d'un administrateur. */
+  readonly enAttenteDeValidation = signal(false);
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(Auth);
-  private readonly router = inject(Router);
 
   readonly chargement = signal(false);
   readonly erreur = signal<string | null>(null);
@@ -89,9 +90,11 @@ export class InscriptionCabinet {
         cabinet_email: valeurs.cabinetEmail,
       })
       .subscribe({
+        // Pas de session ouverte (le serveur ne renvoie plus de token) : on affiche l'état « en attente de
+        // validation » avec un lien vers la connexion, au lieu de rediriger vers /proprietaire/….
         next: () => {
           this.chargement.set(false);
-          this.router.navigateByUrl('/proprietaire/completer-profil-cabinet');
+          this.enAttenteDeValidation.set(true);
         },
         error: (erreur: HttpErrorResponse) => {
           this.chargement.set(false);

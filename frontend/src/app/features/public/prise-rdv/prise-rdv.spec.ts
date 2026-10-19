@@ -80,4 +80,69 @@ describe('PriseRdv', () => {
     expect(component.creneauxIndicatifs()).toBe(true);
     expect(component.chargementCreneaux()).toBe(false);
   });
+
+  function preparerReservation(): void {
+    component.cabinetId = '10';
+    component.dateSelectionnee = new Date(2026, 9, 29);
+    component.heureSelectionnee = '11:00';
+    component.form.patchValue({
+      nomComplet: 'Marc Biyong',
+      telephone: '+237600000202',
+      accepteConditions: true,
+    });
+  }
+
+  const MESSAGES_422 = [
+    'Ce créneau est déjà réservé.',
+    "Aucune plage horaire active pour ce créneau. Le cabinet n'accepte pas de RDV à cette heure.",
+    'Le numéro de téléphone est obligatoire pour un visiteur.',
+  ];
+
+  for (const message of MESSAGES_422) {
+    it(`422 « ${message.slice(0, 40)}… » : le message du serveur est affiché tel quel`, () => {
+      const http = TestBed.inject(HttpTestingController);
+      preparerReservation();
+
+      component.confirmerRendezVous();
+      http.expectOne((r) => r.url.endsWith('/rdv') && r.method === 'POST').flush(
+        { status: 'error', message: 'Erreur lors de la prise de RDV', errors: { general: message } },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+
+      expect(component.erreurSoumission()).toBe(message);
+      expect(component.reservationConfirmee()).toBe(false);
+      expect(component.enSoumission()).toBe(false);
+
+      // le créneau pris est re-demandé au serveur (liste rafraîchie), sans créer de rendez-vous
+      http.expectOne((r) => r.url.endsWith('/cabinets/10/slots')).flush({
+        status: 'success',
+        message: '',
+        data: { date: '2026-10-29', slots: [] },
+      });
+      expect(component.heureSelectionnee).toBe('');
+    });
+  }
+
+  it('403 : « Accès refusé. »', () => {
+    const http = TestBed.inject(HttpTestingController);
+    preparerReservation();
+
+    component.confirmerRendezVous();
+    http.expectOne((r) => r.url.endsWith('/rdv') && r.method === 'POST').flush(
+      { status: 'error', message: 'Accès refusé' },
+      { status: 403, statusText: 'Forbidden' },
+    );
+
+    expect(component.erreurSoumission()).toBe('Accès refusé.');
+  });
+
+  it('erreur sans détail (500) : message générique', () => {
+    const http = TestBed.inject(HttpTestingController);
+    preparerReservation();
+
+    component.confirmerRendezVous();
+    http.expectOne((r) => r.url.endsWith('/rdv') && r.method === 'POST').flush('boom', { status: 500, statusText: 'Server Error' });
+
+    expect(component.erreurSoumission()).toContain("Impossible d'enregistrer votre rendez-vous");
+  });
 });
