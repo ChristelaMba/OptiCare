@@ -63,6 +63,53 @@ export class Auth {
    * @param seSouvenir si vrai, la session survit à la fermeture du navigateur
    * (localStorage) ; sinon elle est effacée à la fermeture de l'onglet (sessionStorage).
    */
+  
+  /**
+   * Recharge les informations de l'utilisateur connecté depuis le backend.
+   * Le token est transmis automatiquement si l'intercepteur HTTP est configuré.
+   */
+  chargerUtilisateurConnecte(): Observable<Utilisateur> {
+    return this.http
+      .get<{
+        status?: string;
+        message?: string;
+        data?: {
+          user?: ApiUtilisateurBrut;
+        } | ApiUtilisateurBrut;
+        user?: ApiUtilisateurBrut;
+      }>(`${BASE_URL}/user`)
+      .pipe(
+        map((reponse) => {
+          const data = reponse.data;
+
+          const utilisateurBrut =
+            (data && 'user' in data ? data.user : data) ??
+            reponse.user;
+
+          if (!utilisateurBrut || !('id' in utilisateurBrut)) {
+            throw new Error(
+              'Les informations de l’utilisateur sont absentes de la réponse API.'
+            );
+          }
+
+          return Auth.normaliserUtilisateur(utilisateurBrut);
+        }),
+        tap((utilisateur) => {
+          this.utilisateurSignal.set(utilisateur);
+
+          // Conserve le même type de stockage que celui de la session active.
+          const stockage = localStorage.getItem(CLE_TOKEN)
+            ? localStorage
+            : sessionStorage;
+
+          stockage.setItem(
+            CLE_UTILISATEUR,
+            JSON.stringify(utilisateur)
+          );
+        })
+      );
+  }
+
   login(payload: ConnexionPayload, seSouvenir: boolean): Observable<AuthResponse> {
     return this.http
       .post<ApiAuthEnveloppe>(`${BASE_URL}/auth/login`, payload)
@@ -171,4 +218,5 @@ export class Auth {
     const brut = this.lire(CLE_UTILISATEUR);
     return brut ? (JSON.parse(brut) as Utilisateur) : null;
   }
+
 }
