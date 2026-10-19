@@ -126,7 +126,7 @@ export class InscriptionPatient {
       .subscribe({
         next: () => {
           this.chargement.set(false);
-          this.router.navigateByUrl('/patient/completer-dossier-visuel');
+          this.router.navigateByUrl('/patient/rendez-vous');
         },
         error: (erreur: HttpErrorResponse) => {
           this.chargement.set(false);

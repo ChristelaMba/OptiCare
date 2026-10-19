@@ -1,12 +1,13 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
-import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
-import { StatutRendezVous } from '../../../models/rendez-vous.model';
+import { messageErreurApi } from '../../../core/utils/api-errors';
+import { RendezVous, StatutRendezVous } from '../../../models/rendez-vous.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 const TAILLE_PAGE = 8;
@@ -29,6 +30,7 @@ const LABEL_STATUT: Record<StatutRendezVous, string> = {
  * termine | non_honore. `libre` est un état de créneau et n'apparaît
  * jamais dans cet historique. Le bouton « Exporter » télécharge un CSV
  * des lignes actuellement filtrées (fonctionnalité réelle).
+ * 19/10/2026 : branché sur GET /cabinets/{id}/rdv ; colonne et filtre « Opticien(ne) » retirés (l'API ne renvoie pas d'opticien par RDV).
  */
 @Component({
   selector: 'app-historique-rdv',
@@ -44,7 +46,7 @@ export class HistoriqueRdv implements OnInit {
 
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
-  private readonly rendezVous = signal<RendezVousAffichage[]>([]);
+  private readonly rendezVous = signal<RendezVous[]>([]);
 
   readonly labelStatut = LABEL_STATUT;
   // 'libre' volontairement absent : état de créneau, pas un rendez-vous.
@@ -52,31 +54,25 @@ export class HistoriqueRdv implements OnInit {
 
   readonly texteRecherche = signal('');
   readonly filtreStatut = signal<StatutRendezVous | 'tous'>('tous');
-  readonly filtreOpticien = signal<string>('tous');
   readonly pageActuelle = signal(1);
 
-  readonly opticiensDisponibles = computed(() =>
-    [...new Set(this.rendezVous().map((r) => r.praticienNom).filter((nom): nom is string => !!nom))].sort((a, b) =>
-      a.localeCompare(b),
-    ),
-  );
+  /** Vrai quand le cabinet n'a aucun rendez-vous (≠ aucun résultat pour les filtres). */
+  readonly aucunRendezVous = computed(() => this.rendezVous().filter((r) => r.statut !== 'libre').length === 0);
 
   private readonly rendezVousFiltres = computed(() => {
     const texte = this.texteRecherche().trim().toLowerCase();
     const statut = this.filtreStatut();
-    const opticien = this.filtreOpticien();
 
     return [...this.rendezVous()]
       // 'libre' = état de créneau, jamais listé dans l'historique.
       .filter((r) => r.statut !== 'libre')
-      // `date` est une chaîne ISO (YYYY-MM-DD) : triable lexicalement, pas besoin de Date/getTime().
-      .sort((a, b) => b.date.localeCompare(a.date))
+      // `date` (YYYY-MM-DD) puis heure : triables lexicalement, du plus récent au plus ancien.
+      .sort((a, b) => b.date.localeCompare(a.date) || b.heureDebut.localeCompare(a.heureDebut))
       .filter((r) => {
         const nomPatient = (r.nomPatientAffiche ?? '').toLowerCase();
         const correspondTexte = !texte || nomPatient.includes(texte) || r.motif.toLowerCase().includes(texte);
         const correspondStatut = statut === 'tous' || r.statut === statut;
-        const correspondOpticien = opticien === 'tous' || r.praticienNom === opticien;
-        return correspondTexte && correspondStatut && correspondOpticien;
+        return correspondTexte && correspondStatut;
       });
   });
 
@@ -100,16 +96,18 @@ export class HistoriqueRdv implements OnInit {
 
     this.rendezVousService.listerParCabinet(this.cabinetId).subscribe({
       next: (rendezVous) => {
-        // Pas de cast : RendezVousAffichage n'ajoute qu'un champ optionnel
-        // (nomPatientAffiche) à RendezVous, donc un RendezVous[] est déjà
-        // assignable tel quel. Si ça cesse un jour de compiler ici, c'est
-        // que le contrat a vraiment divergé — et il faut le voir, pas le masquer.
         this.rendezVous.set(rendezVous);
         this.chargement.set(false);
       },
-      error: () => {
+      error: (e: HttpErrorResponse) => {
         this.chargement.set(false);
-        this.erreur.set("Impossible de charger l'historique pour le moment. Réessayez plus tard.");
+        const messageServeur = (e.error as { message?: string } | null)?.message;
+        this.erreur.set(
+          messageErreurApi(
+            e,
+            `Impossible de charger l'historique.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`,
+          ),
+        );
       },
     });
   }
@@ -130,14 +128,14 @@ export class HistoriqueRdv implements OnInit {
   /** Export CSV des lignes filtrées — fonctionnalité réelle, purement côté client. */
   exporterCsv(): void {
     const lignes = [
-      ['Patient', 'Motif', 'Date', 'Heure', 'Statut', 'Opticien(ne)'],
+      ['Patient', 'Téléphone', 'Motif', 'Date', 'Heure', 'Statut'],
       ...this.rendezVousFiltres().map((r) => [
         r.nomPatientAffiche ?? 'Patient',
+        r.patientTelephone ?? '',
         r.motif,
-        new Date(r.date).toLocaleDateString('fr-FR'),
+        r.date.split('-').reverse().join('/'),
         `${r.heureDebut} - ${r.heureFin}`,
         this.labelStatut[r.statut],
-        r.praticienNom ?? '',
       ]),
     ];
     const csv = lignes.map((ligne) => ligne.map((champ) => `"${champ.replace(/"/g, '""')}"`).join(';')).join('\n');

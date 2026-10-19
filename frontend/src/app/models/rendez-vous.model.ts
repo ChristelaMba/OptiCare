@@ -40,6 +40,10 @@ export interface RendezVous {
   heureDebut: string;
   heureFin: string;
   statut: StatutRendezVous;
+  /** Nom du patient (objet `patient` imbriqué de `GET /cabinets/{id}/rdv`) ou, à défaut, du visiteur. */
+  nomPatientAffiche?: string;
+  patientTelephone?: string;
+  source?: 'en_ligne' | 'interne' | 'visiteur';
 }
 export interface JourCalendrier {
   jour: number;
@@ -165,6 +169,11 @@ export interface ApiRdvBrut {
   statut: StatutRendezVous;
   source?: 'en_ligne' | 'interne' | 'visiteur';
   cabinet?: { id: number; nom: string; adresse?: string | null; ville?: string | null };
+  /** Présent sur `GET /cabinets/{id}/rdv` (§6.8). */
+  patient?: { id: number; nom?: string | null; prenom?: string | null; telephone?: string | null } | null;
+  visiteur_nom?: string | null;
+  visiteur_prenom?: string | null;
+  visiteur_telephone?: string | null;
 }
 
 /** `POST /rdv` — corps documenté (ROUTES-API-LIONEL §6.1). Les champs `visiteur_*` ne sont envoyés que hors session patient. */

@@ -19,7 +19,15 @@ import { Auth } from './auth';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
 
+const ACTION_PAR_STATUT: Partial<Record<RendezVous['statut'], string>> = {
+  confirme: 'confirmer',
+  termine: 'terminer',
+  non_honore: 'non-honore',
+  annule: 'annuler',
+};
+
 /**
+ * 19/10/2026 (lot 2b-1) : `listerParCabinet()` → GET /cabinets/{id}/rdv, `mettreAJourStatut()` → PUT /rdv/{id}/confirmer|terminer|non-honore|annuler.
  * 19/10/2026 : `creer()` branchée sur POST /rdv (réel), `getMesRendezVous()` mappe la forme réelle.
  *
  * 2026-09-11 : connectivité testée route par route sur les vrais noms
@@ -78,18 +86,29 @@ export class RendezVousService {
   }
 
   /**
-   * GET /cabinets/{id}/rendezvous — mock, voir commentaire de tête. Le
-   * vrai équivalent (`GET /cabinets/{id}/rdv`, utilisé par `agenda` et
-   * `historique-rdv`) renvoie `500` (bug de middleware `CheckRole`),
-   * confirmé le 11/09 avec un token valide — pas de route de repli.
+   * GET /cabinets/{id}/rdv (ROUTES-API-LIONEL §6.8) — ✅ RÉEL, testé le 19/10/2026 (200, `data.rdvs[]` avec
+   * `patient` imbriqué). Aucun paramètre `date` : le filtre serveur renvoie 0 résultat (DIAGNOSTIC-CRENEAUX.md),
+   * les écrans filtrent dans le navigateur. L'API ne renvoie pas d'opticien par rendez-vous.
    */
   listerParCabinet(cabinetId: string): Observable<RendezVous[]> {
-    return this.http.get<RendezVous[]>(`${BASE_URL}/cabinets/${cabinetId}/rendezvous`);
+    return this.http
+      .get<ApiRdvsEnveloppe>(`${BASE_URL}/cabinets/${cabinetId}/rdv`)
+      .pipe(map((enveloppe) => enveloppe.data.rdvs.map(RendezVousService.normaliserRdv)));
   }
 
-  /** PATCH /rendezvous/{id} — mock, voir commentaire de tête. Les vraies routes d'action (`PUT /rdv/{id}/confirmer|terminer|non-honore`) renvoient 500 pour tout le monde. */
+  /**
+   * Changement de statut par les routes documentées (§6.2, 6.4 à 6.6) :
+   * confirme → PUT /rdv/{id}/confirmer, termine → /terminer, non_honore → /non-honore, annule → /annuler.
+   * Remplace l'ancien PATCH /rendezvous/{id} (inexistant, 404).
+   */
   mettreAJourStatut(id: string, statut: RendezVous['statut']): Observable<RendezVous> {
-    return this.http.patch<RendezVous>(`${BASE_URL}/rendezvous/${id}`, { statut });
+    const action = ACTION_PAR_STATUT[statut];
+    if (!action) {
+      throw new Error(`Aucune route de changement de statut pour « ${statut} ».`);
+    }
+    return this.http
+      .put<ApiRdvEnveloppe>(`${BASE_URL}/rdv/${id}/${action}`, {})
+      .pipe(map((enveloppe) => RendezVousService.normaliserRdv(enveloppe.data.rdv)));
   }
 
   /**
@@ -183,6 +202,16 @@ export class RendezVousService {
       heureDebut: brut.heure_debut,
       heureFin: brut.heure_fin,
       statut: brut.statut,
+      nomPatientAffiche: RendezVousService.nomPatient(brut),
+      patientTelephone: brut.patient?.telephone ?? brut.visiteur_telephone ?? undefined,
+      source: brut.source,
     };
+  }
+
+  /** Patient imbriqué d'abord ; à défaut (RDV visiteur sans patient), champs `visiteur_*`. */
+  private static nomPatient(brut: ApiRdvBrut): string | undefined {
+    const assembler = (prenom?: string | null, nom?: string | null) =>
+      [prenom, nom].filter(Boolean).join(' ').trim() || undefined;
+    return assembler(brut.patient?.prenom, brut.patient?.nom) ?? assembler(brut.visiteur_prenom, brut.visiteur_nom);
   }
 }

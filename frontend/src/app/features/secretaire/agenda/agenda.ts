@@ -1,4 +1,5 @@
 
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   OnInit,
@@ -9,8 +10,8 @@ import {
 
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
-import { RendezVousAffichage } from '../../../core/mocks/rendez-vous-mock-data';
-import { StatutRendezVous } from '../../../models/rendez-vous.model';
+import { messageErreurApi } from '../../../core/utils/api-errors';
+import { RendezVous, StatutRendezVous } from '../../../models/rendez-vous.model';
 
 /**
  * Libellés visibles dans l'interface.
@@ -58,9 +59,15 @@ export class Agenda implements OnInit {
 
   erreur = signal<string | null>(null);
 
+  /** Erreur d'une action (confirmer, annuler…), affichée dans la fenêtre de détails sans masquer l'agenda. */
+  erreurAction = signal<string | null>(null);
+
+  /** Vrai pendant l'appel d'une action : évite le double clic. */
+  actionEnCours = signal(false);
+
   // Tous les rendez-vous récupérés depuis le backend
   private readonly rendezVousBruts =
-    signal<RendezVousAffichage[]>([]);
+    signal<RendezVous[]>([]);
 
   // ============================================================
   // RENDEZ-VOUS AFFICHÉS
@@ -71,11 +78,13 @@ export class Agenda implements OnInit {
    */
   readonly rendezVous = computed(() => {
 
-    const dateSelectionnee = this.dateActuelle();
-
-    const annee = dateSelectionnee.getFullYear();
-    const mois = dateSelectionnee.getMonth();
-    const jour = dateSelectionnee.getDate();
+    const d = this.dateActuelle();
+    // Jour local au format YYYY-MM-DD, comparé au champ `date` du rendez-vous (déjà ramené à YYYY-MM-DD).
+    const jourSelectionne = [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, '0'),
+      String(d.getDate()).padStart(2, '0'),
+    ].join('-');
 
     return this.rendezVousBruts().filter(rdv => {
 
@@ -84,18 +93,7 @@ export class Agenda implements OnInit {
         return false;
       }
 
-      // Conversion de la date du rendez-vous
-      const dateRdv = new Date(rdv.date);
-
-      if (Number.isNaN(dateRdv.getTime())) {
-        return false;
-      }
-
-      return (
-        dateRdv.getFullYear() === annee &&
-        dateRdv.getMonth() === mois &&
-        dateRdv.getDate() === jour
-      );
+      return rdv.date === jourSelectionne;
     });
   });
 
@@ -103,7 +101,7 @@ export class Agenda implements OnInit {
    * Rendez-vous actuellement sélectionné dans la fenêtre de détails.
    */
   rendezVousActif =
-    signal<RendezVousAffichage | null>(null);
+    signal<RendezVous | null>(null);
 
   // ============================================================
   // DATE
@@ -173,12 +171,18 @@ export class Agenda implements OnInit {
           this.chargement.set(false);
         },
 
-        error: () => {
+        error: (e: HttpErrorResponse) => {
 
           this.chargement.set(false);
 
+          const messageServeur =
+            (e.error as { message?: string } | null)?.message;
+
           this.erreur.set(
-            "Impossible de charger l'agenda pour le moment. Réessayez plus tard."
+            messageErreurApi(
+              e,
+              `Impossible de charger l'agenda.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`
+            )
           );
         }
 
@@ -190,13 +194,16 @@ export class Agenda implements OnInit {
   // ============================================================
 
   ouvrirDetails(
-    rdv: RendezVousAffichage
+    rdv: RendezVous
   ): void {
 
+    this.erreurAction.set(null);
     this.rendezVousActif.set(rdv);
   }
 
   fermerDetails(): void {
+
+    this.erreurAction.set(null);
 
     this.rendezVousActif.set(null);
   }
@@ -254,7 +261,7 @@ export class Agenda implements OnInit {
   // ============================================================
 
   nomAffiche(
-    rdv: RendezVousAffichage
+    rdv: RendezVous
   ): string {
 
     return rdv.nomPatientAffiche ?? 'Patient';
@@ -265,7 +272,7 @@ export class Agenda implements OnInit {
   // ============================================================
 
   duree(
-    rdv: RendezVousAffichage
+    rdv: RendezVous
   ): string {
 
     if (!rdv.heureDebut || !rdv.heureFin) {
@@ -344,9 +351,12 @@ export class Agenda implements OnInit {
 
     const rdv = this.rendezVousActif();
 
-    if (!rdv) {
+    if (!rdv || this.actionEnCours()) {
       return;
     }
+
+    this.actionEnCours.set(true);
+    this.erreurAction.set(null);
 
     this.rendezVousService
       .mettreAJourStatut(
@@ -355,33 +365,36 @@ export class Agenda implements OnInit {
       )
       .subscribe({
 
-        next: () => {
+        next: (misAJour) => {
 
-          // Mise à jour locale uniquement après
-          // confirmation du backend
+          // Mise à jour locale uniquement après confirmation du serveur
+          // (statut renvoyé par l'API : PUT /rdv/{id}/confirmer|terminer|non-honore|annuler).
           this.rendezVousBruts.update(
             liste =>
               liste.map(item =>
                 item.id === rdv.id
-                  ? {
-                      ...item,
-                      statut
-                    }
+                  ? { ...item, statut: misAJour.statut }
                   : item
               )
           );
 
-          // Mise à jour de la fenêtre de détails
           this.rendezVousActif.set({
             ...rdv,
-            statut
+            statut: misAJour.statut
           });
+
+          this.actionEnCours.set(false);
         },
 
-        error: () => {
+        error: (e: HttpErrorResponse) => {
 
-          this.erreur.set(
-            "Impossible de mettre à jour le statut pour le moment. Réessayez plus tard."
+          this.actionEnCours.set(false);
+
+          this.erreurAction.set(
+            messageErreurApi(
+              e,
+              "Impossible de mettre à jour le statut pour le moment. Réessayez plus tard."
+            )
           );
         }
 
