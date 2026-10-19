@@ -6,6 +6,7 @@ import {
 } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 @Component({
   selector: 'app-patient-layout',
@@ -13,7 +14,8 @@ import { Auth } from '../../../core/services/auth';
   imports: [
     RouterLink,
     RouterOutlet,
-    RouterLinkActive
+    RouterLinkActive,
+    BoutonDeconnexion
   ],
   templateUrl: './patient-layout.html',
   styleUrl: './patient-layout.css'
@@ -37,6 +39,7 @@ export class PatientLayout {
   });
 
   readonly menuOuvert = signal(false);
+  readonly menuProfilOuvert = signal(false);
   readonly espacesOuverts = signal(false);
   readonly modeSombre = signal(false);
 
@@ -46,6 +49,10 @@ export class PatientLayout {
     if (theme === 'dark') {
       this.modeSombre.set(true);
     }
+  }
+
+  toggleMenuProfil(): void {
+    this.menuProfilOuvert.update(value => !value);
   }
 
   toggleMenu(): void {

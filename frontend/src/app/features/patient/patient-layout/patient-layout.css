@@ -1237,3 +1237,129 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
+
+
+/* =========================================================
+   DÉCONNEXION + MENU DU COMPTE
+========================================================= */
+
+.sidebar-logout {
+  padding: 4px 16px 12px;
+}
+
+.sidebar-logout ::ng-deep .logout-button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #e4e8ef;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #b42318;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-logout ::ng-deep .logout-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-logout ::ng-deep .logout-button:hover {
+  background: #fff3f4;
+}
+
+.topbar-profile-menu {
+  position: relative;
+}
+
+button.topbar-profile {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+
+  min-width: 220px;
+
+  padding: 8px;
+
+  border: 1px solid #e4e8ef;
+  border-radius: 12px;
+
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(20, 35, 60, 0.14);
+}
+
+.profile-dropdown-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 8px 10px 10px;
+
+  border-bottom: 1px solid #eef1f6;
+
+  color: #172033;
+  font-size: 14px;
+}
+
+.profile-dropdown-identity span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.profile-dropdown ::ng-deep .profile-dropdown-item {
+  width: 100%;
+
+  margin-top: 6px;
+  padding: 9px 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #b42318;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.profile-dropdown ::ng-deep .profile-dropdown-item:hover {
+  background: #fff3f4;
+}
+
+.patient-layout.dark-mode .profile-dropdown {
+  border-color: #2b3550;
+  background: #1a2238;
+}
+
+.patient-layout.dark-mode .profile-dropdown-identity {
+  border-color: #2b3550;
+  color: #eef0ff;
+}
+
+.patient-layout.dark-mode .sidebar-logout ::ng-deep .logout-button {
+  border-color: #2b3550;
+  color: #ff8a80;
+}

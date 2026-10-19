@@ -64,4 +64,24 @@ describe('PatientLayout', () => {
     expect(el.querySelector('a[href="/patient/profil"]')).toBeNull();
     expect(el.querySelector('a[href="/patient/parametres"]')).toBeNull();
   });
+
+  it("l'avatar du header ouvre un menu avec « Se déconnecter » (fermé par défaut)", async () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('.profile-dropdown')).toBeNull();
+
+    (el.querySelector('button.topbar-profile') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const menu = el.querySelector('.profile-dropdown') as HTMLElement;
+    expect(menu).not.toBeNull();
+    expect(menu.textContent).toContain('Patient Test');
+    expect(menu.querySelector('app-bouton-deconnexion')).not.toBeNull();
+  });
+
+  it('la barre latérale propose aussi « Se déconnecter »', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('.sidebar-logout app-bouton-deconnexion')).not.toBeNull();
+  });
 });

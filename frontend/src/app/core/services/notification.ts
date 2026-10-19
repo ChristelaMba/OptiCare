@@ -50,10 +50,7 @@ export interface ListeNotifications {
 export class Notification {
   private readonly http = inject(HttpClient);
 
-  /**
-   * GET /notifications — lecture seule. Le marquage « lu » (`PUT /notifications/{id}/read`,
-   * `/read-all`) existe côté API mais n'est volontairement pas branché ici : décision à valider.
-   */
+  /** GET /notifications (200 observé le 19/10/2026 avec un compte patient). */
   lister(): Observable<ListeNotifications> {
     return this.http
       .get<ApiNotificationsEnveloppe>(`${BASE_URL}/notifications`)
@@ -63,5 +60,21 @@ export class Notification {
           nonLues: enveloppe.data.non_lu_count,
         })),
       );
+  }
+
+  /**
+   * PUT /notifications/{id}/read — ✅ RÉEL, testé le 19/10/2026 sur une notification du compte patient
+   * de test (200, « Notification marquée comme lue. », `non_lu_count` 4 → 3).
+   */
+  marquerLue(id: string): Observable<void> {
+    return this.http.put<unknown>(`${BASE_URL}/notifications/${id}/read`, {}).pipe(map(() => undefined));
+  }
+
+  /**
+   * PUT /notifications/read-all — ✅ RÉEL, testé le 19/10/2026 (200, ne concerne que les
+   * notifications du compte authentifié ; `non_lu_count` → 0).
+   */
+  toutMarquerLu(): Observable<void> {
+    return this.http.put<unknown>(`${BASE_URL}/notifications/read-all`, {}).pipe(map(() => undefined));
   }
 }

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 type JourSemaine = HoraireOuverture['jour'];
 
@@ -32,7 +33,7 @@ const LABEL_STATUT: Record<CabinetModel['status'], string> = {
  */
 @Component({
   selector: 'app-vitrine-edition',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './vitrine-edition.html',
   styleUrl: './vitrine-edition.css',
 })

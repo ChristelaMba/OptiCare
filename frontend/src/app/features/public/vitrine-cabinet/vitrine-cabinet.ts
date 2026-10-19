@@ -5,15 +5,11 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { catchError, EMPTY, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { ActionsSession } from '../actions-session/actions-session';
+import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
 import { Avis as AvisService, AvisPublic } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
-
-interface ServiceCabinet {
-  icone: string;
-  titre: string;
-  description: string;
-}
 
 /** Avis réel prêt à afficher (nom abrégé, ancienneté relative). */
 interface AvisAffiche {
@@ -25,24 +21,10 @@ interface AvisAffiche {
   commentaire: string;
 }
 
-/**
- * OUTIL DE DEV — services proposés génériques, identiques pour tous les
- * cabinets. Reproduction de la maquette `maquette/accueil_cabinet/` : le
- * modèle Cabinet (§5 du cahier des charges) n'a pas de champ « services »,
- * donc ce contenu est éditorial/statique plutôt qu'inventé par cabinet —
- * même principe que la section « Avis » ci-dessous.
- */
-const SERVICES_GENERIQUES: ServiceCabinet[] = [
-  { icone: 'visibility', titre: 'Examen de la vue', description: 'Des tests complets pour évaluer votre santé oculaire et votre vision.' },
-  { icone: 'lens', titre: 'Lentilles de contact', description: 'Ajustement personnalisé pour un confort optimal tout au long de la journée.' },
-  { icone: 'build', titre: 'Atelier de réparation', description: 'Ajustement et réparation experte de vos montures préférées.' },
-  { icone: 'child_care', titre: 'Optométrie pédiatrique', description: 'Des soins doux et spécialisés pour la vision de vos enfants.' },
-];
-
 /** Reproduction de la maquette `maquette/accueil_cabinet/` — page publique d'un cabinet. */
 @Component({
   selector: 'app-vitrine-cabinet',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, ActionsSession, LogoPiedDePage],
   templateUrl: './vitrine-cabinet.html',
   styleUrl: './vitrine-cabinet.css',
 })
@@ -65,7 +47,6 @@ export class VitrineCabinet implements OnInit {
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
 
-  readonly services = SERVICES_GENERIQUES;
   /** Avis réels (GET /cabinets/{id}/avis). Jamais de contenu inventé : liste vide → « Aucun avis pour le moment ». */
   readonly avis = signal<AvisAffiche[]>([]);
   readonly chargementAvis = signal(true);

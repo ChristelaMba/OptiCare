@@ -30,4 +30,20 @@ describe('Notification', () => {
 
     expect(resultat).toEqual({ notifications: [], nonLues: 3 });
   });
+
+  it('marquerLue() : PUT /notifications/{id}/read', () => {
+    service.marquerLue('21').subscribe();
+
+    const req = http.expectOne((r) => r.url.endsWith('/notifications/21/read'));
+    expect(req.request.method).toBe('PUT');
+    req.flush({ status: 'success', message: '', data: null });
+  });
+
+  it('toutMarquerLu() : PUT /notifications/read-all', () => {
+    service.toutMarquerLu().subscribe();
+
+    const req = http.expectOne((r) => r.url.endsWith('/notifications/read-all'));
+    expect(req.request.method).toBe('PUT');
+    req.flush({ status: 'success', message: '', data: null });
+  });
 });

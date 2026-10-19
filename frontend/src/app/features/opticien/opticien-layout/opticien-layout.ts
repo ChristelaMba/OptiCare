@@ -1,6 +1,7 @@
 import {
   Component,
   HostBinding,
+  computed,
   signal,
   inject
 } from '@angular/core';
@@ -12,6 +13,10 @@ import {
 } from '@angular/router';
 
 import { DOCUMENT } from '@angular/common';
+import { Auth } from '../../../core/services/auth';
+import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
+import { libelleRole } from '../../../models/utilisateur.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 @Component({
   selector: 'app-opticien-layout',
@@ -20,8 +25,7 @@ import { DOCUMENT } from '@angular/common';
   imports: [
     RouterLink,
     RouterLinkActive,
-    RouterOutlet
-  ],
+    RouterOutlet, BoutonDeconnexion],
 
   templateUrl: './opticien-layout.html',
   styleUrl: './opticien-layout.css'
@@ -29,6 +33,19 @@ import { DOCUMENT } from '@angular/common';
 export class OpticienLayout {
 
   private readonly document = inject(DOCUMENT);
+
+  /* =====================================================
+     IDENTITÉ DE L'UTILISATEUR CONNECTÉ (plus de nom en dur)
+  ====================================================== */
+
+  private readonly auth = inject(Auth);
+
+  readonly nomComplet = computed(() => nomCompletUtilisateur(this.auth.utilisateur()));
+
+  readonly initiales = computed(() => initialesUtilisateur(this.auth.utilisateur()));
+
+  readonly roleLibelle = computed(() => libelleRole(this.auth.role()));
+
 
   // =====================================================
   // MENU MOBILE
@@ -53,34 +70,9 @@ export class OpticienLayout {
 
   notificationsOuvertes = signal(false);
 
-  notifications = [
-    {
-      id: 1,
-      type: 'commande',
-      titre: 'Commande prête',
-      message: 'La commande de Paul Ndi est terminée.',
-      temps: 'Il y a 30 min',
-      lue: false
-    },
-    {
-      id: 2,
-      type: 'consultation',
-      titre: 'Nouvelle consultation',
-      message: 'Une consultation est prévue pour Alice Mbarga.',
-      temps: 'Il y a 1 h',
-      lue: false
-    },
-    {
-      id: 3,
-      type: 'patient',
-      titre: 'Nouveau patient',
-      message: 'Clara Ngono a été ajoutée à vos patients.',
-      temps: 'Hier',
-      lue: true
-    }
-  ];
-
-  nombreNotifications = signal(2);
+  // TODO : brancher GET /notifications (service `Notification`, comme le portail patient) quand un compte
+  // opticien de test existera pour vérifier la route. Pas de liste ni de compteur en dur en attendant :
+  // le panneau affiche un état vide.
 
   // =====================================================
   // INITIALISATION
@@ -138,47 +130,6 @@ export class OpticienLayout {
   fermerNotifications(): void {
 
     this.notificationsOuvertes.set(false);
-
-  }
-
-  marquerCommeLue(id: number): void {
-
-    const notification =
-      this.notifications.find(
-        item => item.id === id
-      );
-
-    if (!notification || notification.lue) {
-      return;
-    }
-
-    this.notifications =
-      this.notifications.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              lue: true
-            }
-          : item
-      );
-
-    this.nombreNotifications.set(
-      this.notifications.filter(
-        item => !item.lue
-      ).length
-    );
-
-  }
-
-  marquerToutesCommeLues(): void {
-
-    this.notifications =
-      this.notifications.map(notification => ({
-        ...notification,
-        lue: true
-      }));
-
-    this.nombreNotifications.set(0);
 
   }
 

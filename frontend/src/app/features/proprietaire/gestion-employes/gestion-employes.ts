@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { CreerPersonnelPayload, Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
 import { libelleRole, RoleUtilisateur, Utilisateur as UtilisateurModel } from '../../../models/utilisateur.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
 /**
  * Reproduction de la maquette `maquette/gestion_des_employ_s_opticare_admin/`.
@@ -13,7 +14,7 @@ import { libelleRole, RoleUtilisateur, Utilisateur as UtilisateurModel } from '.
  */
 @Component({
   selector: 'app-gestion-employes',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [FormsModule, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './gestion-employes.html',
   styleUrl: './gestion-employes.css',
 })

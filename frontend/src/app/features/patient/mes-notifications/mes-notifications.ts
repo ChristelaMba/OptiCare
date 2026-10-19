@@ -98,6 +98,9 @@ export class MesNotifications {
      NOTIFICATIONS NON LUES
   ======================================================== */
 
+  /** Échec d'un marquage « lu » : message au-dessus de la liste, l'état affiché reste celui du serveur. */
+  erreurAction = signal<string | null>(null);
+
   /** Compteur renvoyé par le serveur (`non_lu_count`) — jamais calculé sur des données inventées. */
   notificationsNonLues = signal<number>(0);
 
@@ -241,6 +244,76 @@ export class MesNotifications {
         );
 
         this.chargement.set(false);
+
+      }
+
+    });
+
+  }
+
+
+  /** PUT /notifications/{id}/read — l'affichage ne change qu'après le succès côté serveur. */
+  marquerCommeLue(
+    notification: Notification
+  ): void {
+
+    if (notification.lue) {
+      return;
+    }
+
+    this.erreurAction.set(null);
+
+    this.notificationService.marquerLue(notification.id).subscribe({
+
+      next: () => {
+
+        this.notifications.update(liste =>
+          liste.map(item =>
+            item.id === notification.id
+              ? { ...item, lue: true }
+              : item
+          )
+        );
+
+        this.notificationsNonLues.update(n => Math.max(0, n - 1));
+
+      },
+
+      error: () => {
+
+        this.erreurAction.set(
+          'Impossible de marquer cette notification comme lue pour le moment.'
+        );
+
+      }
+
+    });
+
+  }
+
+
+  /** PUT /notifications/read-all — ne concerne que les notifications du compte connecté. */
+  toutMarquerCommeLu(): void {
+
+    this.erreurAction.set(null);
+
+    this.notificationService.toutMarquerLu().subscribe({
+
+      next: () => {
+
+        this.notifications.update(liste =>
+          liste.map(item => ({ ...item, lue: true }))
+        );
+
+        this.notificationsNonLues.set(0);
+
+      },
+
+      error: () => {
+
+        this.erreurAction.set(
+          'Impossible de marquer les notifications comme lues pour le moment.'
+        );
 
       }
 

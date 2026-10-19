@@ -104,4 +104,11 @@ describe('RechercheCabinets', () => {
     expect(component.adresseAffichee(sansQuartier)).toBe('Rue TEST');
     expect(component.adresseAffichee({ adresse: '', quartier: 'Akwa' } as never)).toBe('Akwa');
   });
+
+  it('pied de page : 5 liens désactivés, aucun href="#"', () => {
+    const footer = (fixture.nativeElement as HTMLElement).querySelector('footer') as HTMLElement;
+
+    expect(footer.querySelectorAll('a[href="#"]').length).toBe(0);
+    expect(footer.querySelectorAll('[aria-disabled="true"]').length).toBe(5);
+  });
 });

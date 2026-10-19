@@ -35,20 +35,7 @@
         </a>
       </div>
 
-      <div class="flex items-center gap-space-3">
-        <a
-          routerLink="/auth/connexion"
-          class="font-button text-button text-primary bg-transparent border border-primary px-space-4 py-space-2 rounded-lg hover:bg-surface-container-low transition-colors hidden md:block"
-        >
-          Connexion
-        </a>
-        <a
-          routerLink="/auth/inscription"
-          class="font-button text-button text-on-primary bg-primary px-space-4 py-space-2 rounded-lg hover:bg-surface-tint transition-colors shadow-sm hover:shadow-md"
-        >
-          Inscription
-        </a>
-      </div>
+      <app-actions-session />
     </div>
   </nav>
 
@@ -281,22 +268,22 @@
   <footer class="w-full bg-inverse-surface mt-space-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-space-8 px-margin-mobile md:px-space-12 py-space-12 max-w-7xl mx-auto">
       <div class="flex flex-col gap-space-4">
-        <img src="/images/logo-opticare.png" alt="OptiCare" class="h-5 w-auto" />
+        <app-logo-pied-de-page />
         <p class="font-body text-body-base text-inverse-on-surface/70">La plateforme de confiance pour votre santé visuelle.</p>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Mentions légales</a>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Conditions d'utilisation</a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Mentions légales</span>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Conditions d'utilisation</span>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Ressources</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Plan du site</a>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Nous contacter</a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Plan du site</span>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Nous contacter</span>
       </div>
       <div class="flex flex-col gap-space-3">
         <h4 class="font-button text-button text-inverse-on-surface">Restez informé</h4>
-        <a class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors" href="#">Newsletter</a>
+        <span class="text-inverse-on-surface/40 font-body text-body-base cursor-not-allowed select-none" aria-disabled="true" title="Bientôt disponible">Newsletter</span>
       </div>
     </div>
     <div class="px-margin-mobile md:px-space-12 pb-space-8 max-w-7xl mx-auto border-t border-inverse-on-surface/10 pt-space-4">

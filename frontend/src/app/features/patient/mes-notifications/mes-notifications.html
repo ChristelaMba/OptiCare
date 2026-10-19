@@ -24,7 +24,33 @@
     </div>
 
 
+    @if (notificationsNonLues() > 0) {
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="toutMarquerCommeLu()"
+      >
+
+        <span class="button-icon">
+          ✓
+        </span>
+
+        <span>
+          Tout marquer comme lu
+        </span>
+
+      </button>
+
+    }
+
   </header>
+
+  @if (erreurAction(); as messageAction) {
+
+    <p class="action-error" role="alert">{{ messageAction }}</p>
+
+  }
 
 
   <!-- =====================================================
@@ -428,11 +454,31 @@
 
               <div class="notification-actions">
 
+                @if (!notification.lue) {
+
+                  <button
+                    type="button"
+                    class="action-btn"
+                    (click)="marquerCommeLue(notification)"
+                  >
+
+                    <span class="action-icon">
+                      ✓
+                    </span>
+
+                    Marquer comme lue
+
+                  </button>
+
+                }
+
+
                 @if (notification.lien) {
 
                   <a
                     class="action-btn primary-action"
                     [routerLink]="notification.lien"
+                    (click)="marquerCommeLue(notification)"
                   >
 
                     <span class="action-icon">

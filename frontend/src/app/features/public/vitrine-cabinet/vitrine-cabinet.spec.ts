@@ -95,4 +95,27 @@ describe('VitrineCabinet', () => {
 
     expect(component.adresseComplete(component.cabinet()!)).toBe('Rue de Test, Douala');
   });
+
+  it("« Nos Services » est masqué (aucun service fourni par l'API)", async () => {
+    const texte = await repondre([]);
+
+    expect(texte).not.toContain('Nos Services');
+    expect(texte).not.toContain('Atelier de réparation');
+  });
+
+  it('pied de page : liens vers pages inexistantes désactivés, pas de href="#"', async () => {
+    await repondre([]);
+    const footer = (fixture.nativeElement as HTMLElement).querySelector('footer') as HTMLElement;
+
+    expect(footer.querySelectorAll('a[href="#"]').length).toBe(0);
+    expect(footer.querySelectorAll('[aria-disabled="true"]').length).toBe(2);
+  });
+
+  it('en-tête : visiteur → Connexion / Inscription', async () => {
+    await repondre([]);
+    const texte = (fixture.nativeElement as HTMLElement).querySelector('app-actions-session')?.textContent ?? '';
+
+    expect(texte).toContain('Connexion');
+    expect(texte).toContain('Inscription');
+  });
 });
