@@ -9,20 +9,9 @@ import {
   CompteAdmin,
   RoleUtilisateur,
   StatsComptes,
-  Utilisateur as UtilisateurModel,
 } from '../../models/utilisateur.model';
 
 const BASE_URL = environment.apiUrl.replace(/\/$/, '');
-
-// §6.3 du cahier des charges : champs exacts attendus par POST /cabinets/{id}/personnel.
-export interface CreerPersonnelPayload {
-  nom: string;
-  prenom: string;
-  telephone: string;
-  ville: string;
-  email: string;
-  role: Extract<RoleUtilisateur, 'opticien' | 'secretaire'>;
-}
 
 /**
  * Même pattern que cabinet.ts : un service par ressource, Observable en
@@ -31,19 +20,6 @@ export interface CreerPersonnelPayload {
 @Service()
 export class Utilisateur {
   private readonly http = inject(HttpClient);
-
-  /** GET /cabinets/{id}/personnel — employés (Opticien/Secretaire) d'un cabinet (Propriétaire → gestion-employes). */
-  listerParCabinet(cabinetId: string): Observable<UtilisateurModel[]> {
-    return this.http.get<UtilisateurModel[]>(`${BASE_URL}/cabinets/${cabinetId}/personnel`);
-  }
-
-  /**
-   * POST /cabinets/{id}/personnel — §8 du cahier des charges : « c'est ici,
-   * et uniquement ici, que sont créés les comptes Opticien/Secrétaire » (§9.6).
-   */
-  creerPersonnel(cabinetId: string, payload: CreerPersonnelPayload): Observable<UtilisateurModel> {
-    return this.http.post<UtilisateurModel>(`${BASE_URL}/cabinets/${cabinetId}/personnel`, payload);
-  }
 
   /**
    * GET /admin/users (ROUTES-API-LIONEL §18.1) — tous les comptes, super admin uniquement. `role` et `search`
@@ -82,19 +58,6 @@ export class Utilisateur {
     return this.http
       .put<unknown>(`${BASE_URL}/admin/users/${id}/reset-password`, { password: motDePasse, password_confirmation: confirmation })
       .pipe(map(() => undefined));
-  }
-
-  /**
-   * TODO (lot 2b-2b, écran « Gestion des employés ») : ces deux méthodes appellent des routes qui n'existent pas
-   * (`PATCH /admin/utilisateurs/{id}/activer|desactiver`) ; la route du propriétaire est
-   * `PUT /cabinets/{id}/personnel/{pid}` (§12.4). Conservées uniquement pour que `gestion-employes` compile.
-   */
-  activer(id: string): Observable<UtilisateurModel> {
-    return this.http.patch<UtilisateurModel>(`${BASE_URL}/admin/utilisateurs/${id}/activer`, {});
-  }
-
-  desactiver(id: string): Observable<UtilisateurModel> {
-    return this.http.patch<UtilisateurModel>(`${BASE_URL}/admin/utilisateurs/${id}/desactiver`, {});
   }
 
   private static normaliserCompte(brut: ApiCompteBrut): CompteAdmin {

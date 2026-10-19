@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { messageErreurApi, messageErreurConnexion } from './api-errors';
+import { messageErreurApi, erreursParChamp, messageErreurConnexion } from './api-errors';
 
 function erreur(status: number, corps: unknown): HttpErrorResponse {
   return new HttpErrorResponse({ status, error: corps });
@@ -52,5 +52,14 @@ describe('messageErreurConnexion', () => {
     expect(messageErreurConnexion(erreur(401, null))).toBe('Identifiant ou mot de passe incorrect.');
     expect(messageErreurConnexion(erreur(500, null))).toContain('Une erreur est survenue');
     expect(messageErreurConnexion(erreur(0, null))).toContain('Impossible de joindre le serveur');
+  });
+
+  it('erreursParChamp() : 422 → un message par champ ; autre statut → vide', () => {
+    const e422 = new HttpErrorResponse({
+      status: 422,
+      error: { errors: { telephone: ['Déjà utilisé.', 'Format invalide.'], general: 'Quota atteint.' } },
+    });
+    expect(erreursParChamp(e422)).toEqual({ telephone: 'Déjà utilisé. Format invalide.', general: 'Quota atteint.' });
+    expect(erreursParChamp(new HttpErrorResponse({ status: 500, error: { errors: { x: ['y'] } } }))).toEqual({});
   });
 });

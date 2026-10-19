@@ -76,3 +76,19 @@ export function messageErreurConnexion(erreur: HttpErrorResponse): string {
     ? 'Identifiant ou mot de passe incorrect.'
     : 'Une erreur est survenue lors de la connexion. Réessayez.';
 }
+
+/**
+ * Erreurs de validation 422 champ par champ : `errors.<champ>[0]` (ou la chaîne de `errors.general`). Sert aux
+ * formulaires qui affichent chaque message sous son champ.
+ */
+export function erreursParChamp(erreur: HttpErrorResponse): Record<string, string> {
+  const errors = (erreur.error as { errors?: Record<string, string[] | string> } | null)?.errors;
+  const resultat: Record<string, string> = {};
+  if (!errors || erreur.status !== 422) {
+    return resultat;
+  }
+  for (const [champ, valeur] of Object.entries(errors)) {
+    resultat[champ] = Array.isArray(valeur) ? valeur.join(' ') : String(valeur);
+  }
+  return resultat;
+}

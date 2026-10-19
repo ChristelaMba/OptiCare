@@ -68,7 +68,7 @@
           type="text"
           [ngModel]="texteRecherche()"
           (ngModelChange)="texteRecherche.set($event)"
-          placeholder="Rechercher par nom ou rôle…"
+          placeholder="Rechercher par nom, rôle, poste ou téléphone…"
           class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
@@ -78,7 +78,7 @@
       <p class="font-body text-body-base text-text-muted">Chargement des employés…</p>
     } @else if (employesFiltres().length === 0) {
       <div class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-8 text-center">
-        <p class="font-body text-body-base text-text-muted">Aucun employé ne correspond à cette recherche.</p>
+        <p class="font-body text-body-base text-text-muted">{{ erreur() ? 'Liste indisponible.' : aucunEmploye() ? "Aucun employé pour l'instant. Ajoutez votre premier employé." : 'Aucun employé ne correspond à cette recherche.' }}</p>
       </div>
     } @else {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-space-6">
@@ -96,7 +96,8 @@
               </div>
               <div>
                 <h3 class="font-heading text-headline-h3 text-on-surface">{{ employe.prenom }} {{ employe.nom }}</h3>
-                <p class="font-body text-body-base text-text-muted">{{ libelleRole(employe.role) }}</p>
+                <p class="font-body text-body-base text-text-muted">{{ libelleRole(employe.role) }}{{ employe.poste ? ' · ' + employe.poste : '' }}</p>
+                <p class="font-body text-label-sm text-text-muted">{{ employe.telephone }}</p>
               </div>
             </div>
             <div class="mt-auto pt-space-4 border-t border-border-subtle flex justify-between items-center">
@@ -125,6 +126,16 @@
                   Réactiver
                 </button>
               }
+              <button
+                type="button"
+                [disabled]="actionEnCours() === employe.id"
+                (click)="demanderSuppression(employe)"
+                title="Supprimer"
+                aria-label="Supprimer"
+                class="text-text-muted hover:text-error transition-colors disabled:opacity-40"
+              >
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
             </div>
           </div>
         }
@@ -151,14 +162,20 @@
           }
 
           <div class="grid grid-cols-2 gap-space-4">
-            <div>
-              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Prénom</label>
-              <input type="text" formControlName="prenom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
-            </div>
-            <div>
-              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Nom</label>
-              <input type="text" formControlName="nom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
-            </div>
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Prénom</label>
+            <input type="text" formControlName="prenom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['prenom']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="prenom">{{ erreursChamps()['prenom'] }}</p>
+            }
+          </div>
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Nom</label>
+            <input type="text" formControlName="nom" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['nom']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="nom">{{ erreursChamps()['nom'] }}</p>
+            }
+          </div>
           </div>
 
           <div>
@@ -167,23 +184,74 @@
               <option value="opticien">Opticien</option>
               <option value="secretaire">Secrétaire</option>
             </select>
-          </div>
-
-          <div>
-            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Email</label>
-            <input type="email" formControlName="email" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['role']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="role">{{ erreursChamps()['role'] }}</p>
+            }
           </div>
 
           <div class="grid grid-cols-2 gap-space-4">
-            <div>
-              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Téléphone</label>
-              <input type="tel" formControlName="telephone" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
-            </div>
-            <div>
-              <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Ville</label>
-              <input type="text" formControlName="ville" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
-            </div>
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Téléphone</label>
+            <input type="tel" formControlName="telephone" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['telephone']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="telephone">{{ erreursChamps()['telephone'] }}</p>
+            }
           </div>
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Ville</label>
+            <input type="text" formControlName="ville" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['ville']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="ville">{{ erreursChamps()['ville'] }}</p>
+            }
+          </div>
+          </div>
+
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Email (facultatif)</label>
+            <input type="email" formControlName="email" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['email']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="email">{{ erreursChamps()['email'] }}</p>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-space-4">
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Poste (facultatif)</label>
+            <input type="text" formControlName="poste" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['poste']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="poste">{{ erreursChamps()['poste'] }}</p>
+            }
+          </div>
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Date d'embauche (facultatif)</label>
+            <input type="date" formControlName="embauche_le" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['embauche_le']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="embauche_le">{{ erreursChamps()['embauche_le'] }}</p>
+            }
+          </div>
+          </div>
+
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Mot de passe (8 caractères minimum)</label>
+            <input type="password" formControlName="password" autocomplete="new-password" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['password']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="password">{{ erreursChamps()['password'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="font-body text-label-sm text-on-surface-variant mb-1 block">Confirmation du mot de passe</label>
+            <input type="password" formControlName="password_confirmation" autocomplete="new-password" class="w-full h-[44px] px-space-3 rounded-lg border border-border-subtle focus:outline-none focus:ring-1 focus:ring-primary" />
+            @if (erreursChamps()['password_confirmation']) {
+              <p class="font-body text-label-sm text-error mt-1" data-champ="password_confirmation">{{ erreursChamps()['password_confirmation'] }}</p>
+            }
+          </div>
+          @if (formulaire.touched && formulaire.hasError('confirmation')) {
+            <p class="font-body text-label-sm text-error" data-champ="confirmation">Les deux mots de passe ne sont pas identiques.</p>
+          }
+          @if (formulaire.controls.password.touched && formulaire.controls.password.hasError('minlength')) {
+            <p class="font-body text-label-sm text-error" data-champ="minlength">Le mot de passe doit contenir au moins 8 caractères.</p>
+          }
 
           <div class="flex justify-end gap-space-3 mt-space-2">
             <button type="button" (click)="fermerFormulaire()" class="px-space-6 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container transition-colors">
@@ -198,6 +266,31 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  }
+
+  <!-- Confirmation de suppression -->
+  @if (employeASupprimer(); as cible) {
+    <div class="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-margin-mobile" role="dialog" aria-modal="true" aria-label="Confirmer la suppression">
+      <div class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-[420px] p-space-6 flex flex-col gap-space-4">
+        <h2 class="font-heading text-headline-h2 text-on-surface">Supprimer cet employé ?</h2>
+        <p class="font-body text-body-base text-text-muted">
+          {{ cible.prenom }} {{ cible.nom }} ({{ libelleRole(cible.role) }}) sera supprimé définitivement. Cette action est irréversible.
+        </p>
+        <div class="flex justify-end gap-space-3">
+          <button type="button" (click)="annulerSuppression()" class="px-space-4 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container">
+            Annuler
+          </button>
+          <button
+            type="button"
+            [disabled]="actionEnCours() === cible.id"
+            (click)="confirmerSuppression()"
+            class="px-space-4 py-2 rounded-lg font-button text-button bg-error text-white disabled:opacity-60"
+          >
+            Supprimer
+          </button>
+        </div>
       </div>
     </div>
   }
