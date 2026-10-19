@@ -87,11 +87,11 @@
         </div>
 
         <!-- Quartier -->
-        <div class="mb-space-6">
-          <h3 class="font-button text-button text-on-surface mb-space-3">Quartier</h3>
-          @if (quartiersDisponibles().length === 0) {
-            <p class="font-body text-body-base text-text-muted">Chargement…</p>
-          } @else {
+        <!-- Filtre « Quartier » : affiché seulement si au moins un cabinet a un quartier renseigné
+             (plus de « Chargement… » permanent quand la liste est vide). -->
+        @if (quartiersDisponibles().length > 0) {
+          <div class="mb-space-6">
+            <h3 class="font-button text-button text-on-surface mb-space-3">Quartier</h3>
             <div class="flex flex-col gap-space-2">
               @for (quartier of quartiersDisponibles(); track quartier) {
                 <label class="flex items-center gap-space-2 cursor-pointer">
@@ -105,8 +105,8 @@
                 </label>
               }
             </div>
-          }
-        </div>
+          </div>
+        }
 
         <!-- Note minimale -->
         <div>

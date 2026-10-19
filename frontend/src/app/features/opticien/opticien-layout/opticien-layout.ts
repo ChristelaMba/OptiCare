@@ -1,6 +1,5 @@
 import {
   Component,
-  HostBinding,
   computed,
   signal,
   inject
@@ -54,17 +53,6 @@ export class OpticienLayout {
   menuOuvert = signal(false);
 
   // =====================================================
-  // MODE SOMBRE
-  // =====================================================
-
-  modeSombre = signal(false);
-
-  @HostBinding('class.dark-mode')
-  get darkModeClass(): boolean {
-    return this.modeSombre();
-  }
-
-  // =====================================================
   // NOTIFICATIONS
   // =====================================================
 
@@ -80,21 +68,12 @@ export class OpticienLayout {
 
   constructor() {
 
-    const theme = localStorage.getItem('opticare-theme');
+    // Mode clair uniquement (spécification du projet) : on neutralise tout thème sombre
+    // qu'une version précédente aurait laissé sur <html>.
+    const html = this.document.documentElement;
 
-    if (theme === 'dark') {
-
-      this.modeSombre.set(true);
-
-      this.appliquerTheme(true);
-
-    } else {
-
-      this.modeSombre.set(false);
-
-      this.appliquerTheme(false);
-
-    }
+    html.setAttribute('data-theme', 'light');
+    html.classList.remove('dark');
   }
 
   // =====================================================
@@ -130,54 +109,6 @@ export class OpticienLayout {
   fermerNotifications(): void {
 
     this.notificationsOuvertes.set(false);
-
-  }
-
-  // =====================================================
-  // MODE SOMBRE
-  // =====================================================
-
-  toggleTheme(): void {
-
-    this.modeSombre.update(
-      sombre => !sombre
-    );
-
-    const sombre = this.modeSombre();
-
-    this.appliquerTheme(sombre);
-
-    localStorage.setItem(
-      'opticare-theme',
-      sombre ? 'dark' : 'light'
-    );
-
-  }
-
-  private appliquerTheme(sombre: boolean): void {
-
-    const html =
-      this.document.documentElement;
-
-    if (sombre) {
-
-      html.setAttribute(
-        'data-theme',
-        'dark'
-      );
-
-      html.classList.add('dark');
-
-    } else {
-
-      html.setAttribute(
-        'data-theme',
-        'light'
-      );
-
-      html.classList.remove('dark');
-
-    }
 
   }
 }

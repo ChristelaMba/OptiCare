@@ -28,7 +28,7 @@ function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErro
 function dateNaissanceValideValidator(control: AbstractControl): ValidationErrors | null {
   const valeur = control.value;
   if (!valeur) {
-    return null; // Validators.required s'en charge déjà
+    return null; // champ facultatif : vide = valide
   }
 
   const date = new Date(valeur);
@@ -84,8 +84,10 @@ export class InscriptionPatient {
       nom: ['', [Validators.required]],
       telephone: ['', [Validators.required]],
       ville: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      dateNaissance: ['', [Validators.required, dateNaissanceValideValidator]],
+      // Facultatif (ROUTES-API-LIONEL §1.1) : si saisi, le format reste validé ; envoyé seulement s'il est renseigné.
+      email: ['', [Validators.email]],
+      // Facultative : `POST /auth/register/patient` ne prévoit pas ce champ (ROUTES-API-LIONEL §1.1) ; envoyée seulement si renseignée.
+      dateNaissance: ['', [dateNaissanceValideValidator]],
       motDePasse: ['', [Validators.required, Validators.minLength(8)]],
       confirmationMotDePasse: ['', [Validators.required]],
     },
@@ -116,8 +118,8 @@ export class InscriptionPatient {
         prenom: valeurs.prenom,
         telephone: valeurs.telephone,
         ville: valeurs.ville,
-        email: valeurs.email,
-        date_naissance: valeurs.dateNaissance,
+        ...(valeurs.email.trim() ? { email: valeurs.email.trim() } : {}),
+        ...(valeurs.dateNaissance ? { date_naissance: valeurs.dateNaissance } : {}),
         password: valeurs.motDePasse,
         password_confirmation: valeurs.confirmationMotDePasse,
       })

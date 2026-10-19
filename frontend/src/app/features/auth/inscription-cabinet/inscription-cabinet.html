@@ -125,7 +125,7 @@
           </div>
 
           <div>
-            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="email">Email personnel</label>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="email">Email du compte <span class="text-text-muted">(facultatif)</span></label>
             <input
               id="email"
               type="email"
@@ -133,9 +133,9 @@
               placeholder="sandrine.fotso@email.com"
               class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
             />
-            <p class="font-body text-label-sm text-text-muted mt-1">Cet email vous servira à vous connecter — il est différent de l'email public du cabinet.</p>
+            <p class="font-body text-label-sm text-text-muted mt-1">Email personnel de votre compte, distinct de l'email public du cabinet ci-dessous. Aujourd'hui, la connexion se fait avec votre numéro de téléphone.</p>
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Un email valide est requis.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le format de l'email est invalide.</p>
             }
           </div>
 
@@ -251,7 +251,7 @@
           </div>
 
           <div>
-            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="cabinetEmail">Email du cabinet</label>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="cabinetEmail">Email public du cabinet <span class="text-error" aria-hidden="true">*</span></label>
             <input
               id="cabinetEmail"
               type="email"

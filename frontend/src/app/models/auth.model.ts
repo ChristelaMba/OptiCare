@@ -5,8 +5,8 @@ export interface InscriptionPatientPayload {
   prenom: string;
   telephone: string;
   ville: string;
-  email: string;
-  date_naissance: string; // format ISO 'YYYY-MM-DD'
+  email?: string; // facultatif (ROUTES-API-LIONEL §1.1)
+  date_naissance?: string; // format ISO 'YYYY-MM-DD' — facultatif, non prévu par la route documentée
   password: string;
   password_confirmation: string;
 }
@@ -16,7 +16,7 @@ export interface InscriptionCabinetPayload {
   prenom: string;
   telephone: string;
   ville: string;
-  email: string; // email du compte personnel du propriétaire (sert à la connexion)
+  email?: string; // email du compte personnel du propriétaire — facultatif (ROUTES-API-LIONEL §1.2) ; la connexion se fait par téléphone
   password: string;
   password_confirmation: string;
   cabinet_nom: string;
@@ -72,7 +72,8 @@ export interface ApiUtilisateurBrut {
   id: number;
   nom: string;
   prenom: string;
-  email: string;
+  /** `null` pour un compte créé sans email (facultatif à l'inscription patient). */
+  email: string | null;
   telephone: string;
   ville: string;
   role: RoleUtilisateur;

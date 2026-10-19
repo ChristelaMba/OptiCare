@@ -53,4 +53,11 @@ describe('SecretaireLayout', () => {
     expect(el.querySelector('.notification-badge')).toBeNull();
     expect(el.querySelector('.notification-button')).toBeNull();
   });
+
+  it('mode clair uniquement : pas de bouton de bascule clair/sombre', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('.theme-button')).toBeNull();
+    expect(el.querySelector('.dark-mode')).toBeNull();
+  });
 });

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import {
   RouterLink,
   RouterOutlet,
@@ -23,6 +23,7 @@ import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion
 export class PatientLayout {
 
   private readonly auth = inject(Auth);
+  private readonly element = inject(ElementRef<HTMLElement>);
 
   /** Identité de la session (plus de nom codé en dur). */
   readonly nomComplet = computed(() => {
@@ -41,18 +42,26 @@ export class PatientLayout {
   readonly menuOuvert = signal(false);
   readonly menuProfilOuvert = signal(false);
   readonly espacesOuverts = signal(false);
-  readonly modeSombre = signal(false);
+  toggleMenuProfil(): void {
+    this.menuProfilOuvert.update(value => !value);
+  }
 
-  constructor() {
-    const theme = localStorage.getItem('opticare-theme');
-
-    if (theme === 'dark') {
-      this.modeSombre.set(true);
+  /** Le menu de l'avatar se ferme au clic en dehors de lui. */
+  @HostListener('document:click', ['$event'])
+  fermerMenuProfilSiClicExterieur(evenement: Event): void {
+    if (!this.menuProfilOuvert()) {
+      return;
+    }
+    const zone = (this.element.nativeElement as HTMLElement).querySelector('.topbar-profile-menu');
+    if (zone && !zone.contains(evenement.target as Node)) {
+      this.menuProfilOuvert.set(false);
     }
   }
 
-  toggleMenuProfil(): void {
-    this.menuProfilOuvert.update(value => !value);
+  /** … et à la touche Échap. */
+  @HostListener('document:keydown.escape')
+  fermerMenuProfilAvecEchap(): void {
+    this.menuProfilOuvert.set(false);
   }
 
   toggleMenu(): void {
@@ -74,15 +83,5 @@ export class PatientLayout {
 
     this.espacesOuverts.set(false);
     this.menuOuvert.set(false);
-  }
-
-  toggleTheme(): void {
-
-    this.modeSombre.update(value => !value);
-
-    localStorage.setItem(
-      'opticare-theme',
-      this.modeSombre() ? 'dark' : 'light'
-    );
   }
 }

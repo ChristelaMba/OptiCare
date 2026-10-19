@@ -631,6 +631,7 @@
                     <button
                       type="button"
                       class="action-btn"
+                      (click)="ajouterAuCalendrier(rdv)"
                     >
 
                       <span class="action-icon">
@@ -642,9 +643,14 @@
                     </button>
 
 
+                    <!-- TODO : brancher PUT /rdv/{id}/modifier une fois que le cabinet aura de vrais créneaux (GET /slots non vide)
+                           et que le serveur contrôlera disponibilité et doubles réservations (tickets back 3 et 4). -->
                     <button
                       type="button"
                       class="action-btn"
+                      disabled
+                      aria-disabled="true"
+                      title="Bientôt disponible"
                     >
 
                       <span class="action-icon">
@@ -652,6 +658,7 @@
                       </span>
 
                       Reprogrammer
+                      <small class="action-soon">Bientôt</small>
 
                     </button>
 

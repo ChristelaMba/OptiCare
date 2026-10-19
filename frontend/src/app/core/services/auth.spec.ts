@@ -62,4 +62,31 @@ describe('Auth', () => {
 
     expect(service.utilisateur()?.patientId).toBeUndefined();
   });
+
+  it("inscription sans email : la session s'ouvre, email = chaîne vide (jamais null), rien ne casse", () => {
+    service
+      .registerPatient({
+        nom: 'TEST-DIAG',
+        prenom: 'Pat',
+        telephone: '+237600000000',
+        ville: 'Douala',
+        password: 'azerty-12',
+        password_confirmation: 'azerty-12',
+      })
+      .subscribe();
+
+    const req = http.expectOne((r) => r.url.endsWith('/auth/register/patient'));
+    expect(Object.keys(req.request.body)).not.toContain('email');
+    req.flush({
+      status: 'success',
+      message: '',
+      data: { user: { ...UTILISATEUR_BRUT, email: null }, token: 't', role: 'patient' },
+    });
+
+    expect(service.estConnecte()).toBe(true);
+    expect(service.utilisateur()?.email).toBe('');
+    // la session sérialisée puis relue ne contient pas non plus de null
+    const stocke = JSON.parse(localStorage.getItem('opticare_utilisateur') ?? sessionStorage.getItem('opticare_utilisateur') ?? '{}');
+    expect(stocke.email).toBe('');
+  });
 });

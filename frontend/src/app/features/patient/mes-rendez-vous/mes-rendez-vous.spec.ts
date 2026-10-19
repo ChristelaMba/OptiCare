@@ -140,4 +140,37 @@ describe('MesRendezVous', () => {
     expect(component.nombreConsultationsPassees()).toBe(1);
     expect(el.querySelector('.stat-content strong')).not.toBeNull();
   });
+
+  it("« Ajouter au calendrier » télécharge un fichier .ics, sans appel API", async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const creerUrl = vi.fn().mockReturnValue('blob:test');
+    const revoquer = vi.fn();
+    URL.createObjectURL = creerUrl;
+    URL.revokeObjectURL = revoquer;
+
+    await afficher([rdv('9', 'test')]);
+    const bouton = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.action-btn')].find((b) =>
+      b.textContent?.includes('Ajouter au calendrier'),
+    ) as HTMLButtonElement;
+
+    bouton.click();
+
+    expect(creerUrl).toHaveBeenCalledTimes(1);
+    const blob = creerUrl.mock.calls[0][0] as Blob;
+    expect(blob.type).toContain('text/calendar');
+    expect(await blob.text()).toContain('BEGIN:VCALENDAR\r\n');
+    expect(revoquer).toHaveBeenCalledWith('blob:test');
+    http.expectNone((r) => r.url.includes('/rdv/9'));
+  });
+
+  it('« Reprogrammer » est désactivé avec la mention « Bientôt »', async () => {
+    const el = await afficher([rdv('9', 'test')]);
+    const bouton = [...el.querySelectorAll('.action-btn')].find((b) =>
+      b.textContent?.includes('Reprogrammer'),
+    ) as HTMLButtonElement;
+
+    expect(bouton.disabled).toBe(true);
+    expect(bouton.getAttribute('aria-disabled')).toBe('true');
+    expect(bouton.textContent).toContain('Bientôt');
+  });
 });

@@ -41,7 +41,8 @@ export class InscriptionCabinet {
       nom: ['', [Validators.required]],
       telephone: ['', [Validators.required]],
       ville: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
+      // Facultatif (ROUTES-API-LIONEL §1.2) : si saisi, le format reste validé ; envoyé seulement s'il est renseigné.
+      email: ['', [Validators.email]],
       motDePasse: ['', [Validators.required, Validators.minLength(8)]],
       confirmationMotDePasse: ['', [Validators.required]],
       // Informations du cabinet
@@ -78,7 +79,7 @@ export class InscriptionCabinet {
         prenom: valeurs.prenom,
         telephone: valeurs.telephone,
         ville: valeurs.ville,
-        email: valeurs.email,
+        ...(valeurs.email.trim() ? { email: valeurs.email.trim() } : {}),
         password: valeurs.motDePasse,
         password_confirmation: valeurs.confirmationMotDePasse,
         cabinet_nom: valeurs.cabinetNom,
