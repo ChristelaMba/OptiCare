@@ -92,3 +92,30 @@ export function erreursParChamp(erreur: HttpErrorResponse): Record<string, strin
   }
   return resultat;
 }
+
+/**
+ * Message d'erreur d'un téléchargement (`responseType: 'blob'`) : le corps d'une erreur est alors un `Blob`, lu comme
+ * texte JSON (`errors.*` ou `message`). 403 → « Accès refusé. » ; corps non JSON (ex. page HTML d'un 500) → message
+ * générique avec le code HTTP.
+ */
+export async function messageErreurTelechargement(erreur: HttpErrorResponse, generique: string): Promise<string> {
+  if (erreur.status === 403) {
+    return 'Accès refusé.';
+  }
+  if (erreur.status === 0) {
+    return 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+  }
+  let corps: unknown = erreur.error;
+  if (corps instanceof Blob) {
+    try {
+      corps = JSON.parse(await corps.text());
+    } catch {
+      return `${generique} (erreur serveur ${erreur.status}).`;
+    }
+  }
+  const json = corps as CorpsErreurApi | null;
+  const details = json?.errors ? Object.values(json.errors).flat().map(String) : [];
+  if (details.length) return details.join(' ');
+  if (json?.message) return `${generique} Le serveur répond : ${json.message}`;
+  return `${generique} (erreur serveur ${erreur.status}).`;
+}
