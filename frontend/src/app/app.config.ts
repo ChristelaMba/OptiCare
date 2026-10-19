@@ -10,14 +10,12 @@ import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
 import { mockRendezVousInterceptor } from './core/interceptors/mock-rendezvous-interceptor';
 import { mockStatistiquesInterceptor } from './core/interceptors/mock-statistiques-interceptor';
-import { mockPriseEnChargeInterceptor } from './core/interceptors/mock-prise-en-charge-interceptor';
 import { mockPatientInterceptor } from './core/interceptors/mock-patient-interceptor';
-import { mockFicheConsultationInterceptor } from './core/interceptors/mock-fiche-consultation-interceptor';
 import { mockCommandeInterceptor } from './core/interceptors/mock-commande-interceptor';
 
 // OUTIL DE DEV UNIQUEMENT — court-circuite les appels encore sans route
-// back-end confirmée (/statistiques, /prises-en-charge,
-// /commandes, /consultations, /patients, et la majeure partie du domaine
+// back-end confirmée (/statistiques, 
+// /commandes, /patients, et la majeure partie du domaine
 // rendez-vous — voir POINTS-A-CONFIRMER-BACKEND.md) avec des données
 // factices (cf. core/mocks/*.ts). Jamais actif en prod
 // (environment.production === true fait passer chaque intercepteur en no-op).
@@ -39,9 +37,7 @@ const interceptors = environment.production
   : [
       mockRendezVousInterceptor,
       mockStatistiquesInterceptor,
-      mockPriseEnChargeInterceptor,
       mockPatientInterceptor,
-      mockFicheConsultationInterceptor,
       mockCommandeInterceptor,
       authInterceptor,
       errorInterceptor,
