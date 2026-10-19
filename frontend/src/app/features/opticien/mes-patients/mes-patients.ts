@@ -1,426 +1,143 @@
-import {
-  Component,
-  computed,
-  signal,
-  inject
-} from '@angular/core';
-
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin, of, catchError } from 'rxjs';
 import { Router } from '@angular/router';
+
+import { Auth } from '../../../core/services/auth';
+import { ConsultationService } from '../../../core/services/consultation';
+import { PatientsCabinet } from '../../../core/services/patients-cabinet';
+import { messageErreurApi } from '../../../core/utils/api-errors';
 
 interface PatientOpticien {
   id: string;
-  dossierVisuelId: string;
   prenom: string;
   nom: string;
-  age: number;
-  sexe: 'M' | 'F';
   telephone: string;
-  quartier: string;
+  ville: string | null;
+  /** `YYYY-MM-DD`, calculée depuis `GET /cabinets/{id}/consultations` ; `null` s'il n'y en a pas. */
   derniereConsultation: string | null;
   nombreConsultations: number;
-  statut: 'Actif' | 'À suivre';
 }
 
+/**
+ * 20/10/2026 : liste réelle des patients du cabinet (`GET /cabinets/{id}/patients`). L'API ne fournit ni âge, ni sexe,
+ * ni quartier, ni statut « actif / à suivre » : ces éléments (et le bouton « Nouveau patient », sans route) sont retirés.
+ * Nombre et date de dernière consultation viennent de `GET /cabinets/{id}/consultations` (leur échec ne bloque pas la liste).
+ */
 @Component({
   selector: 'app-mes-patients',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mes-patients.html',
-  styleUrl: './mes-patients.css'
+  styleUrl: './mes-patients.css',
 })
-export class MesPatients {
-
-  // =========================================================
-  // INJECTION
-  // =========================================================
-
+export class MesPatients implements OnInit {
   private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
+  private readonly patientsService = inject(PatientsCabinet);
+  private readonly consultationService = inject(ConsultationService);
 
-
-  // =========================================================
-  // ÉTAT
-  // =========================================================
-
+  chargement = signal(true);
+  erreur = signal<string | null>(null);
   recherche = signal('');
-
-  filtreActif =
-    signal<'tous' | 'actifs' | 'suivi'>('tous');
-
-  patientSelectionne =
-    signal<PatientOpticien | null>(null);
-
-
-  // =========================================================
-  // PATIENTS
-  // =========================================================
-
-  patients = signal<PatientOpticien[]>([
-    {
-      id: 'patient-001',
-      dossierVisuelId: 'dv1',
-      prenom: 'Jean',
-      nom: 'Dupont',
-      age: 45,
-      sexe: 'M',
-      telephone: '06 12 34 56 78',
-      quartier: 'Bonanjo',
-      derniereConsultation: '02/09/2026',
-      nombreConsultations: 4,
-      statut: 'Actif'
-    },
-
-    {
-      id: 'patient-002',
-      dossierVisuelId: 'dv2',
-      prenom: 'Alice',
-      nom: 'Mbarga',
-      age: 32,
-      sexe: 'F',
-      telephone: '06 98 45 21 10',
-      quartier: 'Akwa',
-      derniereConsultation: '28/08/2026',
-      nombreConsultations: 3,
-      statut: 'Actif'
-    },
-
-    {
-      id: 'patient-003',
-      dossierVisuelId: 'dv3',
-      prenom: 'Paul',
-      nom: 'Ndi',
-      age: 57,
-      sexe: 'M',
-      telephone: '06 55 32 14 87',
-      quartier: 'Deido',
-      derniereConsultation: '15/08/2026',
-      nombreConsultations: 7,
-      statut: 'À suivre'
-    },
-
-    {
-      id: 'patient-004',
-      dossierVisuelId: 'dv4',
-      prenom: 'Sophie',
-      nom: 'Kamdem',
-      age: 28,
-      sexe: 'F',
-      telephone: '06 74 21 65 43',
-      quartier: 'Makepe',
-      derniereConsultation: '04/08/2026',
-      nombreConsultations: 2,
-      statut: 'Actif'
-    },
-
-    {
-      id: 'patient-005',
-      dossierVisuelId: 'dv5',
-      prenom: 'Michel',
-      nom: 'Tchoumi',
-      age: 63,
-      sexe: 'M',
-      telephone: '06 82 11 43 90',
-      quartier: 'Bonamoussadi',
-      derniereConsultation: '22/07/2026',
-      nombreConsultations: 6,
-      statut: 'À suivre'
-    },
-
-    {
-      id: 'patient-006',
-      dossierVisuelId: 'dv6',
-      prenom: 'Clara',
-      nom: 'Ngono',
-      age: 39,
-      sexe: 'F',
-      telephone: '06 61 29 38 74',
-      quartier: 'Bali',
-      derniereConsultation: null,
-      nombreConsultations: 0,
-      statut: 'Actif'
-    }
-  ]);
-
-
-  // =========================================================
-  // PATIENTS FILTRÉS
-  // =========================================================
+  patientSelectionne = signal<PatientOpticien | null>(null);
+  patients = signal<PatientOpticien[]>([]);
 
   patientsFiltres = computed(() => {
-
-    const terme =
-      this.recherche()
-        .trim()
-        .toLowerCase();
-
-    const filtre =
-      this.filtreActif();
-
-    return this.patients().filter(patient => {
-
-      const correspondRecherche =
+    const terme = this.recherche().trim().toLowerCase();
+    return this.patients().filter(
+      (p) =>
         !terme ||
-        patient.nom
-          .toLowerCase()
-          .includes(terme) ||
-
-        patient.prenom
-          .toLowerCase()
-          .includes(terme) ||
-
-        patient.telephone
-          .toLowerCase()
-          .includes(terme) ||
-
-        patient.quartier
-          .toLowerCase()
-          .includes(terme);
-
-      const correspondFiltre =
-        filtre === 'tous' ||
-
-        (
-          filtre === 'actifs' &&
-          patient.statut === 'Actif'
-        ) ||
-
-        (
-          filtre === 'suivi' &&
-          patient.statut === 'À suivre'
-        );
-
-      return (
-        correspondRecherche &&
-        correspondFiltre
-      );
-    });
+        p.nom.toLowerCase().includes(terme) ||
+        p.prenom.toLowerCase().includes(terme) ||
+        p.telephone.toLowerCase().includes(terme) ||
+        (p.ville ?? '').toLowerCase().includes(terme),
+    );
   });
 
+  nombrePatients = computed(() => this.patients().length);
 
-  // =========================================================
-  // STATISTIQUES
-  // =========================================================
+  ngOnInit(): void {
+    const cabinetId = this.auth.utilisateur()?.cabinetId;
+    if (!cabinetId) {
+      this.chargement.set(false);
+      this.erreur.set("Aucun cabinet rattaché à ce compte — impossible d'afficher les patients.");
+      return;
+    }
 
-  nombrePatients = computed(() =>
-    this.patients().length
-  );
-
-  nombrePatientsActifs = computed(() =>
-    this.patients().filter(
-      patient => patient.statut === 'Actif'
-    ).length
-  );
-
-  nombrePatientsASuivre = computed(() =>
-    this.patients().filter(
-      patient => patient.statut === 'À suivre'
-    ).length
-  );
-
-
-  // =========================================================
-  // INITIALES
-  // =========================================================
-
-  initiales(
-    patient: PatientOpticien
-  ): string {
-
-    const prenom =
-      patient.prenom
-        ?.charAt(0)
-        .toUpperCase() ?? '';
-
-    const nom =
-      patient.nom
-        ?.charAt(0)
-        .toUpperCase() ?? '';
-
-    return `${prenom}${nom}`;
+    forkJoin({
+      patients: this.patientsService.lister(cabinetId),
+      // Un échec de la liste des consultations ne bloque pas les patients : compteurs à 0.
+      consultations: this.consultationService.listerParCabinet(cabinetId).pipe(catchError(() => of([]))),
+    }).subscribe({
+      next: ({ patients, consultations }) => {
+        this.patients.set(
+          patients.map((p) => {
+            const siennes = consultations.filter((c) => c.patientId === p.id);
+            const derniere = siennes.map((c) => c.date).sort().at(-1) ?? null;
+            return {
+              id: p.id,
+              prenom: p.prenom,
+              nom: p.nom,
+              telephone: p.telephone,
+              ville: p.ville,
+              derniereConsultation: derniere,
+              nombreConsultations: siennes.length,
+            };
+          }),
+        );
+        this.chargement.set(false);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.chargement.set(false);
+        const messageServeur = (e.error as { message?: string } | null)?.message;
+        this.erreur.set(
+          messageErreurApi(e, `Impossible de charger les patients.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`),
+        );
+      },
+    });
   }
 
-
-  // =========================================================
-  // COULEUR AVATAR
-  // =========================================================
+  initiales(patient: PatientOpticien): string {
+    return `${patient.prenom?.charAt(0).toUpperCase() ?? ''}${patient.nom?.charAt(0).toUpperCase() ?? ''}`;
+  }
 
   couleurAvatar(index: number): string {
-
-    const couleurs = [
-      'avatar-blue',
-      'avatar-green',
-      'avatar-violet',
-      'avatar-orange',
-      'avatar-pink',
-      'avatar-cyan'
-    ];
-
-    return couleurs[
-      index % couleurs.length
-    ];
+    const couleurs = ['avatar-blue', 'avatar-green', 'avatar-violet', 'avatar-orange', 'avatar-pink', 'avatar-cyan'];
+    return couleurs[index % couleurs.length];
   }
-
-
-  // =========================================================
-  // RECHERCHE
-  // =========================================================
 
   rechercher(event: Event): void {
-
-    const input =
-      event.target as HTMLInputElement;
-
-    this.recherche.set(input.value);
+    this.recherche.set((event.target as HTMLInputElement).value);
   }
 
-
-  // =========================================================
-  // FILTRE
-  // =========================================================
-
-  changerFiltre(
-    filtre: 'tous' | 'actifs' | 'suivi'
-  ): void {
-
-    this.filtreActif.set(filtre);
-  }
-
-
-  // =========================================================
-  // MENU PATIENT
-  // =========================================================
-
-  selectionnerPatient(
-    patient: PatientOpticien
-  ): void {
-
+  selectionnerPatient(patient: PatientOpticien): void {
     this.patientSelectionne.set(patient);
   }
 
-
   fermerApercu(): void {
-
     this.patientSelectionne.set(null);
   }
 
-
-  // =========================================================
-  // VOIR DOSSIER VISUEL
-  // =========================================================
-
-  voirDossier(
-    patient: PatientOpticien
-  ): void {
-
-    if (!patient?.dossierVisuelId) {
-      console.error(
-        'Identifiant du dossier visuel manquant.'
-      );
-      return;
-    }
-
-    this.router.navigate(
-      ['/opticien/dossier-visuel-patient'],
-      {
-        queryParams: {
-          dossierVisuelId:
-            patient.dossierVisuelId
-        }
-      }
-    );
+  voirDossier(patient: PatientOpticien): void {
+    void this.router.navigate(['/opticien/dossier-visuel-patient'], { queryParams: { patientId: patient.id } });
   }
 
-
-  // =========================================================
-  // NOUVELLE CONSULTATION
-  // =========================================================
-
-  nouvelleConsultation(
-    patient: PatientOpticien
-  ): void {
-
-    if (!patient?.dossierVisuelId) {
-      console.error(
-        'Impossible de créer une consultation : dossier visuel manquant.'
-      );
-      return;
-    }
-
-    this.router.navigate(
-      ['/opticien/nouvelle-fiche-consultation'],
-      {
-        queryParams: {
-          dossierVisuelId:
-            patient.dossierVisuelId
-        }
-      }
-    );
+  nouvelleConsultation(patient: PatientOpticien): void {
+    void this.router.navigate(['/opticien/nouvelle-fiche-consultation'], { queryParams: { patientId: patient.id } });
   }
 
-
-  // =========================================================
-  // FACTURES / ORDONNANCES
-  // =========================================================
-
-  voirFactures(
-    patient: PatientOpticien
-  ): void {
-
-    this.router.navigate(
-      ['/opticien/facture-ordonnance'],
-      {
-        queryParams: {
-          patientId: patient.id,
-          dossierVisuelId:
-            patient.dossierVisuelId
-        }
-      }
-    );
+  // Factures/ordonnances et commandes : écrans hors périmètre de ce lot (données locales).
+  voirFactures(patient: PatientOpticien): void {
+    void this.router.navigate(['/opticien/facture-ordonnance'], { queryParams: { patientId: patient.id } });
   }
 
-
-  // =========================================================
-  // COMMANDES
-  // =========================================================
-
-  voirCommandes(
-    patient: PatientOpticien
-  ): void {
-
-    this.router.navigate(
-      ['/opticien/suivi-commande'],
-      {
-        queryParams: {
-          patientId: patient.id,
-          dossierVisuelId:
-            patient.dossierVisuelId
-        }
-      }
-    );
+  voirCommandes(patient: PatientOpticien): void {
+    void this.router.navigate(['/opticien/suivi-commande'], { queryParams: { patientId: patient.id } });
   }
 
-
-  // =========================================================
-  // AJOUT PATIENT
-  // =========================================================
-
-  ajouterPatient(): void {
-
-    console.log(
-      'Ouverture future du formulaire d’ajout patient'
-    );
-  }
-
-
-  // =========================================================
-  // TRACK
-  // =========================================================
-
-  trackPatient(
-    index: number,
-    patient: PatientOpticien
-  ): string {
-
+  trackPatient(_index: number, patient: PatientOpticien): string {
     return patient.id;
   }
 }
