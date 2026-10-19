@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
 import { messagesValidationApi } from '../../../core/utils/api-errors';
+import { telechargerIcs } from '../../../core/utils/ics';
 import {
   RendezVous,
   StatutRendezVous
@@ -100,6 +101,15 @@ export class MesRendezVous implements OnInit {
       !this.estAVenir(rdv)
     )
   );
+
+  /** « Ajouter au calendrier » : fichier .ics généré dans le navigateur, aucun appel API. */
+  ajouterAuCalendrier(rdv: RendezVous): void {
+    try {
+      telechargerIcs(rdv);
+    } catch {
+      this.erreurAnnulation.set("Impossible de générer le fichier de calendrier pour ce rendez-vous.");
+    }
+  }
 
   /** Compteur « Consultations passées » : les RDV annulés ne sont pas des consultations (ils restent listés dans l'historique). */
   nombreConsultationsPassees = computed(() =>

@@ -31,8 +31,49 @@
         </a>
       </div>
 
-      <app-actions-session />
+      <div class="hidden md:flex">
+        <app-actions-session />
+      </div>
+
+      <!-- Menu mobile : bouton menu → Services, Cabinets, puis Connexion / Inscription (ou espace + déconnexion) -->
+      <button
+        type="button"
+        class="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full text-primary hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-controls="menu-mobile"
+        [attr.aria-expanded]="menuMobileOuvert()"
+        [attr.aria-label]="menuMobileOuvert() ? 'Fermer le menu' : 'Ouvrir le menu'"
+        (click)="basculerMenuMobile()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">{{ menuMobileOuvert() ? 'close' : 'menu' }}</span>
+      </button>
     </div>
+    @if (menuMobileOuvert()) {
+      <div id="menu-mobile" class="md:hidden border-t border-border-subtle bg-surface-bg px-margin-mobile py-space-4 shadow-md">
+        <ul class="flex flex-col gap-space-1 list-none m-0 p-0">
+          <li>
+            <a href="#specialites" (click)="fermerMenuMobile()" class="block px-space-3 py-space-3 rounded-lg font-body text-body-base text-on-surface hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Services</a>
+          </li>
+          <li>
+            <a href="#cabinets-partenaires" (click)="fermerMenuMobile()" class="block px-space-3 py-space-3 rounded-lg font-body text-body-base text-on-surface hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Cabinets</a>
+          </li>
+          @if (utilisateurConnecte(); as u) {
+            <li>
+              <a [routerLink]="espaceUtilisateur()" (click)="fermerMenuMobile()" class="block px-space-3 py-space-3 rounded-lg font-body text-body-base text-primary font-bold hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Mon espace ({{ u.prenom }})</a>
+            </li>
+            <li>
+              <app-bouton-deconnexion classe="w-full text-left px-space-3 py-space-3 rounded-lg font-body text-body-base text-error hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Se déconnecter</app-bouton-deconnexion>
+            </li>
+          } @else {
+            <li>
+              <a routerLink="/auth/connexion" (click)="fermerMenuMobile()" class="block px-space-3 py-space-3 rounded-lg font-body text-body-base text-primary font-bold hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Connexion</a>
+            </li>
+            <li>
+              <a routerLink="/auth/inscription" (click)="fermerMenuMobile()" class="block px-space-3 py-space-3 rounded-lg font-body text-body-base bg-primary text-on-primary text-center hover:bg-on-primary-fixed-variant focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">Inscription</a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
   </nav>
 
   <main class="max-w-7xl mx-auto w-full">

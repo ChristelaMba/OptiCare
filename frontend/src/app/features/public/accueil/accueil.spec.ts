@@ -145,4 +145,39 @@ describe('Accueil', () => {
     sessionStorage.clear();
     localStorage.clear();
   });
+
+  it("menu mobile : fermé par défaut, le bouton l'ouvre (aria-expanded) avec 4 liens, Échap le ferme", async () => {
+    const el = await afficherCabinets([]);
+    const bouton = el.querySelector('button[aria-controls="menu-mobile"]') as HTMLButtonElement;
+
+    expect(bouton.getAttribute('aria-expanded')).toBe('false');
+    expect(el.querySelector('#menu-mobile')).toBeNull();
+
+    bouton.click();
+    fixture.detectChanges();
+
+    const menu = el.querySelector('#menu-mobile') as HTMLElement;
+    expect(bouton.getAttribute('aria-expanded')).toBe('true');
+    expect([...menu.querySelectorAll('a')].map((a) => a.textContent?.trim())).toEqual(['Services', 'Cabinets', 'Connexion', 'Inscription']);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('#menu-mobile')).toBeNull();
+  });
+
+  it('menu mobile, utilisateur connecté : espace + déconnexion à la place de Connexion / Inscription', async () => {
+    TestBed.inject(Auth).simulerConnexion('patient');
+    const el = await afficherCabinets([]);
+
+    (el.querySelector('button[aria-controls="menu-mobile"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const menu = el.querySelector('#menu-mobile') as HTMLElement;
+
+    expect(menu.textContent).toContain('Mon espace');
+    expect(menu.textContent).toContain('Se déconnecter');
+    expect(menu.textContent).not.toContain('Inscription');
+
+    sessionStorage.clear();
+    localStorage.clear();
+  });
 });

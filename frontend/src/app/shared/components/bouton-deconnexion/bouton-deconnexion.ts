@@ -12,7 +12,7 @@ import { Auth } from '../../../core/services/auth';
 @Component({
   selector: 'app-bouton-deconnexion',
   template: `
-    <button type="button" [class]="classe()" (click)="deconnecter()">
+    <button type="button" [class]="classe()" [attr.aria-label]="libelleAria()" (click)="deconnecter()">
       <ng-content>Se déconnecter</ng-content>
     </button>
   `,
@@ -23,6 +23,9 @@ export class BoutonDeconnexion {
   private readonly router = inject(Router);
 
   readonly classe = input('');
+
+  /** Libellé lu par les lecteurs d'écran (utile quand le texte visible est réduit à une icône). */
+  readonly libelleAria = input('Se déconnecter');
 
   deconnecter(): void {
     this.auth.logout();

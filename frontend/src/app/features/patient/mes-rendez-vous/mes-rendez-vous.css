@@ -1522,3 +1522,24 @@ font-size: 20px;
 line-height: 1;
 cursor: pointer;
 }
+
+
+/* « Reprogrammer » : désactivé en attendant de vrais créneaux (voir le TODO du gabarit) */
+.action-btn:disabled {
+opacity: 0.55;
+cursor: not-allowed;
+}
+
+.action-soon {
+margin-left: 6px;
+padding: 1px 7px;
+
+border-radius: 999px;
+
+background: rgba(100, 116, 139, 0.15);
+
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+}

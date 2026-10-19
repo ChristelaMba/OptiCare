@@ -111,4 +111,18 @@ describe('RechercheCabinets', () => {
     expect(footer.querySelectorAll('a[href="#"]').length).toBe(0);
     expect(footer.querySelectorAll('[aria-disabled="true"]').length).toBe(5);
   });
+
+  it("filtre « Quartier » masqué quand aucun cabinet n'a de quartier (pas de « Chargement… » permanent)", () => {
+    component['cabinets'].set(component['cabinets']().map((c) => ({ ...c, quartier: '' })));
+    fixture.detectChanges();
+    const texte = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(component.quartiersDisponibles()).toEqual([]);
+    expect(texte).not.toContain('Quartier');
+    expect(texte).not.toContain('Chargement…');
+  });
+
+  it('filtre « Quartier » affiché quand au moins un quartier existe', () => {
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Quartier');
+  });
 });

@@ -60,4 +60,11 @@ describe('OpticienLayout', () => {
     expect(el.querySelector('.notification-panel')?.textContent).toContain('Aucune notification pour le moment.');
     expect(el.querySelectorAll('.notification-item').length).toBe(0);
   });
+
+  it('mode clair uniquement : pas de bouton de bascule clair/sombre', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('[aria-label="Changer le thème"]')).toBeNull();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
 });

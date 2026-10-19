@@ -1,10 +1,12 @@
-import { AfterViewInit, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ActionsSession } from '../actions-session/actions-session';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
 import { catchError, forkJoin, of } from 'rxjs';
 
+import { Auth } from '../../../core/services/auth';
 import { Avis as AvisService } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
@@ -41,13 +43,37 @@ type IdSection = 'specialites' | 'cabinets-partenaires';
  */
 @Component({
   selector: 'app-accueil',
-  imports: [DecimalPipe, RouterLink, ActionsSession, LogoPiedDePage],
+  imports: [DecimalPipe, RouterLink, ActionsSession, BoutonDeconnexion, LogoPiedDePage],
   templateUrl: './accueil.html',
   styleUrl: './accueil.css',
 })
 export class Accueil implements OnInit, AfterViewInit, OnDestroy {
   private readonly cabinetService = inject(CabinetService);
   private readonly avisService = inject(AvisService);
+  private readonly auth = inject(Auth);
+
+  /** Menu de navigation mobile (< md) : ouvert/fermé par le bouton menu, fermé par Échap ou un clic sur un lien. */
+  readonly menuMobileOuvert = signal(false);
+
+  readonly utilisateurConnecte = computed(() => (this.auth.estConnecte() ? this.auth.utilisateur() : null));
+
+  readonly espaceUtilisateur = computed(() => {
+    const u = this.utilisateurConnecte();
+    return u ? this.auth.routeParDefaut(u.role) : '/';
+  });
+
+  basculerMenuMobile(): void {
+    this.menuMobileOuvert.update((ouvert) => !ouvert);
+  }
+
+  fermerMenuMobile(): void {
+    this.menuMobileOuvert.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  fermerMenuMobileAvecEchap(): void {
+    this.menuMobileOuvert.set(false);
+  }
 
   /**
    * Avis réels (`GET /cabinets/{id}/avis`). La section « Avis de nos patients »

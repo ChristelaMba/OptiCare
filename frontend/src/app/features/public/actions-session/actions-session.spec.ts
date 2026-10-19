@@ -68,4 +68,13 @@ describe('ActionsSession', () => {
 
     expect(el.querySelector('app-bouton-deconnexion')).toBeNull();
   });
+
+  it('en-tête mobile : « Se déconnecter » ne passe pas à la ligne et a un libellé accessible', () => {
+    const el = creer('patient');
+    const bouton = el.querySelector('app-bouton-deconnexion button') as HTMLButtonElement;
+
+    expect(bouton.className).toContain('whitespace-nowrap');
+    expect(bouton.getAttribute('aria-label')).toBe('Se déconnecter');
+    expect(el.querySelector('app-bouton-deconnexion .material-symbols-outlined')?.textContent).toContain('logout');
+  });
 });

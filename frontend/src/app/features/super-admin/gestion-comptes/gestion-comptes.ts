@@ -68,7 +68,7 @@ export class GestionComptes implements OnInit {
       const correspondTexte =
         !texte ||
         `${u.prenom} ${u.nom}`.toLowerCase().includes(texte) ||
-        u.email.toLowerCase().includes(texte);
+        (u.email ?? '').toLowerCase().includes(texte);
       const correspondRole = role === 'tous' || u.role === role;
       const correspondStatut = statut === 'tous' || (statut === 'actif' ? u.actif : !u.actif);
       return correspondTexte && correspondRole && correspondStatut;

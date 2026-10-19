@@ -126,7 +126,7 @@
 
           <!-- Email -->
           <div>
-            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="email">Email</label>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="email">Email <span class="text-text-muted">(facultatif)</span></label>
             <input
               id="email"
               type="email"
@@ -135,13 +135,13 @@
               class="w-full h-11 px-4 rounded-lg border border-border-subtle bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body text-body-base transition-shadow mt-space-2"
             />
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Un email valide est requis.</p>
+              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Le format de l'email est invalide.</p>
             }
           </div>
 
           <!-- Date de naissance -->
           <div>
-            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="dateNaissance">Date de naissance</label>
+            <label class="block font-body text-label-sm text-on-surface-variant mb-1" for="dateNaissance">Date de naissance <span class="text-text-muted">(facultatif)</span></label>
             <input
               id="dateNaissance"
               type="date"
@@ -154,8 +154,6 @@
               <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">La date de naissance ne peut pas être dans le futur.</p>
             } @else if (form.get('dateNaissance')?.hasError('dateNaissanceInvraisemblable') && form.get('dateNaissance')?.touched) {
               <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">Cette date de naissance semble incorrecte.</p>
-            } @else if (form.get('dateNaissance')?.invalid && form.get('dateNaissance')?.touched) {
-              <p class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 font-body text-label-sm text-error">La date de naissance est requise.</p>
             }
           </div>
 

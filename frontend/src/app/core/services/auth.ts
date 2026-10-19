@@ -91,7 +91,7 @@ export class Auth {
       role: u.role,
       nom: u.nom,
       prenom: u.prenom,
-      email: u.email,
+      email: u.email ?? '', // un patient peut n'avoir aucun email : jamais null dans la session
       telephone: u.telephone,
       ville: u.ville,
       cabinetId: u.cabinet_id != null ? String(u.cabinet_id) : undefined,

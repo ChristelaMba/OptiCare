@@ -84,4 +84,37 @@ describe('PatientLayout', () => {
 
     expect(el.querySelector('.sidebar-logout app-bouton-deconnexion')).not.toBeNull();
   });
+
+  it('mode clair uniquement : plus de bouton de bascule clair/sombre, plus de classe dark-mode', () => {
+    localStorage.setItem('opticare-theme', 'dark');
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('.theme-button, .mobile-theme-button')).toBeNull();
+    expect(el.querySelector('[aria-label*="mode sombre"], [aria-label*="mode clair"]')).toBeNull();
+    expect(el.querySelector('.dark-mode')).toBeNull();
+  });
+
+  it("le menu de l'avatar se ferme au clic en dehors et avec Échap, mais pas au clic dedans", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const ouvrir = () => {
+      (el.querySelector('button.topbar-profile') as HTMLButtonElement).click();
+      fixture.detectChanges();
+    };
+
+    ouvrir();
+    expect(el.querySelector('.profile-dropdown')).not.toBeNull();
+
+    (el.querySelector('.profile-dropdown-identity') as HTMLElement).click(); // clic dans le menu
+    fixture.detectChanges();
+    expect(el.querySelector('.profile-dropdown')).not.toBeNull();
+
+    document.body.click(); // clic en dehors
+    fixture.detectChanges();
+    expect(el.querySelector('.profile-dropdown')).toBeNull();
+
+    ouvrir();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('.profile-dropdown')).toBeNull();
+  });
 });

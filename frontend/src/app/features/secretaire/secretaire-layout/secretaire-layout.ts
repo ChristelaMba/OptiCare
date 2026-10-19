@@ -52,31 +52,6 @@ export class SecretaireLayout {
 
 
   /* =====================================================
-     MODE SOMBRE
-  ====================================================== */
-
-  readonly modeSombre = signal(false);
-
-
-  /* =====================================================
-     CONSTRUCTEUR
-  ====================================================== */
-
-  constructor() {
-
-    const theme =
-      localStorage.getItem('opticare-theme');
-
-    if (theme === 'dark') {
-
-      this.modeSombre.set(true);
-
-    }
-
-  }
-
-
-  /* =====================================================
      MENU MOBILE
   ====================================================== */
 
@@ -114,26 +89,6 @@ export class SecretaireLayout {
   fermerEspace(): void {
 
     this.espaceOuvert.set(false);
-
-  }
-
-
-  /* =====================================================
-     MODE SOMBRE / CLAIR
-  ====================================================== */
-
-  toggleTheme(): void {
-
-    this.modeSombre.update(
-      value => !value
-    );
-
-    localStorage.setItem(
-      'opticare-theme',
-      this.modeSombre()
-        ? 'dark'
-        : 'light'
-    );
 
   }
 
