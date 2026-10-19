@@ -44,14 +44,17 @@ export class PatientLayout implements OnInit {
       return;
     }
 
-    this.auth.chargerUtilisateurConnecte().subscribe({
-      error: (erreur) => {
-        console.error(
-          'Impossible de récupérer les informations de l’utilisateur :',
-          erreur
-        );
-      },
-    });
+   this.auth.chargerUtilisateurConnecte().subscribe({
+  next: (utilisateur) => {
+    console.log('[OptiCare] Utilisateur chargé :', utilisateur);
+  },
+  error: (erreur) => {
+    console.error(
+      '[OptiCare] Erreur de récupération du compte :',
+      erreur
+    );
+  },
+});
 
     this.notifications.chargerCompteur().subscribe({
       error: (erreur) => {

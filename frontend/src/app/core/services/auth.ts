@@ -1,7 +1,7 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
-
+import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { libelleRole, RoleUtilisateur, Utilisateur } from '../../models/utilisateur.model';
 import {
@@ -64,51 +64,73 @@ export class Auth {
    * (localStorage) ; sinon elle est effacée à la fermeture de l'onglet (sessionStorage).
    */
   
-  /**
-   * Recharge les informations de l'utilisateur connecté depuis le backend.
-   * Le token est transmis automatiquement si l'intercepteur HTTP est configuré.
-   */
-  chargerUtilisateurConnecte(): Observable<Utilisateur> {
-    return this.http
-      .get<{
-        status?: string;
-        message?: string;
-        data?: {
-          user?: ApiUtilisateurBrut;
-        } | ApiUtilisateurBrut;
-        user?: ApiUtilisateurBrut;
-      }>(`${BASE_URL}/user`)
-      .pipe(
-        map((reponse) => {
-          const data = reponse.data;
+  
+chargerUtilisateurConnecte(): Observable<Utilisateur> {
+  const token = this.tokenSignal();
 
-          const utilisateurBrut =
-            (data && 'user' in data ? data.user : data) ??
-            reponse.user;
-
-          if (!utilisateurBrut || !('id' in utilisateurBrut)) {
-            throw new Error(
-              'Les informations de l’utilisateur sont absentes de la réponse API.'
-            );
-          }
-
-          return Auth.normaliserUtilisateur(utilisateurBrut);
-        }),
-        tap((utilisateur) => {
-          this.utilisateurSignal.set(utilisateur);
-
-          // Conserve le même type de stockage que celui de la session active.
-          const stockage = localStorage.getItem(CLE_TOKEN)
-            ? localStorage
-            : sessionStorage;
-
-          stockage.setItem(
-            CLE_UTILISATEUR,
-            JSON.stringify(utilisateur)
-          );
-        })
-      );
+  if (!token) {
+    throw new Error('Aucun token de connexion disponible.');
   }
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/json',
+  });
+
+  return this.http
+    .get<{
+      status?: string;
+      message?: string;
+      data?: { user?: ApiUtilisateurBrut } | ApiUtilisateurBrut;
+      user?: ApiUtilisateurBrut;
+    }>(`${BASE_URL}/user`, { headers })
+    .pipe(
+      tap((reponse) => {
+        console.log('[OptiCare] Réponse brute de /user :', reponse);
+      }),
+
+      map((reponse) => {
+        const data = reponse.data;
+
+        const utilisateurBrut =
+          (data && 'user' in data ? data.user : data) ??
+          reponse.user;
+
+        if (
+          !utilisateurBrut ||
+          !('id' in utilisateurBrut) ||
+          utilisateurBrut.nom == null ||
+          utilisateurBrut.prenom == null
+        ) {
+          throw new Error(
+            'La réponse de /user ne contient pas les informations attendues : id, nom et prenom.'
+          );
+        }
+
+        return Auth.normaliserUtilisateur(utilisateurBrut);
+      }),
+
+      tap((utilisateur) => {
+        this.utilisateurSignal.set(utilisateur);
+
+        const stockage = localStorage.getItem(CLE_TOKEN)
+          ? localStorage
+          : sessionStorage;
+
+        stockage.setItem(
+          CLE_UTILISATEUR,
+          JSON.stringify(utilisateur)
+        );
+
+        console.log(
+          '[OptiCare] Nom actualisé :',
+          utilisateur.prenom,
+          utilisateur.nom
+        );
+      })
+    );
+}
+
 
   login(payload: ConnexionPayload, seSouvenir: boolean): Observable<AuthResponse> {
     return this.http
