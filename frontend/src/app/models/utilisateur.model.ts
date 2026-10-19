@@ -93,3 +93,30 @@ export interface ApiComptesEnveloppe {
     };
   };
 }
+
+/** Employé d'un cabinet (`data.employes[]` / `data.employe` de ROUTES-API-LIONEL §12). */
+export interface Employe {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string | null;
+  telephone: string;
+  ville: string;
+  role: RoleUtilisateur;
+  poste: string | null;
+  statutEmploye: string | null;
+  actif: boolean;
+}
+
+export interface ApiEmployeBrut {
+  id: number;
+  nom: string;
+  prenom: string;
+  email?: string | null;
+  telephone: string;
+  ville: string;
+  role: RoleUtilisateur;
+  poste?: string | null;
+  statut_employe?: string | null;
+  is_active: boolean;
+}
