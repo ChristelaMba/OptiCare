@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { NEVER } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 import { Auth } from '../../../core/services/auth';
+import { AuthResponse } from '../../../models/auth.model';
 
 import { InscriptionPatient } from './inscription-patient';
 
@@ -99,5 +100,16 @@ describe('InscriptionPatient', () => {
 
   it("le libellé indique que l'email est facultatif", () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('label[for="email"]')?.textContent).toContain('facultatif');
+  });
+
+  it('après une inscription réussie : redirection vers /patient/rendez-vous', () => {
+    const naviguer = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(Auth), 'registerPatient').mockReturnValue(of({} as unknown as AuthResponse));
+
+    remplir('');
+    component.onSubmit();
+
+    expect(naviguer).toHaveBeenCalledWith('/patient/rendez-vous');
+    expect(naviguer).not.toHaveBeenCalledWith('/patient/completer-dossier-visuel');
   });
 });

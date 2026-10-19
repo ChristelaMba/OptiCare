@@ -694,6 +694,10 @@
     </div>
 
 
+    @if (erreurAction()) {
+      <p class="modal-error" role="alert">{{ erreurAction() }}</p>
+    }
+
     <!-- ACTIONS -->
 
     <div class="modal-actions">

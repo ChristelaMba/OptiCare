@@ -1,5 +1,5 @@
-import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { delay, Observable, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { rendezVousFactices, RendezVousAffichage } from '../mocks/rendez-vous-mock-data';
@@ -25,12 +25,6 @@ function ajouterMinutes(heure: string, minutes: number): string {
 
 function reponse<T>(body: T, status = 200): Observable<HttpResponse<T>> {
   return of(new HttpResponse({ body, status })).pipe(delay(LATENCE_MS));
-}
-
-function erreur404(url: string): Observable<never> {
-  return throwError(() => new HttpErrorResponse({ status: 404, url, error: { message: 'Rendez-vous introuvable' } })).pipe(
-    delay(LATENCE_MS),
-  );
 }
 
 /**
@@ -80,22 +74,6 @@ export const mockRendezVousInterceptor: HttpInterceptorFn = (req, next) => {
     // côté mock — juste de quoi peupler l'écran de façon plausible.
     // 'libre' exclu : état de créneau, pas un rendez-vous du patient.
     return reponse(rendezVousFactices.filter((rdv) => rdv.statut !== 'libre').slice(0, 6));
-  }
-
-  // GET /cabinets/{id}/rendezvous
-  const matchListerParCabinet = req.url.match(new RegExp(`^${BASE_URL}/cabinets/([^/]+)/rendezvous$`));
-  if (req.method === 'GET' && matchListerParCabinet) {
-    const cabinetId = matchListerParCabinet[1];
-    return reponse(rendezVousFactices.filter((rdv) => rdv.cabinetId === cabinetId));
-  }
-
-  // PATCH /rendezvous/{id}
-  const matchDetail = req.url.match(new RegExp(`^${BASE_URL}/rendezvous/([^/]+)$`));
-  if (req.method === 'PATCH' && matchDetail) {
-    const rdv = rendezVousFactices.find((r) => r.id === matchDetail[1]);
-    if (!rdv) return erreur404(req.url);
-    Object.assign(rdv, req.body);
-    return reponse(rdv);
   }
 
   return next(req);

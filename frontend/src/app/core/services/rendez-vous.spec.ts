@@ -169,4 +169,81 @@ describe('RendezVousService', () => {
       { jourSemaine: 6, heureDebut: '09:00', heureFin: '13:00', estActif: false },
     ]);
   });
+
+  const RDV_CABINET = {
+    ...RDV_BRUT,
+    id: 177,
+    cabinet_id: 6,
+    patient_id: 47,
+    statut: 'reserve',
+    source: 'visiteur',
+    visiteur_nom: 'Biyong',
+    visiteur_prenom: 'Marc',
+    visiteur_telephone: '+237600000202',
+    cabinet: undefined,
+    patient: { id: 47, nom: 'Biyong', prenom: 'Marc', telephone: '+237600000202' },
+  };
+
+  it('listerParCabinet() : GET /cabinets/{id}/rdv sans paramètre, patient imbriqué mappé', () => {
+    configurer(null);
+    let resultat: unknown;
+    service.listerParCabinet('6').subscribe((r) => (resultat = r));
+
+    const req = http.expectOne((r) => r.url.endsWith('/cabinets/6/rdv'));
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys()).toEqual([]);
+    req.flush({ status: 'success', message: '', data: { rdvs: [RDV_CABINET] } });
+
+    expect(resultat).toEqual([
+      {
+        id: '177',
+        cabinetId: '6',
+        cabinetNom: '',
+        cabinetAdresse: undefined,
+        motif: '',
+        date: '2026-10-21',
+        heureDebut: '10:00',
+        heureFin: '10:30',
+        statut: 'reserve',
+        nomPatientAffiche: 'Marc Biyong',
+        patientTelephone: '+237600000202',
+        source: 'visiteur',
+      },
+    ]);
+  });
+
+  it('listerParCabinet() : sans patient, le nom vient des champs visiteur_*', () => {
+    configurer(null);
+    let resultat: { nomPatientAffiche?: string; patientTelephone?: string }[] = [];
+    service.listerParCabinet('6').subscribe((r) => (resultat = r));
+
+    http.expectOne((r) => r.url.endsWith('/cabinets/6/rdv')).flush({
+      status: 'success',
+      message: '',
+      data: { rdvs: [{ ...RDV_CABINET, patient: null }] },
+    });
+
+    expect(resultat[0].nomPatientAffiche).toBe('Marc Biyong');
+    expect(resultat[0].patientTelephone).toBe('+237600000202');
+  });
+
+  const ROUTES_STATUT: [string, string][] = [
+    ['confirme', 'confirmer'],
+    ['termine', 'terminer'],
+    ['non_honore', 'non-honore'],
+    ['annule', 'annuler'],
+  ];
+  for (const [statut, route] of ROUTES_STATUT) {
+    it(`mettreAJourStatut('${statut}') : PUT /rdv/{id}/${route}`, () => {
+      configurer(null);
+      let resultat: unknown;
+      service.mettreAJourStatut('177', statut as 'confirme').subscribe((r) => (resultat = r));
+
+      const req = http.expectOne((r) => r.url.endsWith(`/rdv/177/${route}`));
+      expect(req.request.method).toBe('PUT');
+      req.flush({ status: 'success', message: '', data: { rdv: { ...RDV_CABINET, statut } } });
+
+      expect(resultat).toMatchObject({ id: '177', statut });
+    });
+  }
 });
