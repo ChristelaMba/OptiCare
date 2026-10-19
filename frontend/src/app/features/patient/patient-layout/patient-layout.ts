@@ -1,8 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
+import{NotificationState} from '../../../core/services/notification-state';
 
 export class PatientLayout {
   private readonly auth = inject(Auth);
+  private readonly notifications = inject(NotificationState);
 
   readonly nomComplet = computed(() => {
     const u = this.auth.utilisateur();
