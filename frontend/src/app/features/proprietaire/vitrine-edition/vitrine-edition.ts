@@ -1,12 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
+import { MenuProprietaire } from '../../../shared/components/menu-proprietaire/menu-proprietaire';
 
 type JourSemaine = HoraireOuverture['jour'];
 
@@ -34,7 +32,7 @@ const LABEL_STATUT: Record<CabinetModel['status'], string> = {
  */
 @Component({
   selector: 'app-vitrine-edition',
-  imports: [LogoOpticare, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
+  imports: [MenuProprietaire, ReactiveFormsModule],
   templateUrl: './vitrine-edition.html',
   styleUrl: './vitrine-edition.css',
 })

@@ -1,14 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { CreerEmployePayload, Personnel } from '../../../core/services/personnel';
 import { erreursParChamp, messageErreurApi } from '../../../core/utils/api-errors';
 import { Employe, libelleRole, RoleUtilisateur } from '../../../models/utilisateur.model';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
+import { MenuProprietaire } from '../../../shared/components/menu-proprietaire/menu-proprietaire';
 
 /** Les deux mots de passe doivent être identiques. */
 function motsDePasseIdentiques(groupe: AbstractControl): ValidationErrors | null {
@@ -24,7 +22,7 @@ function motsDePasseIdentiques(groupe: AbstractControl): ValidationErrors | null
  */
 @Component({
   selector: 'app-gestion-employes',
-  imports: [LogoOpticare, FormsModule, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
+  imports: [MenuProprietaire, FormsModule, ReactiveFormsModule],
   templateUrl: './gestion-employes.html',
   styleUrl: './gestion-employes.css',
 })

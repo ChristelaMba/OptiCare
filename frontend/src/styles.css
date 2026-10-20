@@ -187,3 +187,16 @@ body {
     min-height: 40px !important;
   }
 }
+
+
+/*
+ * Téléphone : dégagement bas de page sur les écrans à barre latérale (propriétaire,
+ * opticien, secrétaire). Sans lui, la dernière carte reste collée (voire coupée) au bas
+ * de l'écran. `env(safe-area-inset-bottom)` protège des barres gestuelles iOS/Android.
+ * 48 px = même valeur que `--spacing-margin-desktop` (md:pb-margin-desktop).
+ */
+@media (max-width: 767px) {
+  .page-bottom-space {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+}
