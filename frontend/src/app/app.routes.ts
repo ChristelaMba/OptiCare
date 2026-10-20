@@ -157,6 +157,28 @@ export const routes: Routes = [
   // SUPER ADMIN
   // =====================================================
 
+  // Préfixe officiel de l'espace Super Admin (demande du 20/10/2026) :
+  // /admin/dashboard, /admin/cabinets, /admin/comptes, /admin/audit-logs,
+  // /admin/parametres. Toutes ces routes vivent sous le layout partagé
+  // SuperAdminLayout (voir features/super-admin/admin.routes.ts).
+  {
+    path: 'admin',
+
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+
+    data: {
+      role: 'super_admin'
+    },
+
+    loadChildren: () =>
+      import('./features/super-admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)
+  },
+
+  // Ancien préfixe, conservé : chaque entrée redirige vers /admin/…
   {
     path: 'super-admin',
 

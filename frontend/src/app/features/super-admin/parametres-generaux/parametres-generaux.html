@@ -1,0 +1,223 @@
+<!-- Paramètres généraux — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-4xl">
+  <!-- En-tête -->
+  <div>
+    <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface mb-1">Paramètres généraux</h1>
+    <p class="font-body text-body-lg text-text-muted">Configuration globale de la plateforme OptiCare.</p>
+  </div>
+
+  <!-- Bandeau « données de démonstration » -->
+  <div class="rounded-lg bg-info/10 border border-info/30 px-space-4 py-space-3 flex items-start gap-space-2">
+    <span class="material-symbols-outlined text-info text-[20px] shrink-0">info</span>
+    <p class="font-body text-body-base text-on-surface-variant">
+      Données de démonstration et enregistrement local : aucune route serveur n'existe
+      encore pour ces paramètres. Les modifications ne sont pas transmises à l'API.
+    </p>
+  </div>
+
+  @if (erreur()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+    </div>
+  }
+
+  @if (succes()) {
+    <div class="rounded-lg bg-secondary-container px-space-4 py-space-3" role="status">
+      <p class="font-body text-body-base text-on-secondary-container">{{ succes() }}</p>
+    </div>
+  }
+
+  @if (chargement()) {
+    <p class="font-body text-body-base text-text-muted">Chargement des paramètres…</p>
+  } @else {
+    <!-- Onglets -->
+    <div class="border-b border-border-subtle overflow-x-auto">
+      <nav class="flex gap-space-2 min-w-max" role="tablist" aria-label="Sections des paramètres">
+        @for (onglet of onglets; track onglet.cle) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="ongletActif() === onglet.cle"
+            (click)="changerOnglet(onglet.cle)"
+            class="effet-bouton inline-flex items-center gap-2 px-space-4 py-space-3 border-b-2 font-button text-button transition-colors"
+            [class.border-primary]="ongletActif() === onglet.cle"
+            [class.text-primary]="ongletActif() === onglet.cle"
+            [class.border-transparent]="ongletActif() !== onglet.cle"
+            [class.text-text-muted]="ongletActif() !== onglet.cle"
+          >
+            <span class="material-symbols-outlined text-[18px]">{{ onglet.icone }}</span>
+            {{ onglet.libelle }}
+          </button>
+        }
+      </nav>
+    </div>
+
+    <!-- Onglet Général -->
+    @if (ongletActif() === 'general') {
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col gap-space-6" data-onglet="general">
+        <div class="flex flex-col gap-space-2">
+          <label for="nom-plateforme" class="font-body text-label-sm text-on-surface-variant">Nom de la plateforme</label>
+          <input
+            id="nom-plateforme"
+            type="text"
+            [ngModel]="parametres().nomPlateforme"
+            (ngModelChange)="majParametre('nomPlateforme', $event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div class="flex flex-col gap-space-2">
+          <label for="email-support" class="font-body text-label-sm text-on-surface-variant">E-mail de support</label>
+          <input
+            id="email-support"
+            type="email"
+            [ngModel]="parametres().emailSupport"
+            (ngModelChange)="majParametre('emailSupport', $event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <p class="font-body text-label-sm text-text-muted">Adresse affichée aux utilisateurs pour toute demande d'assistance.</p>
+        </div>
+
+        <div class="flex flex-col gap-space-2">
+          <label for="devise" class="font-body text-label-sm text-on-surface-variant">Devise</label>
+          <select
+            id="devise"
+            [ngModel]="parametres().devise"
+            (ngModelChange)="majParametre('devise', $event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="FCFA">FCFA — Franc CFA</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="USD">USD — Dollar américain</option>
+          </select>
+        </div>
+      </div>
+    }
+
+    <!-- Onglet Sécurité -->
+    @if (ongletActif() === 'securite') {
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col gap-space-6" data-onglet="securite">
+        <div class="flex flex-col gap-space-2">
+          <label for="delai-session" class="font-body text-label-sm text-on-surface-variant">Délai d'expiration de session (minutes)</label>
+          <input
+            id="delai-session"
+            type="number"
+            min="5"
+            max="1440"
+            [ngModel]="parametres().delaiSessionMinutes"
+            (ngModelChange)="majParametre('delaiSessionMinutes', +$event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <p class="font-body text-label-sm text-text-muted">Durée d'inactivité avant déconnexion automatique (5 à 1440 minutes).</p>
+        </div>
+
+        <div class="flex flex-col gap-space-2">
+          <label for="tentatives" class="font-body text-label-sm text-on-surface-variant">Tentatives de connexion maximales</label>
+          <input
+            id="tentatives"
+            type="number"
+            min="1"
+            max="20"
+            [ngModel]="parametres().tentativesConnexionMax"
+            (ngModelChange)="majParametre('tentativesConnexionMax', +$event)"
+            class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <p class="font-body text-label-sm text-text-muted">Nombre d'échecs avant blocage temporaire du compte.</p>
+        </div>
+
+        <label class="flex items-start gap-space-3 cursor-pointer">
+          <input
+            type="checkbox"
+            [ngModel]="parametres().doubleAuthentificationObligatoire"
+            (ngModelChange)="majParametre('doubleAuthentificationObligatoire', $event)"
+            class="mt-0.5 w-5 h-5 rounded border-border-subtle text-primary focus:ring-primary"
+          />
+          <span class="flex flex-col gap-0.5">
+            <span class="font-body text-body-base text-on-surface">Double authentification obligatoire</span>
+            <span class="font-body text-label-sm text-text-muted">Imposer un second facteur à tous les comptes administrateurs.</span>
+          </span>
+        </label>
+      </div>
+    }
+
+    <!-- Onglet Modèles de messages -->
+    @if (ongletActif() === 'messages') {
+      <div class="flex flex-col gap-space-4" data-onglet="messages">
+        @for (modele of modeles(); track modele.cle; let i = $index) {
+          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col gap-space-4">
+            <h3 class="font-heading text-headline-h3 text-on-surface">{{ modele.libelle }}</h3>
+
+            <div class="flex flex-col gap-space-2">
+              <label [attr.for]="'objet-' + modele.cle" class="font-body text-label-sm text-on-surface-variant">Objet</label>
+              <input
+                [id]="'objet-' + modele.cle"
+                type="text"
+                [ngModel]="modele.objet"
+                (ngModelChange)="majModele(i, 'objet', $event)"
+                class="h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div class="flex flex-col gap-space-2">
+              <label [attr.for]="'corps-' + modele.cle" class="font-body text-label-sm text-on-surface-variant">Corps du message</label>
+              <textarea
+                [id]="'corps-' + modele.cle"
+                rows="4"
+                [ngModel]="modele.corps"
+                (ngModelChange)="majModele(i, 'corps', $event)"
+                class="px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+              ></textarea>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Onglet Maintenance -->
+    @if (ongletActif() === 'maintenance') {
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col gap-space-6" data-onglet="maintenance">
+        <label class="flex items-start gap-space-3 cursor-pointer">
+          <input
+            type="checkbox"
+            [ngModel]="parametres().maintenanceActive"
+            (ngModelChange)="majParametre('maintenanceActive', $event)"
+            class="mt-0.5 w-5 h-5 rounded border-border-subtle text-primary focus:ring-primary"
+          />
+          <span class="flex flex-col gap-0.5">
+            <span class="font-body text-body-base text-on-surface">Activer le mode maintenance</span>
+            <span class="font-body text-label-sm text-text-muted">La plateforme affichera la bannière ci-dessous et bloquera les accès non administrateur.</span>
+          </span>
+        </label>
+
+        @if (parametres().maintenanceActive) {
+          <div class="rounded-lg bg-warning/20 border border-warning/40 px-space-4 py-space-3 flex items-start gap-space-2">
+            <span class="material-symbols-outlined text-warning text-[20px] shrink-0">warning</span>
+            <p class="font-body text-body-base text-on-surface-variant">Le mode maintenance est actuellement <strong>actif</strong>.</p>
+          </div>
+        }
+
+        <div class="flex flex-col gap-space-2">
+          <label for="message-maintenance" class="font-body text-label-sm text-on-surface-variant">Message de maintenance (bannière globale)</label>
+          <textarea
+            id="message-maintenance"
+            rows="3"
+            [ngModel]="parametres().messageMaintenance"
+            (ngModelChange)="majParametre('messageMaintenance', $event)"
+            class="px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+          ></textarea>
+        </div>
+      </div>
+    }
+
+    <!-- Barre d'enregistrement -->
+    <div class="flex justify-end">
+      <button
+        type="button"
+        (click)="enregistrer()"
+        class="effet-bouton px-space-6 py-space-3 rounded-lg bg-primary text-on-primary font-button text-button hover:bg-primary-container shadow-sm"
+      >
+        Enregistrer les modifications
+      </button>
+    </div>
+  }
+</div>

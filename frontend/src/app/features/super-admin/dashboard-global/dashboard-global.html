@@ -1,0 +1,197 @@
+<!-- Dashboard global de la plateforme — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-7xl">
+  <!-- En-tête : titre + indicateur de statut opérationnel -->
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-4">
+    <div>
+      <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface mb-1">Vue d'ensemble de la plateforme</h1>
+      <p class="font-body text-body-lg text-text-muted">Suivi global des cabinets, des comptes et de l'activité d'OptiCare.</p>
+    </div>
+    <div class="flex items-center gap-space-2 bg-surface-container-lowest px-space-4 py-space-2 rounded-full border border-border-subtle shrink-0">
+      @if (chargement()) {
+        <span class="w-2 h-2 rounded-full bg-outline animate-pulse"></span>
+        <span class="font-body text-badge text-text-muted">Chargement…</span>
+      } @else if (erreur()) {
+        <span class="w-2 h-2 rounded-full bg-error"></span>
+        <span class="font-body text-badge text-text-muted">Indisponible</span>
+      } @else {
+        <span class="w-2 h-2 rounded-full bg-success"></span>
+        <span class="font-body text-badge text-on-surface-variant tracking-wide uppercase">Plateforme opérationnelle</span>
+      }
+    </div>
+  </div>
+
+  @if (erreur()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+    </div>
+  }
+
+  @if (chargement()) {
+    <p class="font-body text-body-base text-text-muted">Chargement du tableau de bord…</p>
+  } @else if (donnees(); as d) {
+    <!-- Cartes KPI -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-4" data-testid="kpis">
+      @for (kpi of kpis(); track kpi.cle) {
+        @if (kpi.lien) {
+          <a
+            [routerLink]="kpi.lien"
+            class="effet-carte bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border flex flex-col gap-space-3 min-h-36"
+            [class.border-warning]="kpi.alerte"
+            [class.border-border-subtle]="!kpi.alerte"
+            [attr.data-carte]="kpi.cle"
+          >
+            <div class="flex justify-between items-start gap-space-2">
+              <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">{{ kpi.libelle }}</p>
+              <span
+                class="material-symbols-outlined w-8 h-8 flex items-center justify-center rounded-full text-[18px] shrink-0"
+                [class.text-primary]="!kpi.alerte"
+                [class.bg-primary-fixed]="!kpi.alerte"
+                [class.text-warning]="kpi.alerte"
+              >{{ kpi.icone }}</span>
+            </div>
+            <h3 class="font-heading text-headline-h1 text-on-surface">{{ kpi.valeur }}</h3>
+            @if (kpi.ventilation.length > 0) {
+              <div class="flex flex-wrap gap-x-space-3 gap-y-1 mt-auto">
+                @for (v of kpi.ventilation; track v.libelle) {
+                  <span class="inline-flex items-center gap-1.5 font-body text-label-sm text-text-muted">
+                    <span class="w-2 h-2 rounded-full shrink-0" [class]="v.couleur"></span>
+                    {{ v.total }} {{ v.libelle }}
+                  </span>
+                }
+              </div>
+            }
+            @if (kpi.alerte) {
+              <p class="font-button text-button text-warning mt-auto flex items-center gap-1">
+                À traiter
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </p>
+            }
+          </a>
+        } @else {
+          <div
+            class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col gap-space-3 min-h-36"
+            [attr.data-carte]="kpi.cle"
+          >
+            <div class="flex justify-between items-start gap-space-2">
+              <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">{{ kpi.libelle }}</p>
+              <span class="material-symbols-outlined text-primary bg-primary-fixed w-8 h-8 flex items-center justify-center rounded-full text-[18px] shrink-0">{{ kpi.icone }}</span>
+            </div>
+            <h3 class="font-heading text-headline-h1 text-on-surface">{{ kpi.valeur }}</h3>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Graphiques -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-6">
+      <!-- Évolution des inscriptions -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col" data-bloc="inscriptions">
+        <h3 class="font-heading text-headline-h3 text-on-surface mb-space-6">Nouvelles inscriptions (6 mois)</h3>
+        <div class="flex-1 min-h-[200px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
+          @for (point of d.inscriptions; track point.mois; let dernier = $last) {
+            <div class="flex-1 min-w-0 flex flex-col items-center justify-end h-full" [attr.title]="point.libelle + ' : ' + point.valeur">
+              <span class="font-body text-label-sm text-text-muted mb-1">{{ point.valeur }}</span>
+              <div
+                class="w-full rounded-t transition-colors"
+                [class.bg-primary]="dernier"
+                [class.bg-primary-fixed]="!dernier"
+                [style.height.%]="pourcentage(point, hauteurMaxInscriptions())"
+              ></div>
+              <span class="max-w-full text-center font-body text-label-sm mt-2 capitalize" [class.text-primary]="dernier" [class.font-semibold]="dernier" [class.text-text-disabled]="!dernier">
+                {{ point.libelle }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Évolution des consultations -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col" data-bloc="consultations">
+        <h3 class="font-heading text-headline-h3 text-on-surface mb-space-6">Consultations (6 mois)</h3>
+        <div class="flex-1 min-h-[200px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
+          @for (point of d.consultations; track point.mois; let dernier = $last) {
+            <div class="flex-1 min-w-0 flex flex-col items-center justify-end h-full" [attr.title]="point.libelle + ' : ' + point.valeur">
+              <span class="font-body text-label-sm text-text-muted mb-1">{{ point.valeur }}</span>
+              <div
+                class="w-full rounded-t transition-colors"
+                [class.bg-success]="dernier"
+                [class.bg-secondary-container]="!dernier"
+                [style.height.%]="pourcentage(point, hauteurMaxConsultations())"
+              ></div>
+              <span class="max-w-full text-center font-body text-label-sm mt-2 capitalize" [class.text-success]="dernier" [class.font-semibold]="dernier" [class.text-text-disabled]="!dernier">
+                {{ point.libelle }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Répartition des comptes par rôle -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col" data-bloc="roles">
+        <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Comptes par rôle</h3>
+        <div class="flex flex-col sm:flex-row items-center gap-space-6">
+          <div class="w-28 h-28 rounded-full shrink-0 flex items-center justify-center relative shadow-sm" [style.background]="styleDonutRoles()">
+            <div class="w-20 h-20 bg-surface-container-lowest rounded-full absolute inset-0 m-auto flex items-center justify-center">
+              <span class="material-symbols-outlined text-text-muted">group</span>
+            </div>
+          </div>
+          <div class="flex-1 w-full flex flex-col gap-space-2">
+            @for (role of d.repartitionRoles; track role.role) {
+              <div class="flex items-center justify-between gap-space-2">
+                <span class="inline-flex items-center gap-2 font-body text-body-base text-on-surface-variant">
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" [class]="role.couleur"></span>
+                  {{ role.libelle }}
+                </span>
+                <span class="font-button text-button text-on-surface">{{ role.total }}</span>
+              </div>
+            }
+            <div class="flex items-center justify-between gap-space-2 pt-space-2 border-t border-border-subtle mt-1">
+              <span class="font-body text-body-base text-text-muted">Total</span>
+              <span class="font-button text-button text-on-surface">{{ d.comptesTotal }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cabinets par ville -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col" data-bloc="villes">
+        <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Cabinets par ville</h3>
+        <div class="flex flex-col gap-space-3">
+          @for (v of d.cabinetsParVille; track v.ville) {
+            <div class="flex items-center gap-space-3">
+              <span class="font-body text-body-base text-on-surface-variant w-24 shrink-0 truncate">{{ v.ville }}</span>
+              <div class="flex-1 h-3 rounded-full bg-surface-container overflow-hidden">
+                <div class="h-full rounded-full bg-primary" [style.width.%]="maxCabinetsVille() > 0 ? (v.total / maxCabinetsVille()) * 100 : 0"></div>
+              </div>
+              <span class="font-button text-button text-on-surface w-6 text-right shrink-0">{{ v.total }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Dernières activités -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden" data-bloc="activites">
+      <div class="flex items-center justify-between gap-space-4 px-space-6 py-space-4 border-b border-border-subtle">
+        <h3 class="font-heading text-headline-h3 text-on-surface">Dernières activités</h3>
+        <a routerLink="audit-logs" class="effet-lien font-button text-button text-primary flex items-center gap-1">
+          Journal d'audit
+          <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </a>
+      </div>
+      <ul class="divide-y divide-border-subtle">
+        @for (activite of d.dernieresActivites; track activite.horodatage) {
+          <li class="flex items-start gap-space-3 px-space-6 py-space-4">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5" [class]="severiteClasse(activite.severite)"></span>
+            <div class="min-w-0 flex-1">
+              <p class="font-body text-body-base text-on-surface break-words">{{ activite.description }}</p>
+              <p class="font-body text-label-sm text-text-muted mt-0.5">
+                {{ activite.horodatage | date: 'd MMM y, HH:mm' }} · {{ libelleSeverite[activite.severite] }}
+              </p>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</div>

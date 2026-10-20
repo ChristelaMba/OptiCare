@@ -1,171 +1,200 @@
-<div class="min-h-screen flex flex-col md:flex-row bg-surface-bg text-on-surface font-body">
-  <!-- TopNavBar (mobile) -->
-  <header class="md:hidden w-full h-16 bg-surface-container-lowest flex justify-between items-center px-margin-mobile sticky top-0 z-40 shadow-sm">
-    <app-logo-opticare [hauteur]="28" />
-    <button type="button" (click)="deconnexion()" class="material-symbols-outlined text-text-muted inline-flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="Déconnexion">logout</button>
-  </header>
-
-  <!-- SideNavBar (desktop) -->
-  <nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest py-space-6 border-r border-border-subtle z-50">
-    <div class="px-space-6 mb-space-8">
-      <app-logo-opticare [hauteur]="32" />
-      <p class="font-body text-label-sm text-text-muted mt-1">Super Admin</p>
+<!-- Validation des cabinets — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-7xl">
+  <!-- En-tête -->
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-4">
+    <div>
+      <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface mb-1">Validation des cabinets</h1>
+      <p class="font-body text-body-lg text-text-muted">Gérez les demandes d'inscription des nouveaux cabinets.</p>
     </div>
-    <div class="flex-1 px-space-2 flex flex-col gap-space-1">
-      <a
-        routerLink="/super-admin/validation-cabinets"
-        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
-      >
-        <span class="material-symbols-outlined">verified_user</span>
-        <span class="font-button text-button">Validation des cabinets</span>
-      </a>
-      <a
-        routerLink="/super-admin/gestion-comptes"
-        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
-      >
-        <span class="material-symbols-outlined">manage_accounts</span>
-        <span class="font-button text-button">Gestion des comptes</span>
-      </a>
+    <div class="flex items-center gap-space-2 bg-surface-container-lowest px-space-4 py-space-2 rounded-full border border-border-subtle shrink-0">
+      <span class="material-symbols-outlined text-warning text-[18px]">pending_actions</span>
+      <span class="font-body text-badge text-on-surface-variant tracking-wide uppercase">En attente</span>
+      <span class="bg-warning text-on-primary px-2 py-0.5 rounded-full font-body text-badge ml-1">{{ cabinetsEnAttente().length }}</span>
     </div>
+  </div>
 
-    <!-- Profil + déconnexion en pied de sidebar (comme l'espace opticien) -->
-    <div class="px-space-4 pt-space-4 mt-auto border-t border-border-subtle">
-      <div class="flex items-center gap-space-3">
-        <div class="w-10 h-10 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center font-button text-button uppercase">
-          {{ initiales() }}
-        </div>
-        <div class="min-w-0">
-          <p class="font-button text-button text-on-surface truncate">{{ nomComplet() }}</p>
-          <p class="font-body text-label-sm text-text-muted truncate">{{ roleLibelle() }}</p>
-        </div>
-      </div>
-      <app-bouton-deconnexion
-        classe="effet-bouton w-full mt-space-3 flex items-center gap-space-3 px-space-4 py-space-3 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
-      >
-        <span class="material-symbols-outlined">logout</span>
-        <span class="font-button text-button">Déconnexion</span>
-      </app-bouton-deconnexion>
+  @if (erreur()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreur() }}</p>
     </div>
-  </nav>
+  }
 
-  <!-- Contenu principal -->
-  <main class="flex-1 min-w-0 md:ml-64 w-full px-margin-mobile md:px-margin-desktop py-space-8 md:py-space-12 flex flex-col gap-space-8">
-    <!-- En-tête -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-4">
-      <div>
-        <h1 class="font-heading text-headline-h1-mobile md:text-headline-h1 text-on-surface mb-1">Validation des cabinets</h1>
-        <p class="font-body text-body-lg text-text-muted">Gérez les demandes d'inscription des nouveaux cabinets.</p>
-      </div>
-      <div class="flex items-center gap-space-2 bg-surface-container-lowest px-space-4 py-space-2 rounded-full border border-border-subtle shrink-0">
-        <span class="material-symbols-outlined text-warning text-[18px]">pending_actions</span>
-        <span class="font-body text-badge text-on-surface-variant tracking-wide uppercase">En attente</span>
-        <span class="bg-warning text-on-primary px-2 py-0.5 rounded-full font-body text-badge ml-1">{{ cabinetsEnAttente().length }}</span>
-      </div>
+  @if (succes()) {
+    <div class="rounded-lg bg-secondary-container px-space-4 py-space-3" role="status">
+      <p class="font-body text-body-base text-on-secondary-container">{{ succes() }}</p>
     </div>
+  }
 
-    @if (erreur()) {
-      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3">
-        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
-      </div>
-    }
-
-    @if (chargement()) {
-      <p class="font-body text-body-base text-text-muted">Chargement des cabinets en attente…</p>
-    } @else if (cabinetsEnAttente().length === 0) {
-      <div class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-8 text-center">
-        <span class="material-symbols-outlined text-success text-[40px]">task_alt</span>
-        <p class="font-body text-body-base text-text-muted mt-space-2">Aucun cabinet en attente de validation.</p>
-      </div>
-    } @else {
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-6">
-        @for (cabinet of cabinetsEnAttente(); track cabinet.id) {
-          <div class="effet-carte bg-surface-container-lowest rounded-xl shadow-sm p-space-6 border border-border-subtle flex flex-col gap-space-6">
-            <!-- En-tête carte -->
-            <div class="flex justify-between items-start gap-space-4">
-              <div class="flex gap-space-4">
-                <div class="w-12 h-12 rounded-xl bg-surface-bg flex items-center justify-center shrink-0">
+  @if (chargement()) {
+    <p class="font-body text-body-base text-text-muted">Chargement des cabinets en attente…</p>
+  } @else if (cabinetsEnAttente().length === 0) {
+    <div class="bg-surface-container-lowest rounded-xl border border-border-subtle p-space-8 text-center">
+      <span class="material-symbols-outlined text-success text-[40px]">task_alt</span>
+      <p class="font-body text-body-base text-text-muted mt-space-2">Aucun cabinet en attente de validation.</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-6">
+      @for (cabinet of cabinetsEnAttente(); track cabinet.id) {
+        <div class="effet-carte bg-surface-container-lowest rounded-xl shadow-sm p-space-6 border border-border-subtle flex flex-col gap-space-6">
+          <!-- En-tête carte -->
+          <div class="flex justify-between items-start gap-space-4">
+            <div class="flex gap-space-4 min-w-0">
+              <div class="w-12 h-12 rounded-xl bg-surface-bg flex items-center justify-center shrink-0 overflow-hidden">
+                @if (cabinet.logoUrl) {
+                  <img [src]="cabinet.logoUrl" [alt]="cabinet.nom" class="w-full h-full object-cover rounded-xl" />
+                } @else {
                   <span class="material-symbols-outlined text-primary text-2xl">storefront</span>
-                </div>
-                <div>
-                  <h3 class="font-heading text-headline-h3 text-on-surface">{{ cabinet.nom }}</h3>
-                  <p class="font-body text-body-base text-text-muted flex items-center gap-1 mt-1">
-                    <span class="material-symbols-outlined text-[16px]">call</span> {{ cabinet.telephone }}
-                  </p>
-                </div>
+                }
               </div>
-              <div class="text-right shrink-0 hidden sm:block">
-                <span class="font-body text-label-sm text-text-muted block mb-1">Inscrit le</span>
-                <span class="font-body text-body-base font-medium">{{ cabinet.dateInscription | date: 'd MMM y' }}</span>
+              <div class="min-w-0">
+                <h3 class="font-heading text-headline-h3 text-on-surface truncate">{{ cabinet.nom }}</h3>
+                <p class="font-body text-body-base text-text-muted flex items-center gap-1 mt-1">
+                  <span class="material-symbols-outlined text-[16px]">call</span> {{ cabinet.telephone }}
+                </p>
               </div>
             </div>
-
-            <!-- Infos -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-4 bg-surface-bg p-space-4 rounded-xl border border-border-subtle">
-              <div>
-                <span class="font-body text-label-sm text-text-muted block mb-1 uppercase tracking-wider">Contact</span>
-                <p class="font-body text-body-base text-on-surface break-words">{{ cabinet.telephone }}</p>
-                <p class="font-body text-body-base text-on-surface break-words">{{ cabinet.email }}</p>
-              </div>
-              <div>
-                <span class="font-body text-label-sm text-text-muted block mb-1 uppercase tracking-wider">Adresse</span>
-                <p class="font-body text-body-base text-on-surface">{{ cabinet.adresse }}<br />{{ cabinet.quartier }}, {{ cabinet.ville }}</p>
-              </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <span class="font-body text-label-sm text-text-muted block mb-1">Inscrit le</span>
+              <span class="font-body text-body-base font-medium">{{ cabinet.dateInscription | date: 'd MMM y' }}</span>
             </div>
+          </div>
 
-            <!-- Actions -->
-            @if (cabinetARejeter() === cabinet.id) {
-              <!-- Motif de refus — requis par PUT /admin/cabinets/{id}/reject -->
-              <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col gap-space-3">
-                <label class="font-body text-label-sm text-on-surface-variant">Motif du refus (obligatoire)</label>
-                <textarea
-                  rows="2"
-                  [ngModel]="motifRefus()"
-                  (ngModelChange)="motifRefus.set($event)"
-                  placeholder="Ex. : dossier incomplet, adresse non vérifiable…"
-                  class="w-full px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-error"
-                ></textarea>
-                <div class="flex flex-col sm:flex-row justify-end gap-space-3">
-                  <button
-                    type="button"
-                    [disabled]="actionEnCours() === cabinet.id"
-                    (click)="annulerRejet()"
-                    class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg disabled:opacity-60 disabled:cursor-not-allowed"
+          <!-- Infos -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-4 bg-surface-bg p-space-4 rounded-xl border border-border-subtle">
+            <div>
+              <span class="font-body text-label-sm text-text-muted block mb-1 uppercase tracking-wider">Demandeur</span>
+              @if (cabinet.proprietaire; as p) {
+                <p class="font-body text-body-base text-on-surface break-words">{{ p.prenom }} {{ p.nom }}</p>
+              } @else {
+                <p class="font-body text-body-base text-text-muted">Non renseigné</p>
+              }
+              <p class="font-body text-body-base text-on-surface break-words">{{ cabinet.email }}</p>
+            </div>
+            <div>
+              <span class="font-body text-label-sm text-text-muted block mb-1 uppercase tracking-wider">Adresse</span>
+              <p class="font-body text-body-base text-on-surface">{{ cabinet.adresse }}<br />{{ cabinet.quartier }}, {{ cabinet.ville }}</p>
+            </div>
+          </div>
+
+          <!-- Justificatifs (documents déposés) -->
+          <div class="flex flex-col gap-space-2">
+            <span class="font-body text-label-sm text-text-muted uppercase tracking-wider">Justificatifs</span>
+            @if (cabinet.photos.length > 0) {
+              <div class="flex flex-wrap gap-space-2">
+                @for (photo of cabinet.photos; track photo) {
+                  <a
+                    [href]="photo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="effet-lien inline-flex items-center gap-1.5 px-space-3 py-1.5 rounded-lg border border-border-subtle bg-surface-bg font-body text-label-sm text-primary hover:bg-surface-container"
                   >
-                    Annuler
-                  </button>
-                  <button
-                    type="button"
-                    [disabled]="actionEnCours() === cabinet.id || !motifRefus().trim()"
-                    (click)="confirmerRejet(cabinet.id)"
-                    class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Confirmer le refus' }}
-                  </button>
-                </div>
+                    <span class="material-symbols-outlined text-[16px]">description</span>
+                    Pièce jointe
+                  </a>
+                }
               </div>
             } @else {
-              <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col sm:flex-row justify-end gap-space-3">
-                <button
-                  type="button"
-                  [disabled]="actionEnCours() === cabinet.id"
-                  (click)="ouvrirFormulaireRejet(cabinet.id)"
-                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  Rejeter
-                </button>
-                <button
-                  type="button"
-                  [disabled]="actionEnCours() === cabinet.id"
-                  (click)="valider(cabinet.id)"
-                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Valider' }}
-                </button>
-              </div>
+              <p class="font-body text-label-sm text-text-muted flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px]">info</span>
+                Aucun justificatif déposé pour l'instant.
+              </p>
             }
           </div>
-        }
-      </div>
-    }
-  </main>
+
+          <!-- Actions -->
+          @if (cabinetARejeter() === cabinet.id) {
+            <!-- Motif de refus — requis par PUT /admin/cabinets/{id}/reject -->
+            <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col gap-space-3">
+              <label class="font-body text-label-sm text-on-surface-variant">Motif du refus (obligatoire)</label>
+              <textarea
+                rows="2"
+                [ngModel]="motifRefus()"
+                (ngModelChange)="motifRefus.set($event)"
+                placeholder="Ex. : dossier incomplet, adresse non vérifiable…"
+                class="w-full px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-error"
+              ></textarea>
+              <div class="flex flex-col sm:flex-row justify-end gap-space-3">
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === cabinet.id"
+                  (click)="annulerRejet()"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  [disabled]="actionEnCours() === cabinet.id || !motifRefus().trim()"
+                  (click)="confirmerRejet(cabinet.id)"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Confirmer le refus' }}
+                </button>
+              </div>
+            </div>
+          } @else if (cabinetAPieces() === cabinet.id) {
+            <!-- Demande de pièces complémentaires : message consigné + suivi local -->
+            <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col gap-space-3">
+              <label class="font-body text-label-sm text-on-surface-variant">Pièces à demander (obligatoire)</label>
+              <textarea
+                rows="2"
+                [ngModel]="messagePieces()"
+                (ngModelChange)="messagePieces.set($event)"
+                placeholder="Ex. : registre de commerce, pièce d'identité du gérant…"
+                class="w-full px-space-3 py-space-2 rounded-lg border border-border-subtle bg-surface-bg font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+              ></textarea>
+              <p class="font-body text-label-sm text-text-muted flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px]">info</span>
+                La demande est consignée localement : aucune route serveur ne l'enregistre encore.
+              </p>
+              <div class="flex flex-col sm:flex-row justify-end gap-space-3">
+                <button
+                  type="button"
+                  (click)="annulerDemandePieces()"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  [disabled]="!messagePieces().trim()"
+                  (click)="confirmerDemandePieces(cabinet)"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Envoyer la demande
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="mt-auto pt-space-4 border-t border-border-subtle flex flex-col sm:flex-row justify-end gap-space-3">
+              <button
+                type="button"
+                [disabled]="actionEnCours() === cabinet.id"
+                (click)="ouvrirFormulaireRejet(cabinet.id)"
+                class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Rejeter
+              </button>
+              <button
+                type="button"
+                [disabled]="actionEnCours() === cabinet.id"
+                (click)="ouvrirDemandePieces(cabinet.id)"
+                class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Demander des pièces
+              </button>
+              <button
+                type="button"
+                [disabled]="actionEnCours() === cabinet.id"
+                (click)="valider(cabinet.id)"
+                class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Valider & Activer' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
 </div>

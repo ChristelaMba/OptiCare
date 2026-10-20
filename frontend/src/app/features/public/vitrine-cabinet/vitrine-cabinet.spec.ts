@@ -37,6 +37,15 @@ describe('VitrineCabinet', () => {
   let http: HttpTestingController;
 
   beforeEach(async () => {
+    // Le test « visiteur » du pied de page suppose qu'aucune session n'est
+    // active. Or des specs exécutés avant (accueil, menu-mobile-public…)
+    // posent une session via `Auth.simulerConnexion`, persistée dans le
+    // stockage : selon l'ordre d'exécution, elle peut subsister et faire
+    // afficher l'en-tête « connecté ». On garantit donc un état vierge ici
+    // pour rendre ce test indépendant de l'ordonnancement de Vitest.
+    sessionStorage.clear();
+    localStorage.clear();
+
     await TestBed.configureTestingModule({
       imports: [VitrineCabinet],
       providers: [
@@ -51,6 +60,11 @@ describe('VitrineCabinet', () => {
     component = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
+    localStorage.clear();
   });
 
   async function repondre(avis: unknown[]): Promise<string> {

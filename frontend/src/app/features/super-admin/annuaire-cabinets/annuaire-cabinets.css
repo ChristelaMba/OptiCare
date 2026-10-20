@@ -1,0 +1,9 @@
+/*
+ * Annuaire des cabinets — compléments au Tailwind inline.
+ * Seule la largeur du drawer latéral a besoin d'une règle dédiée sur les
+ * très petits écrans (le `max-w-md` de Tailwind, 448 px, est plus large que
+ * certains téléphones) : on le borne à la largeur de l'écran.
+ */
+.annuaire-drawer {
+  max-width: min(28rem, 100vw);
+}
