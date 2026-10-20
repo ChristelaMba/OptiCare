@@ -267,4 +267,83 @@ describe('NouvelleFicheConsultation', () => {
     http.expectOne((r) => r.url.endsWith('/consultations/999')).flush({ status: 'error', message: 'Accès refusé' }, { status: 403, statusText: 'Forbidden' });
     expect(component.erreurChargement()).toBe('Accès refusé.');
   });
+
+  describe('décimales et effacement de champs', () => {
+    it('une valeur serveur « -1.00 » s’affiche telle quelle (champ texte, pas de normalisation en « -1 »)', async () => {
+      const el = await ouvrir({ prescription: { od: { ...OEIL_VIDE, sphere: '-1.00', cylindre: '-0.50', addition: '2.00' }, og: OEIL_VIDE } });
+
+      expect((el.querySelector('#odSphere') as HTMLInputElement).value).toBe('-1.00');
+      expect((el.querySelector('#odCylindre') as HTMLInputElement).value).toBe('-0.50');
+      expect((el.querySelector('#odAdd') as HTMLInputElement).value).toBe('2.00');
+      expect(el.querySelectorAll('input[type=number]').length).toBe(0);
+    });
+
+    it('sans modification : aucun appel au serveur', async () => {
+      await ouvrir({ prescription: { od: { ...OEIL_VIDE, sphere: '-1.00' }, og: OEIL_VIDE } });
+
+      component.enregistrer();
+
+      http.expectNone((r) => r.method === 'PATCH');
+      expect(component.succes()).toBe('Aucune modification à enregistrer.');
+    });
+
+    it('vider un champ : il est envoyé à null, et seul ce champ est envoyé', async () => {
+      await ouvrir({ observations: 'RAS', prescription: { od: { ...OEIL_VIDE, sphere: '-1.00', axe: '80' }, og: OEIL_VIDE } });
+
+      component.formulaire.patchValue({ observations: '' });
+      component.formulaire.controls.od.patchValue({ axe: '' });
+      component.enregistrer();
+
+      const req = http.expectOne((r) => r.method === 'PATCH' && r.url.endsWith('/consultations/115'));
+      expect(req.request.body).toEqual({ observations: null, od_axe: null });
+      req.flush(env(brute({ observations: null, prescription: { od: { ...OEIL_VIDE, sphere: '-1.00' }, og: OEIL_VIDE } })));
+
+      expect(component.formulaire.getRawValue().observations).toBe('');
+      expect(component.formulaire.controls.od.getRawValue().axe).toBe('');
+      // relecture : plus rien à envoyer
+      component.enregistrer();
+      http.expectNone((r) => r.method === 'PATCH');
+    });
+
+    it('modifier une valeur sans toucher aux autres : seul le champ modifié part, en chaîne', async () => {
+      await ouvrir({ prescription: { od: { ...OEIL_VIDE, sphere: '-1.00', axe: '80' }, og: OEIL_VIDE } });
+
+      component.formulaire.controls.od.patchValue({ sphere: '-1,25' });
+      component.enregistrer();
+
+      const req = http.expectOne((r) => r.method === 'PATCH');
+      expect(req.request.body).toEqual({ od_sphere: '-1.25' }); // virgule → point, toujours une chaîne
+      req.flush(env(brute()));
+    });
+
+    it('décocher une plainte l’enregistre (false envoyé)', async () => {
+      await ouvrir();
+
+      component.formulaire.controls.plaintes.patchValue({ visionFlouLoin: false });
+      component.enregistrer();
+
+      expect(http.expectOne((r) => r.method === 'PATCH').request.body).toEqual({ plainte_vision_flou_loin: false });
+    });
+
+    it('valeurs invalides (sphère non numérique, axe > 180) : refusées sans appel', async () => {
+      await ouvrir();
+      component.formulaire.controls.od.patchValue({ sphere: 'abc' });
+      component.enregistrer();
+      http.expectNone((r) => r.method === 'PATCH');
+
+      component.formulaire.controls.od.patchValue({ sphere: '-1.00', axe: '200' });
+      component.enregistrer();
+      http.expectNone((r) => r.method === 'PATCH');
+      expect(component.formulaire.controls.od.invalid).toBe(true);
+    });
+
+    it('terminer sans modification en attente : seulement PUT /terminer', async () => {
+      await ouvrir();
+      component.demanderTerminer();
+      component.confirmerTerminer();
+
+      http.expectNone((r) => r.method === 'PATCH');
+      http.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/terminer')).flush(env(brute(TERMINEE)));
+    });
+  });
 });

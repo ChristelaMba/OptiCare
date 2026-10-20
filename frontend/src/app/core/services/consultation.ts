@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import {
   ApiConsultation,
   ConsultationEcriture,
+  ConsultationModification,
   ConsultationOpticien,
   PrescriptionOeilConsultation,
 } from '../../models/consultation.model';
@@ -48,8 +49,8 @@ export class ConsultationService {
       .pipe(map(({ data }) => ConsultationService.normaliser(data.consultation)));
   }
 
-  /** PATCH /consultations/{id} (§8.3) — mise à jour partielle (seuls les champs envoyés changent). 422 `errors.consultation[0]` si verrouillée. */
-  modifier(id: string, corps: ConsultationEcriture): Observable<ConsultationOpticien> {
+  /** PATCH /consultations/{id} (§8.3) — mise à jour partielle (seuls les champs envoyés changent ; `null` ou `''` vide un champ). 422 `errors.consultation[0]` si verrouillée. */
+  modifier(id: string, corps: ConsultationModification): Observable<ConsultationOpticien> {
     return this.http
       .patch<{ data: { consultation: ApiConsultation } }>(`${BASE_URL}/consultations/${id}`, corps)
       .pipe(map(({ data }) => ConsultationService.normaliser(data.consultation)));

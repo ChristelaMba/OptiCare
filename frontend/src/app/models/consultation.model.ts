@@ -101,3 +101,11 @@ export interface ConsultationEcriture {
   og_acuite_loin?: string;
   og_acuite_pres?: string;
 }
+
+/**
+ * Corps de `PATCH /consultations/{id}` : seuls les champs modifiés sont envoyés ; `null` vide un champ
+ * (testé le 20/10/2026 sur la consultation 116 : `''` et `null` renvoient 200 et le champ relu vaut `null`).
+ */
+export type ConsultationModification = {
+  [K in keyof Omit<ConsultationEcriture, 'patient_id' | 'cabinet_id'>]?: ConsultationEcriture[K] | null;
+};
