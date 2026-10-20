@@ -1512,3 +1512,9 @@
   font-size: 14px;
   color: #64748b;
 }
+
+
+/* La barre de recherche (sans action) a été retirée : les actions restent alignées à droite. */
+.topbar-actions {
+  margin-left: auto;
+}

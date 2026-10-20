@@ -117,4 +117,13 @@ describe('PatientLayout', () => {
     fixture.detectChanges();
     expect(el.querySelector('.profile-dropdown')).toBeNull();
   });
+
+  it('plus de carte « Besoin d’aide ? » décorative ; notifications et déconnexion conservées', () => {
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.textContent).not.toContain("Besoin d'aide");
+    expect(el.querySelector('a[href="/patient/notifications"]')).not.toBeNull();
+    expect(el.textContent).toContain('Se déconnecter');
+  });
 });

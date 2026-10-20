@@ -242,4 +242,59 @@ describe('MesRendezVous', () => {
     expect(occurrences).toBe(1);
     expect((el.textContent ?? '').split('Établissement').length - 1).toBe(0);
   });
+
+  describe('confirmation avant annulation', () => {
+    it('« Annuler » ouvre la confirmation, sans appel API', async () => {
+      const http = TestBed.inject(HttpTestingController);
+      const el = await afficher([rdv('7', 'test')]);
+
+      component.demanderAnnulation(component.rendezVous()[0]);
+      fixture.detectChanges();
+
+      http.expectNone((r) => r.url.includes('/annuler'));
+      const boite = el.querySelector('[role=alertdialog]');
+      expect(boite?.textContent).toContain('Voulez-vous vraiment annuler ce rendez-vous ?');
+      expect(Array.from(boite?.querySelectorAll('button') ?? []).map((b) => b.textContent?.trim())).toEqual(['Garder', 'Annuler le rendez-vous']);
+    });
+
+    it('« Garder » : fermeture, aucun appel, le rendez-vous reste confirmé', async () => {
+      const http = TestBed.inject(HttpTestingController);
+      const el = await afficher([rdv('7', 'test')]);
+      component.demanderAnnulation(component.rendezVous()[0]);
+      fixture.detectChanges();
+
+      const garder = Array.from(el.querySelectorAll('[role=alertdialog] button')).find((b) => b.textContent?.trim() === 'Garder') as HTMLButtonElement;
+      garder.click();
+      fixture.detectChanges();
+
+      http.expectNone((r) => r.url.includes('/annuler'));
+      expect(el.querySelector('[role=alertdialog]')).toBeNull();
+      expect(component.rendezVous()[0].statut).toBe('confirme');
+    });
+
+    it('« Annuler le rendez-vous » : PUT /rdv/{id}/annuler seulement après confirmation', async () => {
+      const http = TestBed.inject(HttpTestingController);
+      await afficher([rdv('7', 'test')]);
+      component.demanderAnnulation(component.rendezVous()[0]);
+      component.confirmerAnnulation();
+
+      const req = http.expectOne((r) => r.url.endsWith('/rdv/7/annuler'));
+      expect(req.request.method).toBe('PUT');
+      req.flush(REPONSE_ANNULATION);
+      expect(component.rendezVous()[0].statut).toBe('annule');
+      expect(component.rdvAConfirmer()).toBeNull();
+    });
+
+    it('les boutons « Annuler » de la carte passent par la confirmation (aucun appel au clic)', async () => {
+      const http = TestBed.inject(HttpTestingController);
+      const el = await afficher([rdv('7', 'test')]);
+      const bouton = Array.from(el.querySelectorAll('.action-btn.danger')).find((b) => b.textContent?.includes('Annuler')) as HTMLButtonElement;
+
+      bouton.click();
+      fixture.detectChanges();
+
+      http.expectNone((r) => r.url.includes('/annuler'));
+      expect(component.rdvAConfirmer()?.id).toBe('7');
+    });
+  });
 });

@@ -1,5 +1,6 @@
 
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   OnInit,
@@ -33,9 +34,17 @@ const LABEL_STATUT: Record<StatutRendezVous, string> = {
   non_honore: 'Non honoré'
 };
 
+/** Jour local au format `YYYY-MM-DD`, comparé au champ `date` des rendez-vous. */
+function cleJour(d: Date): string {
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+}
+
+type ActionConfirmable = 'annuler' | 'honore' | 'absent';
+
 @Component({
   selector: 'app-agenda',
   standalone: true,
+  imports: [NgTemplateOutlet],
   templateUrl: './agenda.html',
   styleUrl: './agenda.css'
 })
@@ -78,13 +87,7 @@ export class Agenda implements OnInit {
    */
   readonly rendezVous = computed(() => {
 
-    const d = this.dateActuelle();
-    // Jour local au format YYYY-MM-DD, comparé au champ `date` du rendez-vous (déjà ramené à YYYY-MM-DD).
-    const jourSelectionne = [
-      d.getFullYear(),
-      String(d.getMonth() + 1).padStart(2, '0'),
-      String(d.getDate()).padStart(2, '0'),
-    ].join('-');
+    const jourSelectionne = cleJour(this.dateActuelle());
 
     return this.rendezVousBruts().filter(rdv => {
 
@@ -104,10 +107,47 @@ export class Agenda implements OnInit {
     signal<RendezVous | null>(null);
 
   // ============================================================
+  // VUE SEMAINE — construite avec les rendez-vous déjà chargés
+  // ============================================================
+
+  /** Les 7 jours (du lundi au dimanche) de la semaine de la date affichée, avec leurs rendez-vous triés par heure. */
+  readonly semaine = computed(() => {
+    const ref = this.dateActuelle();
+    const decalage = (ref.getDay() + 6) % 7; // lundi = 0
+    const lundi = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - decalage);
+    const formatJour = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(lundi.getFullYear(), lundi.getMonth(), lundi.getDate() + i);
+      const cle = cleJour(date);
+      return {
+        cle,
+        date,
+        libelle: formatJour.format(date),
+        rdvs: this.rendezVousBruts()
+          .filter((rdv) => rdv.statut !== 'libre' && rdv.date === cle)
+          .sort((a, b) => a.heureDebut.localeCompare(b.heureDebut)),
+      };
+    });
+  });
+
+  /** Rendez-vous concernés par la vue active (le jour, ou les 7 jours de la semaine). */
+  readonly rendezVousAffiches = computed(() =>
+    this.vueActive() === 'jour' ? this.rendezVous() : this.semaine().flatMap((jour) => jour.rdvs),
+  );
+
+  // ============================================================
   // DATE
   // ============================================================
 
   dateFormatee = computed(() => {
+
+    if (this.vueActive() === 'semaine') {
+      const jours = this.semaine();
+      const debut = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' }).format(jours[0].date);
+      const fin = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(jours[6].date);
+      return `Semaine du ${debut} au ${fin}`;
+    }
 
     return new Intl.DateTimeFormat('fr-FR', {
       weekday: 'long',
@@ -118,24 +158,32 @@ export class Agenda implements OnInit {
 
   });
 
+  /** Date d'un rendez-vous (fenêtre de détails) : celle du rendez-vous, pas celle du jour affiché. */
+  dateRdv(rdv: RendezVous): string {
+    const [annee, mois, jour] = rdv.date.split('-').map(Number);
+    return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(
+      new Date(annee, mois - 1, jour),
+    );
+  }
+
   // ============================================================
   // STATISTIQUES
   // ============================================================
 
   nombreConfirmes = computed(() =>
-    this.rendezVous()
+    this.rendezVousAffiches()
       .filter(rdv => rdv.statut === 'confirme')
       .length
   );
 
   nombreAttente = computed(() =>
-    this.rendezVous()
+    this.rendezVousAffiches()
       .filter(rdv => rdv.statut === 'reserve')
       .length
   );
 
   nombreAnnules = computed(() =>
-    this.rendezVous()
+    this.rendezVousAffiches()
       .filter(rdv => rdv.statut === 'annule')
       .length
   );
@@ -198,6 +246,7 @@ export class Agenda implements OnInit {
   ): void {
 
     this.erreurAction.set(null);
+    this.confirmation.set(null);
     this.rendezVousActif.set(rdv);
   }
 
@@ -218,7 +267,7 @@ export class Agenda implements OnInit {
       new Date(this.dateActuelle());
 
     nouvelleDate.setDate(
-      nouvelleDate.getDate() + direction
+      nouvelleDate.getDate() + direction * (this.vueActive() === 'semaine' ? 7 : 1)
     );
 
     this.dateActuelle.set(nouvelleDate);
@@ -339,6 +388,32 @@ export class Agenda implements OnInit {
   marquerAbsent(): void {
 
     this.changerStatut('non_honore');
+  }
+
+  // ============================================================
+  // CONFIRMATION AVANT ACTION IRRÉVERSIBLE
+  // ============================================================
+
+  /** Action en attente de confirmation : aucun appel API tant que l'utilisateur n'a pas confirmé. */
+  confirmation = signal<ActionConfirmable | null>(null);
+
+  demanderAnnulation(): void { this.confirmation.set('annuler'); }
+
+  demanderHonore(): void { this.confirmation.set('honore'); }
+
+  demanderAbsent(): void { this.confirmation.set('absent'); }
+
+  /** « Garder » : ferme la confirmation, le rendez-vous n'est pas modifié. */
+  refuserConfirmation(): void {
+    this.confirmation.set(null);
+  }
+
+  confirmerAction(): void {
+    const action = this.confirmation();
+    this.confirmation.set(null);
+    if (action === 'annuler') this.annulerRendezVous();
+    else if (action === 'honore') this.marquerHonore();
+    else if (action === 'absent') this.marquerAbsent();
   }
 
   // ============================================================

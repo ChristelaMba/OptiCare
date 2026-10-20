@@ -47,7 +47,7 @@
   <button
     type="button"
     class="icon-button"
-    title="Jour précédent"
+    [title]="vueActive() === 'jour' ? 'Jour précédent' : 'Semaine précédente'"
     (click)="changerJour(-1)"
   >
 
@@ -70,7 +70,7 @@
   <button
     type="button"
     class="icon-button"
-    title="Jour suivant"
+    [title]="vueActive() === 'jour' ? 'Jour suivant' : 'Semaine suivante'"
     (click)="changerJour(1)"
   >
 
@@ -151,7 +151,7 @@
     <span>Rendez-vous</span>
 
     <strong>
-      {{ rendezVous().length }}
+      {{ rendezVousAffiches().length }}
     </strong>
 
   </div>
@@ -255,7 +255,7 @@
     </span>
 
     <h2>
-      Rendez-vous du jour
+      {{ vueActive() === 'jour' ? 'Rendez-vous du jour' : 'Rendez-vous de la semaine' }}
     </h2>
 
     <p>
@@ -305,18 +305,30 @@
 
 <div class="appointments-list">
 
-  @for (
-    rdv of rendezVous();
-    track rdv.id
-  ) {
+  @if (vueActive() === 'jour') {
+    @for (rdv of rendezVous(); track rdv.id) {
+      <ng-container *ngTemplateOutlet="carteRdv; context: { $implicit: rdv }"></ng-container>
+    }
+  } @else {
+    @for (jour of semaine(); track jour.cle) {
+      <h3 class="week-day">{{ jour.libelle }}</h3>
+      @if (jour.rdvs.length === 0) {
+        <p class="week-empty">Aucun rendez-vous</p>
+      }
+      @for (rdv of jour.rdvs; track rdv.id) {
+        <ng-container *ngTemplateOutlet="carteRdv; context: { $implicit: rdv }"></ng-container>
+      }
+    }
+  }
 
+  <ng-template #carteRdv let-rdv>
     <article
       class="appointment-card"
       [class.status-confirmed]="rdv.statut === 'confirme'"
       [class.status-pending]="rdv.statut === 'reserve'"
       [class.status-cancelled]="rdv.statut === 'annule'"
       [class.status-completed]="rdv.statut === 'termine'"
-      [class.status-absent]="rdv.statut === 'non_honore'"
+      [class.status-noshow]="rdv.statut === 'non_honore'"
     >
 
       <!-- HEURE -->
@@ -443,8 +455,7 @@
       </div>
 
     </article>
-
-  }
+  </ng-template>
 
 
   <!-- =================================================
@@ -521,7 +532,7 @@
        AUCUN RENDEZ-VOUS
   ================================================== -->
 
-  @else if (rendezVous().length === 0) {
+  @else if (rendezVousAffiches().length === 0) {
 
     <div class="empty-agenda">
 
@@ -540,7 +551,7 @@
       </h3>
 
       <p>
-        Aucun rendez-vous n'est programmé pour cette journée.
+        {{ vueActive() === 'jour' ? "Aucun rendez-vous n'est programmé pour cette journée." : "Aucun rendez-vous n'est programmé cette semaine." }}
       </p>
 
     </div>
@@ -634,7 +645,7 @@
         </span>
 
         <strong>
-          {{ dateFormatee() }}
+          {{ dateRdv(rdv) }}
         </strong>
 
       </div>
@@ -676,7 +687,14 @@
           Statut
         </span>
 
-        <span class="status-badge">
+        <span
+          class="status-badge"
+          [class.status-confirmed]="rdv.statut === 'confirme'"
+          [class.status-pending]="rdv.statut === 'reserve'"
+          [class.status-cancelled]="rdv.statut === 'annule'"
+          [class.status-completed]="rdv.statut === 'termine'"
+          [class.status-noshow]="rdv.statut === 'non_honore'"
+        >
           {{ statutLabel(rdv.statut) }}
         </span>
 
@@ -725,7 +743,7 @@
         <button
           type="button"
           class="btn-danger"
-          (click)="annulerRendezVous()"
+          (click)="demanderAnnulation()"
         >
 
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -746,7 +764,7 @@
         <button
           type="button"
           class="btn-secondary"
-          (click)="marquerHonore()"
+          (click)="demanderHonore()"
         >
 
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -762,7 +780,7 @@
         <button
           type="button"
           class="btn-secondary"
-          (click)="marquerAbsent()"
+          (click)="demanderAbsent()"
         >
 
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -785,4 +803,36 @@
 
 }
 
+
+  <!-- =====================================================
+       CONFIRMATION (annulation, honoré, absent)
+  ====================================================== -->
+  @if (confirmation(); as action) {
+    <div class="confirm-overlay" role="alertdialog" aria-modal="true" aria-label="Confirmation">
+      <div class="confirm-box">
+        <h3>
+          @switch (action) {
+            @case ('annuler') { Voulez-vous vraiment annuler ce rendez-vous ? }
+            @case ('honore') { Marquer ce rendez-vous comme honoré ? }
+            @case ('absent') { Marquer le patient comme absent ? }
+          }
+        </h3>
+        <p>
+          @if (action === 'annuler') {
+            Le patient en sera informé et le créneau sera libéré.
+          } @else {
+            Cette information est enregistrée dans l'historique du patient.
+          }
+        </p>
+        <div class="confirm-actions">
+          <button type="button" class="btn-neutral" (click)="refuserConfirmation()">
+            {{ action === 'annuler' ? 'Garder' : 'Retour' }}
+          </button>
+          <button type="button" [class]="action === 'annuler' ? 'btn-danger' : 'btn-success'" (click)="confirmerAction()">
+            {{ action === 'annuler' ? 'Annuler le rendez-vous' : (action === 'honore' ? 'Marquer honoré' : 'Marquer absent') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
