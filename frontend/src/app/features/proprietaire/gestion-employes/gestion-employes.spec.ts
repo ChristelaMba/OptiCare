@@ -258,4 +258,28 @@ describe('GestionEmployes', () => {
       expect(component.erreurFormulaire()).toContain('Le serveur répond : Erreur interne');
     });
   });
+
+  describe('affichage du poste', () => {
+    it('poste identique au rôle : non répété (« Opticien · Opticien »)', async () => {
+      const el = await afficher();
+      const texte = el.textContent ?? '';
+      expect(texte).not.toContain('Opticien · Opticien');
+      expect(texte).not.toContain('Secrétaire · Secretaire');
+      expect(texte).not.toContain('Secrétaire · Secrétaire');
+    });
+
+    it('poste différent du rôle : affiché ; poste vide : rien', async () => {
+      const el = await afficher(ENVELOPPE([employe(80, 'Paul', 'Essomba', 'opticien', { poste: 'Opticien senior' }), employe(81, 'Rose', 'Ndi', 'secretaire', { poste: null })]));
+      const texte = el.textContent ?? '';
+      expect(texte).toContain('Opticien · Opticien senior');
+      expect(texte).not.toContain('Secrétaire ·');
+    });
+
+    it('casse et accents ignorés : « SECRETAIRE » = « Secrétaire »', async () => {
+      await afficher();
+      const e = component.employesFiltres()[0];
+      expect(component.posteAffiche({ ...e, role: 'secretaire', poste: 'SECRETAIRE' })).toBeNull();
+      expect(component.posteAffiche({ ...e, role: 'secretaire', poste: 'Secrétaire de direction' })).toBe('Secrétaire de direction');
+    });
+  });
 });

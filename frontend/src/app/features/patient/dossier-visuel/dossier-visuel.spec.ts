@@ -190,7 +190,7 @@ describe('DossierVisuel', () => {
       await vi.waitFor(() => expect(component.erreurPdf()).toBe('Accès refusé.'));
     });
 
-    it('erreur 500 avec une page HTML : message générique avec le code, rien n’est téléchargé', async () => {
+    it('erreur 500 avec une page HTML : message générique « momentanément indisponible », rien n’est téléchargé', async () => {
       await afficher([consultation(1, 1, '2026-09-10')]);
       const { clic } = espionner();
       component.telechargerDossierPdf();
@@ -198,8 +198,22 @@ describe('DossierVisuel', () => {
         new Blob(['<!DOCTYPE html><html></html>'], { type: 'text/html' }),
         { status: 500, statusText: 'Server Error' },
       );
-      await vi.waitFor(() => expect(component.erreurPdf()).toContain('erreur serveur 500'));
+      await vi.waitFor(() =>
+        expect(component.erreurPdf()).toBe('Le téléchargement du dossier est momentanément indisponible. Réessayez plus tard.'),
+      );
       expect(clic).not.toHaveBeenCalled();
     });
+  });
+
+  it('erreur 500 JSON technique (« Class … not found ») : le texte du serveur n’est jamais affiché', async () => {
+    await afficher([consultation(1, 1, '2026-09-10')]);
+    component.telechargerDossierPdf();
+    http.expectOne((r) => r.url.endsWith('/dossier-pdf')).flush(
+      new Blob([JSON.stringify({ status: 'error', message: 'Class "Barryvdh\\DomPDF\\Facade\\Pdf" not found' })], { type: 'application/json' }),
+      { status: 500, statusText: 'Server Error' },
+    );
+    await vi.waitFor(() => expect(component.erreurPdf()).not.toBeNull());
+    expect(component.erreurPdf()).toBe('Le téléchargement du dossier est momentanément indisponible. Réessayez plus tard.');
+    expect(component.erreurPdf()).not.toContain('Class');
   });
 });

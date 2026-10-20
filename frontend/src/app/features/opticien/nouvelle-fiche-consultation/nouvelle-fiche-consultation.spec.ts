@@ -346,4 +346,110 @@ describe('NouvelleFicheConsultation', () => {
       http.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/terminer')).flush(env(brute(TERMINEE)));
     });
   });
+
+  describe('messages de confirmation', () => {
+    it('« Modifications enregistrées. » visible dans une fenêtre fixe, puis effacé seul', async () => {
+      const el = await ouvrir();
+      vi.useFakeTimers();
+      try {
+        component.formulaire.patchValue({ observations: 'Nouvelle note' });
+        component.enregistrer();
+        http.expectOne((r) => r.method === 'PATCH').flush(env(brute({ observations: 'Nouvelle note' })));
+        fixture.detectChanges();
+
+        const toast = el.querySelector('.toast[role=status]');
+        expect(toast?.textContent).toContain('Modifications enregistrées');
+        expect(component.succes()).toBe('Modifications enregistrées.');
+
+        vi.advanceTimersByTime(5100);
+        fixture.detectChanges();
+        expect(component.succes()).toBeNull();
+        expect(el.querySelector('.toast[role=status]')).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('« Aucune modification à enregistrer. » : visible puis effacé seul', async () => {
+      const el = await ouvrir();
+      vi.useFakeTimers();
+      try {
+        component.enregistrer();
+        fixture.detectChanges();
+        expect(el.querySelector('.toast[role=status]')?.textContent).toContain('Aucune modification à enregistrer');
+
+        vi.advanceTimersByTime(5100);
+        expect(component.succes()).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('un nouveau message n’est pas effacé par la minuterie du précédent', async () => {
+      await ouvrir();
+      vi.useFakeTimers();
+      try {
+        component.enregistrer(); // « Aucune modification… »
+        vi.advanceTimersByTime(3000);
+        component.formulaire.patchValue({ observations: 'x' });
+        component.enregistrer();
+        http.expectOne((r) => r.method === 'PATCH').flush(env(brute({ observations: 'x' })));
+        vi.advanceTimersByTime(3000); // 6 s depuis le premier, 3 s depuis le second
+        expect(component.succes()).toBe('Modifications enregistrées.');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('échec de l’enregistrement : message d’erreur visible dans la fenêtre fixe', async () => {
+      const el = await ouvrir();
+      component.formulaire.patchValue({ observations: 'x' });
+      component.enregistrer();
+      http.expectOne((r) => r.method === 'PATCH').flush({ status: 'error', message: 'Erreur interne' }, { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      const toast = el.querySelector('.toast[role=alert]');
+      expect(toast?.textContent).toContain("L'enregistrement a échoué");
+      expect(component.succes()).toBeNull();
+    });
+
+    it('422 sur des champs : message général visible en plus du détail sous les champs', async () => {
+      await ouvrir();
+      component.formulaire.patchValue({ observations: 'x' });
+      component.enregistrer();
+      http.expectOne((r) => r.method === 'PATCH').flush(
+        { status: 'error', message: 'Erreur', errors: { observations: ['Trop long.'] } },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+      expect(component.erreurGenerale()).toContain('certains champs sont refusés');
+      expect(component.erreursChamps()['observations']).toBe('Trop long.');
+    });
+  });
+
+  describe('arrivée sans patient (menu « Nouvelle consultation »)', () => {
+    it('message clair et lien vers « Mes patients »', async () => {
+      const el = creer({});
+      http.expectOne((r) => r.url.endsWith('/cabinets/6/patients')).flush(PATIENTS);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const message = el.querySelector('[data-testid=choisir-patient]');
+      expect(message?.textContent).toContain('Choisissez un patient pour créer une consultation');
+      expect(message?.querySelector('a')?.getAttribute('href')).toBe('/opticien/mes-patients');
+    });
+
+    it('le message disparaît une fois un patient choisi ou fourni dans l’URL', async () => {
+      const el = creer({});
+      http.expectOne((r) => r.url.endsWith('/cabinets/6/patients')).flush(PATIENTS);
+      await fixture.whenStable();
+      component.formulaire.controls.patientId.setValue('46');
+      fixture.detectChanges();
+      expect(el.querySelector('[data-testid=choisir-patient]')).toBeNull();
+    });
+
+    it('avec ?patientId= : pas de message', async () => {
+      const el = await ouvrirCreation();
+      expect(el.querySelector('[data-testid=choisir-patient]')).toBeNull();
+    });
+  });
 });

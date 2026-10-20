@@ -61,6 +61,22 @@
            2026-09-02 (B1) : dossierVisuelId vient directement de la
            route, plus d'un appel PatientService à cet endroit.
       ================================================== -->
+      @if (enCreation() && !patientIdChoisi() && !erreurChargement()) {
+        <div class="form-card alert-card" data-testid="choisir-patient">
+          <strong>
+            <i class="fa-solid fa-user"></i>
+            Choisissez un patient pour créer une consultation
+          </strong>
+          <p>
+            Sélectionnez le patient dans la liste ci-dessous, ou ouvrez sa fiche depuis « Mes patients ».
+          </p>
+          <a routerLink="/opticien/mes-patients" class="secondary-button">
+            <i class="fa-solid fa-users"></i>
+            Mes patients
+          </a>
+        </div>
+      }
+
       @if (chargement()) {
         <div class="form-card alert-card">
           <p>Chargement de la consultation…</p>
@@ -90,13 +106,13 @@
       }
 
       @if (succes(); as message) {
-        <div class="form-card alert-card alert-success" role="status">
+        <div class="form-card alert-card alert-success toast" role="status">
           <p>{{ message }}</p>
         </div>
       }
 
       @if (erreurGenerale(); as message) {
-        <div class="form-card alert-card alert-danger" role="alert">
+        <div class="form-card alert-card alert-danger toast" role="alert">
           <strong>
             <i class="fa-solid fa-triangle-exclamation"></i>
             Action impossible

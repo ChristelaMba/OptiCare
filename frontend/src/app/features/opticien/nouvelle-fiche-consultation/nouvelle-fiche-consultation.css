@@ -1094,3 +1094,13 @@ textarea {
   }
 
 }
+
+/* Messages de confirmation / d'erreur d'enregistrement : fenêtre fixe, visible quel que soit le défilement. */
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  max-width: min(420px, calc(100vw - 32px));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}

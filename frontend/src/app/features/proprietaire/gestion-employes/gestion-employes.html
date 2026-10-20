@@ -96,7 +96,7 @@
               </div>
               <div>
                 <h3 class="font-heading text-headline-h3 text-on-surface">{{ employe.prenom }} {{ employe.nom }}</h3>
-                <p class="font-body text-body-base text-text-muted">{{ libelleRole(employe.role) }}{{ employe.poste ? ' · ' + employe.poste : '' }}</p>
+                <p class="font-body text-body-base text-text-muted">{{ libelleRole(employe.role) }}{{ posteAffiche(employe) ? ' · ' + posteAffiche(employe) : '' }}</p>
                 <p class="font-body text-label-sm text-text-muted">{{ employe.telephone }}</p>
               </div>
             </div>
