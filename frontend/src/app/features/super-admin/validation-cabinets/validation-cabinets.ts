@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -7,11 +7,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
+import { libelleRole } from '../../../models/utilisateur.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 @Component({
   selector: 'app-validation-cabinets',
-  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink],
+  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './validation-cabinets.html',
   styleUrl: './validation-cabinets.css',
 })
@@ -19,6 +22,12 @@ export class ValidationCabinets implements OnInit {
   private readonly cabinetService = inject(CabinetService);
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
+
+  /** Identité de l'utilisateur connecté, affichée en pied de sidebar (comme l'espace opticien). */
+  readonly nomComplet = computed(() => nomCompletUtilisateur(this.auth.utilisateur()));
+  readonly initiales = computed(() => initialesUtilisateur(this.auth.utilisateur()));
+  readonly roleLibelle = computed(() => libelleRole(this.auth.role()));
+
 
   readonly cabinets = signal<CabinetModel[]>([]);
   readonly chargement = signal(true);

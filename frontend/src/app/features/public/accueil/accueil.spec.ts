@@ -184,7 +184,7 @@ describe('Accueil', () => {
     expect(el.querySelector('#menu-mobile')).toBeNull();
   });
 
-  it('cartes cabinets : notation à gauche (étoiles en nombre) et nom/localisation centrés sous les étoiles', async () => {
+  it('cartes cabinets : nom/localisation centrés, notation (demi-étoiles exactes) en bas du texte', async () => {
     const el = await afficherCabinets([cabinetBrut(8, 'Cabinet Avec Quartier', 'Akwa', 1)]);
 
     http.expectOne((r) => r.url.endsWith('/cabinets/8/avis')).flush({
@@ -203,11 +203,35 @@ describe('Accueil', () => {
     expect(localisation).toBeTruthy();
     expect(localisation.className).toContain('text-center');
 
-    // La ligne d'étoiles est au-dessus du nom et contient autant d'étoiles que la note (4,5 → 5).
-    const bloc = nom.parentElement as HTMLElement;
-    const etoilesAffichees = bloc.querySelectorAll('.material-symbols-outlined.fill-icon');
-    expect(etoilesAffichees.length).toBe(5);
-    expect(bloc.firstElementChild?.textContent).toContain('star');
+    // La carte affiche 5 étoiles, quelle que soit la note, et le chiffre de la note.
+    const carte = nom.closest('a') as HTMLElement;
+    const etoilesPleines = carte.querySelectorAll('svg.star-icon .star-pleine');
+    // 4 pleines (clip 0) + 1 demi (clip 50%) pour une note de 4,5.
+    expect(carte.querySelectorAll('svg.star-icon').length).toBe(5);
+    const demi = Array.from(etoilesPleines).find(
+      (e) => (e as SVGElement).style.clipPath === 'inset(0 50% 0 0)',
+    );
+    expect(demi).toBeTruthy();
+    // La note chiffrée est affichée (séparateur décimal selon la locale du rendu).
+    expect(carte.textContent).toMatch(/4[.,]5/);
+
+    // La notation est placée après le nom dans le DOM (donc en bas de la carte).
+    const positionNom = nom.compareDocumentPosition(carte.querySelector('svg.star-icon') as Node);
+    expect(positionNom & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('etoilesDetaillees : remplissage proportionnel non arrondi (4,5 → 50 %, 4,2 → 20 %)', () => {
+    const parRemplissage = (note: number) => component.etoilesDetaillees(note).map((e) => e.remplissage);
+
+    expect(parRemplissage(0)).toEqual([0, 0, 0, 0, 0]);
+    expect(parRemplissage(4.5)).toEqual([100, 100, 100, 100, 50]);
+    // 4,2 laisse la 5e étoile partiellement remplie (20 %) au lieu de totalement vide.
+    expect(parRemplissage(4.2)).toEqual([100, 100, 100, 100, 20]);
+    expect(parRemplissage(3)).toEqual([100, 100, 100, 0, 0]);
+    expect(parRemplissage(2.5)).toEqual([100, 100, 50, 0, 0]);
+    expect(parRemplissage(5)).toEqual([100, 100, 100, 100, 100]);
+    expect(parRemplissage(7)).toEqual([100, 100, 100, 100, 100]);
+    expect(parRemplissage(-1)).toEqual([0, 0, 0, 0, 0]);
   });
 
   it('menu mobile, utilisateur connecté : espace + déconnexion à la place de Connexion / Inscription', async () => {

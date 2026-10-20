@@ -824,10 +824,10 @@
 }
 
 .notification-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 
   box-shadow:
-    0 12px 30px rgba(15, 23, 42, 0.055);
+    0 12px 28px -10px rgba(19, 27, 46, 0.18);
 }
 
 .notification-card.unread {

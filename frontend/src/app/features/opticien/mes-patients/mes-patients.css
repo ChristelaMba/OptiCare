@@ -634,7 +634,7 @@
 
 .patient-card:hover {
 
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 
   border-color: var(--border-strong);
 

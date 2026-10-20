@@ -567,6 +567,10 @@
 
   gap: 9px;
 
+  /* Colle le bloc profil (et la déconnexion juste en dessous) en pied de
+     sidebar, comme dans l'espace opticien. */
+  margin-top: auto;
+
   padding: 15px 7px 3px;
 }
 

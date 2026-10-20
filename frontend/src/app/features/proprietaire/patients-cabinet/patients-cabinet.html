@@ -51,7 +51,7 @@
               [class.text-on-primary-container]="periode() === option"
               [class.bg-surface-container-low]="periode() !== option"
               [class.text-on-surface-variant]="periode() !== option"
-              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+              class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
             >
               {{ libellePeriode[option] }}
             </button>
@@ -75,7 +75,7 @@
             type="button"
             (click)="rechercher()"
             [disabled]="chargementEnCours()"
-            class="bg-primary text-on-primary px-space-4 h-[40px] rounded-lg font-button text-button hover:bg-surface-tint transition-colors disabled:opacity-50"
+            class="effet-bouton bg-primary text-on-primary px-space-4 h-[40px] rounded-lg font-button text-button hover:bg-surface-tint disabled:opacity-50"
           >
             Rechercher
           </button>
@@ -84,7 +84,7 @@
               type="button"
               (click)="effacerRecherche()"
               [disabled]="chargementEnCours()"
-              class="border border-border-subtle text-on-surface-variant px-space-3 h-[40px] rounded-lg font-button text-button hover:bg-surface-container transition-colors disabled:opacity-50"
+              class="effet-bouton border border-border-subtle text-on-surface-variant px-space-3 h-[40px] rounded-lg font-button text-button hover:bg-surface-container transition-colors disabled:opacity-50"
             >
               Effacer
             </button>

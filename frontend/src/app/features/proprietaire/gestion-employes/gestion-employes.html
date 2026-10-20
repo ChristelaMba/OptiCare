@@ -12,7 +12,7 @@
       <button
         type="button"
         (click)="ouvrirFormulaire()"
-        class="bg-primary text-on-primary font-button text-button h-[44px] px-space-4 rounded-xl flex items-center gap-space-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm hover:shadow-md"
+        class="effet-bouton bg-primary text-on-primary font-button text-button h-[44px] px-space-4 rounded-xl flex items-center gap-space-2 hover:bg-on-primary-fixed-variant shadow-sm"
       >
         <span class="material-symbols-outlined">add</span>
         Ajouter un employé
@@ -48,7 +48,7 @@
     } @else {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-space-6">
         @for (employe of employesFiltres(); track employe.id) {
-          <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm hover:shadow-md transition-shadow border border-border-subtle flex flex-col" [class.opacity-75]="!employe.actif">
+          <div class="effet-carte bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col" [class.opacity-75]="!employe.actif">
             <div class="flex items-center gap-space-4 mb-space-4">
               <div
                 class="w-16 h-16 rounded-full flex items-center justify-center font-heading font-bold text-lg shrink-0"
@@ -74,7 +74,7 @@
                   type="button"
                   [disabled]="actionEnCours() === employe.id"
                   (click)="toggleActivation(employe)"
-                  class="text-error hover:underline font-button text-button transition-colors disabled:opacity-40"
+                  class="effet-bouton text-error hover:underline font-button text-button disabled:opacity-40"
                 >
                   Désactiver
                 </button>
@@ -86,7 +86,7 @@
                   type="button"
                   [disabled]="actionEnCours() === employe.id"
                   (click)="toggleActivation(employe)"
-                  class="text-primary hover:underline font-button text-button transition-colors disabled:opacity-40"
+                  class="effet-bouton text-primary hover:underline font-button text-button disabled:opacity-40"
                 >
                   Réactiver
                 </button>
@@ -97,7 +97,7 @@
                 (click)="demanderSuppression(employe)"
                 title="Supprimer"
                 aria-label="Supprimer"
-                class="text-text-muted hover:text-error transition-colors disabled:opacity-40"
+                class="effet-bouton text-text-muted hover:text-error disabled:opacity-40"
               >
                 <span class="material-symbols-outlined text-[20px]">delete</span>
               </button>
@@ -114,7 +114,7 @@
       <div class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-[480px] p-space-6 md:p-space-8" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-space-6">
           <h2 class="font-heading text-headline-h2 text-on-surface">Ajouter un employé</h2>
-          <button type="button" (click)="fermerFormulaire()" class="text-text-muted hover:text-on-surface">
+          <button type="button" (click)="fermerFormulaire()" class="effet-bouton text-text-muted hover:text-on-surface">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -219,13 +219,13 @@
           }
 
           <div class="flex justify-end gap-space-3 mt-space-2">
-            <button type="button" (click)="fermerFormulaire()" class="px-space-6 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container transition-colors">
+            <button type="button" (click)="fermerFormulaire()" class="effet-bouton px-space-6 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container transition-colors">
               Annuler
             </button>
             <button
               type="submit"
               [disabled]="envoiEnCours()"
-              class="px-space-6 py-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors shadow-sm disabled:opacity-60"
+              class="effet-bouton px-space-6 py-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-on-primary-fixed-variant shadow-sm disabled:opacity-60"
             >
               {{ envoiEnCours() ? 'Création…' : 'Créer le compte' }}
             </button>
@@ -244,14 +244,14 @@
           {{ cible.prenom }} {{ cible.nom }} ({{ libelleRole(cible.role) }}) sera supprimé définitivement. Cette action est irréversible.
         </p>
         <div class="flex justify-end gap-space-3">
-          <button type="button" (click)="annulerSuppression()" class="px-space-4 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container">
+          <button type="button" (click)="annulerSuppression()" class="effet-bouton px-space-4 py-2 rounded-lg font-button text-button text-on-surface-variant hover:bg-surface-container">
             Annuler
           </button>
           <button
             type="button"
             [disabled]="actionEnCours() === cible.id"
             (click)="confirmerSuppression()"
-            class="px-space-4 py-2 rounded-lg font-button text-button bg-error text-white disabled:opacity-60"
+            class="effet-bouton px-space-4 py-2 rounded-lg font-button text-button bg-error text-white disabled:opacity-60"
           >
             Supprimer
           </button>

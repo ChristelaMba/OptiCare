@@ -79,10 +79,17 @@ describe('PatientLayout', () => {
     expect(menu.querySelector('app-bouton-deconnexion')).not.toBeNull();
   });
 
-  it('la barre latérale propose aussi « Se déconnecter »', () => {
+  it('la barre latérale propose « Se déconnecter », profil au-dessus, en pied de menu', () => {
     const el = fixture.nativeElement as HTMLElement;
 
     expect(el.querySelector('.sidebar-logout app-bouton-deconnexion')).not.toBeNull();
+
+    // Le profil (avatar + nom) précède la déconnexion : les deux forment le
+    // bloc de pied de sidebar, comme dans l'espace opticien.
+    const profil = el.querySelector('.sidebar-profile') as Node;
+    const deconnexion = el.querySelector('.sidebar-logout') as Node;
+    expect(profil).not.toBeNull();
+    expect(profil.compareDocumentPosition(deconnexion) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('mode clair uniquement : plus de bouton de bascule clair/sombre, plus de classe dark-mode', () => {

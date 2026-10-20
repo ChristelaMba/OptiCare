@@ -31,7 +31,7 @@
             [href]="lienApercu"
             target="_blank"
             rel="noopener"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle bg-surface-container-lowest hover:bg-surface-container text-on-background font-button text-button transition-colors shadow-sm"
+            class="effet-bouton flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle bg-surface-container-lowest hover:bg-surface-container text-on-background font-button text-button shadow-sm"
           >
             <span class="material-symbols-outlined text-xl">visibility</span>
             Aperçu en direct
@@ -225,7 +225,7 @@
                   <div class="flex items-center justify-between mb-2">
                     <label class="block font-body text-label-sm text-on-surface-variant">Galerie photos (max {{ maxPhotos }})</label>
                     @if (peutAjouterPhoto) {
-                      <button type="button" (click)="ajouterPhoto()" class="font-body text-label-sm text-primary hover:text-primary-container transition-colors">
+                      <button type="button" (click)="ajouterPhoto()" class="effet-bouton font-body text-label-sm text-primary hover:text-primary-container transition-colors">
                         + Ajouter
                       </button>
                     }
@@ -237,13 +237,13 @@
                         <img [src]="ctrl.value || photoPlaceholder" alt="Aperçu photo {{ i + 1 }}" class="w-full h-full object-cover" />
                         <!-- Adresse web : masquee tant que la photo en a une ; visible au survol, au toucher (focus de la vignette) ou dans le champ -->
                         <input type="url" [formControlName]="i" placeholder="https://…" [class.opacity-0]="ctrl.value" class="absolute bottom-0 inset-x-0 h-7 px-2 text-[10px] bg-surface-container-lowest/90 border-t border-border-subtle font-body outline-none transition-opacity group-hover:opacity-100 group-focus:opacity-100 focus:opacity-100" />
-                        <button type="button" (click)="retirerPhoto(i)" class="absolute top-1 right-1 w-6 h-6 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-error opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                        <button type="button" (click)="retirerPhoto(i)" class="effet-bouton absolute top-1 right-1 w-6 h-6 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-error opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                           <span class="material-symbols-outlined text-sm">close</span>
                         </button>
                       </div>
                     }
                     @if (peutAjouterPhoto) {
-                      <div (click)="ajouterPhoto()" class="aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface-bg flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container hover:border-primary hover:text-primary transition-colors cursor-pointer">
+                      <div (click)="ajouterPhoto()" class="effet-carte aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface-bg flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container hover:border-primary hover:text-primary cursor-pointer">
                         <span class="material-symbols-outlined mb-1">add_photo_alternate</span>
                         <span class="font-body text-[10px]">Ajouter</span>
                       </div>
@@ -274,7 +274,7 @@
                   }
                 </p>
                 <!-- Paiement réel hors périmètre (§11 du cahier des charges) — bouton non fonctionnel pour ce sprint. -->
-                <button type="button" disabled title="Bientôt disponible" class="w-full px-4 py-2 rounded-lg bg-white text-primary font-button text-button transition-colors text-sm shadow-sm opacity-60 cursor-not-allowed">
+                <button type="button" disabled title="Bientôt disponible" class="effet-bouton w-full px-4 py-2 rounded-lg bg-white text-primary font-button text-button text-sm shadow-sm opacity-60 cursor-not-allowed">
                   Gérer mon plan
                 </button>
               </div>
@@ -287,7 +287,7 @@
           <button
             type="submit"
             [disabled]="envoiEnCours()"
-            class="px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 min-w-[200px] justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+            class="effet-bouton px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container shadow-md flex items-center gap-2 min-w-[200px] justify-center disabled:opacity-60 disabled:cursor-not-allowed"
           >
             @if (envoiEnCours()) {
               Enregistrement…

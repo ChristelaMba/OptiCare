@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { GestionComptes } from './gestion-comptes';
+import { Auth } from '../../../core/services/auth';
 
 function user(id: number, nom: string, role: string, extra: Record<string, unknown> = {}) {
   return {
@@ -98,6 +99,28 @@ describe('GestionComptes', () => {
   it('état vide : « Aucun compte. »', async () => {
     const el = await afficher({ status: 'success', message: '', data: { users: [], stats: { ...STATS, total: 0 } } });
     expect(lignes(el)[0].textContent).toContain('Aucun compte.');
+  });
+
+  it('sidebar : profil (initiales + nom) et déconnexion en pied de menu', async () => {
+    // `afficher()` configure et instancie le module de test : on ne peut injecter
+    // Auth qu'après, donc on simule la connexion puis on relance la détection.
+    const el = await afficher();
+    TestBed.inject(Auth).simulerConnexion('super_admin');
+    fixture.detectChanges();
+
+    const nav = el.querySelector('nav') as HTMLElement;
+    const profil = nav.querySelector('.rounded-full') as HTMLElement;
+    expect(profil.textContent?.trim()).toBe('ST'); // prénom "Super Administrateur", nom "Test"
+    expect(nav.textContent).toContain('Super Administrateur Test');
+    expect(nav.textContent).toContain('Déconnexion');
+    // Le profil précède la déconnexion (bloc profil + bouton en pied de sidebar).
+    const position = profil.compareDocumentPosition(
+      [...nav.querySelectorAll('button')].find((b) => b.textContent?.includes('Déconnexion')) as Node,
+    );
+    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('erreur de chargement : message du serveur affiché', async () => {

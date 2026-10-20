@@ -1,57 +1,32 @@
 /*
- * Page d'accueil publique — animations d'insistance sur les appels à l'action.
- * Reprises en CSS local plutôt qu'en classes Tailwind : les keyframes ne sont
- * pas exprimables en utilitaires. Toutes les animations sont neutralisées si
- * l'utilisateur a demandé de réduire les mouvements (prefers-reduced-motion).
+ * Page d'accueil publique.
+ *
+ * Les effets de survol, de clic et les animations sont désormais définis une
+ * seule fois dans `src/styles.css` (classes `.effet-carte`, `.effet-bouton`,
+ * `.effet-lien`) afin d'être identiques dans toute l'application.
  */
 
-@media (prefers-reduced-motion: no-preference) {
-  /*
-   * Halo qui pulse doucement autour du bouton principal (« Retrouver un
-   * cabinet ») pour attirer l'œil sans être agressif : l'anneau s'élargit et
-   * s'estompe en boucle. Le bouton garde sa forme arrondie (rounded-full).
-   */
-  @keyframes accueil-cta-halo {
-    0% {
-      box-shadow: 0 0 0 0 rgba(47, 106, 236, 0.45);
-    }
-    70% {
-      box-shadow: 0 0 0 14px rgba(47, 106, 236, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(47, 106, 236, 0);
-    }
-  }
-
-  .accueil-cta-pulse {
-    animation: accueil-cta-halo 2.4s ease-out infinite;
-  }
-
-  /*
-   * Léger battement vertical du bouton secondaire (« Prendre rendez-vous ») :
-   * mouvement discret, plus lent que le halo, pour ne pas faire clignoter
-   * les deux boutons au même rythme.
-   */
-  @keyframes accueil-cta-tapote {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-3px);
-    }
-  }
-
-  .accueil-cta-tapote {
-    animation: accueil-cta-tapote 2.4s ease-in-out infinite;
-    animation-delay: 1.2s;
-  }
+/*
+ * Étoiles de notation des cartes cabinets.
+ *
+ * Elles sont dessinées en SVG (et non avec la police d'icônes) pour deux
+ * raisons : la police Material Symbols impose une taille de 24px à ses glyphes
+ * (d'où un rendu « coupé » dans une boîte de 18px), et la coupe d'une note
+ * partielle doit porter sur la surface réelle du dessin. Une étoile à 5
+ * branches étant symétrique, `clip-path: inset(0 x% 0 0)` retire exactement
+ * x % de son aire — 4,5 montre donc une vraie moitié d'étoile, et 4,2 un léger
+ * coloriage sur la dernière étoile plutôt qu'une étoile vide.
+ */
+.star-icon {
+  display: block;
+  overflow: visible;
 }
 
-/* L'utilisateur préfère moins de mouvement : on laisse une transition de survol simple. */
-@media (prefers-reduced-motion: reduce) {
-  .accueil-cta-pulse,
-  .accueil-cta-tapote {
-    animation: none;
-  }
+.star-vide {
+  color: color-mix(in srgb, var(--color-warning) 30%, transparent);
 }
+
+.star-pleine {
+  color: var(--color-warning);
+}
+
