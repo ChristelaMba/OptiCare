@@ -1,681 +1,299 @@
 <div class="page">
-
-  <!-- =====================================================
-       EN-TÊTE
-  ====================================================== -->
-
   <header class="page-header">
-
-    <div class="header-left">
-
-      <button
-        type="button"
-        class="back-link"
-        (click)="retourPatient()"
-      >
-        <span class="back-icon">←</span>
-        Retour au dossier
-      </button>
-
-      <div class="header-title">
-
-        <div class="title-icon">
-          📄
-        </div>
-
-        <div>
-          <h1>Facture & ordonnance</h1>
-
-          <p>
-            Gérez les documents du patient.
-          </p>
-        </div>
-
-      </div>
-
+    <div>
+      <a routerLink="/opticien/mes-patients" class="lien-retour">← Mes patients</a>
+      <h1>Ordonnances et factures</h1>
+      <p class="sous-titre">
+        @if (patient(); as p) {
+          Documents de {{ p.nomComplet }} — {{ p.telephone }}
+        } @else {
+          Documents de votre cabinet.
+        }
+      </p>
     </div>
-
   </header>
 
+  @if (erreurGlobale(); as message) {
+    <div class="alerte erreur" role="alert">{{ message }}</div>
+  }
 
-  <!-- =====================================================
-       PATIENT
-  ====================================================== -->
+  @if (succes(); as message) {
+    <div class="alerte succes" role="status">{{ message }}</div>
+  }
 
-  <main class="content">
+  <div class="onglets" role="tablist">
+    <button type="button" role="tab" class="onglet" [class.actif]="onglet() === 'ordonnances'" (click)="changerOnglet('ordonnances')">
+      Ordonnances
+    </button>
+    <button type="button" role="tab" class="onglet" [class.actif]="onglet() === 'factures'" (click)="changerOnglet('factures')">
+      Factures
+    </button>
+  </div>
 
-    <section class="patient-card">
-
-      <div class="patient-avatar">
-        {{ initiales() }}
-      </div>
-
-      <div class="patient-info">
-
-        <span class="eyebrow">
-          Patient
-        </span>
-
-        <h2>
-          {{ patientNom() }}
-        </h2>
-
-        <p>
-          {{ patientTelephone() }}
-        </p>
-
-      </div>
-
-      <div class="patient-reference">
-
-        <span>
-          Référence patient
-        </span>
-
-        <strong>
-          {{ patientReference() }}
-        </strong>
-
-      </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         ACTIONS RAPIDES
-    ====================================================== -->
-
-    <section class="quick-actions">
-
-      <button
-        type="button"
-        class="quick-action secondary"
-        (click)="retourPatient()"
-      >
-
-        <span class="quick-icon">
-          👁️
-        </span>
-
-        <span>
-          <strong>
-            Voir le dossier
-          </strong>
-
-          <small>
-            Retour au dossier visuel
-          </small>
-        </span>
-
-        <span class="quick-arrow">
-          →
-        </span>
-
+  <!-- ===================== ORDONNANCES ===================== -->
+  @if (onglet() === 'ordonnances') {
+    <div class="barre">
+      <button type="button" class="bouton" (click)="ouvrirFormulaireOrdonnance()" [disabled]="chargementOrdonnances()">
+        Nouvelle ordonnance
       </button>
-
-
-      <!-- IMPORTANT :
-           BOUTON SUIVI DE COMMANDE -->
-
-      <button
-        type="button"
-        class="quick-action primary"
-        (click)="voirSuiviCommande()"
-      >
-
-        <span class="quick-icon">
-          👓
-        </span>
-
-        <span>
-          <strong>
-            Suivre la commande
-          </strong>
-
-          <small>
-            Voir l’avancement de fabrication
-          </small>
-        </span>
-
-        <span class="quick-arrow">
-          →
-        </span>
-
-      </button>
-
-    </section>
-
-
-    <!-- =====================================================
-         MESSAGES
-    ====================================================== -->
-
-    @if (messageSucces()) {
-
-      <div class="success-message">
-
-        <span class="message-icon">
-          ✓
-        </span>
-
-        <span>
-          {{ messageSucces() }}
-        </span>
-
-      </div>
-
-    }
-
-
-    @if (messageErreur()) {
-
-      <div class="error-message">
-
-        <span class="message-icon">
-          !
-        </span>
-
-        <span>
-          {{ messageErreur() }}
-        </span>
-
-      </div>
-
-    }
-
-
-    <!-- =====================================================
-         ONGLET
-    ====================================================== -->
-
-    <section class="document-card">
-
-      <div class="tabs">
-
-        <button
-          type="button"
-          class="tab"
-          [class.active]="
-            ongletActif() === 'facture'
-          "
-          (click)="changerOnglet('facture')"
-        >
-
-          <span>
-            🧾
-          </span>
-
-          Facture
-
-        </button>
-
-
-        <button
-          type="button"
-          class="tab"
-          [class.active]="
-            ongletActif() === 'ordonnance'
-          "
-          (click)="changerOnglet('ordonnance')"
-        >
-
-          <span>
-            📋
-          </span>
-
-          Ordonnance
-
-        </button>
-
-      </div>
-
-
-      <!-- ===================================================
-           FACTURE
-      ==================================================== -->
-
-      @if (ongletActif() === 'facture') {
-
-        <div class="document-content">
-
-          <div class="section-heading">
-
-            <div>
-
-              <span class="section-kicker">
-                Facturation
-              </span>
-
-              <h2>
-                Nouvelle facture
-              </h2>
-
-            </div>
-
-            <span class="document-status">
-              Brouillon
-            </span>
-
-          </div>
-
-
-          <!-- LIGNES -->
-
-          <div class="invoice-table">
-
-            <div class="table-header">
-
-              <span>
-                Prestation / produit
-              </span>
-
-              <span>
-                Quantité
-              </span>
-
-              <span>
-                Montant
-              </span>
-
-              <span></span>
-
-            </div>
-
-
-            @for (
-              ligne of lignesFacture();
-              track ligne.id
-            ) {
-
-              <div class="invoice-row">
-
-                <input
-                  type="text"
-                  class="description-input"
-                  [value]="ligne.description"
-                  (input)="
-                    modifierDescription(
-                      ligne.id,
-                      $event
-                    )
-                  "
-                  placeholder="Description"
-                />
-
-
-                <input
-                  type="number"
-                  class="quantity-input"
-                  min="1"
-                  [value]="ligne.quantite"
-                  (input)="
-                    modifierQuantite(
-                      ligne.id,
-                      $event
-                    )
-                  "
-                />
-
-
-                <div class="amount-field">
-
-                  <input
-                    type="number"
-                    min="0"
-                    [value]="ligne.montant"
-                    (input)="
-                      modifierMontant(
-                        ligne.id,
-                        $event
-                      )
-                    "
-                  />
-
-                  <span>
-                    FCFA
-                  </span>
-
-                </div>
-
-
-                <button
-                  type="button"
-                  class="delete-button"
-                  title="Supprimer"
-                  (click)="
-                    supprimerLigne(ligne.id)
-                  "
-                >
-                  ×
-                </button>
-
-              </div>
-
+    </div>
+
+    @if (formulaireOrdonnanceOuvert()) {
+      <form class="carte" [formGroup]="formOrdonnance" (ngSubmit)="creerOrdonnance()" aria-label="Nouvelle ordonnance">
+        <h2>Nouvelle ordonnance</h2>
+
+        @if (erreurFormOrdonnance(); as message) {
+          <div class="alerte erreur" role="alert">{{ message }}</div>
+        }
+        @for (ligne of erreursOrdonnance(); track ligne) {
+          <div class="alerte erreur" role="alert">{{ ligne }}</div>
+        }
+
+        <label class="champ">
+          Consultation terminée *
+          <select formControlName="consultationId" (change)="preremplirDepuisConsultation($any($event.target).value)">
+            <option value="">Choisir une consultation…</option>
+            @for (c of consultationsPourOrdonnance(); track c.id) {
+              <option [value]="c.id">{{ nomConsultation(c) }}</option>
             }
-
-          </div>
-
-
-          <!-- AJOUT -->
-
-          <button
-            type="button"
-            class="add-line-button"
-            (click)="ajouterLigne()"
-          >
-
-            <span>
-              +
+          </select>
+          @if (consultationsPourOrdonnance().length === 0) {
+            <span class="erreur-champ" data-champ="aucune-consultation">
+              Aucune consultation terminée sans ordonnance : terminez d'abord la consultation.
             </span>
+          }
+        </label>
 
-            Ajouter une prestation
+        <div class="prescription">
+          <div class="oeil" formGroupName="od">
+            <h4>Œil droit</h4>
+            <div class="valeurs">
+              <label class="champ">Sphère<input type="text" inputmode="decimal" formControlName="sphere" /></label>
+              <label class="champ">Cylindre<input type="text" inputmode="decimal" formControlName="cylindre" /></label>
+              <label class="champ">Axe<input type="text" inputmode="numeric" formControlName="axe" /></label>
+              <label class="champ">Addition<input type="text" inputmode="decimal" formControlName="addition" /></label>
+            </div>
+          </div>
+          <div class="oeil" formGroupName="og">
+            <h4>Œil gauche</h4>
+            <div class="valeurs">
+              <label class="champ">Sphère<input type="text" inputmode="decimal" formControlName="sphere" /></label>
+              <label class="champ">Cylindre<input type="text" inputmode="decimal" formControlName="cylindre" /></label>
+              <label class="champ">Axe<input type="text" inputmode="numeric" formControlName="axe" /></label>
+              <label class="champ">Addition<input type="text" inputmode="decimal" formControlName="addition" /></label>
+            </div>
+          </div>
+        </div>
+        @if (formOrdonnance.controls.od.invalid || formOrdonnance.controls.og.invalid) {
+          <p class="erreur-champ" data-champ="prescription-invalide">
+            Valeurs invalides : sphère, cylindre et addition sont des nombres (ex. -1.25) ; l'axe est un entier de 0 à 180.
+          </p>
+        }
 
+        <div class="grille">
+          <label class="champ">
+            Écart pupillaire
+            <input type="text" formControlName="ecartPupillaire" />
+          </label>
+          <label class="champ">
+            Date d'émission
+            <input type="date" formControlName="dateEmission" />
+          </label>
+          <label class="champ">
+            Date de validité
+            <input type="date" formControlName="dateValidite" />
+          </label>
+        </div>
+
+        <label class="champ">
+          Recommandations
+          <textarea formControlName="recommandations" rows="3"></textarea>
+        </label>
+
+        <div class="actions">
+          <button type="button" class="bouton secondaire" (click)="fermerFormulaireOrdonnance()" [disabled]="envoiOrdonnance()">Annuler</button>
+          <button type="submit" class="bouton" [disabled]="envoiOrdonnance()">
+            {{ envoiOrdonnance() ? 'Création…' : "Créer l'ordonnance" }}
           </button>
-
-
-          <!-- TOTAL -->
-
-          <div class="total-box">
-
-            <div>
-
-              <span>
-                Total
-              </span>
-
-              <strong>
-                {{ montantTotal() | number:'1.0-0' }}
-                FCFA
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <!-- ACTIONS -->
-
-          <div class="document-actions">
-
-            <button
-              type="button"
-              class="secondary-button"
-              (click)="imprimer()"
-            >
-              🖨️ Imprimer
-            </button>
-
-            <button
-              type="button"
-              class="primary-button"
-              (click)="genererEtEnvoyer()"
-            >
-              ✓ Générer et envoyer au patient
-            </button>
-
-          </div>
-
         </div>
-
-      }
-
-
-      <!-- ===================================================
-           ORDONNANCE
-      ==================================================== -->
-
-      @if (ongletActif() === 'ordonnance') {
-
-        <div class="document-content">
-
-          <div class="section-heading">
-
-            <div>
-
-              <span class="section-kicker">
-                Prescription
-              </span>
-
-              <h2>
-                Nouvelle ordonnance
-              </h2>
-
-            </div>
-
-            <span class="document-status">
-              Brouillon
-            </span>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="ordonnance">
-              Produits / soins prescrits
-            </label>
-
-            <textarea
-              id="ordonnance"
-              rows="10"
-              [value]="ordonnanceContenu()"
-              (input)="
-                modifierOrdonnance($event)
-              "
-              placeholder="Saisissez les produits ou soins prescrits..."
-            ></textarea>
-
-          </div>
-
-
-          <div class="document-actions">
-
-            <button
-              type="button"
-              class="secondary-button"
-              (click)="imprimer()"
-            >
-              🖨️ Imprimer
-            </button>
-
-            <button
-              type="button"
-              class="primary-button"
-              (click)="genererEtEnvoyer()"
-            >
-              ✓ Générer et envoyer au patient
-            </button>
-
-          </div>
-
-        </div>
-
-      }
-
-    </section>
-
-
-    <!-- =====================================================
-         HISTORIQUE FACTURES
-    ====================================================== -->
-
-    @if (ongletActif() === 'facture') {
-
-      <section class="history-card">
-
-        <div class="section-heading">
-
-          <div>
-
-            <span class="section-kicker">
-              Historique
-            </span>
-
-            <h2>
-              Factures déjà émises
-            </h2>
-
-          </div>
-
-        </div>
-
-
-        <div class="history-list">
-
-          @for (
-            facture of factures();
-            track facture.id
-          ) {
-
-            <div class="history-item">
-
-              <div class="history-icon">
-                🧾
-              </div>
-
-              <div class="history-main">
-
-                <strong>
-                  {{ facture.numero }}
-                </strong>
-
-                <span>
-                  Émise le {{ facture.date }}
-                </span>
-
-              </div>
-
-              <div class="history-amount">
-
-                <strong>
-                  {{ facture.montantTotal | number:'1.0-0' }}
-                  FCFA
-                </strong>
-
-                <span
-                  [class.paid]="
-                    facture.statut === 'payee'
-                  "
-                >
-                  {{
-                    facture.statut === 'payee'
-                      ? 'Payée'
-                      : 'Émise'
-                  }}
-                </span>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-      </section>
-
+      </form>
     }
 
-
-    <!-- =====================================================
-         HISTORIQUE ORDONNANCES
-    ====================================================== -->
-
-    @if (ongletActif() === 'ordonnance') {
-
-      <section class="history-card">
-
-        <div class="section-heading">
-
-          <div>
-
-            <span class="section-kicker">
-              Historique
-            </span>
-
-            <h2>
-              Ordonnances déjà émises
-            </h2>
-
-          </div>
-
-        </div>
-
-
-        <div class="history-list">
-
-          @for (
-            ordonnance of ordonnances();
-            track ordonnance.id
-          ) {
-
-            <div class="history-item">
-
-              <div class="history-icon">
-                📋
+    @if (chargementOrdonnances()) {
+      <p class="vide">Chargement des ordonnances…</p>
+    } @else if (erreurOrdonnances(); as message) {
+      <div class="alerte erreur" role="alert">{{ message }}</div>
+    } @else if (ordonnancesAffichees().length === 0) {
+      <p class="vide">Aucune ordonnance pour le moment.</p>
+    } @else {
+      <div class="liste">
+        @for (o of ordonnancesAffichees(); track o.id) {
+          <article class="ligne">
+            <div>
+              <div class="titre">{{ o.numero }} — {{ o.patientNom ?? 'Patient inconnu' }}</div>
+              <div class="meta">
+                @if (o.dateEmission) {
+                  Émise le {{ o.dateEmission | date: 'dd/MM/yyyy' }}
+                }
+                @if (o.dateValidite) {
+                  · valable jusqu'au {{ o.dateValidite | date: 'dd/MM/yyyy' }}
+                }
+                · consultation n°{{ o.consultationId }}
               </div>
-
-              <div class="history-main">
-
-                <strong>
-                  Ordonnance
-                </strong>
-
-                <span>
-                  Émise le {{ ordonnance.date }}
-                </span>
-
-                <p>
-                  {{ ordonnance.contenu }}
-                </p>
-
+              <div class="meta">
+                OD : {{ o.od.sphere ?? '—' }} / {{ o.od.cylindre ?? '—' }} / {{ o.od.axe ?? '—' }} / add {{ o.od.addition ?? '—' }}
+                · OG : {{ o.og.sphere ?? '—' }} / {{ o.og.cylindre ?? '—' }} / {{ o.og.axe ?? '—' }} / add {{ o.og.addition ?? '—' }}
+                @if (o.ecartPupillaire) {
+                  · écart pupillaire {{ o.ecartPupillaire }}
+                }
               </div>
-
+              @if (o.recommandations) {
+                <div class="meta">{{ o.recommandations }}</div>
+              }
             </div>
-
-          }
-
-        </div>
-
-      </section>
-
+          </article>
+        }
+      </div>
     }
+  }
 
-
-    <!-- =====================================================
-         RAPPEL SUIVI
-    ====================================================== -->
-
-    <section class="tracking-reminder">
-
-      <div class="tracking-icon">
-        👓
-      </div>
-
-      <div class="tracking-text">
-
-        <strong>
-          Vous avez une commande en cours ?
-        </strong>
-
-        <p>
-          Consultez son état de fabrication et
-          mettez à jour son statut depuis le suivi
-          de commande.
-        </p>
-
-      </div>
-
-      <button
-        type="button"
-        class="tracking-button"
-        (click)="voirSuiviCommande()"
-      >
-        Voir le suivi →
+  <!-- ===================== FACTURES ===================== -->
+  @if (onglet() === 'factures') {
+    <div class="barre">
+      <label class="champ">
+        Statut
+        <select [value]="filtreStatut()" (change)="filtrerStatut($any($event.target).value)">
+          <option value="">Tous les statuts</option>
+          @for (statut of statutsFacture; track statut) {
+            <option [value]="statut">{{ libelleStatut[statut] }}</option>
+          }
+        </select>
+      </label>
+      <label class="champ">
+        Recherche
+        <input type="search" [value]="recherche()" (change)="rechercher($any($event.target).value)" placeholder="N° de facture, patient…" />
+      </label>
+      <button type="button" class="bouton" (click)="ouvrirFormulaireFacture()" [disabled]="chargementFactures()">
+        Nouvelle facture
       </button>
+    </div>
 
-    </section>
+    @if (formulaireFactureOuvert()) {
+      <form class="carte" [formGroup]="formFacture" (ngSubmit)="creerFacture()" aria-label="Nouvelle facture">
+        <h2>Nouvelle facture</h2>
 
-  </main>
+        @if (erreurFormFacture(); as message) {
+          <div class="alerte erreur" role="alert">{{ message }}</div>
+        }
 
+        <div class="grille">
+          <label class="champ">
+            Commande *
+            <select formControlName="commandeId">
+              <option value="">Choisir une commande…</option>
+              @for (c of commandesPourFacture(); track c.id) {
+                <option [value]="c.id">{{ libelleCommande(c) }}</option>
+              }
+            </select>
+            @if (commandesPourFacture().length === 0) {
+              <span class="erreur-champ" data-champ="aucune-commande">Aucune commande : créez d'abord une commande.</span>
+            }
+          </label>
+          <label class="champ">
+            Type *
+            <select formControlName="type">
+              @for (type of typesFacture; track type) {
+                <option [value]="type">{{ libelleType[type] }}</option>
+              }
+            </select>
+            @if (erreursChampsFacture()['type']; as m) {
+              <span class="erreur-champ" data-champ="type">{{ m }}</span>
+            }
+          </label>
+          <label class="champ">
+            Montant (FCFA) *
+            <input type="text" inputmode="numeric" formControlName="montant" placeholder="20000" />
+            @if (formFacture.controls.montant.touched && formFacture.controls.montant.invalid) {
+              <span class="erreur-champ" data-champ="montant-invalide">Montant entier en francs CFA, sans décimales.</span>
+            }
+            @if (erreursChampsFacture()['montant']; as m) {
+              <span class="erreur-champ" data-champ="montant">{{ m }}</span>
+            }
+          </label>
+        </div>
+
+        <label class="champ">
+          Description
+          <input type="text" formControlName="description" />
+        </label>
+
+        <div class="actions">
+          <button type="button" class="bouton secondaire" (click)="fermerFormulaireFacture()" [disabled]="envoiFacture()">Annuler</button>
+          <button type="submit" class="bouton" [disabled]="envoiFacture()">
+            {{ envoiFacture() ? 'Création…' : 'Créer la facture' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (chargementFactures()) {
+      <p class="vide">Chargement des factures…</p>
+    } @else if (erreurFactures(); as message) {
+      <div class="alerte erreur" role="alert">{{ message }}</div>
+    } @else if (facturesAffichees().length === 0) {
+      <p class="vide">Aucune facture pour le moment.</p>
+    } @else {
+      <div class="liste">
+        @for (f of facturesAffichees(); track f.id) {
+          <article class="ligne">
+            <div>
+              <div class="titre">{{ f.numero }} — {{ f.patientNom ?? 'Patient inconnu' }}</div>
+              <div class="meta">
+                {{ libelleType[f.type] }} · commande n°{{ f.commandeId }}
+                @if (f.dateEmission) {
+                  · émise le {{ f.dateEmission | date: 'dd/MM/yyyy' }}
+                }
+              </div>
+              <div class="meta">
+                Montant {{ formaterFcfa(f.montant) }} · payé {{ formaterFcfa(f.montantPaye) }} · solde restant
+                <strong>{{ formaterFcfa(f.soldeRestant) }}</strong>
+              </div>
+              @if (f.description) {
+                <div class="meta">{{ f.description }}</div>
+              }
+
+              @if (paiementOuvertPour() === f.id) {
+                <div class="barre">
+                  <label class="champ">
+                    Montant reçu (FCFA)
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      [value]="montantPaiement()"
+                      (input)="montantPaiement.set($any($event.target).value)"
+                    />
+                  </label>
+                  <button type="button" class="bouton" (click)="enregistrerPaiement(f)" [disabled]="paiementEnCours()">
+                    {{ paiementEnCours() ? 'Enregistrement…' : 'Enregistrer le paiement' }}
+                  </button>
+                  <button type="button" class="bouton secondaire" (click)="fermerPaiement()" [disabled]="paiementEnCours()">Annuler</button>
+                </div>
+                @if (erreurPaiement(); as message) {
+                  <div class="alerte erreur" role="alert">{{ message }}</div>
+                }
+              }
+            </div>
+            <div>
+              <span class="badge" [class.ok]="f.statut === 'paye'" [class.attente]="f.statut === 'impaye' || f.statut === 'partiel'" [class.alerte-badge]="f.statut === 'annule'">
+                {{ libelleStatut[f.statut] }}
+              </span>
+              @if ((f.statut === 'impaye' || f.statut === 'partiel') && paiementOuvertPour() !== f.id) {
+                <button type="button" class="bouton secondaire" (click)="ouvrirPaiement(f)">Enregistrer un paiement</button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
 </div>

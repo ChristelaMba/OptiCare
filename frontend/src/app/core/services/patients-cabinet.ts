@@ -56,6 +56,13 @@ export class PatientsCabinet {
       .pipe(map(({ data }) => data.patients.map(PatientsCabinet.normaliser)));
   }
 
+  /** GET /cabinets/{id}/patients/{patientId} (§7.3). */
+  obtenir(cabinetId: string, patientId: string): Observable<PatientCabinet> {
+    return this.http
+      .get<{ data: { patient: ApiPatientBrut } }>(`${BASE_URL}/cabinets/${cabinetId}/patients/${patientId}`)
+      .pipe(map(({ data }) => PatientsCabinet.normaliser(data.patient)));
+  }
+
   /** POST /cabinets/{id}/patients (§7.2) — 201, `data.patient` (testé le 20/10/2026 : `est_interne: true`, `user_id: null`). */
   creer(cabinetId: string, payload: CreerPatientPayload): Observable<PatientCabinet> {
     return this.http

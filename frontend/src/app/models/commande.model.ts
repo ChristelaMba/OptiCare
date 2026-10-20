@@ -1,61 +1,74 @@
 /**
- * §5 du cahier des charges. Écran construit de zéro le 2026-09-02 —
- * modèle jusque-là un stub vide (`export interface Commande {}`), jamais
- * rempli. Voir JOURNAL-MODIFICATIONS-PARTAGEES.md.
- *
- * Une PriseEnCharge de type `confection` peut donner naissance à une
- * Commande (voir `models/prise-en-charge.model.ts`) — ce n'est pas
- * systématique.
+ * Commande de verres de l'opticien (ROUTES-API-LIONEL §9). Forme réelle observée le 20/10/2026 (cabinet 6, commande 65) :
+ * `POST /commandes` et `PATCH /commandes/{id}` en **format à plat** (`diag_od_sphere`… pour le diagnostic), `antireflet`
+ * **booléen**, valeurs de diagnostic en **chaînes** ; en lecture, le diagnostic est imbriqué (`diagnostic.od/og`).
+ * L'objet renvoyé ne contient **pas** le patient : il s'obtient par la consultation (`consultation_id`).
  */
-export interface DiagnosticOeil {
-  sphere: number;
-  cylindre: number;
-  axe: number;
-  addition: number;
-}
+export type StatutCommande = 'initie' | 'en_cours' | 'en_verification' | 'termine';
 
-export type StatutCommande = 'initie' | 'enCours' | 'enVerification' | 'termine';
+export const STATUTS_COMMANDE: StatutCommande[] = ['initie', 'en_cours', 'en_verification', 'termine'];
+
+export interface DiagnosticOeil {
+  sphere: string | null;
+  cylindre: string | null;
+  axe: string | null;
+  addition: string | null;
+}
 
 export interface Commande {
   id: string;
-
-  priseEnChargeId: string; // reference → PriseEnCharge
-  cabinetId: string; // reference → Cabinet
-  patientId: string; // reference → Patient
-
+  consultationId: string;
   numeroMonture: string;
-  typeVerre: string; // unifocal, progressif, bifocal…
+  typeVerre: string;
   teinte: string;
   descriptionFoyers: string;
-  port: string; // permanent, occasionnel…
-  antireflet: string;
-  autresDetails: string; // ex. écart pupillaire, épaisseur…
-
-  diagnosticOeilDroit: DiagnosticOeil;
-  diagnosticOeilGauche: DiagnosticOeil;
-
+  port: string;
+  antireflet: boolean | null;
+  od: DiagnosticOeil;
+  og: DiagnosticOeil;
   statut: StatutCommande;
-
-  modifieParId: string; // reference → Utilisateur (Opticien OU Secretaire)
-
-  dateInitiation: Date;
-  dateDerniereMiseAJour: Date;
-
-  /**
-   * §5 : passe à `true` automatiquement côté back quand `statut` devient
-   * `termine` (notification `commandeTerminee` générée pour le patient).
-   * Le front ne l'écrit jamais directement.
-   */
-  notificationEnvoyee: boolean;
+  notes: string;
+  /** `YYYY-MM-DD`. */
+  dateCreation: string;
+  consultationMotif: string;
+  opticienNom: string | null;
+  /** Une commande terminée est en lecture seule (le serveur répond 422 à toute modification). */
+  modifiable: boolean;
 }
 
-/**
- * Payload de création — tout ce que le back n'assigne pas lui-même
- * (id, statut toujours `initie` à la création, dateInitiation/
- * dateDerniereMiseAJour, notificationEnvoyee). `modifieParId` reste à la
- * charge de l'appelant : c'est l'auteur de la création qui s'auto-désigne.
- */
-export type NouvelleCommandePayload = Omit<
-  Commande,
-  'id' | 'statut' | 'dateInitiation' | 'dateDerniereMiseAJour' | 'notificationEnvoyee'
->;
+export interface ApiCommandeBrute {
+  id: number;
+  consultation_id: number;
+  numero_monture?: string | null;
+  type_verre?: string | null;
+  teinte?: string | null;
+  description_foyers?: string | null;
+  port?: string | null;
+  antireflet?: boolean | null;
+  diagnostic?: { od?: Partial<DiagnosticOeil> | null; og?: Partial<DiagnosticOeil> | null } | null;
+  statut: StatutCommande;
+  notes?: string | null;
+  created_at: string;
+  consultation?: { id: number; date_consultation?: string | null; motif?: string | null } | null;
+  opticien?: { id: number; nom?: string | null; prenom?: string | null } | null;
+}
+
+/** Corps à plat de `POST /commandes` (`consultation_id` obligatoire, le reste facultatif). */
+export interface NouvelleCommandePayload {
+  consultation_id: number;
+  numero_monture?: string;
+  type_verre?: string;
+  teinte?: string;
+  description_foyers?: string;
+  port?: string;
+  antireflet?: boolean;
+  diag_od_sphere?: string;
+  diag_od_cylindre?: string;
+  diag_od_axe?: string;
+  diag_od_addition?: string;
+  diag_og_sphere?: string;
+  diag_og_cylindre?: string;
+  diag_og_axe?: string;
+  diag_og_addition?: string;
+  notes?: string;
+}

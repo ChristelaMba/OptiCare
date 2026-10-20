@@ -1,769 +1,227 @@
 <div class="page">
-
-  <!-- =====================================================
-       EN-TÊTE
-  ====================================================== -->
-
   <header class="page-header">
-
-    <div class="header-left">
-
-      <button
-        type="button"
-        class="back-link"
-        (click)="retourDossier()"
-      >
-        <span class="back-icon">←</span>
-        Retour au dossier
-      </button>
-
-      <div class="header-title">
-
-        <div class="title-icon">
-          👓
-        </div>
-
-        <div>
-          <h1>Suivi de commande</h1>
-          <p>
-            Suivez l'avancement de la commande de votre patient.
-          </p>
-        </div>
-
-      </div>
-
+    <div>
+      <a routerLink="/opticien/mes-patients" class="lien-retour">← Mes patients</a>
+      <h1>Suivi des commandes</h1>
+      <p class="sous-titre">
+        @if (patient(); as p) {
+          Commandes de {{ p.nomComplet }} — {{ p.telephone }}
+        } @else {
+          Commandes de verres de votre cabinet.
+        }
+      </p>
     </div>
-
+    <button type="button" class="bouton" (click)="ouvrirFormulaire()" [disabled]="chargement() || !!erreur()">
+      Nouvelle commande
+    </button>
   </header>
 
-
-  <!-- =====================================================
-       CHARGEMENT
-  ====================================================== -->
-
-  @if (chargement()) {
-
-    <div class="loading-card">
-
-      <div class="spinner"></div>
-
-      <p>Chargement de la commande...</p>
-
-    </div>
-
+  @if (erreur(); as message) {
+    <div class="alerte erreur" role="alert">{{ message }}</div>
   }
 
-
-  <!-- =====================================================
-       ERREUR / AUCUNE COMMANDE
-  ====================================================== -->
-
-  @if (!chargement() && messageErreur()) {
-
-    <div class="empty-state">
-
-      <div class="empty-icon">
-        📦
-      </div>
-
-      <h2>Aucune commande</h2>
-
-      <p>
-        {{ messageErreur() }}
-      </p>
-
-      <button
-        type="button"
-        class="primary-button"
-        (click)="retournerPatients()"
-      >
-        Retour à mes patients
-      </button>
-
-    </div>
-
+  @if (succes(); as message) {
+    <div class="alerte succes" role="status">{{ message }}</div>
   }
 
-
-  <!-- =====================================================
-       CONTENU COMMANDE
-  ====================================================== -->
-
-  @if (!chargement() && commande(); as commande) {
-
-    <main class="content">
-
-
-      <!-- =================================================
-           PATIENT
-      ================================================== -->
-
-      <section class="patient-card">
-
-        <div class="patient-avatar">
-          {{ initiales() }}
-        </div>
-
-        <div class="patient-info">
-
-          <span class="eyebrow">
-            Patient
-          </span>
-
-          <h2>
-            {{ patientNom() }}
-          </h2>
-
-          <p>
-            {{ patientTelephone() }}
-          </p>
-
-        </div>
-
-        <div class="patient-reference">
-
-          <span>Référence commande</span>
-
-          <strong>
-            {{ commande.id }}
-          </strong>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           STATUT ACTUEL
-      ================================================== -->
-
-      <section class="section-card">
-
-        <div class="section-header">
-
-          <div>
-            <span class="section-kicker">
-              État de la commande
-            </span>
-
-            <h2>Avancement</h2>
-          </div>
-
-          <span
-            class="status-badge"
-            [ngClass]="statutClasse(commande.statut)"
-          >
-            {{ statutLibelle(commande.statut) }}
-          </span>
-
-        </div>
-
-
-        <!-- Timeline -->
-
-        <div class="timeline">
-
-          <!-- Étape 1 -->
-
-          <div
-            class="timeline-step"
-            [class.active]="etapeTerminee(1, commande.statut)"
-          >
-
-            <div class="timeline-circle">
-              @if (etapeTerminee(1, commande.statut)) {
-                ✓
-              } @else {
-                1
-              }
-            </div>
-
-            <div class="timeline-content">
-
-              <strong>Commande initiée</strong>
-
-              <span>
-                La commande a été créée.
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <!-- Étape 2 -->
-
-          <div
-            class="timeline-step"
-            [class.active]="etapeTerminee(2, commande.statut)"
-          >
-
-            <div class="timeline-circle">
-              @if (etapeTerminee(2, commande.statut)) {
-                ✓
-              } @else {
-                2
-              }
-            </div>
-
-            <div class="timeline-content">
-
-              <strong>En cours</strong>
-
-              <span>
-                La commande est en préparation.
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <!-- Étape 3 -->
-
-          <div
-            class="timeline-step"
-            [class.active]="etapeTerminee(3, commande.statut)"
-          >
-
-            <div class="timeline-circle">
-              @if (etapeTerminee(3, commande.statut)) {
-                ✓
-              } @else {
-                3
-              }
-            </div>
-
-            <div class="timeline-content">
-
-              <strong>Vérification</strong>
-
-              <span>
-                Vérification finale de la commande.
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <!-- Étape 4 -->
-
-          <div
-            class="timeline-step"
-            [class.active]="etapeTerminee(4, commande.statut)"
-          >
-
-            <div class="timeline-circle">
-              @if (etapeTerminee(4, commande.statut)) {
-                ✓
-              } @else {
-                4
-              }
-            </div>
-
-            <div class="timeline-content">
-
-              <strong>Terminée</strong>
-
-              <span>
-                La commande est prête.
-              </span>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           ACTIONS STATUT
-      ================================================== -->
-
-      <section class="section-card">
-
-        <div class="section-header">
-
-          <div>
-
-            <span class="section-kicker">
-              Gestion
-            </span>
-
-            <h2>Modifier le statut</h2>
-
-          </div>
-
-        </div>
-
-        <div class="status-actions">
-
-          <button
-            type="button"
-            class="status-action"
-            [class.selected]="commande.statut === 'initie'"
-            (click)="changerStatut('initie')"
-          >
-            <span class="action-dot dot-initie"></span>
-            Initiée
-          </button>
-
-
-          <button
-            type="button"
-            class="status-action"
-            [class.selected]="commande.statut === 'enCours'"
-            (click)="changerStatut('enCours')"
-          >
-            <span class="action-dot dot-encours"></span>
-            En cours
-          </button>
-
-
-          <button
-            type="button"
-            class="status-action"
-            [class.selected]="commande.statut === 'enVerification'"
-            (click)="changerStatut('enVerification')"
-          >
-            <span class="action-dot dot-verification"></span>
-            En vérification
-          </button>
-
-
-          <button
-            type="button"
-            class="status-action"
-            [class.selected]="commande.statut === 'termine'"
-            (click)="changerStatut('termine')"
-          >
-            <span class="action-dot dot-termine"></span>
-            Terminée
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           INFORMATIONS COMMANDE
-      ================================================== -->
-
-      <section class="section-card">
-
-        <div class="section-header">
-
-          <div>
-
-            <span class="section-kicker">
-              Détails
-            </span>
-
-            <h2>Informations de la commande</h2>
-
-          </div>
-
-        </div>
-
-
-        <div class="details-grid">
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Numéro de monture
-            </span>
-
-            <strong>
-              {{ commande.numeroMonture || '—' }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Type de verre
-            </span>
-
-            <strong>
-              {{ commande.typeVerre || '—' }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Teinte
-            </span>
-
-            <strong>
-              {{ commande.teinte || '—' }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Port
-            </span>
-
-            <strong>
-              {{ commande.port || '—' }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Antireflet
-            </span>
-
-            <strong>
-              {{ commande.antireflet || '—' }}
-            </strong>
-
-          </div>
-
-
-          <div class="detail-item">
-
-            <span class="detail-label">
-              Prise en charge
-            </span>
-
-            <strong>
-              {{ commande.priseEnChargeId }}
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <div class="description-box">
-
-          <span class="detail-label">
-            Description des foyers
-          </span>
-
-          <p>
-            {{ commande.descriptionFoyers || 'Aucune description.' }}
-          </p>
-
-        </div>
-
-
-        <div class="description-box">
-
-          <span class="detail-label">
-            Autres détails
-          </span>
-
-          <p>
-            {{ commande.autresDetails || 'Aucun détail supplémentaire.' }}
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           DIAGNOSTIC OEIL DROIT / GAUCHE
-      ================================================== -->
-
-      <section class="section-card">
-
-        <div class="section-header">
-
-          <div>
-
-            <span class="section-kicker">
-              Prescription
-            </span>
-
-            <h2>Diagnostic visuel</h2>
-
-          </div>
-
-        </div>
-
-
-        <div class="eyes-grid">
-
-
-          <!-- OEIL DROIT -->
-
-          <div class="eye-card">
-
-            <div class="eye-header">
-
-              <div class="eye-icon">
-                OD
-              </div>
-
-              <div>
-                <h3>Œil droit</h3>
-                <span>OD</span>
-              </div>
-
-            </div>
-
-
-            <div class="prescription-grid">
-
-              <div class="prescription-item">
-
-                <span>Sphère</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilDroit.sphere
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Cylindre</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilDroit.cylindre
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Axe</span>
-
-                <strong>
-                  {{
-                    formatAxe(
-                      commande.diagnosticOeilDroit.axe
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Addition</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilDroit.addition
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- OEIL GAUCHE -->
-
-          <div class="eye-card">
-
-            <div class="eye-header">
-
-              <div class="eye-icon">
-                OG
-              </div>
-
-              <div>
-                <h3>Œil gauche</h3>
-                <span>OG</span>
-              </div>
-
-            </div>
-
-
-            <div class="prescription-grid">
-
-              <div class="prescription-item">
-
-                <span>Sphère</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilGauche.sphere
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Cylindre</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilGauche.cylindre
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Axe</span>
-
-                <strong>
-                  {{
-                    formatAxe(
-                      commande.diagnosticOeilGauche.axe
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-
-              <div class="prescription-item">
-
-                <span>Addition</span>
-
-                <strong>
-                  {{
-                    formatDioptrie(
-                      commande.diagnosticOeilGauche.addition
-                    )
-                  }}
-                </strong>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           DATES
-      ================================================== -->
-
-      <section class="dates-grid">
-
-        <div class="date-card">
-
-          <div class="date-icon">
-            📅
-          </div>
-
-          <div>
-
-            <span>
-              Date d'initiation
-            </span>
-
-            <strong>
-              {{ formaterDate(commande.dateInitiation) }}
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <div class="date-card">
-
-          <div class="date-icon">
-            🔄
-          </div>
-
-          <div>
-
-            <span>
-              Dernière mise à jour
-            </span>
-
-            <strong>
-              {{
-                formaterDate(
-                  commande.dateDerniereMiseAJour
-                )
-              }}
-            </strong>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           NOTIFICATION
-      ================================================== -->
-
-      @if (commande.statut === 'termine') {
-
-        <section class="notification-card">
-
-          <div class="notification-icon">
-            ✓
-          </div>
-
-          <div>
-
-            <h3>Commande terminée</h3>
-
-            <p>
-              La commande est prête.
-              @if (commande.notificationEnvoyee) {
-                Une notification a été envoyée au patient.
-              } @else {
-                La notification sera gérée automatiquement
-                par le système.
-              }
-            </p>
-
-          </div>
-
-        </section>
-
+  <div class="barre">
+    <label class="champ">
+      Statut
+      <select [value]="filtreStatut()" (change)="filtreStatut.set($any($event.target).value)">
+        <option value="tous">Tous les statuts</option>
+        @for (statut of statuts; track statut) {
+          <option [value]="statut">{{ libelleStatut[statut] }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <form class="carte" [formGroup]="formulaire" (ngSubmit)="creer()" aria-label="Nouvelle commande">
+      <h2>Nouvelle commande</h2>
+
+      @if (erreurFormulaire(); as message) {
+        <div class="alerte erreur" role="alert">{{ message }}</div>
+      }
+      @for (ligne of erreursAutres(); track ligne) {
+        <div class="alerte erreur" role="alert">{{ ligne }}</div>
       }
 
-    </main>
+      <div class="grille">
+        <label class="champ">
+          Consultation *
+          <select formControlName="consultationId">
+            <option value="">Choisir une consultation…</option>
+            @for (c of consultationsProposees(); track c.id) {
+              <option [value]="c.id">{{ nomConsultation(c) }}</option>
+            }
+          </select>
+          @if (erreursChamps()['consultation_id']; as m) {
+            <span class="erreur-champ" data-champ="consultation_id">{{ m }}</span>
+          }
+        </label>
+        <label class="champ">
+          Numéro de monture
+          <input type="text" formControlName="numeroMonture" />
+          @if (erreursChamps()['numero_monture']; as m) {
+            <span class="erreur-champ" data-champ="numero_monture">{{ m }}</span>
+          }
+        </label>
+        <label class="champ">
+          Type de verre
+          <input type="text" formControlName="typeVerre" placeholder="unifocal, progressif…" />
+          @if (erreursChamps()['type_verre']; as m) {
+            <span class="erreur-champ" data-champ="type_verre">{{ m }}</span>
+          }
+        </label>
+        <label class="champ">
+          Teinte
+          <input type="text" formControlName="teinte" />
+        </label>
+        <label class="champ">
+          Description des foyers
+          <input type="text" formControlName="descriptionFoyers" />
+        </label>
+        <label class="champ">
+          Port
+          <input type="text" formControlName="port" placeholder="permanent, occasionnel…" />
+        </label>
+        <label class="champ case">
+          <input type="checkbox" formControlName="antireflet" />
+          Traitement antireflet
+        </label>
+      </div>
 
+      <h3>Diagnostic (facultatif)</h3>
+      <div class="prescription">
+        <div class="oeil" formGroupName="od">
+          <h4>Œil droit</h4>
+          <div class="valeurs">
+            <label class="champ">Sphère<input type="text" inputmode="decimal" formControlName="sphere" /></label>
+            <label class="champ">Cylindre<input type="text" inputmode="decimal" formControlName="cylindre" /></label>
+            <label class="champ">Axe<input type="text" inputmode="numeric" formControlName="axe" /></label>
+            <label class="champ">Addition<input type="text" inputmode="decimal" formControlName="addition" /></label>
+          </div>
+        </div>
+        <div class="oeil" formGroupName="og">
+          <h4>Œil gauche</h4>
+          <div class="valeurs">
+            <label class="champ">Sphère<input type="text" inputmode="decimal" formControlName="sphere" /></label>
+            <label class="champ">Cylindre<input type="text" inputmode="decimal" formControlName="cylindre" /></label>
+            <label class="champ">Axe<input type="text" inputmode="numeric" formControlName="axe" /></label>
+            <label class="champ">Addition<input type="text" inputmode="decimal" formControlName="addition" /></label>
+          </div>
+        </div>
+      </div>
+      @if (formulaire.controls.od.invalid || formulaire.controls.og.invalid) {
+        <p class="erreur-champ" data-champ="diagnostic-invalide">
+          Valeurs invalides : sphère, cylindre et addition sont des nombres (ex. -1.25) ; l'axe est un entier de 0 à 180.
+        </p>
+      }
+
+      <label class="champ">
+        Notes
+        <textarea formControlName="notes" rows="2"></textarea>
+      </label>
+
+      <div class="actions">
+        <button type="button" class="bouton secondaire" (click)="fermerFormulaire()" [disabled]="enCours()">Annuler</button>
+        <button type="submit" class="bouton" [disabled]="enCours()">
+          {{ enCours() ? 'Création…' : 'Créer la commande' }}
+        </button>
+      </div>
+    </form>
   }
 
+  @if (chargement()) {
+    <p class="vide">Chargement des commandes…</p>
+  } @else if (!erreur()) {
+    @if (lignes().length === 0) {
+      <p class="vide">
+        {{ aucuneCommande() ? "Aucune commande pour le moment." : 'Aucune commande ne correspond à ces critères.' }}
+      </p>
+    } @else {
+      <div class="liste">
+        @for (ligne of lignes(); track ligne.commande.id) {
+          <article
+            class="ligne cliquable"
+            [class.active]="selection()?.id === ligne.commande.id"
+            tabindex="0"
+            role="button"
+            (click)="selectionner(ligne.commande)"
+            (keydown.enter)="selectionner(ligne.commande)"
+          >
+            <div>
+              <div class="titre">
+                Commande n°{{ ligne.commande.id }} — {{ ligne.patientNom ?? 'Patient inconnu' }}
+              </div>
+              <div class="meta">
+                {{ ligne.commande.typeVerre || 'Type de verre non précisé' }}
+                · créée le {{ ligne.commande.dateCreation | date: 'dd/MM/yyyy' }}
+                · consultation n°{{ ligne.commande.consultationId }}
+              </div>
+            </div>
+            <span class="badge" [class.ok]="ligne.commande.statut === 'termine'" [class.attente]="ligne.commande.statut !== 'termine'">
+              {{ libelleStatut[ligne.commande.statut] }}
+            </span>
+          </article>
+        }
+      </div>
+    }
+  }
+
+  @if (selection(); as c) {
+    <section class="carte" aria-label="Détail de la commande">
+      <h2>Commande n°{{ c.id }}</h2>
+
+      <dl class="details">
+        <dt>Statut</dt>
+        <dd>{{ libelleStatut[c.statut] }}</dd>
+        <dt>Monture</dt>
+        <dd>{{ c.numeroMonture || '—' }}</dd>
+        <dt>Verre</dt>
+        <dd>{{ c.typeVerre || '—' }}{{ c.teinte ? ', teinte ' + c.teinte : '' }}</dd>
+        <dt>Foyers</dt>
+        <dd>{{ c.descriptionFoyers || '—' }}</dd>
+        <dt>Port</dt>
+        <dd>{{ c.port || '—' }}</dd>
+        <dt>Antireflet</dt>
+        <dd>{{ c.antireflet === null ? '—' : c.antireflet ? 'Oui' : 'Non' }}</dd>
+        <dt>Diagnostic OD</dt>
+        <dd>{{ c.od.sphere ?? '—' }} / {{ c.od.cylindre ?? '—' }} / {{ c.od.axe ?? '—' }} / add {{ c.od.addition ?? '—' }}</dd>
+        <dt>Diagnostic OG</dt>
+        <dd>{{ c.og.sphere ?? '—' }} / {{ c.og.cylindre ?? '—' }} / {{ c.og.axe ?? '—' }} / add {{ c.og.addition ?? '—' }}</dd>
+        <dt>Notes</dt>
+        <dd>{{ c.notes || '—' }}</dd>
+        <dt>Opticien</dt>
+        <dd>{{ c.opticienNom ?? '—' }}</dd>
+      </dl>
+
+      @if (erreurAction(); as message) {
+        <div class="alerte erreur" role="alert">{{ message }}</div>
+      }
+
+      @if (c.modifiable) {
+        <div class="barre">
+          <label class="champ">
+            Nouveau statut
+            <select [value]="statutChoisi()" (change)="statutChoisi.set($any($event.target).value)">
+              @for (statut of statuts; track statut) {
+                <option [value]="statut" [selected]="statut === statutChoisi()">{{ libelleStatut[statut] }}</option>
+              }
+            </select>
+          </label>
+          <button type="button" class="bouton" (click)="changerStatut()" [disabled]="enCours() || statutChoisi() === c.statut">
+            {{ enCours() ? 'Mise à jour…' : 'Mettre à jour le statut' }}
+          </button>
+        </div>
+      } @else {
+        <p class="sous-titre">Commande terminée : lecture seule, aucune modification possible.</p>
+      }
+
+      <div class="actions">
+        <button type="button" class="bouton secondaire" (click)="fermerDetail()">Fermer</button>
+      </div>
+    </section>
+  }
 </div>
