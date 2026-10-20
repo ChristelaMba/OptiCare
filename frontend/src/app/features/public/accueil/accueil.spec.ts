@@ -184,7 +184,7 @@ describe('Accueil', () => {
     expect(el.querySelector('#menu-mobile')).toBeNull();
   });
 
-  it('cartes cabinets : notation à gauche (étoiles en nombre) et nom/localisation centrés sous les étoiles', async () => {
+  it('cartes cabinets : nom/localisation centrés, étoiles (en nombre exact) en bas du texte', async () => {
     const el = await afficherCabinets([cabinetBrut(8, 'Cabinet Avec Quartier', 'Akwa', 1)]);
 
     http.expectOne((r) => r.url.endsWith('/cabinets/8/avis')).flush({
@@ -203,11 +203,13 @@ describe('Accueil', () => {
     expect(localisation).toBeTruthy();
     expect(localisation.className).toContain('text-center');
 
-    // La ligne d'étoiles est au-dessus du nom et contient autant d'étoiles que la note (4,5 → 5).
-    const bloc = nom.parentElement as HTMLElement;
-    const etoilesAffichees = bloc.querySelectorAll('.material-symbols-outlined.fill-icon');
+    // La carte contient autant d'étoiles que la note (4,5 arrondi → 5), placées après le nom et la localisation.
+    const carte = nom.closest('a') as HTMLElement;
+    const etoilesAffichees = carte.querySelectorAll('.material-symbols-outlined.fill-icon');
     expect(etoilesAffichees.length).toBe(5);
-    expect(bloc.firstElementChild?.textContent).toContain('star');
+
+    const positionNom = nom.compareDocumentPosition(etoilesAffichees[0]);
+    expect(positionNom & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('menu mobile, utilisateur connecté : espace + déconnexion à la place de Connexion / Inscription', async () => {

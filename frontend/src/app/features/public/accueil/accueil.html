@@ -132,30 +132,37 @@
           @for (cabinet of cabinetsAffiches(); track cabinet.id) {
             <a
               [routerLink]="['/cabinet', cabinet.id]"
-              class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-border-subtle hover:shadow-md transition-shadow block"
+              class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-border-subtle hover:shadow-md transition-shadow flex flex-col"
             >
-              <div class="w-full h-48 bg-surface-bg flex items-center justify-center overflow-hidden">
+              <div class="w-full h-48 shrink-0 bg-surface-bg flex items-center justify-center overflow-hidden">
                 @if (cabinet.photos[0]) {
                   <img [src]="cabinet.photos[0]" [alt]="cabinet.nom" class="w-full h-full object-cover" />
                 } @else {
                   <span class="material-symbols-outlined text-text-muted text-[40px]">storefront</span>
                 }
               </div>
-              <div class="p-space-6">
-                <!-- Notation à l'extrémité gauche : autant d'étoiles pleines que la note du cabinet -->
-                <div class="flex items-center gap-0.5 min-h-[20px]" [attr.aria-label]="cabinet.noteMoyenne > 0 ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
-                  @if (cabinet.noteMoyenne > 0) {
-                    @for (etoile of etoiles(cabinet.noteMoyenne); track etoile) {
-                      <span class="material-symbols-outlined fill-icon text-warning text-[18px]">star</span>
-                    }
-                  } @else {
-                    <span class="font-button text-button text-text-muted">Nouveau</span>
+              <div class="p-space-6 flex flex-col gap-space-3 flex-1">
+                <!-- Identité du cabinet : nom puis localisation, centrés pour un rendu équilibré -->
+                <div class="flex flex-col gap-1">
+                  <h4 class="font-heading text-headline-h3 text-on-surface text-center leading-snug">{{ cabinet.nom }}</h4>
+                  @if (localisation(cabinet)) {
+                    <p class="font-body text-label-sm text-text-muted text-center">{{ localisation(cabinet) }}</p>
                   }
                 </div>
-                <h4 class="font-heading text-headline-h3 text-on-surface text-center mt-2">{{ cabinet.nom }}</h4>
-                @if (localisation(cabinet)) {
-                  <p class="font-body text-label-sm text-text-muted text-center mt-1">{{ localisation(cabinet) }}</p>
-                }
+
+                <!-- Notation : nombre exact d'étoiles, séparée du texte par un filet discret -->
+                <div class="mt-auto pt-space-3 border-t border-border-subtle flex justify-center">
+                  <div class="inline-flex items-center gap-1" [attr.aria-label]="cabinet.noteMoyenne > 0 ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
+                    @if (cabinet.noteMoyenne > 0) {
+                      @for (etoile of etoiles(cabinet.noteMoyenne); track etoile) {
+                        <span class="material-symbols-outlined fill-icon text-warning text-[18px]" aria-hidden="true">star</span>
+                      }
+                      <span class="font-body text-label-sm text-text-muted ml-1">{{ cabinet.noteMoyenne | number: '1.1-1' }}</span>
+                    } @else {
+                      <span class="font-body text-label-sm text-text-muted">Nouveau</span>
+                    }
+                  </div>
+                </div>
               </div>
             </a>
           }
