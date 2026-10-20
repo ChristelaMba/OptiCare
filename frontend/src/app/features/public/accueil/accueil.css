@@ -1,0 +1,57 @@
+/*
+ * Page d'accueil publique — animations d'insistance sur les appels à l'action.
+ * Reprises en CSS local plutôt qu'en classes Tailwind : les keyframes ne sont
+ * pas exprimables en utilitaires. Toutes les animations sont neutralisées si
+ * l'utilisateur a demandé de réduire les mouvements (prefers-reduced-motion).
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  /*
+   * Halo qui pulse doucement autour du bouton principal (« Retrouver un
+   * cabinet ») pour attirer l'œil sans être agressif : l'anneau s'élargit et
+   * s'estompe en boucle. Le bouton garde sa forme arrondie (rounded-full).
+   */
+  @keyframes accueil-cta-halo {
+    0% {
+      box-shadow: 0 0 0 0 rgba(47, 106, 236, 0.45);
+    }
+    70% {
+      box-shadow: 0 0 0 14px rgba(47, 106, 236, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(47, 106, 236, 0);
+    }
+  }
+
+  .accueil-cta-pulse {
+    animation: accueil-cta-halo 2.4s ease-out infinite;
+  }
+
+  /*
+   * Léger battement vertical du bouton secondaire (« Prendre rendez-vous ») :
+   * mouvement discret, plus lent que le halo, pour ne pas faire clignoter
+   * les deux boutons au même rythme.
+   */
+  @keyframes accueil-cta-tapote {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .accueil-cta-tapote {
+    animation: accueil-cta-tapote 2.4s ease-in-out infinite;
+    animation-delay: 1.2s;
+  }
+}
+
+/* L'utilisateur préfère moins de mouvement : on laisse une transition de survol simple. */
+@media (prefers-reduced-motion: reduce) {
+  .accueil-cta-pulse,
+  .accueil-cta-tapote {
+    animation: none;
+  }
+}

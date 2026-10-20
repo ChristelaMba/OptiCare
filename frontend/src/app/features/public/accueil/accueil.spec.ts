@@ -165,6 +165,51 @@ describe('Accueil', () => {
     expect(el.querySelector('#menu-mobile')).toBeNull();
   });
 
+  it('menu mobile : un clic ailleurs sur la page le referme, mais pas un clic sur le bouton', async () => {
+    const el = await afficherCabinets([]);
+    const bouton = el.querySelector('button[aria-controls="menu-mobile"]') as HTMLButtonElement;
+
+    bouton.click();
+    fixture.detectChanges();
+    expect(el.querySelector('#menu-mobile')).not.toBeNull();
+
+    // Un clic dans le menu ne le ferme pas (il se ferme par ses propres liens).
+    (el.querySelector('#menu-mobile') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(el.querySelector('#menu-mobile')).not.toBeNull();
+
+    // Un clic n'importe où ailleurs sur la page le referme.
+    (el.querySelector('main') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(el.querySelector('#menu-mobile')).toBeNull();
+  });
+
+  it('cartes cabinets : notation à gauche (étoiles en nombre) et nom/localisation centrés sous les étoiles', async () => {
+    const el = await afficherCabinets([cabinetBrut(8, 'Cabinet Avec Quartier', 'Akwa', 1)]);
+
+    http.expectOne((r) => r.url.endsWith('/cabinets/8/avis')).flush({
+      status: 'success',
+      message: '',
+      data: { avis: [], moyenne: 4.5, total: 0, repartition: {} },
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const nom = [...el.querySelectorAll('h4')].find((h) => h.textContent?.includes('Cabinet Avec Quartier')) as HTMLElement;
+    expect(nom).toBeTruthy();
+    expect(nom.className).toContain('text-center');
+
+    const localisation = [...el.querySelectorAll('p')].find((p) => p.textContent?.trim() === 'Akwa, Douala') as HTMLElement;
+    expect(localisation).toBeTruthy();
+    expect(localisation.className).toContain('text-center');
+
+    // La ligne d'étoiles est au-dessus du nom et contient autant d'étoiles que la note (4,5 → 5).
+    const bloc = nom.parentElement as HTMLElement;
+    const etoilesAffichees = bloc.querySelectorAll('.material-symbols-outlined.fill-icon');
+    expect(etoilesAffichees.length).toBe(5);
+    expect(bloc.firstElementChild?.textContent).toContain('star');
+  });
+
   it('menu mobile, utilisateur connecté : espace + déconnexion à la place de Connexion / Inscription', async () => {
     TestBed.inject(Auth).simulerConnexion('patient');
     const el = await afficherCabinets([]);

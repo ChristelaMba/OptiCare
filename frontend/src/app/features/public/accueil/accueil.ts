@@ -77,6 +77,26 @@ export class Accueil implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Un toucher/ clic n'importe où ailleurs sur la page referme le menu mobile.
+   * Le bouton hamburger et le panneau du menu sont exclus (via `closest`) : sans
+   * cela, ouvrir le menu par le bouton déclencherait aussitôt ce même écouteur
+   * global et le refermerait instantanément.
+   */
+  @HostListener('document:click', ['$event'])
+  fermerMenuMobileAuClicExterieur(evenement: MouseEvent): void {
+    if (!this.menuMobileOuvert()) {
+      return;
+    }
+
+    const cible = evenement.target as HTMLElement | null;
+    if (cible?.closest('#menu-mobile, [aria-controls="menu-mobile"]')) {
+      return;
+    }
+
+    this.menuMobileOuvert.set(false);
+  }
+
+  /**
    * Avis réels (`GET /cabinets/{id}/avis`). La section « Avis de nos patients »
    * n'est affichée que si cette liste n'est pas vide : plus de témoignages inventés.
    */

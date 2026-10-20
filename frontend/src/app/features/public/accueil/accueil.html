@@ -91,16 +91,16 @@
           Trouvez les meilleurs spécialistes de l'optique près de chez vous. Gérez votre dossier visuel de santé de
           manière centralisée et sécurisée.
         </p>
-        <div class="flex flex-col sm:flex-row gap-space-4 mt-space-4">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-space-4 mt-space-4">
           <a
             routerLink="/recherche-cabinets"
-            class="bg-primary text-on-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-on-primary-fixed-variant transition-all shadow-md hover:shadow-lg w-fit text-center"
+            class="accueil-cta-pulse bg-primary text-on-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-on-primary-fixed-variant transition-all shadow-md hover:shadow-lg w-fit text-center"
           >
             Retrouver un cabinet
           </a>
           <a
             href="#cabinets-partenaires"
-            class="bg-transparent border-2 border-primary text-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-primary/5 transition-all w-fit text-center"
+            class="accueil-cta-tapote bg-transparent border-2 border-primary text-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-primary/5 transition-all w-fit text-center"
           >
             Prendre rendez-vous
           </a>
@@ -142,16 +142,20 @@
                 }
               </div>
               <div class="p-space-6">
-                <h4 class="font-heading text-headline-h3 text-on-surface">{{ cabinet.nom }}</h4>
-                <div class="flex items-center gap-1 mt-2 text-warning">
-                  <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
-                  <span class="font-button text-button text-on-surface">
-                    {{ cabinet.noteMoyenne > 0 ? (cabinet.noteMoyenne | number: '1.1-1') : 'Nouveau' }}
-                  </span>
-                  @if (localisation(cabinet)) {
-                    <span class="text-text-muted text-label-sm ml-2">{{ localisation(cabinet) }}</span>
+                <!-- Notation à l'extrémité gauche : autant d'étoiles pleines que la note du cabinet -->
+                <div class="flex items-center gap-0.5 min-h-[20px]" [attr.aria-label]="cabinet.noteMoyenne > 0 ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
+                  @if (cabinet.noteMoyenne > 0) {
+                    @for (etoile of etoiles(cabinet.noteMoyenne); track etoile) {
+                      <span class="material-symbols-outlined fill-icon text-warning text-[18px]">star</span>
+                    }
+                  } @else {
+                    <span class="font-button text-button text-text-muted">Nouveau</span>
                   }
                 </div>
+                <h4 class="font-heading text-headline-h3 text-on-surface text-center mt-2">{{ cabinet.nom }}</h4>
+                @if (localisation(cabinet)) {
+                  <p class="font-body text-label-sm text-text-muted text-center mt-1">{{ localisation(cabinet) }}</p>
+                }
               </div>
             </a>
           }
