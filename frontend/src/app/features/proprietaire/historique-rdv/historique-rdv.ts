@@ -2,7 +2,6 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { RendezVousService } from '../../../core/services/rendez-vous';
@@ -16,8 +15,7 @@ import {
   PeriodePredefinie,
 } from '../../../core/utils/periode-filtre';
 import { RendezVous, StatutRendezVous } from '../../../models/rendez-vous.model';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
+import { MenuProprietaire } from '../../../shared/components/menu-proprietaire/menu-proprietaire';
 
 const TAILLE_PAGE = 8;
 
@@ -48,7 +46,7 @@ const LABEL_STATUT: Record<StatutRendezVous, string> = {
  */
 @Component({
   selector: 'app-historique-rdv',
-  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
+  imports: [MenuProprietaire, DatePipe, FormsModule],
   templateUrl: './historique-rdv.html',
   styleUrl: './historique-rdv.css',
 })

@@ -63,6 +63,10 @@ describe('FacturesProprietaire', () => {
   }
 
   afterEach(() => {
+    // Le menu partagé (app-menu-proprietaire) demande le nom du cabinet via
+    // GET /cabinets/{id}/statistiques (cf. CabinetCourant) : on absorbe cette requête,
+    // hors sujet ici, avant de vérifier qu'aucune autre ne traîne.
+    http.match((r) => r.url.endsWith('/statistiques')).forEach((req) => req.flush({ status: 'success', message: '', data: { cabinet: { id: 1, nom: 'Vision Plus' } } }));
     http.verify();
     sessionStorage.clear();
     localStorage.clear();

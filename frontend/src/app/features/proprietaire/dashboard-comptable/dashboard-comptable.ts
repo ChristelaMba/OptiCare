@@ -1,14 +1,12 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
-import { StatistiquesService } from '../../../core/services/statistiques';
+import { CabinetCourant } from '../../../core/services/cabinet-courant';
 import { messageErreurApi } from '../../../core/utils/api-errors';
 import { formaterFcfa } from '../../../core/utils/montant';
 import { StatistiquesCabinet } from '../../../models/statistiques.model';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
+import { MenuProprietaire } from '../../../shared/components/menu-proprietaire/menu-proprietaire';
 
 /** Période du compteur de rendez-vous : `aujourd_hui`, `cette_semaine`, `ce_mois` (seules périodes fournies par l'API). */
 type Periode = 'jour' | 'semaine' | 'mois';
@@ -25,13 +23,13 @@ const COULEURS = ['#0050ce', '#1baf7a', '#eda100', '#8e44ad', '#e0457b', '#64748
  */
 @Component({
   selector: 'app-dashboard-comptable',
-  imports: [LogoOpticare, RouterLink, BoutonDeconnexion],
+  imports: [MenuProprietaire],
   templateUrl: './dashboard-comptable.html',
   styleUrl: './dashboard-comptable.css',
 })
 export class DashboardComptable implements OnInit {
   private readonly auth = inject(Auth);
-  private readonly statistiquesService = inject(StatistiquesService);
+  private readonly cabinetCourant = inject(CabinetCourant);
 
   private readonly cabinetId = this.auth.utilisateur()?.cabinetId ?? null;
 
@@ -108,9 +106,13 @@ export class DashboardComptable implements OnInit {
 
   charger(): void {
     if (!this.cabinetId) return;
+    // Données partagées avec le menu (une seule requête par session, cf. CabinetCourant).
+    const requete = this.cabinetCourant.statistiques();
+    if (!requete) return;
+
     this.chargement.set(true);
     this.erreur.set(null);
-    this.statistiquesService.obtenirPourCabinet(this.cabinetId).subscribe({
+    requete.subscribe({
       next: (stats) => {
         this.stats.set(stats);
         this.chargement.set(false);

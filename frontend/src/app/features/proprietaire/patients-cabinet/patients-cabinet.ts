@@ -2,15 +2,13 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { catchError, of, Subject, switchMap, tap } from 'rxjs';
 
 import { Auth } from '../../../core/services/auth';
 import { PatientCabinet, PatientsCabinet } from '../../../core/services/patients-cabinet';
 import { messageErreurApi } from '../../../core/utils/api-errors';
 import { bornesSelection, dateDansBornes, LIBELLE_PERIODE, PeriodePredefinie } from '../../../core/utils/periode-filtre';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
+import { MenuProprietaire } from '../../../shared/components/menu-proprietaire/menu-proprietaire';
 
 /**
  * Patients du cabinet — vue **propriétaire**, lecture seule (21/10/2026).
@@ -31,7 +29,7 @@ import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opti
  */
 @Component({
   selector: 'app-patients-cabinet',
-  imports: [LogoOpticare, FormsModule, RouterLink, DatePipe, BoutonDeconnexion],
+  imports: [MenuProprietaire, FormsModule, DatePipe],
   templateUrl: './patients-cabinet.html',
   styleUrl: './patients-cabinet.css',
 })

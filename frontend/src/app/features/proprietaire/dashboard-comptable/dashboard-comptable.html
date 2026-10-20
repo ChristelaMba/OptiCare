@@ -1,52 +1,9 @@
 <div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
-  <!-- SideNavBar (desktop) -->
-  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
-    <div class="mb-space-8 px-space-4">
-      <app-logo-opticare [hauteur]="28" class="mb-2" />
-      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
-    </div>
-    <nav class="flex-1 flex flex-col gap-space-2">
-      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
-        <span class="material-symbols-outlined fill-icon">dashboard</span>
-        <span class="font-body text-body-base">Dashboard</span>
-      </a>
-      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">calendar_today</span>
-        <span class="font-body text-body-base">Rendez-vous</span>
-      </a>
-      <a routerLink="/proprietaire/patients" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">groups</span>
-        <span class="font-body text-body-base">Patients</span>
-      </a>
-      <a routerLink="/proprietaire/factures" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">receipt_long</span>
-        <span class="font-body text-body-base">Factures</span>
-      </a>
-      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">badge</span>
-        <span class="font-body text-body-base">Employés</span>
-      </a>
-      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">storefront</span>
-        <span class="font-body text-body-base">Ma vitrine</span>
-      </a>
-    </nav>
-    <div class="px-space-4 pt-space-4 border-t border-border-subtle">
-      <app-bouton-deconnexion classe="w-full flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors duration-200">
-        <span class="material-symbols-outlined">logout</span>
-        <span class="font-body text-body-base">Se déconnecter</span>
-      </app-bouton-deconnexion>
-    </div>
-  </aside>
-
-  <!-- Mobile header -->
-  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
-    <app-logo-opticare [hauteur]="28" />
-    <app-bouton-deconnexion classe="material-symbols-outlined text-text-muted hover:text-error">logout</app-bouton-deconnexion>
-  </header>
+  <!-- Menu partagé de l'espace propriétaire (barre latérale + drawer mobile) -->
+  <app-menu-proprietaire />
 
   <!-- Contenu principal -->
-  <main class="flex-1 min-w-0 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
+  <main class="flex-1 min-w-0 md:ml-64 w-full pt-20 page-bottom-space md:pt-0 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
     <!-- En-tête + sélecteur de période -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-4 mt-space-6 md:mt-0">
       <div>
@@ -183,33 +140,4 @@
         }
       </div>
     }
-  </main>
-
-  <!-- BottomNav (mobile) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-start items-center overflow-x-auto z-50">
-    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center min-w-[72px] h-full text-primary font-bold">
-      <span class="material-symbols-outlined fill-icon">dashboard</span>
-      <span class="font-body text-label-sm mt-1">Dashboard</span>
-    </a>
-    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
-      <span class="material-symbols-outlined">calendar_today</span>
-      <span class="font-body text-label-sm mt-1">Rendez-vous</span>
-    </a>
-    <a routerLink="/proprietaire/patients" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
-      <span class="material-symbols-outlined">groups</span>
-      <span class="font-body text-label-sm mt-1">Patients</span>
-    </a>
-    <a routerLink="/proprietaire/factures" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
-      <span class="material-symbols-outlined">receipt_long</span>
-      <span class="font-body text-label-sm mt-1">Factures</span>
-    </a>
-    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
-      <span class="material-symbols-outlined">badge</span>
-      <span class="font-body text-label-sm mt-1">Employés</span>
-    </a>
-    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
-      <span class="material-symbols-outlined">storefront</span>
-      <span class="font-body text-label-sm mt-1">Ma vitrine</span>
-    </a>
-  </nav>
-</div>
+  </main></div>

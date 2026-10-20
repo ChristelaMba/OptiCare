@@ -1,0 +1,14 @@
+/*
+ * Le drawer s'appuie sur les utilitaires Tailwind `-translate-x-full` (fermé, hors écran à
+ * gauche) et `md:translate-x-0` (toujours visible à partir de `md`).
+ *
+ * Attention : depuis Tailwind v4, ces utilitaires pilotent la propriété CSS `translate`
+ * (et non `transform`). On surcharge donc `translate` — et non `transform` — pour l'état
+ * ouvert sur téléphone, sinon `-translate-x-full` l'emporterait et le panneau resterait
+ * hors écran (seul le voile sombre serait visible).
+ */
+@media (max-width: 767px) {
+  .menu-proprietaire.menu-ouvert {
+    translate: 0 0;
+  }
+}
