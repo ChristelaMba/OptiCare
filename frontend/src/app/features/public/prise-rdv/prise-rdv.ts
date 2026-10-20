@@ -21,6 +21,7 @@ import {
   RendezVous
 } from '../../../models/rendez-vous.model';
 import { DatePipe } from '@angular/common';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 /** État d'un créneau affiché : seul « libre » est sélectionnable. */
 type EtatCreneau = 'libre' | 'reserve' | 'pause' | 'deja-vous' | 'indisponible';
@@ -34,6 +35,7 @@ interface CreneauAffiche {
   selector: 'app-prise-rdv',
   standalone: true,
   imports: [
+    LogoOpticare,
     ReactiveFormsModule,
     RouterLink,DatePipe
   ],

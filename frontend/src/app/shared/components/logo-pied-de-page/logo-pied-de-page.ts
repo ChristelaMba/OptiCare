@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 
+import { LogoOpticare } from '../logo-opticare/logo-opticare';
+
 /**
  * Logo OptiCare pour les pieds de page sombres (fond bleu nuit). Le logo est bleu : posé directement sur
  * le fond il est illisible, il est donc placé sur une pastille blanche, avec ses proportions d'origine
@@ -7,9 +9,10 @@ import { Component } from '@angular/core';
  */
 @Component({
   selector: 'app-logo-pied-de-page',
+  imports: [LogoOpticare],
   template: `
     <span class="inline-flex w-fit bg-white rounded-lg px-space-3 py-space-2">
-      <img src="/images/logo-opticare.png" alt="OptiCare" width="840" height="210" class="h-8 w-auto object-contain" />
+      <app-logo-opticare [hauteur]="32" />
     </span>
   `,
   host: { class: 'inline-flex w-fit' },

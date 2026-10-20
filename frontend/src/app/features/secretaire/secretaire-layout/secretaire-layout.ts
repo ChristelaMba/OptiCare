@@ -9,12 +9,14 @@ import { Auth } from '../../../core/services/auth';
 import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
 import { libelleRole } from '../../../models/utilisateur.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 @Component({
   selector: 'app-secretaire-layout',
   standalone: true,
 
   imports: [
+    LogoOpticare,
     RouterLink,
     RouterLinkActive,
     RouterOutlet, BoutonDeconnexion],

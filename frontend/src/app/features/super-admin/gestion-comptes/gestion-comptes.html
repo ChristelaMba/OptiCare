@@ -1,14 +1,14 @@
 <div class="min-h-screen flex flex-col md:flex-row bg-surface-bg text-on-surface font-body">
   <!-- TopNavBar (mobile) -->
   <header class="md:hidden w-full h-16 bg-surface-container-lowest flex justify-between items-center px-margin-mobile sticky top-0 z-40 shadow-sm">
-    <img src="/images/logo-opticare.png" alt="OptiCare" class="h-7 w-auto" />
+    <app-logo-opticare [hauteur]="28" />
     <button type="button" (click)="deconnexion()" class="material-symbols-outlined text-text-muted inline-flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="Déconnexion">logout</button>
   </header>
 
   <!-- SideNavBar (desktop) -->
   <nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest py-space-6 border-r border-border-subtle z-50">
     <div class="px-space-6 mb-space-8">
-      <img src="/images/logo-opticare.png" alt="OptiCare" class="h-8 w-auto" />
+      <app-logo-opticare [hauteur]="32" />
       <p class="font-body text-label-sm text-text-muted mt-1">Super Admin</p>
     </div>
     <div class="flex-1 px-space-2 flex flex-col gap-space-1">

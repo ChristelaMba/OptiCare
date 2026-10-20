@@ -5,10 +5,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Auth } from '../../../core/services/auth';
 import { messageErreurConnexion } from '../../../core/utils/api-errors';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 @Component({
   selector: 'app-connexion',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [LogoOpticare, ReactiveFormsModule, RouterLink],
   templateUrl: './connexion.html',
   styleUrl: './connexion.css',
 })

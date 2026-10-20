@@ -7,6 +7,7 @@ import { Auth } from '../../../core/services/auth';
 import { Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
 import { messageErreurApi } from '../../../core/utils/api-errors';
 import { CompteAdmin, libelleRole, RoleUtilisateur, StatsComptes } from '../../../models/utilisateur.model';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 type FiltreStatut = 'tous' | 'actif' | 'inactif';
 
@@ -23,7 +24,7 @@ const TAILLE_PAGE = 8;
  */
 @Component({
   selector: 'app-gestion-comptes',
-  imports: [FormsModule, RouterLink],
+  imports: [LogoOpticare, FormsModule, RouterLink],
   templateUrl: './gestion-comptes.html',
   styleUrl: './gestion-comptes.css',
 })

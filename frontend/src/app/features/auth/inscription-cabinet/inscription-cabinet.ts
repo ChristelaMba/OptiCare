@@ -11,6 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Auth } from '../../../core/services/auth';
 import { messageErreurInscription } from '../../../core/utils/api-errors';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErrors | null {
   const motDePasse = groupe.get('motDePasse')?.value;
@@ -20,7 +21,7 @@ function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErro
 
 @Component({
   selector: 'app-inscription-cabinet',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [LogoOpticare, ReactiveFormsModule, RouterLink],
   templateUrl: './inscription-cabinet.html',
   styleUrl: './inscription-cabinet.css',
 })

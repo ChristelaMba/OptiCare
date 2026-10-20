@@ -6,6 +6,7 @@ import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel, HoraireOuverture, ProfilCabinetPayload } from '../../../models/cabinet.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 type JourSemaine = HoraireOuverture['jour'];
 
@@ -37,7 +38,7 @@ const MAX_PHOTOS = 4;
  */
 @Component({
   selector: 'app-completer-profil-cabinet',
-  imports: [ReactiveFormsModule, RouterLink, BoutonDeconnexion],
+  imports: [LogoOpticare, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './completer-profil-cabinet.html',
   styleUrl: './completer-profil-cabinet.css',
 })
