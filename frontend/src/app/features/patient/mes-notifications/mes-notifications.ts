@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
+import { remplacerDatesBrutes } from '../../../core/utils/dates-fr';
 import { RouterLink } from '@angular/router';
 
 import {
@@ -214,6 +215,11 @@ export class MesNotifications {
   /* =======================================================
      CHARGER LES NOTIFICATIONS
   ======================================================== */
+
+  /** Message affiché : les dates brutes (AAAA-MM-JJ HH:MM:SS) du serveur sont écrites en français ; la donnée reçue n'est pas modifiée. */
+  messageAffiche(message: string): string {
+    return remplacerDatesBrutes(message);
+  }
 
   chargerNotifications(): void {
 

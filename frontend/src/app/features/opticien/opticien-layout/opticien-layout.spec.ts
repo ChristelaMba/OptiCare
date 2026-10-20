@@ -67,4 +67,17 @@ describe('OpticienLayout', () => {
     expect(el.querySelector('[aria-label="Changer le thème"]')).toBeNull();
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
+
+  it('en-tête : plus de recherche, de « Contacter le support », de menu du profil ni de chevron sans action', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('input[type=search]')).toBeNull();
+    expect(el.textContent).not.toContain('Contacter le support');
+    expect(el.querySelector('[aria-label="Options du profil"]')).toBeNull();
+    expect(el.querySelector('.profile-chevron')).toBeNull();
+    // ce qui fonctionne reste : nom, initiales, cloche et menu principal
+    expect(el.querySelector('[aria-label="Notifications"]')).not.toBeNull();
+    expect(el.querySelector('.topbar-profile-avatar')).not.toBeNull();
+    expect(el.textContent).toContain('Mes patients');
+  });
 });

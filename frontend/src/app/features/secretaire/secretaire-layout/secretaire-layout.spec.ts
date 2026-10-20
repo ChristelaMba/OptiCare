@@ -60,4 +60,15 @@ describe('SecretaireLayout', () => {
     expect(el.querySelector('.theme-button')).toBeNull();
     expect(el.querySelector('.dark-mode')).toBeNull();
   });
+
+  it('en-tête : plus de recherche, de bouton d’aide ni de « Plus d’options » sans action ; navigation et identité conservées', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('input[placeholder="Rechercher..."]')).toBeNull();
+    expect(el.textContent).not.toContain('Contacter OptiCare');
+    expect(el.querySelector('[aria-label="Plus d\'options"]')).toBeNull();
+    expect(el.textContent).toContain('Agenda');
+    expect(el.textContent).toContain('Enregistrer un patient');
+    expect(el.querySelector('.top-avatar')).not.toBeNull();
+  });
 });

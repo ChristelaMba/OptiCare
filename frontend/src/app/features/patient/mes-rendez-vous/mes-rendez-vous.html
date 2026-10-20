@@ -643,7 +643,7 @@
                       type="button"
                       class="action-btn danger"
                       [disabled]="annulationEnCours() !== null"
-                      (click)="annulerRendezVous(rdv)"
+                      (click)="demanderAnnulation(rdv)"
                     >
 
                       <span class="action-icon">
@@ -681,7 +681,7 @@
                       type="button"
                       class="action-btn danger"
                       [disabled]="annulationEnCours() !== null"
-                      (click)="annulerRendezVous(rdv)"
+                      (click)="demanderAnnulation(rdv)"
                     >
 
                       <span class="action-icon">
@@ -777,5 +777,22 @@
   }
 
 </section>
+
+@if (rdvAConfirmer(); as rdvConfirme) {
+  <div class="confirm-overlay" role="alertdialog" aria-modal="true" aria-label="Confirmer l'annulation">
+    <div class="confirm-box">
+      <h3>Voulez-vous vraiment annuler ce rendez-vous ?</h3>
+      <p>
+        {{ rdvConfirme.cabinetNom }} · {{ rdvConfirme.date.split('-').reverse().join('/') }} à {{ rdvConfirme.heureDebut }}.
+        Le créneau sera libéré.
+      </p>
+      <div class="confirm-actions">
+        <button type="button" class="btn-neutral" (click)="garderRendezVous()">Garder</button>
+        <button type="button" class="btn-danger" (click)="confirmerAnnulation()">Annuler le rendez-vous</button>
+      </div>
+    </div>
+  </div>
+}
+
 
 

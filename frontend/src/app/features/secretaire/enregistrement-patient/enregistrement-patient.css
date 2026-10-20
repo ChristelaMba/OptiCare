@@ -1513,3 +1513,8 @@
   }
 
 }
+
+.field .optional {
+  color: #64748b;
+  font-weight: 400;
+}

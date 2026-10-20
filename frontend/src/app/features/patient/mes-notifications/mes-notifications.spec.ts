@@ -153,4 +153,15 @@ describe('MesNotifications', () => {
     expect(el.querySelector('.delete-btn')).toBeNull();
     expect(el.querySelector('.clear-button')).toBeNull();
   });
+
+  it('dates brutes du serveur écrites en français à l’affichage, donnée reçue intacte', async () => {
+    const el = await repondre(reponseListe(NOTIFICATIONS, 1));
+    const texte = el.textContent ?? '';
+
+    expect(texte).toContain('Votre RDV du 23 octobre 2026 à 09:00 a été annulé.');
+    expect(texte).toContain('Votre RDV du 23 octobre 2026 à 09:00 est confirmé.');
+    expect(texte).not.toMatch(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    // la donnée reçue n'est pas modifiée (seul l'affichage l'est)
+    expect(component.notifications()[0].message).toBe('Votre RDV du 2026-10-23 00:00:00 à 09:00 a été annulé.');
+  });
 });

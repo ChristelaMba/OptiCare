@@ -1,214 +1,121 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
-import { PatientService } from '../../../core/services/patient';
+import { Auth } from '../../../core/services/auth';
+import { CreerPatientPayload, PatientsCabinet } from '../../../core/services/patients-cabinet';
+import { erreursParChamp, messageErreurApi } from '../../../core/utils/api-errors';
 
+const CHAMPS_API = ['nom', 'prenom', 'telephone', 'email', 'ville', 'date_naissance', 'adresse'];
+
+/**
+ * 20/10/2026 : branché sur `POST /cabinets/{cabinetId}/patients` (ROUTES-API-LIONEL §7.2) via `PatientsCabinet`,
+ * le service déjà utilisé par l'opticien. Obligatoires : nom, prénom, téléphone (+237 suivi de 9 chiffres) ;
+ * facultatifs : e-mail, ville, date de naissance, adresse. Champs retirés (inconnus de l'API) : sexe, profession,
+ * quartier, WhatsApp, nombre d'enfants.
+ */
 @Component({
   selector: 'app-enregistrement-patient',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './enregistrement-patient.html',
-  styleUrl: './enregistrement-patient.css'
+  styleUrl: './enregistrement-patient.css',
 })
 export class EnregistrementPatient {
-
   private readonly fb = inject(FormBuilder);
-  private readonly patientService = inject(PatientService);
-  private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
+  private readonly patientsService = inject(PatientsCabinet);
+
+  private readonly cabinetId = this.auth.utilisateur()?.cabinetId ?? null;
 
   readonly isSubmitting = signal(false);
   readonly successMessage = signal('');
   readonly errorMessage = signal('');
+  /** Erreurs 422 du serveur, par champ (`telephone`, `email`…). */
+  readonly erreursChamps = signal<Record<string, string>>({});
 
   readonly patientForm = this.fb.nonNullable.group({
-
-    nom: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(2)
-      ]
-    ],
-
-    prenom: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(2)
-      ]
-    ],
-
-    dateNaissance: [
-      '',
-      Validators.required
-    ],
-
-    sexe: [
-      'M' as 'M' | 'F',
-      Validators.required
-    ],
-
-    telephone: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(/^[0-9]{9}$/)
-      ]
-    ],
-
-    whatsapp: [
-      ''
-    ],
-
-    profession: [
-      ''
-    ],
-
-    quartier: [
-      ''
-    ],
-
-    nombreEnfants: [
-      0,
-      [
-        Validators.min(0)
-      ]
-    ]
-
+    nom: ['', [Validators.required, Validators.minLength(2)]],
+    prenom: ['', [Validators.required, Validators.minLength(2)]],
+    telephone: ['', [Validators.required, Validators.pattern(/^\+237\d{9}$/)]],
+    email: ['', Validators.email],
+    ville: [''],
+    dateNaissance: [''],
+    adresse: [''],
   });
 
   get f() {
     return this.patientForm.controls;
   }
 
-  submit(): void {
+  /** Téléphone saisi avec espaces, points ou tirets : normalisé en « +237XXXXXXXXX ». */
+  normaliserTelephone(): void {
+    const champ = this.f.telephone;
+    const nettoye = champ.value.replace(/[\s.-]/g, '');
+    if (nettoye !== champ.value) champ.setValue(nettoye);
+  }
 
+  submit(): void {
+    if (this.isSubmitting()) return;
     this.successMessage.set('');
     this.errorMessage.set('');
+    this.erreursChamps.set({});
+    this.normaliserTelephone();
 
-    if (this.patientForm.invalid) {
-
+    if (this.patientForm.invalid || !this.cabinetId) {
       this.patientForm.markAllAsTouched();
-
       this.errorMessage.set(
-        'Veuillez vérifier les informations obligatoires.'
+        this.cabinetId ? 'Veuillez vérifier les informations obligatoires.' : "Aucun cabinet rattaché à ce compte — impossible d'enregistrer un patient.",
       );
-
       return;
     }
 
     this.isSubmitting.set(true);
-
-    const formValue = this.patientForm.getRawValue();
-
-    const patient = {
-      // Patient créé par une secrétaire depuis le cabinet : il n'a pas de
-      // compte propre, et aucun dossier visuel n'existe encore pour lui.
-      estUtilisateur: false,
-      dossierVisuelId: '', // généré et renseigné par le back au moment de la création
-      nom: formValue.nom.trim(),
-      prenom: formValue.prenom.trim(),
-      dateNaissance: formValue.dateNaissance,
-      age: this.calculateAge(formValue.dateNaissance),
-      sexe: formValue.sexe,
-      telephone: `+237${formValue.telephone}`,
-      whatsapp: formValue.whatsapp
-        ? `+237${formValue.whatsapp}`
-        : undefined,
-      profession: formValue.profession.trim() || undefined,
-      quartier: formValue.quartier.trim() || undefined,
-      nombreEnfants: formValue.nombreEnfants
+    const v = this.patientForm.getRawValue();
+    const payload: CreerPatientPayload = {
+      nom: v.nom.trim(),
+      prenom: v.prenom.trim(),
+      telephone: v.telephone,
+      ...(v.email.trim() ? { email: v.email.trim() } : {}),
+      ...(v.ville.trim() ? { ville: v.ville.trim() } : {}),
+      ...(v.dateNaissance ? { date_naissance: v.dateNaissance } : {}),
+      ...(v.adresse.trim() ? { adresse: v.adresse.trim() } : {}),
     };
 
-    this.patientService.createPatient(patient).subscribe({
-
-      next: (createdPatient) => {
-
+    this.patientsService.creer(this.cabinetId, payload).subscribe({
+      next: (patient) => {
         this.isSubmitting.set(false);
-
-        this.successMessage.set(
-          'Le dossier du patient a été créé avec succès.'
-        );
-
-        setTimeout(() => {
-
-          this.router.navigate([
-            '/secretaire',
-            'agenda'
-          ]);
-
-        }, 1200);
+        this.resetForm();
+        this.successMessage.set(`Le patient ${patient.nomComplet} a été enregistré dans votre cabinet.`);
       },
-
-      error: (error) => {
-
-        console.error(
-          'Erreur lors de la création du patient :',
-          error
-        );
-
+      error: (e: HttpErrorResponse) => {
         this.isSubmitting.set(false);
+        const champs = erreursParChamp(e);
+        const sousChamp: Record<string, string> = {};
+        const autres: string[] = [];
+        for (const [cle, message] of Object.entries(champs)) {
+          if (CHAMPS_API.includes(cle)) sousChamp[cle] = message;
+          else autres.push(message);
+        }
+        this.erreursChamps.set(sousChamp);
 
-        this.errorMessage.set(
-          'Impossible de créer le dossier pour le moment. Veuillez réessayer.'
-        );
-      }
-
+        if (e.status === 422 && (autres.length > 0 || Object.keys(sousChamp).length > 0)) {
+          this.errorMessage.set(autres.length > 0 ? autres.join(' ') : 'Certains champs sont refusés par le serveur. Corrigez-les puis réessayez.');
+        } else {
+          const messageServeur = (e.error as { message?: string } | null)?.message;
+          this.errorMessage.set(
+            messageErreurApi(e, `L'enregistrement du patient a échoué.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`),
+          );
+        }
+      },
     });
   }
 
+  /** Vide le formulaire (bouton « Annuler » et après un enregistrement réussi). */
   resetForm(): void {
-
-    this.patientForm.reset({
-      nom: '',
-      prenom: '',
-      dateNaissance: '',
-      sexe: 'M',
-      telephone: '',
-      whatsapp: '',
-      profession: '',
-      quartier: '',
-      nombreEnfants: 0
-    });
-
-    this.successMessage.set('');
+    this.patientForm.reset({ nom: '', prenom: '', telephone: '', email: '', ville: '', dateNaissance: '', adresse: '' });
     this.errorMessage.set('');
+    this.erreursChamps.set({});
   }
-
-  private calculateAge(dateNaissance: string): number {
-
-    const birthDate = new Date(dateNaissance);
-    const today = new Date();
-
-    let age =
-      today.getFullYear() -
-      birthDate.getFullYear();
-
-    const monthDifference =
-      today.getMonth() -
-      birthDate.getMonth();
-
-    if (
-      monthDifference < 0 ||
-      (
-        monthDifference === 0 &&
-        today.getDate() < birthDate.getDate()
-      )
-    ) {
-      age--;
-    }
-
-    return age;
-  }
-
 }

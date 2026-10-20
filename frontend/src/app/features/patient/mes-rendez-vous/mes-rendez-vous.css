@@ -1543,3 +1543,61 @@ font-weight: 700;
 letter-spacing: 0.04em;
 text-transform: uppercase;
 }
+
+
+/* Fenêtre de confirmation d'annulation */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.confirm-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
+}
+
+.confirm-box h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.confirm-box p {
+  margin: 0 0 18px;
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirm-actions button {
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-actions .btn-neutral {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.confirm-actions .btn-danger {
+  background: #dc2626;
+  color: #fff;
+}

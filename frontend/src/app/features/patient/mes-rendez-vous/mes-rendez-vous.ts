@@ -253,6 +253,25 @@ export class MesRendezVous implements OnInit {
   /** id du RDV dont l'annulation est en cours — bloque le double clic. */
   annulationEnCours = signal<string | null>(null);
 
+  /** Rendez-vous dont l'annulation attend confirmation : aucun appel API tant que le patient n'a pas confirmé. */
+  rdvAConfirmer = signal<RendezVous | null>(null);
+
+  demanderAnnulation(rdv: RendezVous): void {
+    if (this.annulationEnCours() || rdv.statut === 'annule') return;
+    this.rdvAConfirmer.set(rdv);
+  }
+
+  /** « Garder » : le rendez-vous n'est pas modifié. */
+  garderRendezVous(): void {
+    this.rdvAConfirmer.set(null);
+  }
+
+  confirmerAnnulation(): void {
+    const rdv = this.rdvAConfirmer();
+    this.rdvAConfirmer.set(null);
+    if (rdv) this.annulerRendezVous(rdv);
+  }
+
   annulerRendezVous(
     rdv: RendezVous
   ): void {
