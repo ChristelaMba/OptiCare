@@ -736,7 +736,7 @@ p {
 .prescription-values {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 7px;
 }
@@ -1185,7 +1185,7 @@ p {
   }
 
   .documents-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .history-card {
@@ -1213,7 +1213,7 @@ p {
   }
 
   .dossier-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .history-card {
@@ -1223,7 +1223,7 @@ p {
   .timeline {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
     gap: 4px;
   }
@@ -1258,7 +1258,7 @@ p {
   }
 
   .eyes-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1299,7 +1299,7 @@ p {
   }
 
   .prescription-values {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .download-all {
@@ -1364,7 +1364,7 @@ p {
   }
 
   .prescription-values {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -1399,4 +1399,23 @@ a:focus-visible {
     border-color 0.25s ease,
     color 0.25s ease,
     box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   TELEPHONE : rien ne doit depasser la largeur de l'ecran
+========================================================= */
+
+.timeline > *,
+.detail-card,
+.eyes-grid > *,
+.prescription-values > * {
+  /* Les enfants de grille peuvent retrecir sous leur contenu */
+  min-width: 0;
+}
+
+.detail-card,
+.prescription-values > div {
+  /* Textes longs sans espace : retour a la ligne au lieu de deborder */
+  overflow-wrap: anywhere;
 }

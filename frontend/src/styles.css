@@ -167,3 +167,23 @@ body {
     animation: auth-card-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
+
+
+/* Telephone : champs de formulaire a 16 px minimum, sinon le navigateur zoome au focus */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+
+/* Telephone : zones tactiles d'au moins 40 px de haut pour les boutons */
+@media (max-width: 768px) {
+  button,
+  [role="button"] {
+    /* !important : beaucoup de composants fixent leur propre min-height (29 a 36 px) */
+    min-height: 40px !important;
+  }
+}

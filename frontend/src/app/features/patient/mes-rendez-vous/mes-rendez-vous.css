@@ -1357,7 +1357,7 @@ width: 100%;
 
 display: grid;
 
-grid-template-columns: repeat(2, 1fr);
+grid-template-columns: repeat(2, minmax(0, 1fr));
 
 }
 
@@ -1421,7 +1421,7 @@ align-self: flex-start;
 }
 
 .rdv-actions {
-grid-template-columns: 1fr;
+grid-template-columns: minmax(0, 1fr);
 }
 
 .rdv-top h3 {
@@ -1600,4 +1600,14 @@ text-transform: uppercase;
 .confirm-actions .btn-danger {
   background: #dc2626;
   color: #fff;
+}
+
+
+/* Telephone : lien « Voir l'emplacement » facile a toucher */
+@media (max-width: 768px) {
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }
