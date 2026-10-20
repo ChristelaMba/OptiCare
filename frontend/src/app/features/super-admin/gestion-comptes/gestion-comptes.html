@@ -1,56 +1,6 @@
-<div class="min-h-screen flex flex-col md:flex-row bg-surface-bg text-on-surface font-body">
-  <!-- TopNavBar (mobile) -->
-  <header class="md:hidden w-full h-16 bg-surface-container-lowest flex justify-between items-center px-margin-mobile sticky top-0 z-40 shadow-sm">
-    <app-logo-opticare [hauteur]="28" />
-    <button type="button" (click)="deconnexion()" class="material-symbols-outlined text-text-muted inline-flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="Déconnexion">logout</button>
-  </header>
-
-  <!-- SideNavBar (desktop) -->
-  <nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest py-space-6 border-r border-border-subtle z-50">
-    <div class="px-space-6 mb-space-8">
-      <app-logo-opticare [hauteur]="32" />
-      <p class="font-body text-label-sm text-text-muted mt-1">Super Admin</p>
-    </div>
-    <div class="flex-1 px-space-2 flex flex-col gap-space-1">
-      <a
-        routerLink="/super-admin/validation-cabinets"
-        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
-      >
-        <span class="material-symbols-outlined">verified_user</span>
-        <span class="font-button text-button">Validation des cabinets</span>
-      </a>
-      <a
-        routerLink="/super-admin/gestion-comptes"
-        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
-      >
-        <span class="material-symbols-outlined">manage_accounts</span>
-        <span class="font-button text-button">Gestion des comptes</span>
-      </a>
-    </div>
-
-    <!-- Profil + déconnexion en pied de sidebar (comme l'espace opticien) -->
-    <div class="px-space-4 pt-space-4 mt-auto border-t border-border-subtle">
-      <div class="flex items-center gap-space-3">
-        <div class="w-10 h-10 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center font-button text-button uppercase">
-          {{ initiales() }}
-        </div>
-        <div class="min-w-0">
-          <p class="font-button text-button text-on-surface truncate">{{ nomComplet() }}</p>
-          <p class="font-body text-label-sm text-text-muted truncate">{{ roleUtilisateurLibelle() }}</p>
-        </div>
-      </div>
-      <app-bouton-deconnexion
-        classe="effet-bouton w-full mt-space-3 flex items-center gap-space-3 px-space-4 py-space-3 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
-      >
-        <span class="material-symbols-outlined">logout</span>
-        <span class="font-button text-button">Déconnexion</span>
-      </app-bouton-deconnexion>
-    </div>
-  </nav>
-
-  <!-- Contenu principal -->
-  <main class="flex-1 min-w-0 md:ml-64 w-full px-margin-mobile md:px-margin-desktop py-space-8 md:py-space-12 flex flex-col gap-space-8">
-    <!-- En-tête -->
+<!-- Gestion globale des comptes — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-7xl">
+  <!-- En-tête -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
       <div>
         <h1 class="font-heading text-headline-h1-mobile md:text-headline-h1 text-on-surface mb-1">Gestion globale des comptes</h1>
@@ -248,7 +198,6 @@
         </div>
       }
     </div>
-  </main>
 
   @if (compteReinit(); as compte) {
     <div class="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-space-4" role="dialog" aria-modal="true" aria-label="Réinitialiser le mot de passe">

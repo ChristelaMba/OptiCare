@@ -1,0 +1,196 @@
+<!--
+  Layout commun de l'espace Super Admin.
+  Structure et habillage identiques à l'espace patient / opticien :
+  - barre latérale fixe (ordinateur) : logo, navigation à sections, profil + déconnexion en pied ;
+  - sur téléphone : barre du haut (logo + déconnexion) et tiroir latéral avec voile sombre ;
+  - `<router-outlet>` pour l'écran enfant.
+
+  Les classes (`.super-sidebar`, `.nav-link`, `.active`, `.profile-avatar`,
+  `.sidebar-logout`…) sont reprises telles quelles de `patient-layout.css`
+  pour que la sidebar, le survol et l'effet au clic soient rigoureusement
+  identiques d'un espace à l'autre.
+-->
+<div class="super-admin-layout">
+
+  <!-- =====================================================
+       VOILE SOMBRE (téléphone) : ferme le tiroir au clic
+  ====================================================== -->
+
+  @if (menuOuvert()) {
+
+    <div
+      class="sidebar-overlay"
+      (click)="fermerMenu()"
+    ></div>
+
+  }
+
+
+  <!-- =====================================================
+       SIDEBAR (ordinateur) / TIROIR (téléphone)
+  ====================================================== -->
+
+  <aside
+    class="super-sidebar"
+    [class.sidebar-open]="menuOuvert()"
+    aria-label="Navigation de l'espace Super Admin"
+  >
+
+    <!-- LOGO + INTITULÉ DE L'ESPACE -->
+
+    <div class="sidebar-brand">
+
+      <div class="brand-text">
+
+        <app-logo-opticare [hauteur]="32" />
+
+        <span>
+          Super Admin
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        class="sidebar-close"
+        (click)="fermerMenu()"
+        aria-label="Fermer le menu"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- NAVIGATION À SECTIONS -->
+
+    <nav class="sidebar-navigation">
+
+      @for (section of sections; track section.titre) {
+
+        <span class="nav-label">
+          {{ section.titre }}
+        </span>
+
+        @for (lien of section.liens; track lien.route) {
+
+          <a
+            [routerLink]="lien.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link"
+            (click)="fermerMenu()"
+          >
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                [attr.d]="lien.chemin"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+
+            <span>
+              {{ lien.libelle }}
+            </span>
+
+          </a>
+
+        }
+
+      }
+
+    </nav>
+
+
+    <!-- PROFIL + DÉCONNEXION (pied de sidebar) -->
+
+    <div class="sidebar-profile">
+
+      <div class="profile-avatar">
+        {{ initiales() }}
+      </div>
+
+      <div class="profile-details">
+
+        <strong>
+          {{ nomComplet() }}
+        </strong>
+
+      </div>
+
+    </div>
+
+    <div class="sidebar-logout">
+      <app-bouton-deconnexion classe="logout-button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span>Se déconnecter</span>
+      </app-bouton-deconnexion>
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="super-admin-main">
+
+    <!-- ===================================================
+         BARRE DU HAUT (téléphone)
+    ==================================================== -->
+
+    <header class="mobile-header">
+
+      <button
+        type="button"
+        class="mobile-menu-button"
+        [attr.aria-label]="menuOuvert() ? 'Fermer le menu' : 'Ouvrir le menu'"
+        [attr.aria-expanded]="menuOuvert()"
+        (click)="basculerMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="mobile-brand">
+        <app-logo-opticare [hauteur]="26" />
+      </div>
+
+      <app-bouton-deconnexion
+        classe="mobile-logout"
+        libelleAria="Déconnexion"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </app-bouton-deconnexion>
+
+    </header>
+
+    <router-outlet />
+
+  </main>
+
+</div>

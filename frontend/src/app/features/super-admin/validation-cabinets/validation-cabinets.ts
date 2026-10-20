@@ -1,38 +1,38 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
-import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
-import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
-import { libelleRole } from '../../../models/utilisateur.model';
-import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
-import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
+/**
+ * Validation des cabinets (`/admin/cabinets/validation`) — demandes
+ * d'inscription `en_attente`, alimentées par `GET /admin/cabinets`.
+ *
+ * Rendu dans `SuperAdminLayout` (la sidebar, le profil et la déconnexion
+ * sont portés par le layout, plus par cet écran).
+ *
+ * Actions :
+ *  - « Valider & Activer » → `PUT /admin/cabinets/{id}/verify` (route réelle) ;
+ *  - « Rejeter » (avec motif) → `PUT /admin/cabinets/{id}/reject` (route réelle) ;
+ *  - « Demander des pièces » → **pas de route serveur** : la demande est
+ *    consignée localement (bandeau de succès) et documentée comme telle.
+ */
 @Component({
   selector: 'app-validation-cabinets',
-  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
+  imports: [DatePipe, FormsModule],
   templateUrl: './validation-cabinets.html',
   styleUrl: './validation-cabinets.css',
 })
 export class ValidationCabinets implements OnInit {
   private readonly cabinetService = inject(CabinetService);
-  private readonly auth = inject(Auth);
-  private readonly router = inject(Router);
-
-  /** Identité de l'utilisateur connecté, affichée en pied de sidebar (comme l'espace opticien). */
-  readonly nomComplet = computed(() => nomCompletUtilisateur(this.auth.utilisateur()));
-  readonly initiales = computed(() => initialesUtilisateur(this.auth.utilisateur()));
-  readonly roleLibelle = computed(() => libelleRole(this.auth.role()));
-
 
   readonly cabinets = signal<CabinetModel[]>([]);
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
-  /** id du cabinet dont l'action valider/refuser est en cours (désactive ses boutons). */
+  readonly succes = signal<string | null>(null);
+  /** id du cabinet dont une action (valider/refuser) est en cours (désactive ses boutons). */
   readonly actionEnCours = signal<string | null>(null);
 
   // 2026-09-11 : vocabulaire aligné sur l'API réelle — 'enAttente' → 'en_attente'
@@ -41,12 +41,16 @@ export class ValidationCabinets implements OnInit {
 
   /**
    * id du cabinet en cours de refus — révèle le petit formulaire « motif »
-   * à la place des 2 boutons d'action de sa carte. `motif_refus` est requis
+   * à la place des boutons d'action de sa carte. `motif_refus` est requis
    * par `PUT /admin/cabinets/{id}/reject` (confirmé 11/09), sans quoi
-   * l'écran d'avant ne pouvait pas rejeter sans écrire quelque chose.
+   * l'écran ne pouvait pas rejeter sans écrire quelque chose.
    */
   readonly cabinetARejeter = signal<string | null>(null);
   readonly motifRefus = signal('');
+
+  /** id du cabinet pour lequel on demande des pièces complémentaires (formulaire en mémoire). */
+  readonly cabinetAPieces = signal<string | null>(null);
+  readonly messagePieces = signal('');
 
   ngOnInit(): void {
     this.chargerCabinets();
@@ -71,11 +75,13 @@ export class ValidationCabinets implements OnInit {
   valider(id: string): void {
     this.actionEnCours.set(id);
     this.erreur.set(null);
+    this.succes.set(null);
 
     this.cabinetService.valider(id).subscribe({
-      next: () => {
+      next: (resultat) => {
         this.actionEnCours.set(null);
-        this.cabinets.update((liste) => liste.filter((c) => c.id !== id));
+        this.cabinets.update((liste) => liste.map((c) => (c.id === id ? { ...c, status: resultat.status } : c)));
+        this.succes.set('Le cabinet a été validé et activé.');
       },
       error: (erreur: HttpErrorResponse) => {
         this.actionEnCours.set(null);
@@ -91,6 +97,7 @@ export class ValidationCabinets implements OnInit {
   ouvrirFormulaireRejet(id: string): void {
     this.cabinetARejeter.set(id);
     this.motifRefus.set('');
+    this.succes.set(null);
   }
 
   annulerRejet(): void {
@@ -104,12 +111,13 @@ export class ValidationCabinets implements OnInit {
 
     this.actionEnCours.set(id);
     this.erreur.set(null);
+    this.succes.set(null);
 
     this.cabinetService.refuser(id, motif).subscribe({
-      next: () => {
+      next: (resultat) => {
         this.actionEnCours.set(null);
         this.cabinetARejeter.set(null);
-        this.cabinets.update((liste) => liste.filter((c) => c.id !== id));
+        this.cabinets.update((liste) => liste.map((c) => (c.id === id ? { ...c, status: resultat.status } : c)));
       },
       error: (erreur: HttpErrorResponse) => {
         this.actionEnCours.set(null);
@@ -122,8 +130,29 @@ export class ValidationCabinets implements OnInit {
     });
   }
 
-  deconnexion(): void {
-    this.auth.logout();
-    this.router.navigateByUrl('/auth/connexion');
+  ouvrirDemandePieces(id: string): void {
+    this.cabinetAPieces.set(id);
+    this.messagePieces.set('');
+    this.succes.set(null);
+  }
+
+  annulerDemandePieces(): void {
+    this.cabinetAPieces.set(null);
+    this.messagePieces.set('');
+  }
+
+  /**
+   * Aucune route serveur pour « demander des pièces » : on consigne la
+   * demande localement (bandeau de succès) et on revient à l'état normal.
+   * Le message saisi n'est **pas** envoyé à l'API — voir le commentaire du
+   * composant. À brancher quand le back exposera une route de relance.
+   */
+  confirmerDemandePieces(cabinet: CabinetModel): void {
+    const message = this.messagePieces().trim();
+    if (!message) return;
+
+    this.cabinetAPieces.set(null);
+    this.messagePieces.set('');
+    this.succes.set(`Demande de pièces envoyée pour « ${cabinet.nom} » (consignée localement).`);
   }
 }

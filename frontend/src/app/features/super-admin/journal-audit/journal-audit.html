@@ -1,0 +1,168 @@
+<!-- Journal d'audit — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-7xl">
+  <!-- En-tête -->
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-4">
+    <div>
+      <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface mb-1">Journal d'audit &amp; sécurité</h1>
+      <p class="font-body text-body-lg text-text-muted">Trace des actions sensibles réalisées sur la plateforme.</p>
+    </div>
+    <div class="flex items-center gap-space-2 bg-surface-container-lowest px-space-4 py-space-2 rounded-full border border-border-subtle shrink-0">
+      <span class="material-symbols-outlined text-error text-[18px]">gpp_maybe</span>
+      <span class="font-body text-badge text-on-surface-variant tracking-wide uppercase">Critiques</span>
+      <span class="bg-error text-on-primary px-2 py-0.5 rounded-full font-body text-badge ml-1">{{ totalCritiques() }}</span>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="flex flex-col gap-space-3">
+    <div class="relative w-full md:w-96">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">search</span>
+      <input
+        type="text"
+        [ngModel]="texteRecherche()"
+        (ngModelChange)="texteRecherche.set($event); pageActuelle.set(1)"
+        placeholder="Action, utilisateur, ressource, adresse IP…"
+        class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+      />
+    </div>
+    <div class="flex flex-wrap items-end gap-space-3">
+      <label class="flex flex-col gap-1">
+        <span class="font-body text-label-sm text-text-muted">Du</span>
+        <input
+          type="date"
+          [ngModel]="dateDebut()"
+          (ngModelChange)="dateDebut.set($event); pageActuelle.set(1)"
+          class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+        />
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="font-body text-label-sm text-text-muted">Au</span>
+        <input
+          type="date"
+          [ngModel]="dateFin()"
+          (ngModelChange)="dateFin.set($event); pageActuelle.set(1)"
+          class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+        />
+      </label>
+      <select
+        [ngModel]="filtreSeverite()"
+        (ngModelChange)="filtreSeverite.set($event); pageActuelle.set(1)"
+        class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+      >
+        <option value="tous">Toutes les sévérités</option>
+        @for (s of severites; track s) {
+          <option [value]="s">{{ libelleSeverite[s] }}</option>
+        }
+      </select>
+      <select
+        [ngModel]="filtreType()"
+        (ngModelChange)="filtreType.set($event); pageActuelle.set(1)"
+        class="h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface"
+      >
+        <option value="tous">Tous les types</option>
+        @for (t of libelleType | keyvalue; track t.key) {
+          <option [value]="t.key">{{ t.value }}</option>
+        }
+      </select>
+      @if (filtreActif()) {
+        <button type="button" (click)="reinitialiserFiltres()" class="effet-bouton h-[40px] text-primary font-button text-button hover:underline">
+          Réinitialiser
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (erreur()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+    </div>
+  }
+
+  <!-- Tableau -->
+  <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[860px]">
+        <thead>
+          <tr class="bg-surface-container border-b border-border-subtle">
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Horodatage</th>
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Utilisateur</th>
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Action</th>
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Ressource</th>
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Adresse IP</th>
+            <th class="px-space-4 py-3 font-button text-button text-on-surface-variant">Sévérité</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border-subtle">
+          @if (chargement()) {
+            <tr><td colspan="6" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">Chargement du journal…</td></tr>
+          } @else if (evenementsPage().length === 0) {
+            <tr>
+              <td colspan="6" class="px-space-4 py-space-8 text-center font-body text-body-base text-text-muted">
+                {{ totalEvenements() === 0 ? 'Aucun événement journalisé.' : 'Aucun événement ne correspond à ces critères.' }}
+              </td>
+            </tr>
+          } @else {
+            @for (evenement of evenementsPage(); track evenement.id) {
+              <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="px-space-4 py-4 font-body text-body-base text-text-muted whitespace-nowrap">
+                  {{ evenement.horodatage | date: 'd MMM y, HH:mm' }}
+                </td>
+                <td class="px-space-4 py-4">
+                  <div class="font-body text-body-base text-on-surface">{{ evenement.utilisateur }}</div>
+                  <div class="font-body text-label-sm text-text-muted">{{ libelleRole(evenement.role) }}</div>
+                </td>
+                <td class="px-space-4 py-4 font-body text-body-base text-on-surface max-w-xs">{{ evenement.description }}</td>
+                <td class="px-space-4 py-4 font-body text-body-base text-on-surface-variant">{{ evenement.ressource }}</td>
+                <td class="px-space-4 py-4 font-body text-body-base text-text-muted font-mono">{{ evenement.adresseIp }}</td>
+                <td class="px-space-4 py-4">
+                  <span class="inline-flex items-center gap-1.5 px-space-3 py-1 rounded-full font-badge text-badge" [class]="severiteClasse(evenement.severite)">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    {{ libelleSeverite[evenement.severite] }}
+                  </span>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (!chargement() && totalResultats() > 0) {
+      <div class="px-space-4 py-3 border-t border-border-subtle bg-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-3">
+        <span class="font-body text-label-sm text-text-muted">{{ totalResultats() }} événement{{ totalResultats() > 1 ? 's' : '' }}</span>
+        @if (nombrePages() > 1) {
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              [disabled]="pageAffichee() === 1"
+              (click)="allerPage(pageAffichee() - 1)"
+              class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+            @for (numero of numerosPages(); track numero) {
+              <button
+                type="button"
+                (click)="allerPage(numero)"
+                [class.bg-primary]="pageAffichee() === numero"
+                [class.text-on-primary]="pageAffichee() === numero"
+                [class.text-on-surface-variant]="pageAffichee() !== numero"
+                class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 px-2.5 py-1 rounded font-body text-label-sm font-medium hover:bg-surface-container-high"
+              >
+                {{ numero }}
+              </button>
+            }
+            <button
+              type="button"
+              [disabled]="pageAffichee() === nombrePages()"
+              (click)="allerPage(pageAffichee() + 1)"
+              class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
