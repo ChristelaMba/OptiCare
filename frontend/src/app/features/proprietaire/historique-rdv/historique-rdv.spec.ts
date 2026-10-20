@@ -159,4 +159,14 @@ describe('HistoriqueRdv', () => {
     expect(lignes[1]).toContain('28/10/2026');
     expect(lignes[1]).toContain('En attente');
   });
+
+  it('le sous-titre dit « passés et à venir » (la liste contient aussi les rendez-vous à venir)', async () => {
+    const el = afficher();
+    http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([]));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('passés et à venir');
+    expect(el.textContent).not.toContain('rendez-vous passés de la clinique');
+  });
 });

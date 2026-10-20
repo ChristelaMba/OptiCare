@@ -234,4 +234,12 @@ describe('MesRendezVous', () => {
     expect(component.erreur()).toBe('Impossible de charger vos rendez-vous.');
     expect(component.erreur()).not.toContain('reconnect');
   });
+
+  it('le nom du cabinet n’apparaît qu’une seule fois par carte', async () => {
+    const el = await afficher([rdv('7', 'Contrôle')]);
+    const carte = el.querySelector('.rdv-type')?.closest('article, .rdv-card, li, div[class*=card]') ?? el;
+    const occurrences = (carte.textContent ?? '').split('Cabinet TEST-DIAG 1').length - 1;
+    expect(occurrences).toBe(1);
+    expect((el.textContent ?? '').split('Établissement').length - 1).toBe(0);
+  });
 });

@@ -95,8 +95,9 @@ export function erreursParChamp(erreur: HttpErrorResponse): Record<string, strin
 
 /**
  * Message d'erreur d'un téléchargement (`responseType: 'blob'`) : le corps d'une erreur est alors un `Blob`, lu comme
- * texte JSON (`errors.*` ou `message`). 403 → « Accès refusé. » ; corps non JSON (ex. page HTML d'un 500) → message
- * générique avec le code HTTP.
+ * texte JSON. Messages utiles conservés : 403 « Accès refusé. », 422 `errors.*` du serveur. Toute erreur serveur (5xx)
+ * ou réponse non JSON (page HTML d'erreur) renvoie `generique`, jamais le texte technique du serveur
+ * (ex. « Class … not found »).
  */
 export async function messageErreurTelechargement(erreur: HttpErrorResponse, generique: string): Promise<string> {
   if (erreur.status === 403) {
@@ -105,17 +106,18 @@ export async function messageErreurTelechargement(erreur: HttpErrorResponse, gen
   if (erreur.status === 0) {
     return 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
   }
+  if (erreur.status >= 500) {
+    return generique;
+  }
   let corps: unknown = erreur.error;
   if (corps instanceof Blob) {
     try {
       corps = JSON.parse(await corps.text());
     } catch {
-      return `${generique} (erreur serveur ${erreur.status}).`;
+      return generique;
     }
   }
   const json = corps as CorpsErreurApi | null;
   const details = json?.errors ? Object.values(json.errors).flat().map(String) : [];
-  if (details.length) return details.join(' ');
-  if (json?.message) return `${generique} Le serveur répond : ${json.message}`;
-  return `${generique} (erreur serveur ${erreur.status}).`;
+  return details.length ? details.join(' ') : generique;
 }

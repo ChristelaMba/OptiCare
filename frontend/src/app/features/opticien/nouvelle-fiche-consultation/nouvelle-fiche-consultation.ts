@@ -26,6 +26,9 @@ const LIBELLES_CHAMPS: Record<string, string> = {
 const DECIMAL = /^[+-]?\d+([.,]\d+)?$/;
 const ENTIER = /^\d{1,3}$/;
 
+/** Durée d'affichage des messages de confirmation. */
+const DUREE_CONFIRMATION_MS = 5000;
+
 function aujourdHui(): string {
   const d = new Date();
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
@@ -119,7 +122,8 @@ export class NouvelleFicheConsultation implements OnInit {
     return this.patients().find((p) => p.id === id)?.nomComplet ?? '';
   });
 
-  private readonly patientIdChoisi = signal('');
+  /** id du patient choisi (création) ou de la consultation ouverte. */
+  readonly patientIdChoisi = signal('');
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
@@ -272,7 +276,19 @@ export class NouvelleFicheConsultation implements OnInit {
     return corps as ConsultationModification;
   }
 
+  private minuterieSucces: ReturnType<typeof setTimeout> | undefined;
+
+  /** Message de confirmation visible quelques secondes (fenêtre fixe, visible même en bas de page), puis effacé seul. */
+  private afficherSucces(message: string): void {
+    clearTimeout(this.minuterieSucces);
+    this.succes.set(message);
+    this.minuterieSucces = setTimeout(() => {
+      if (this.succes() === message) this.succes.set(null);
+    }, DUREE_CONFIRMATION_MS);
+  }
+
   private reinitialiserMessages(): void {
+    clearTimeout(this.minuterieSucces);
     this.erreurGenerale.set(null);
     this.erreursChamps.set({});
     this.erreursAutres.set([]);
@@ -291,7 +307,7 @@ export class NouvelleFicheConsultation implements OnInit {
     const id = this.consultationId();
     if (id && Object.keys(this.corpsModification()).length === 0) {
       this.enSoumission.set(false);
-      this.succes.set('Aucune modification à enregistrer.');
+      this.afficherSucces('Aucune modification à enregistrer.');
       return;
     }
     const appel = id
@@ -308,7 +324,7 @@ export class NouvelleFicheConsultation implements OnInit {
         const etaitCreation = !id;
         this.consultationId.set(c.id);
         this.appliquerConsultation(c);
-        this.succes.set(etaitCreation ? 'Consultation créée (en cours). Vous pouvez la modifier tant qu’elle n’est pas terminée.' : 'Modifications enregistrées.');
+        this.afficherSucces(etaitCreation ? 'Consultation créée (en cours). Vous pouvez la modifier tant qu’elle n’est pas terminée.' : 'Modifications enregistrées.');
         if (etaitCreation) {
           void this.router.navigate([], { queryParams: { consultationId: c.id }, replaceUrl: true });
         }
@@ -349,7 +365,7 @@ export class NouvelleFicheConsultation implements OnInit {
         this.enTerminaison.set(false);
         this.confirmationTerminer.set(false);
         this.appliquerConsultation(c);
-        this.succes.set('Consultation terminée et verrouillée. Elle est maintenant en lecture seule.');
+        this.afficherSucces('Consultation terminée et verrouillée. Elle est maintenant en lecture seule.');
       },
       error: (e: HttpErrorResponse) => {
         this.enTerminaison.set(false);
@@ -379,8 +395,13 @@ export class NouvelleFicheConsultation implements OnInit {
     }
     this.erreursChamps.set(sousChamp);
     this.erreursAutres.set(autres);
-    if (!this.erreurGenerale() && autres.length === 0 && Object.keys(sousChamp).length === 0) {
-      this.erreurGenerale.set(this.message(e, debut));
+    if (!this.erreurGenerale()) {
+      // Toujours un message visible (fenêtre fixe), même quand le détail est sous les champs.
+      this.erreurGenerale.set(
+        autres.length === 0 && Object.keys(sousChamp).length === 0
+          ? this.message(e, debut)
+          : `${debut} : certains champs sont refusés par le serveur. Corrigez-les puis réessayez.`,
+      );
     }
   }
 

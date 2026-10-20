@@ -121,7 +121,7 @@ export class DossierVisuel implements OnInit {
       },
       error: async (e: HttpErrorResponse) => {
         this.telechargementEnCours.set(false);
-        this.erreurPdf.set(await messageErreurTelechargement(e, 'Impossible de télécharger votre dossier.'));
+        this.erreurPdf.set(await messageErreurTelechargement(e, 'Le téléchargement du dossier est momentanément indisponible. Réessayez plus tard.'));
       },
     });
   }

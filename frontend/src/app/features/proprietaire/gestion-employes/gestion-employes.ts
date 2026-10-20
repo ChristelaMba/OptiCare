@@ -82,6 +82,19 @@ export class GestionEmployes implements OnInit {
     );
   });
 
+  /** Le poste n'est affiché que s'il apporte une information : « Opticien · Opticien » n'a pas de sens. */
+  posteAffiche(employe: Employe): string | null {
+    const normaliser = (s: string) =>
+      s
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .trim()
+        .toLowerCase();
+    const poste = employe.poste?.trim();
+    if (!poste) return null;
+    return normaliser(poste) === normaliser(libelleRole(employe.role)) ? null : poste;
+  }
+
   readonly aucunEmploye = computed(() => this.employes().length === 0);
 
   ngOnInit(): void {

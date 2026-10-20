@@ -25,7 +25,7 @@ export class Connexion {
   readonly form = this.fb.nonNullable.group({
     identifiant: ['', [Validators.required]],
     motDePasse: ['', [Validators.required]],
-    seSouvenir: [true],
+    seSouvenir: [false],
   });
 
   basculerAffichageMotDePasse(): void {

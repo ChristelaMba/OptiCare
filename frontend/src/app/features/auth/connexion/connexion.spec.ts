@@ -40,4 +40,10 @@ describe('Connexion', () => {
 
     expect(component.erreur()).toBe('Votre cabinet est en attente de validation par un administrateur.');
   });
+
+  it('« Se souvenir de moi » est décochée par défaut', () => {
+    expect(component.form.getRawValue().seSouvenir).toBe(false);
+    const case_ = (fixture.nativeElement as HTMLElement).querySelector('input[type=checkbox]') as HTMLInputElement;
+    expect(case_.checked).toBe(false);
+  });
 });
