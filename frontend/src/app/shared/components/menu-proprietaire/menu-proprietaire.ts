@@ -37,13 +37,45 @@ export class MenuProprietaire implements OnInit {
   /** Panneau de notifications de la barre du haut (mobile). */
   readonly notificationsOuvertes = signal(false);
 
+  /**
+   * Entrées de navigation, avec le tracé SVG au trait — même facture que les
+   * icônes de l'espace patient (`patient-layout.html`), et non plus la police
+   * `material-symbols`.
+   */
   readonly entrees = [
-    { lien: '/proprietaire/dashboard-comptable', icone: 'dashboard', libelle: 'Dashboard' },
-    { lien: '/proprietaire/historique-rdv', icone: 'calendar_today', libelle: 'Rendez-vous' },
-    { lien: '/proprietaire/patients', icone: 'groups', libelle: 'Patients' },
-    { lien: '/proprietaire/factures', icone: 'receipt_long', libelle: 'Factures' },
-    { lien: '/proprietaire/gestion-employes', icone: 'badge', libelle: 'Employés' },
-    { lien: '/proprietaire/vitrine-edition', icone: 'storefront', libelle: 'Ma vitrine' },
+    {
+      lien: '/proprietaire/dashboard-comptable',
+      libelle: 'Dashboard',
+      chemin: 'M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z',
+    },
+    {
+      lien: '/proprietaire/historique-rdv',
+      libelle: 'Rendez-vous',
+      chemin:
+        'M5 5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2ZM3 10h18M8 3v4M16 3v4',
+    },
+    {
+      lien: '/proprietaire/patients',
+      libelle: 'Patients',
+      chemin:
+        'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+    },
+    {
+      lien: '/proprietaire/factures',
+      libelle: 'Factures',
+      chemin: 'M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6M9 16h4',
+    },
+    {
+      lien: '/proprietaire/gestion-employes',
+      libelle: 'Employés',
+      chemin:
+        'M12 3 3 7v5c0 5 3.8 8.6 9 9.8 5.2-1.2 9-4.8 9-9.8V7l-9-4ZM9.5 12.2l1.8 1.8 3.4-3.5',
+    },
+    {
+      lien: '/proprietaire/vitrine-edition',
+      libelle: 'Ma vitrine',
+      chemin: 'M4 9.5V20h16V9.5M3 9.5 5 4h14l2 5.5c0 1.4-1.1 2.5-2.5 2.5S16 10.9 16 9.5c0 1.4-1.1 2.5-2.5 2.5S11 10.9 11 9.5c0 1.4-1.1 2.5-2.5 2.5S6 10.9 6 9.5C6 10.9 4.9 12 3.5 12S1 10.9 1 9.5',
+    },
   ] as const;
 
   /** Identité de la session (jamais de nom écrit en dur). */

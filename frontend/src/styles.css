@@ -242,6 +242,54 @@ body {
 
 
 /*
+ * Contenu principal de l'espace propriétaire.
+ *
+ * Les 6 pages de cet espace montaient le contenu avec `md:ml-64` (256 px) : un
+ * décalage approximatif qui ne suivait ni la largeur réelle de la barre latérale
+ * (250 px sur ordinateur, 235 px à partir de 900 px) ni ses propres points de
+ * rupture. Résultat : le contenu déménageait 6 px trop à droite, et 21 px de vide
+ * apparaissaient entre 768 et 900 px.
+ *
+ * Cette classe reproduit exactement le modèle de l'espace patient : la barre
+ * latérale fait 250 px, elle passe à 235 px à partir de 900 px, et elle devient un
+ * tiroir (sorti de la page, donc plus de décalage) à partir de 768 px. Sous 768 px,
+ * la barre du haut mobile de l'espace propriétaire est `sticky` (elle occupe sa
+ * propre hauteur dans le flux) : aucun dégagement haut n'est donc nécessaire.
+ */
+.espace-proprietaire-contenu {
+  --sidebar-width: 250px;
+
+  flex: 1 1 0%;
+
+  min-width: 0;
+
+  width: calc(100% - var(--sidebar-width));
+
+  margin-left: var(--sidebar-width);
+
+  min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+  .espace-proprietaire-contenu {
+    --sidebar-width: 235px;
+  }
+}
+
+@media (max-width: 768px) {
+  .espace-proprietaire-contenu {
+    width: 100%;
+
+    margin-left: 0;
+
+    /* La barre du haut mobile du menu propriétaire (62 px) est `fixed` :
+       le contenu doit donc réserver sa hauteur. */
+    padding-top: 62px;
+  }
+}
+
+
+/*
  * =====================================================================
  *  Interactions uniformes dans toute l'application
  * =====================================================================

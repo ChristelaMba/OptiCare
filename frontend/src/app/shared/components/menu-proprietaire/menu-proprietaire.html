@@ -1,108 +1,188 @@
 <!--
   Menu de l'espace propriétaire, partagé par les 6 pages.
-  Calqué sur la mise en page de l'espace opticien :
-  - Barre latérale toujours rendue (logo, navigation, profil, déconnexion en bas).
-    Sur téléphone, elle devient un drawer qui glisse depuis la gauche.
-  - Barre du haut (mobile) : hamburger à gauche, cloche + avatar/initiales à droite.
+  Calqué à l'identique sur la barre latérale de l'espace patient
+  (`patient-layout.html` / `patient-layout.css`) — et sur celle du Super Admin,
+  déjà harmonisée : mêmes classes (`.menu-proprietaire-sidebar`, `.nav-link`,
+  `.nav-link.active`, `.sidebar-profile`, `.profile-avatar`, `.sidebar-logout`),
+  mêmes couleurs, mêmes polices, mêmes effets au survol et au clic, même icône
+  de déconnexion au trait. Seuls les intitulés et les routes changent.
 
-  Le voile sombre (overlay) et la barre du haut ont `md:hidden` : ils n'existent pas sur ordinateur.
+  Sur ordinateur : barre latérale fixe à gauche (logo, navigation, profil, déconnexion).
+  Sur téléphone : elle devient un tiroir qui glisse depuis la gauche, ouvert par le
+  hamburger de la barre du haut et fermé par le voile sombre, la touche Échap ou un
+  clic sur un lien.
 -->
 
 <!-- Voile sombre (mobile) : ferme le menu au clic -->
 @if (menuOuvert()) {
   <div
-    class="menu-proprietaire-overlay md:hidden fixed inset-0 bg-black/40 z-40"
+    class="menu-proprietaire-overlay sidebar-overlay"
     aria-hidden="true"
     (click)="fermerMenu()">
   </div>
 }
 
-<!-- Barre latérale (ordinateur) / drawer (téléphone) -->
+<!-- Barre latérale (ordinateur) / tiroir (téléphone) -->
 <aside
-  class="menu-proprietaire fixed left-0 top-0 h-screen w-64 flex flex-col bg-surface-container-lowest shadow-sm z-50 transition-transform duration-300 -translate-x-full md:translate-x-0"
+  class="menu-proprietaire menu-proprietaire-sidebar"
   [class.menu-ouvert]="menuOuvert()"
+  [class.sidebar-open]="menuOuvert()"
   aria-label="Navigation de l'espace propriétaire">
 
-  <!-- Logo + nom du cabinet -->
-  <div class="px-space-6 pt-space-8 pb-space-6 border-b border-border-subtle">
-    <app-logo-opticare [hauteur]="28" class="mb-2" />
-    <p class="font-body text-label-sm text-text-muted">{{ cabinetNom() || 'Clinic Management' }}</p>
-  </div>
+  <!-- LOGO + INTITULÉ DE L'ESPACE -->
+  <div class="sidebar-brand">
 
-  <!-- Navigation -->
-  <nav class="flex-1 flex flex-col gap-space-2 px-space-4 py-space-6 overflow-y-auto">
-    @for (entree of entrees; track entree.lien) {
-      <a
-        [routerLink]="entree.lien"
-        routerLinkActive="text-primary font-bold border-r-4 border-primary bg-surface-container-high"
-        [routerLinkActiveOptions]="{ exact: false }"
-        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200"
-        (click)="fermerMenu()">
-        <span class="material-symbols-outlined">{{ entree.icone }}</span>
-        <span class="font-body text-body-base">{{ entree.libelle }}</span>
-      </a>
-    }
-  </nav>
+    <div class="brand-text">
 
-  <!-- Profil + déconnexion (pied du menu) -->
-  <div class="border-t border-border-subtle px-space-4 py-space-4">
-    <div class="flex items-center gap-space-3 px-space-2 py-space-2 mb-space-2">
-      <div class="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs shrink-0">
-        {{ initiales() }}
-      </div>
-      <div class="min-w-0 flex-1">
-        <p class="font-body text-body-base font-semibold text-on-surface truncate">{{ nomComplet() || 'Utilisateur' }}</p>
-        <p class="font-body text-label-sm text-text-muted truncate">{{ cabinetNom() || roleLibelle() }}</p>
-      </div>
+      <app-logo-opticare [hauteur]="32" />
+
+      <span>
+        Espace propriétaire
+      </span>
+
     </div>
 
-    <app-bouton-deconnexion classe="w-full flex items-center justify-center gap-space-2 px-space-4 py-space-3 rounded-lg border border-border-subtle text-error hover:bg-error/10 transition-colors duration-200">
-      <span class="material-symbols-outlined">logout</span>
-      <span class="font-body text-body-base font-semibold">Se déconnecter</span>
+    <button
+      type="button"
+      class="sidebar-close"
+      (click)="fermerMenu()"
+      aria-label="Fermer le menu">
+      ×
+    </button>
+
+  </div>
+
+
+  <!-- NAVIGATION -->
+  <nav class="sidebar-navigation">
+
+    <span class="nav-label">
+      MENU
+    </span>
+
+    @for (entree of entrees; track entree.lien) {
+
+      <a
+        [routerLink]="entree.lien"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="nav-link"
+        (click)="fermerMenu()">
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <path
+            [attr.d]="entree.chemin"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+
+        <span>
+          {{ entree.libelle }}
+        </span>
+
+      </a>
+
+    }
+
+  </nav>
+
+
+  <!-- PROFIL + DÉCONNEXION (pied de sidebar, comme l'espace patient) -->
+
+  <div class="sidebar-profile">
+
+    <div class="profile-avatar">
+      {{ initiales() }}
+    </div>
+
+    <div class="profile-details">
+
+      <strong>
+        {{ nomComplet() }}
+      </strong>
+
+      <span>
+        {{ cabinetNom() || roleLibelle() }}
+      </span>
+
+    </div>
+
+  </div>
+
+  <div class="sidebar-logout">
+    <app-bouton-deconnexion classe="logout-button">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span>Se déconnecter</span>
     </app-bouton-deconnexion>
   </div>
+
 </aside>
 
 <!--
-  Barre du haut (mobile) : hamburger + logo à gauche, cloche + avatar à droite.
-  Sur écrans très étroits (< sm), le nom du cabinet n'est PAS affiché ici — il reste
-  lisible dans le tiroir latéral (en tête et au-dessus du profil) — pour éviter tout
-  chevauchement avec le logo et la cloche. À partir de sm, il réapparaît en texte tronqué.
+  Barre du haut (mobile) : hamburger + logo à gauche, nom du cabinet + avatar à droite.
 -->
-<header class="menu-proprietaire-header md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between gap-2 px-margin-mobile z-30">
+<header class="menu-proprietaire-header mobile-header md:hidden">
   <!-- Gauche : hamburger + logo -->
-  <div class="flex items-center gap-2 min-w-0 shrink">
+  <div class="mobile-header-left">
     <button
       type="button"
-      class="menu-proprietaire-hamburger flex items-center justify-center w-10 h-10 -ml-2 shrink-0 text-on-surface"
+      class="menu-proprietaire-hamburger mobile-menu-button"
       [attr.aria-label]="menuOuvert() ? 'Fermer le menu' : 'Ouvrir le menu'"
       [attr.aria-expanded]="menuOuvert()"
       (click)="basculerMenu()">
-      @if (menuOuvert()) {
-        <span class="material-symbols-outlined">close</span>
-      } @else {
-        <span class="material-symbols-outlined">menu</span>
-      }
+      <span></span>
+      <span></span>
+      <span></span>
     </button>
-    <app-logo-opticare [hauteur]="26" class="shrink-0" />
+    <div class="mobile-brand">
+      <app-logo-opticare [hauteur]="28" />
+    </div>
   </div>
 
   <!-- Droite : nom du cabinet (sm+), cloche, avatar -->
-  <div class="flex items-center gap-2 shrink-0">
-    <span class="menu-proprietaire-cabinet hidden sm:block font-body text-label-sm text-on-surface-variant min-w-0 max-w-[140px] truncate">
+  <div class="mobile-header-actions">
+    <span class="menu-proprietaire-cabinet hidden sm:block">
       {{ cabinetNom() || nomComplet() }}
     </span>
 
     <button
       type="button"
-      class="menu-proprietaire-cloche flex items-center justify-center w-10 h-10 shrink-0 text-on-surface-variant"
+      class="menu-proprietaire-cloche mobile-notification"
       aria-label="Notifications"
       [attr.aria-expanded]="notificationsOuvertes()"
       (click)="basculerNotifications()">
-      <span class="material-symbols-outlined">notifications</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M18 9.5a6 6 0 0 0-12 0c0 6.5-2.5 7.5-2.5 9h17c0-1.5-2.5-2.5-2.5-9Z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round" />
+        <path
+          d="M9.8 21h4.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round" />
+      </svg>
     </button>
 
-    <div class="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs shrink-0">
+    <div class="topbar-avatar mobile-avatar">
       {{ initiales() }}
     </div>
   </div>
@@ -110,11 +190,11 @@
 
 <!-- Panneau de notifications (mobile) -->
 @if (notificationsOuvertes()) {
-  <div class="md:hidden fixed top-16 right-margin-mobile w-72 max-w-[calc(100vw-2rem)] bg-surface-container-lowest border border-border-subtle rounded-xl shadow-lg z-40 overflow-hidden">
-    <div class="px-space-4 py-space-3 border-b border-border-subtle">
-      <h3 class="font-heading text-body-base font-semibold text-on-surface">Notifications</h3>
+  <div class="menu-proprietaire-notifications md:hidden">
+    <div class="notification-header">
+      <h3>Notifications</h3>
     </div>
-    <p class="px-space-4 py-space-6 text-center font-body text-body-base text-text-muted">
+    <p class="notification-empty">
       Aucune notification pour le moment.
     </p>
   </div>

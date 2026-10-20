@@ -54,18 +54,22 @@ describe('MenuProprietaire', () => {
   });
 
   it('affiche les 6 entrées de navigation de l’espace propriétaire', () => {
+    // Icônes SVG au trait (comme l'espace patient) : plus de police `material-symbols`.
     const liens = Array.from(el.querySelectorAll('aside a')).map((a) =>
       Array.from(a.querySelectorAll('span')).map((s) => (s.textContent ?? '').trim()),
     );
 
     expect(liens).toEqual([
-      ['dashboard', 'Dashboard'],
-      ['calendar_today', 'Rendez-vous'],
-      ['groups', 'Patients'],
-      ['receipt_long', 'Factures'],
-      ['badge', 'Employés'],
-      ['storefront', 'Ma vitrine'],
+      ['Dashboard'],
+      ['Rendez-vous'],
+      ['Patients'],
+      ['Factures'],
+      ['Employés'],
+      ['Ma vitrine'],
     ]);
+
+    const icones = Array.from(el.querySelectorAll('aside a')).map((a) => a.querySelector('svg'));
+    icones.forEach((svg) => expect(svg).toBeTruthy());
 
     const hrefs = Array.from(el.querySelectorAll('aside a')).map((a) => a.getAttribute('href'));
     expect(hrefs).toEqual([
@@ -93,10 +97,10 @@ describe('MenuProprietaire', () => {
     expect(texte).not.toContain('Jean Dupont');
   });
 
-  it('sans nom de cabinet connu, affiche le libellé de repli « Clinic Management »', () => {
+  it('sans nom de cabinet connu, le profil affiche le rôle en repli', () => {
     expect(component.cabinetNom()).toBe('');
-    const aside = el.querySelector('aside') as HTMLElement;
-    expect(aside.textContent).toContain('Clinic Management');
+    const profil = el.querySelector('aside .sidebar-profile') as HTMLElement;
+    expect(profil.textContent).toContain('Propriétaire');
   });
 
   it('l’en-tête mobile réserve le nom du cabinet aux écrans larges (pas d’entassement avec le logo)', () => {
@@ -105,19 +109,19 @@ describe('MenuProprietaire', () => {
     expect(header.querySelector('button.menu-proprietaire-hamburger')).toBeTruthy();
     expect(header.querySelector('app-logo-opticare')).toBeTruthy();
     // …et le nom du cabinet n'occupe pas la même ligne sur écrans très étroits :
-    // il est masqué sous sm et réapparaît ensuite en texte tronqué.
+    // il est masqué sous sm et réapparaît ensuite (tronqué par le CSS `.menu-proprietaire-cabinet`).
     const nomCabinet = header.querySelector('.menu-proprietaire-cabinet') as HTMLElement | null;
     expect(nomCabinet).toBeTruthy();
     expect(nomCabinet!.className).toContain('hidden');
     expect(nomCabinet!.className).toContain('sm:block');
-    expect(nomCabinet!.className).toContain('truncate');
   });
 
-  it('le nom du cabinet reste lisible dans le drawer (tête + profil), même si l’en-tête le masque', () => {
+  it('le drawer montre le logo (tête) et le profil avec repli de rôle', () => {
     const aside = el.querySelector('aside') as HTMLElement;
 
     expect(aside.querySelector('app-logo-opticare')).toBeTruthy();
-    expect(aside.textContent).toContain('Clinic Management');
+    expect(aside.textContent).toContain('Espace propriétaire');
+    expect(aside.textContent).toContain('Propriétaire');
   });
 
   it('la cloche de notifications ouvre/ferme un panneau honnête (aucune notification inventée)', () => {
