@@ -38,7 +38,7 @@
   </header>
 
   <!-- Contenu principal -->
-  <main class="flex-1 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
+  <main class="flex-1 min-w-0 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl flex flex-col gap-space-8">
     <!-- En-tête + sélecteur de période -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-4 mt-space-6 md:mt-0">
       <div>
@@ -131,8 +131,8 @@
           } @else {
             <div class="flex-1 min-h-[260px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
               @for (point of tendances(); track point.mois; let derniere = $last) {
-                <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
-                  <span class="font-body text-label-sm text-text-muted mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex-1 min-w-0 flex flex-col items-center justify-end h-full group relative">
+                  <span class="max-w-full text-center [overflow-wrap:anywhere] font-body text-label-sm text-text-muted mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {{ formaterFcfa(point.revenus) }}
                   </span>
                   <div
@@ -142,7 +142,7 @@
                     [style.height.%]="(point.revenus / montantMax()) * 100"
                     [attr.title]="point.libelle + ' : ' + formaterFcfa(point.revenus)"
                   ></div>
-                  <span class="font-body text-label-sm mt-2 capitalize" [class.text-primary]="derniere" [class.font-semibold]="derniere" [class.text-text-disabled]="!derniere">
+                  <span class="max-w-full text-center [overflow-wrap:anywhere] font-body text-label-sm mt-2 capitalize" [class.text-primary]="derniere" [class.font-semibold]="derniere" [class.text-text-disabled]="!derniere">
                     {{ point.libelle }}
                   </span>
                 </div>

@@ -1266,7 +1266,7 @@
 
   .form-grid {
 
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
 }
@@ -1517,4 +1517,14 @@
 .field .optional {
   color: #64748b;
   font-weight: 400;
+}
+
+
+/* Telephone : lien de retour de 40 px de haut */
+@media (max-width: 768px) {
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }

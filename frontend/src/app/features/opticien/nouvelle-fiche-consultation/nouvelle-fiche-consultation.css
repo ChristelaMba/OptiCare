@@ -464,7 +464,7 @@ textarea {
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
   gap: 22px;
 }
@@ -686,7 +686,7 @@ textarea {
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
   gap: 18px;
 }
@@ -748,7 +748,7 @@ textarea {
 .eye-fields {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
   gap: 13px;
 }
@@ -1016,7 +1016,7 @@ textarea {
   .symptoms-grid {
     padding: 18px;
 
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
 
     gap: 18px;
   }
@@ -1031,7 +1031,7 @@ textarea {
   .eyes-grid {
     padding: 18px;
 
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
 
@@ -1075,7 +1075,7 @@ textarea {
 @media (max-width: 430px) {
 
   .eye-fields {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .actions-buttons {
@@ -1103,4 +1103,14 @@ textarea {
   z-index: 80;
   max-width: min(420px, calc(100vw - 32px));
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+
+
+/* Telephone : lien de retour de 40 px de haut */
+@media (max-width: 768px) {
+  .breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }

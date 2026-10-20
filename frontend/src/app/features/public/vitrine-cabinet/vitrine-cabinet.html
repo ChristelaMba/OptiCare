@@ -11,7 +11,7 @@
         >
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
-        <a routerLink="/" class="shrink-0">
+        <a routerLink="/" class="shrink-0 inline-flex items-center min-h-[40px]">
           <img src="/images/logo-opticare.png" alt="OptiCare" class="h-8 w-auto" />
         </a>
       </div>
@@ -196,7 +196,7 @@
                 <p class="font-body text-body-lg text-text-muted leading-relaxed mb-space-4">
                   {{ adresseComplete(cabinet) }}
                 </p>
-                <a [href]="lienGoogleMaps()" target="_blank" rel="noopener noreferrer" class="text-primary font-button text-button flex items-center gap-1 hover:underline w-fit">
+                <a [href]="lienGoogleMaps()" target="_blank" rel="noopener noreferrer" class="text-primary font-button text-button flex items-center gap-1 min-h-[40px] md:min-h-0 hover:underline w-fit">
                   Voir sur Google Maps <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
               </div>
@@ -319,9 +319,9 @@
         </div>
         <div class="flex flex-col gap-space-3">
           <h4 class="font-button text-button text-inverse-on-surface">Navigation</h4>
-          <a routerLink="/" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Accueil</a>
-          <a routerLink="/recherche-cabinets" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Tous les cabinets</a>
-          <a [routerLink]="['/cabinet', cabinet.id, 'rendez-vous']" class="text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Prendre rendez-vous</a>
+          <a routerLink="/" class="inline-block py-2.5 md:py-0 text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Accueil</a>
+          <a routerLink="/recherche-cabinets" class="inline-block py-2.5 md:py-0 text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Tous les cabinets</a>
+          <a [routerLink]="['/cabinet', cabinet.id, 'rendez-vous']" class="inline-block py-2.5 md:py-0 text-inverse-on-surface/70 font-body text-body-base hover:text-inverse-primary transition-colors">Prendre rendez-vous</a>
         </div>
         <div class="flex flex-col gap-space-3">
           <h4 class="font-button text-button text-inverse-on-surface">Légal</h4>

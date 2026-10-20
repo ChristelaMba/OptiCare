@@ -138,7 +138,7 @@
 
 .ligne {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px 16px;
   align-items: center;
   border: 1px solid #e2e8f0;
@@ -246,7 +246,7 @@
 
 .valeurs {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -260,7 +260,7 @@
 
 dl.details {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: 4px 16px;
   margin: 0;
   font-size: 0.875rem;
@@ -272,4 +272,14 @@ dl.details dt {
 
 dl.details dd {
   margin: 0;
+}
+
+
+/* Telephone : lien de retour de 40 px de haut */
+@media (max-width: 768px) {
+  .lien-retour {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }
