@@ -145,6 +145,45 @@ body {
 }
 
 /*
+ * ---------------------------------------------------------------------
+ *  Taille des icônes Material Symbols — correctif global (04/09)
+ * ---------------------------------------------------------------------
+ *  Symptôme : les icônes restaient TOUTES à 24 px, même celles portant
+ *  `text-[16px]`, `text-[40px]`… dans le HTML.
+ *
+ *  Cause : Tailwind v4 range TOUT son CSS dans des « cascade layers »
+ *  (@layer theme,base,components,utilities). Or une règle NON placée dans
+ *  une couche l'emporte toujours sur une règle placée dans une couche,
+ *  quelle que soit la spécificité. La feuille Google Fonts définit
+ *  `.material-symbols-outlined { font-size: 24px }` HORS couche : elle
+ *  écrasait donc systématiquement l'utilitaire `text-[Npx]` (lui-même rangé
+ *  dans `@layer utilities`).
+ *
+ *  Correctif : on redéclare ici, HORS de toute couche, la taille par défaut
+ *  (24 px, pour les ~100 icônes qui ne précisent rien) puis les tailles
+ *  explicites réellement utilisées dans les templates. Comme ces règles sont
+ *  elles aussi hors couche, elles reprennent la main sur Google Fonts tout en
+ *  respectant l'intention de chaque `text-[Npx]`.
+ *
+ *  La liste des tailles reprend exactement celles présentes dans src/ : la
+ *  compléter ici si un nouvel écran introduit une taille inédite.
+ */
+.material-symbols-outlined {
+  font-size: 24px;
+}
+
+.material-symbols-outlined.text-\[14px\] { font-size: 14px; }
+.material-symbols-outlined.text-\[16px\] { font-size: 16px; }
+.material-symbols-outlined.text-\[18px\] { font-size: 18px; }
+.material-symbols-outlined.text-\[20px\] { font-size: 20px; }
+.material-symbols-outlined.text-\[24px\] { font-size: 24px; }
+.material-symbols-outlined.text-\[28px\] { font-size: 28px; }
+.material-symbols-outlined.text-\[32px\] { font-size: 32px; }
+.material-symbols-outlined.text-\[40px\] { font-size: 40px; }
+.material-symbols-outlined.text-\[48px\] { font-size: 48px; }
+.material-symbols-outlined.text-\[64px\] { font-size: 64px; }
+
+/*
  * Apparition douce de la carte au chargement (04/09, polish écrans auth) —
  * réutilisée par choix-role/connexion/inscription-patient/inscription-cabinet,
  * définie une seule fois ici plutôt que dupliquée dans 4 fichiers .css.
