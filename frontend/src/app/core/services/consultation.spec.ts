@@ -116,12 +116,33 @@ describe('PatientsCabinet', () => {
     http.expectOne((r) => r.url.endsWith('/cabinets/6/patients')).flush({
       status: 'success',
       message: '',
-      data: { patients: [{ id: 46, nom: 'Nkeng', prenom: 'Aline', telephone: '+237600000201', email: null, ville: 'Douala' }] },
+      data: {
+        patients: [
+          {
+            id: 46,
+            nom: 'Nkeng',
+            prenom: 'Aline',
+            telephone: '+237600000201',
+            email: null,
+            ville: 'Douala',
+            created_at: '2026-10-20T08:30:00.000000Z',
+          },
+        ],
+      },
     });
     http.verify();
 
     expect(resultat).toEqual([
-      { id: '46', nom: 'Nkeng', prenom: 'Aline', nomComplet: 'Aline Nkeng', telephone: '+237600000201', email: null, ville: 'Douala' },
+      {
+        id: '46',
+        nom: 'Nkeng',
+        prenom: 'Aline',
+        nomComplet: 'Aline Nkeng',
+        telephone: '+237600000201',
+        email: null,
+        ville: 'Douala',
+        dateInscription: '2026-10-20',
+      },
     ]);
   });
 
@@ -139,12 +160,25 @@ describe('PatientsCabinet.creer', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
     req.flush(
-      { status: 'success', message: '', data: { patient: { id: 51, ...payload, email: null, user_id: null, est_interne: true } } },
+      {
+        status: 'success',
+        message: '',
+        data: { patient: { id: 51, ...payload, email: null, user_id: null, est_interne: true, created_at: '2026-10-20T09:00:00.000000Z' } },
+      },
       { status: 201, statusText: 'Created' },
     );
     http.verify();
 
-    expect(resultat).toEqual({ id: '51', nom: 'Essomba', prenom: 'Mireille', nomComplet: 'Mireille Essomba', telephone: '+237600000203', email: null, ville: 'Douala' });
+    expect(resultat).toEqual({
+      id: '51',
+      nom: 'Essomba',
+      prenom: 'Mireille',
+      nomComplet: 'Mireille Essomba',
+      telephone: '+237600000203',
+      email: null,
+      ville: 'Douala',
+      dateInscription: '2026-10-20',
+    });
   });
 });
 });

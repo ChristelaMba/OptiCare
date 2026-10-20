@@ -15,6 +15,12 @@ export interface PatientCabinet {
   telephone: string;
   email: string | null;
   ville: string | null;
+  /**
+   * Date d'ajout du patient au cabinet, `AAAA-MM-JJ` ou `null` si le serveur
+   * ne renvoie pas `created_at`. Seule date disponible par patient : l'API ne
+   * fournit ni dernière consultation, ni dernier rendez-vous.
+   */
+  dateInscription: string | null;
 }
 
 /** POST /cabinets/{id}/patients (§7.2) : `nom`, `prenom`, `telephone` obligatoires ; le reste est facultatif. */
@@ -35,6 +41,7 @@ interface ApiPatientBrut {
   telephone: string;
   email?: string | null;
   ville?: string | null;
+  created_at?: string | null;
 }
 
 /**
@@ -79,6 +86,7 @@ export class PatientsCabinet {
       telephone: p.telephone,
       email: p.email ?? null,
       ville: p.ville ?? null,
+      dateInscription: p.created_at?.slice(0, 10) ?? null,
     };
   }
 }

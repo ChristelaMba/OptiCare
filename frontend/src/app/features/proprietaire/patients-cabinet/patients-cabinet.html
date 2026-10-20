@@ -1,0 +1,220 @@
+<div class="min-h-screen flex bg-surface-bg text-on-surface font-body">
+  <!-- SideNavBar (desktop) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm py-space-8 px-space-4 z-50">
+    <div class="mb-space-8 px-space-4">
+      <app-logo-opticare [hauteur]="28" class="mb-2" />
+      <p class="font-body text-label-sm text-text-muted">Clinic Management</p>
+    </div>
+    <nav class="flex-1 flex flex-col gap-space-2">
+      <a routerLink="/proprietaire/dashboard-comptable" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-body text-body-base">Dashboard</span>
+      </a>
+      <a routerLink="/proprietaire/historique-rdv" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span class="font-body text-body-base">Rendez-vous</span>
+      </a>
+      <a routerLink="/proprietaire/patients" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high">
+        <span class="material-symbols-outlined fill-icon">groups</span>
+        <span class="font-body text-body-base">Patients</span>
+      </a>
+      <a routerLink="/proprietaire/factures" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span class="font-body text-body-base">Factures</span>
+      </a>
+      <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">badge</span>
+        <span class="font-body text-body-base">Employés</span>
+      </a>
+      <a routerLink="/proprietaire/vitrine-edition" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="font-body text-body-base">Ma vitrine</span>
+      </a>
+    </nav>
+    <div class="px-space-4 pt-space-4 border-t border-border-subtle">
+      <app-bouton-deconnexion classe="w-full flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="font-body text-body-base">Se déconnecter</span>
+      </app-bouton-deconnexion>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="md:hidden fixed top-0 w-full h-16 bg-surface-container-lowest border-b border-border-subtle flex items-center justify-between px-margin-mobile z-40">
+    <app-logo-opticare [hauteur]="28" />
+    <app-bouton-deconnexion classe="material-symbols-outlined text-text-muted hover:text-error">logout</app-bouton-deconnexion>
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 min-w-0 md:ml-64 w-full pt-16 md:pt-0 pb-24 md:pb-margin-desktop px-margin-mobile md:px-margin-desktop md:py-margin-desktop max-w-7xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-space-4 mb-space-8 mt-space-6 md:mt-0">
+      <div>
+        <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Patients du cabinet</h1>
+        <p class="font-body text-body-base text-text-muted mt-1">Consultez la patientèle suivie dans votre cabinet. Mode lecture seule.</p>
+      </div>
+    </div>
+
+    @if (erreur()) {
+      <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3 mb-space-6">
+        <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+      </div>
+    }
+
+    <!-- Cartes de métriques -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-4 mb-space-6">
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex items-center gap-space-4" data-carte="total-patients">
+        <span class="material-symbols-outlined text-primary bg-primary-fixed w-10 h-10 flex items-center justify-center rounded-full shrink-0">groups</span>
+        <div>
+          <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Total patients suivis</p>
+          <h3 class="font-heading text-headline-h2 text-on-surface">{{ chargement() ? '—' : totalPatients() }}</h3>
+        </div>
+      </div>
+
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex items-center gap-space-4" data-carte="nouveaux-inscrits">
+        <span class="material-symbols-outlined text-success bg-success/20 w-10 h-10 flex items-center justify-center rounded-full shrink-0">person_add</span>
+        <div>
+          <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">
+            Nouveaux inscrits · {{ libellePeriode[periode()] }}
+          </p>
+          <h3 class="font-heading text-headline-h2 text-on-surface">{{ chargement() ? '—' : nouveauxSurPeriode() }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-space-4 mb-space-6">
+      <div class="md:col-span-6 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block">Date d’inscription</label>
+        <div class="flex gap-2 flex-wrap">
+          @for (option of periodes; track option) {
+            <button
+              type="button"
+              (click)="changerPeriode(option)"
+              [class.bg-primary-container]="periode() === option"
+              [class.text-on-primary-container]="periode() === option"
+              [class.bg-surface-container-low]="periode() !== option"
+              [class.text-on-surface-variant]="periode() !== option"
+              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            >
+              {{ libellePeriode[option] }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="md:col-span-6 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block" for="recherche-patient">Rechercher</label>
+        <div class="flex gap-2">
+          <input
+            id="recherche-patient"
+            type="search"
+            [ngModel]="recherche()"
+            (ngModelChange)="recherche.set($event)"
+            (keyup.enter)="rechercher()"
+            placeholder="Nom, prénom ou téléphone…"
+            class="flex-1 min-w-0 h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button
+            type="button"
+            (click)="rechercher()"
+            [disabled]="chargementEnCours()"
+            class="bg-primary text-on-primary px-space-4 h-[40px] rounded-lg font-button text-button hover:bg-surface-tint transition-colors disabled:opacity-50"
+          >
+            Rechercher
+          </button>
+          @if (recherche()) {
+            <button
+              type="button"
+              (click)="effacerRecherche()"
+              [disabled]="chargementEnCours()"
+              class="border border-border-subtle text-on-surface-variant px-space-3 h-[40px] rounded-lg font-button text-button hover:bg-surface-container transition-colors disabled:opacity-50"
+            >
+              Effacer
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-border-subtle text-on-surface-variant font-body text-label-sm uppercase tracking-wider">
+              <th class="py-3 px-space-4 font-semibold">Patient</th>
+              <th class="py-3 px-space-4 font-semibold">Date d’inscription</th>
+              <th class="py-3 px-space-4 font-semibold">Téléphone</th>
+              <th class="py-3 px-space-4 font-semibold">Ville</th>
+              <th class="py-3 px-space-4 font-semibold">Email</th>
+            </tr>
+          </thead>
+          <tbody class="font-body text-body-base text-on-surface divide-y divide-border-subtle">
+            @if (chargement()) {
+              <tr><td colspan="5" class="py-space-8 px-space-4 text-center text-text-muted">Chargement des patients…</td></tr>
+            } @else if (patientsFiltres().length === 0) {
+              <tr><td colspan="5" class="py-space-8 px-space-4 text-center text-text-muted">
+                {{ erreur() ? 'Liste indisponible.' : recherche() ? 'Aucun patient ne correspond à cette recherche.' : periodeActive() ? 'Aucun patient inscrit sur cette période.' : 'Aucun patient n’est encore rattaché à ce cabinet.' }}
+              </td></tr>
+            } @else {
+              @for (patient of patientsFiltres(); track patient.id) {
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="py-3 px-space-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs shrink-0">
+                        {{ initiales(patient) }}
+                      </div>
+                      <p class="font-medium">{{ patient.nomComplet }}</p>
+                    </div>
+                  </td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">
+                    {{ patient.dateInscription ? (patient.dateInscription | date: 'dd/MM/yyyy') : '—' }}
+                  </td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ patient.telephone }}</td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ patient.ville ?? '—' }}</td>
+                  <td class="py-3 px-space-4 text-on-surface-variant">{{ patient.email ?? '—' }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (!chargement() && patientsFiltres().length > 0) {
+        <div class="bg-surface-container-lowest px-space-4 py-3 border-t border-border-subtle">
+          <p class="font-body text-label-sm text-on-surface-variant">
+            <span class="font-semibold text-on-surface">{{ patientsFiltres().length }}</span> patient{{ patientsFiltres().length > 1 ? 's' : '' }}{{ recherche() || periodeActive() ? ' affiché(s) pour ces critères' : '' }}
+          </p>
+        </div>
+      }
+    </div>
+  </main>
+
+  <!-- BottomNav (mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-start items-center overflow-x-auto z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-body text-label-sm mt-1">Dashboard</span>
+    </a>
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="font-body text-label-sm mt-1">Rendez-vous</span>
+    </a>
+    <a routerLink="/proprietaire/patients" class="flex flex-col items-center justify-center min-w-[72px] h-full text-primary font-bold">
+      <span class="material-symbols-outlined fill-icon">groups</span>
+      <span class="font-body text-label-sm mt-1">Patients</span>
+    </a>
+    <a routerLink="/proprietaire/factures" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="font-body text-label-sm mt-1">Factures</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="font-body text-label-sm mt-1">Employés</span>
+    </a>
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">storefront</span>
+      <span class="font-body text-label-sm mt-1">Vitrine</span>
+    </a>
+  </nav>
+</div>
