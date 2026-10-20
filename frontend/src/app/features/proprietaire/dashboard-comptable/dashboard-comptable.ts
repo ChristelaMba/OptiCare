@@ -1,26 +1,30 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
-import { Statistiques as StatistiquesService } from '../../../core/services/statistiques';
-import { StatistiquesCabinet } from '../../../core/mocks/statistiques-mock-data';
+import { StatistiquesService } from '../../../core/services/statistiques';
+import { messageErreurApi } from '../../../core/utils/api-errors';
+import { formaterFcfa } from '../../../core/utils/montant';
+import { StatistiquesCabinet } from '../../../models/statistiques.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 
+/** Période du compteur de rendez-vous : `aujourd_hui`, `cette_semaine`, `ce_mois` (seules périodes fournies par l'API). */
 type Periode = 'jour' | 'semaine' | 'mois';
 
+const LIBELLE_PERIODE: Record<Periode, string> = { jour: "aujourd'hui", semaine: 'cette semaine', mois: 'ce mois' };
+const COULEURS = ['#0050ce', '#1baf7a', '#eda100', '#8e44ad', '#e0457b', '#64748b'];
+
 /**
- * Reproduction de la maquette `maquette/dashboard_comptable_opticare_admin/`.
- * Graphiques en CSS/HTML pur (barres à hauteur en %, donut en
- * conic-gradient) — aucune librairie de charts n'est installée, cohérent
- * avec la maquette elle-même qui utilise la même technique. Palette du
- * donut validée avec le script du skill dataviz (bleu/vert/ambre, tous
- * checks passés) plutôt que la palette bleu/bleu clair de la maquette
- * (peu distinguable, aurait probablement échoué la vérification CVD).
+ * Tableau de bord du propriétaire (20/10/2026), branché sur `GET /cabinets/{id}/statistiques` (§15.1) : chiffre
+ * d'affaires du mois (revenus.ce_mois) avec son évolution quand elle existe, rendez-vous (sélecteur
+ * jour/semaine/mois limité à cette carte), nouveaux patients du mois, évolution des revenus (`tendances`) et répartition
+ * par âge (`patients.tranches_age`). Retirés faute de donnée côté API : panier moyen, jours d'affluence.
+ * Graphiques en CSS/HTML pur (barres en %, donut en conic-gradient).
  */
 @Component({
   selector: 'app-dashboard-comptable',
-  imports: [DecimalPipe, RouterLink, BoutonDeconnexion],
+  imports: [RouterLink, BoutonDeconnexion],
   templateUrl: './dashboard-comptable.html',
   styleUrl: './dashboard-comptable.css',
 })
@@ -30,58 +34,97 @@ export class DashboardComptable implements OnInit {
 
   private readonly cabinetId = this.auth.utilisateur()?.cabinetId ?? null;
 
+  readonly formaterFcfa = formaterFcfa;
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
-  readonly periodes: Periode[] = ['jour', 'semaine', 'mois'];
-  readonly periode = signal<Periode>('mois');
   readonly stats = signal<StatistiquesCabinet | null>(null);
 
-  readonly montantMax = computed(() => Math.max(...(this.stats()?.evolutionRevenus.map((e) => e.montant) ?? [1])));
-  readonly rdvMax = computed(() => Math.max(...(this.stats()?.joursAffluence.map((j) => j.nombreRdv) ?? [1])));
+  readonly periodes: Periode[] = ['jour', 'semaine', 'mois'];
+  readonly libellePeriode = LIBELLE_PERIODE;
+  readonly periode = signal<Periode>('mois');
 
-  /** Angles cumulés pour le donut en conic-gradient — [couleur, %départ, %fin]. */
-  readonly segmentsDonut = computed(() => {
-    const distribution = this.stats()?.distributionAge ?? [];
-    const couleurs = ['#0050ce', '#1baf7a', '#eda100'];
+  /** Rendez-vous de la période choisie. */
+  readonly rendezVous = computed(() => {
+    const rdv = this.stats()?.rdv;
+    if (!rdv) return 0;
+    const parPeriode: Record<Periode, number> = { jour: rdv.aujourdHui, semaine: rdv.cetteSemaine, mois: rdv.ceMois };
+    return parPeriode[this.periode()];
+  });
+
+  /**
+   * Évolution du chiffre d'affaires : affichée seulement si le serveur la renvoie sous forme numérique et s'il y a
+   * quelque chose à comparer (un mois à 0 contre un mois précédent à 0 n'a pas de sens).
+   */
+  readonly evolution = computed(() => {
+    const revenus = this.stats()?.revenus;
+    if (!revenus || revenus.evolutionPourcentage === null) return null;
+    if (revenus.ceMois === 0 && revenus.moisPrecedent === 0) return null;
+    return revenus.evolutionPourcentage;
+  });
+
+  readonly texteEvolution = computed(() => {
+    const valeur = this.evolution();
+    if (valeur === null) return '';
+    const texte = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(Math.abs(valeur));
+    return `${valeur < 0 ? '−' : valeur > 0 ? '+' : ''}${texte} %`;
+  });
+
+  /** Évolution des revenus : vide (« Pas encore de données ») sans tendance ou si tous les revenus valent 0. */
+  readonly tendances = computed(() => this.stats()?.tendances ?? []);
+  readonly aDesRevenus = computed(() => this.tendances().some((t) => t.revenus > 0));
+  readonly montantMax = computed(() => Math.max(1, ...this.tendances().map((t) => t.revenus)));
+
+  /** Répartition par âge : tranches non vides, en pourcentage du total renseigné. */
+  readonly segmentsAge = computed(() => {
+    const tranches = (this.stats()?.patients.tranchesAge ?? []).filter((t) => t.total > 0);
+    const somme = tranches.reduce((s, t) => s + t.total, 0);
     let cumul = 0;
-    return distribution.map((segment, i) => {
+    return tranches.map((t, i) => {
+      const pourcentage = (t.total / somme) * 100;
       const depart = cumul;
-      cumul += segment.pourcentage;
-      return { ...segment, couleur: couleurs[i % couleurs.length], depart, fin: cumul };
+      cumul += pourcentage;
+      return {
+        tranche: t.tranche === 'non_renseigne' ? 'Non renseigné' : t.tranche.replace('-', ' – ') + ' ans',
+        total: t.total,
+        pourcentage: Math.round(pourcentage),
+        couleur: COULEURS[i % COULEURS.length],
+        depart,
+        fin: cumul,
+      };
     });
   });
 
-  readonly styleDonut = computed(() => {
-    const parts = this.segmentsDonut().map((s) => `${s.couleur} ${s.depart}% ${s.fin}%`);
-    return `conic-gradient(${parts.join(', ')})`;
-  });
+  readonly styleDonut = computed(() => `conic-gradient(${this.segmentsAge().map((s) => `${s.couleur} ${s.depart}% ${s.fin}%`).join(', ')})`);
 
   ngOnInit(): void {
-    this.charger();
-  }
-
-  changerPeriode(periode: Periode): void {
-    this.periode.set(periode);
-    this.charger();
-  }
-
-  private charger(): void {
     if (!this.cabinetId) {
       this.chargement.set(false);
-      this.erreur.set('Aucun cabinet rattaché à ce compte — impossible d\'afficher le dashboard.');
+      this.erreur.set("Aucun cabinet rattaché à ce compte — impossible d'afficher le tableau de bord.");
       return;
     }
+    this.charger();
+  }
 
+  charger(): void {
+    if (!this.cabinetId) return;
     this.chargement.set(true);
-    this.statistiquesService.obtenirPourCabinet(this.cabinetId, this.periode()).subscribe({
+    this.erreur.set(null);
+    this.statistiquesService.obtenirPourCabinet(this.cabinetId).subscribe({
       next: (stats) => {
         this.stats.set(stats);
         this.chargement.set(false);
       },
-      error: () => {
+      error: (e: HttpErrorResponse) => {
         this.chargement.set(false);
-        this.erreur.set('Impossible de charger les statistiques pour le moment. Réessayez plus tard.');
+        const messageServeur = (e.error as { message?: string } | null)?.message;
+        this.erreur.set(
+          messageErreurApi(e, `Impossible de charger les statistiques.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`),
+        );
       },
     });
+  }
+
+  changerPeriode(periode: Periode): void {
+    this.periode.set(periode);
   }
 }

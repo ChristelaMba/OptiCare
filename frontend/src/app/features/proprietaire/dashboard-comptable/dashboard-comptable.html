@@ -43,24 +43,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-4 mt-space-6 md:mt-0">
       <div>
         <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface">Dashboard comptable</h1>
-        <p class="font-body text-body-base text-text-muted mt-1">Aperçu financier et indicateurs clés de performance.</p>
-      </div>
-      <div class="flex bg-surface-container-low p-1 rounded-lg border border-border-subtle self-start sm:self-auto">
-        @for (p of periodes; track p) {
-          <button
-            type="button"
-            (click)="changerPeriode(p)"
-            [class.bg-surface-container-lowest]="periode() === p"
-            [class.shadow-sm]="periode() === p"
-            [class.border]="periode() === p"
-            [class.border-border-subtle]="periode() === p"
-            [class.text-on-surface]="periode() === p"
-            [class.text-text-muted]="periode() !== p"
-            class="px-space-4 py-2 font-button text-button rounded-md hover:text-on-surface transition-colors capitalize"
-          >
-            {{ p }}
-          </button>
-        }
+        <p class="font-body text-body-base text-text-muted mt-1">Aperçu financier et indicateurs clés de votre cabinet.</p>
       </div>
     </div>
 
@@ -72,131 +55,105 @@
       <p class="font-body text-body-base text-text-muted">Chargement des statistiques…</p>
     } @else if (stats(); as s) {
       <!-- Cartes indicateurs -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-4">
-        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-space-4">
+        <!-- Chiffre d'affaires du mois -->
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between min-h-32" data-carte="chiffre-affaires">
           <div class="flex justify-between items-start">
-            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Chiffre d'affaires</p>
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Chiffre d'affaires du mois</p>
             <span class="material-symbols-outlined text-primary bg-primary-fixed w-8 h-8 flex items-center justify-center rounded-full text-sm">payments</span>
           </div>
           <div>
-            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.chiffreAffaires | number: '1.0-0':'fr' }} FCFA</h3>
-            <div class="flex items-center gap-1 mt-1">
-              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.chiffreAffairesVariation >= 0" [class.text-error]="s.chiffreAffairesVariation < 0">
-                {{ s.chiffreAffairesVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
-              </span>
-              <span class="font-badge text-badge" [class.text-success]="s.chiffreAffairesVariation >= 0" [class.text-error]="s.chiffreAffairesVariation < 0">
-                {{ s.chiffreAffairesVariation | number: '1.1-1' }}%
-              </span>
-              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
-          <div class="flex justify-between items-start">
-            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Rendez-vous</p>
-            <span class="material-symbols-outlined text-tertiary-container bg-primary-fixed w-8 h-8 flex items-center justify-center rounded-full text-sm">event</span>
-          </div>
-          <div>
-            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.nombreRendezVous }}</h3>
-            <div class="flex items-center gap-1 mt-1">
-              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.nombreRendezVousVariation >= 0" [class.text-error]="s.nombreRendezVousVariation < 0">
-                {{ s.nombreRendezVousVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
-              </span>
-              <span class="font-badge text-badge" [class.text-success]="s.nombreRendezVousVariation >= 0" [class.text-error]="s.nombreRendezVousVariation < 0">
-                {{ s.nombreRendezVousVariation | number: '1.1-1' }}%
-              </span>
-              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
-          <div class="flex justify-between items-start">
-            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Panier moyen</p>
-            <span class="material-symbols-outlined text-secondary bg-secondary-container w-8 h-8 flex items-center justify-center rounded-full text-sm">shopping_cart</span>
-          </div>
-          <div>
-            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.panierMoyen | number: '1.0-0':'fr' }} FCFA</h3>
-            <div class="flex items-center gap-1 mt-1">
-              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.panierMoyenVariation >= 0" [class.text-error]="s.panierMoyenVariation < 0">
-                {{ s.panierMoyenVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
-              </span>
-              <span class="font-badge text-badge" [class.text-success]="s.panierMoyenVariation >= 0" [class.text-error]="s.panierMoyenVariation < 0">
-                {{ s.panierMoyenVariation | number: '1.1-1' }}%
-              </span>
-              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between h-32">
-          <div class="flex justify-between items-start">
-            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Nouveaux patients</p>
-            <span class="material-symbols-outlined text-warning bg-warning/20 w-8 h-8 flex items-center justify-center rounded-full text-sm">person_add</span>
-          </div>
-          <div>
-            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.nouveauxPatients }}</h3>
-            <div class="flex items-center gap-1 mt-1">
-              <span class="material-symbols-outlined text-[16px]" [class.text-success]="s.nouveauxPatientsVariation >= 0" [class.text-error]="s.nouveauxPatientsVariation < 0">
-                {{ s.nouveauxPatientsVariation >= 0 ? 'arrow_upward' : 'arrow_downward' }}
-              </span>
-              <span class="font-badge text-badge" [class.text-success]="s.nouveauxPatientsVariation >= 0" [class.text-error]="s.nouveauxPatientsVariation < 0">
-                {{ s.nouveauxPatientsVariation | number: '1.1-1' }}%
-              </span>
-              <span class="font-body text-label-sm text-text-disabled ml-1">vs période précédente</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Graphique + stats -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-6">
-        <!-- Évolution des revenus -->
-        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col">
-          <h3 class="font-heading text-headline-h3 text-on-surface mb-space-6">Évolution des revenus</h3>
-          <div class="flex-1 min-h-[260px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
-            @for (point of s.evolutionRevenus; track point.mois; let derniere = $last) {
-              <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
-                <span class="font-body text-label-sm text-text-muted mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {{ point.montant | number: '1.0-0':'fr' }}
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ formaterFcfa(s.revenus.ceMois) }}</h3>
+            @if (evolution() !== null) {
+              <div class="flex items-center gap-1 mt-1" data-testid="evolution">
+                @if (evolution()! !== 0) {
+                  <span class="material-symbols-outlined text-[16px]" [class.text-success]="evolution()! > 0" [class.text-error]="evolution()! < 0">
+                    {{ evolution()! > 0 ? 'arrow_upward' : 'arrow_downward' }}
+                  </span>
+                }
+                <span class="font-badge text-badge" [class.text-success]="evolution()! > 0" [class.text-error]="evolution()! < 0">
+                  {{ texteEvolution() }}
                 </span>
-                <div
-                  class="w-full rounded-t transition-colors hover:bg-primary"
-                  [class.bg-primary]="derniere"
-                  [class.bg-primary-fixed]="!derniere"
-                  [style.height.%]="(point.montant / montantMax()) * 100"
-                ></div>
-                <span class="font-body text-label-sm mt-2" [class.text-primary]="derniere" [class.font-semibold]="derniere" [class.text-text-disabled]="!derniere">
-                  {{ point.mois }}
-                </span>
+                <span class="font-body text-label-sm text-text-disabled ml-1">vs mois précédent</span>
               </div>
             }
           </div>
         </div>
 
-        <!-- Colonne stats -->
-        <div class="flex flex-col gap-space-6 lg:col-span-1">
-          <!-- Jours d'affluence -->
-          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
-            <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Jours d'affluence</h3>
-            <div class="flex flex-col gap-space-4">
-              @for (jour of s.joursAffluence; track jour.jour) {
-                <div>
-                  <div class="flex justify-between font-body text-label-sm mb-1">
-                    <span class="text-on-surface font-medium">{{ jour.jour }}</span>
-                    <span class="text-text-muted">{{ jour.nombreRdv }} rdv</span>
-                  </div>
-                  <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                    <div class="bg-primary h-full rounded-full" [style.width.%]="(jour.nombreRdv / rdvMax()) * 100"></div>
-                  </div>
-                </div>
+        <!-- Rendez-vous (seule carte concernée par le sélecteur de période) -->
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between min-h-32" data-carte="rendez-vous">
+          <div class="flex justify-between items-start gap-2">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Rendez-vous</p>
+            <div class="flex bg-surface-container-low p-0.5 rounded-lg border border-border-subtle" role="group" aria-label="Période des rendez-vous">
+              @for (p of periodes; track p) {
+                <button
+                  type="button"
+                  (click)="changerPeriode(p)"
+                  [attr.aria-pressed]="periode() === p"
+                  [class.bg-surface-container-lowest]="periode() === p"
+                  [class.shadow-sm]="periode() === p"
+                  [class.text-on-surface]="periode() === p"
+                  [class.text-text-muted]="periode() !== p"
+                  class="px-2 py-0.5 font-button text-label-sm rounded-md hover:text-on-surface transition-colors capitalize"
+                >
+                  {{ p }}
+                </button>
               }
             </div>
           </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ rendezVous() }}</h3>
+            <p class="font-body text-label-sm text-text-disabled mt-1">{{ libellePeriode[periode()] }}</p>
+          </div>
+        </div>
 
-          <!-- Distribution par âge -->
-          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6">
+        <!-- Nouveaux patients du mois -->
+        <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle flex flex-col justify-between min-h-32" data-carte="nouveaux-patients">
+          <div class="flex justify-between items-start">
+            <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Nouveaux patients</p>
+            <span class="material-symbols-outlined text-warning bg-warning/20 w-8 h-8 flex items-center justify-center rounded-full text-sm">person_add</span>
+          </div>
+          <div>
+            <h3 class="font-heading text-headline-h2 text-on-surface">{{ s.patients.nouveauxCeMois }}</h3>
+            <p class="font-body text-label-sm text-text-disabled mt-1">ce mois</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-6">
+        <!-- Évolution des revenus -->
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 flex flex-col" data-bloc="revenus">
+          <h3 class="font-heading text-headline-h3 text-on-surface mb-space-6">Évolution des revenus</h3>
+          @if (!aDesRevenus()) {
+            <p class="flex-1 min-h-[160px] flex items-center justify-center font-body text-body-base text-text-muted" data-testid="revenus-vide">
+              Pas encore de données
+            </p>
+          } @else {
+            <div class="flex-1 min-h-[260px] flex items-end gap-space-2 sm:gap-space-4 border-l border-b border-border-subtle pl-space-2 pb-1">
+              @for (point of tendances(); track point.mois; let derniere = $last) {
+                <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
+                  <span class="font-body text-label-sm text-text-muted mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {{ formaterFcfa(point.revenus) }}
+                  </span>
+                  <div
+                    class="w-full rounded-t transition-colors hover:bg-primary"
+                    [class.bg-primary]="derniere"
+                    [class.bg-primary-fixed]="!derniere"
+                    [style.height.%]="(point.revenus / montantMax()) * 100"
+                    [attr.title]="point.libelle + ' : ' + formaterFcfa(point.revenus)"
+                  ></div>
+                  <span class="font-body text-label-sm mt-2 capitalize" [class.text-primary]="derniere" [class.font-semibold]="derniere" [class.text-text-disabled]="!derniere">
+                    {{ point.libelle }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Distribution par âge (seulement si l'API renvoie des tranches non vides) -->
+        @if (segmentsAge().length > 0) {
+          <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 lg:col-span-1" data-bloc="age">
             <h3 class="font-heading text-headline-h3 text-on-surface mb-space-4">Distribution par âge</h3>
             <div class="flex items-center gap-space-4">
               <div class="w-24 h-24 rounded-full shrink-0 flex items-center justify-center relative shadow-sm" [style.background]="styleDonut()">
@@ -205,17 +162,17 @@
                 </div>
               </div>
               <div class="flex-1 flex flex-col gap-space-2">
-                @for (segment of segmentsDonut(); track segment.tranche) {
+                @for (segment of segmentsAge(); track segment.tranche) {
                   <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded-full shrink-0" [style.background-color]="segment.couleur"></div>
                     <span class="font-body text-label-sm text-text-muted flex-1">{{ segment.tranche }}</span>
-                    <span class="font-body text-label-sm font-semibold text-on-surface">{{ segment.pourcentage }}%</span>
+                    <span class="font-body text-label-sm font-semibold text-on-surface">{{ segment.total }} ({{ segment.pourcentage }} %)</span>
                   </div>
                 }
               </div>
             </div>
           </div>
-        </div>
+        }
       </div>
     }
   </main>
