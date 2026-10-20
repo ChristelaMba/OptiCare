@@ -6,6 +6,7 @@ import { catchError, EMPTY, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ActionsSession } from '../actions-session/actions-session';
+import { MenuMobilePublic } from '../menu-mobile-public/menu-mobile-public';
 import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
 import { Avis as AvisService, AvisPublic } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
@@ -24,7 +25,7 @@ interface AvisAffiche {
 /** Reproduction de la maquette `maquette/accueil_cabinet/` — page publique d'un cabinet. */
 @Component({
   selector: 'app-vitrine-cabinet',
-  imports: [DecimalPipe, RouterLink, ActionsSession, LogoPiedDePage],
+  imports: [DecimalPipe, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
   templateUrl: './vitrine-cabinet.html',
   styleUrl: './vitrine-cabinet.css',
 })

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { ActionsSession } from '../actions-session/actions-session';
+import { MenuMobilePublic } from '../menu-mobile-public/menu-mobile-public';
 import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
 
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
@@ -24,7 +25,7 @@ const TAILLE_PAGE = 6;
  */
 @Component({
   selector: 'app-recherche-cabinets',
-  imports: [DecimalPipe, FormsModule, RouterLink, ActionsSession, LogoPiedDePage],
+  imports: [DecimalPipe, FormsModule, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
   templateUrl: './recherche-cabinets.html',
   styleUrl: './recherche-cabinets.css',
 })

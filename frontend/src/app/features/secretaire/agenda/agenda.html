@@ -532,7 +532,7 @@
        AUCUN RENDEZ-VOUS
   ================================================== -->
 
-  @else if (rendezVousAffiches().length === 0) {
+  @else if (vueActive() === 'jour' && rendezVousAffiches().length === 0) {
 
     <div class="empty-agenda">
 

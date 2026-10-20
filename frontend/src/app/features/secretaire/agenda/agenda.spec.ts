@@ -272,11 +272,20 @@ describe('Agenda', () => {
       expect(component.dateFormatee()).not.toContain('Semaine');
     });
 
-    it('semaine sans rendez-vous : message dédié', () => {
+    it('semaine vide : « Aucun rendez-vous » par jour, sans grand encart en bas ; la vue Jour garde son encart', () => {
       charger([]);
       component.changerVue('semaine');
       fixture.detectChanges();
-      expect((fixture.nativeElement as HTMLElement).textContent).toContain("Aucun rendez-vous n'est programmé cette semaine.");
+      const el = fixture.nativeElement as HTMLElement;
+
+      expect(el.querySelectorAll('.week-empty').length).toBe(7);
+      expect(el.querySelector('.empty-agenda')).toBeNull();
+      expect(el.textContent).not.toContain("Aucun rendez-vous n'est programmé");
+
+      component.changerVue('jour');
+      fixture.detectChanges();
+      expect(el.querySelector('.empty-agenda')?.textContent).toContain("Aucun rendez-vous n'est programmé pour cette journée.");
+      expect(el.querySelectorAll('.week-empty').length).toBe(0);
     });
 
     it('la fenêtre de détails affiche la date du rendez-vous, pas celle du jour affiché', () => {
