@@ -8,37 +8,17 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
-import { mockRendezVousInterceptor } from './core/interceptors/mock-rendezvous-interceptor';
 import { mockStatistiquesInterceptor } from './core/interceptors/mock-statistiques-interceptor';
-import { mockPatientInterceptor } from './core/interceptors/mock-patient-interceptor';
-import { mockCommandeInterceptor } from './core/interceptors/mock-commande-interceptor';
 
-// OUTIL DE DEV UNIQUEMENT — court-circuite les appels encore sans route
-// back-end confirmée (/statistiques, 
-// /commandes, /patients, et la majeure partie du domaine
-// rendez-vous — voir POINTS-A-CONFIRMER-BACKEND.md) avec des données
-// factices (cf. core/mocks/*.ts). Jamais actif en prod
-// (environment.production === true fait passer chaque intercepteur en no-op).
-//
-// 2026-09-07 : `mockAuthInterceptor` retiré — `/auth/login` et
-// `/auth/register/{patient,cabinet}` tapent maintenant la vraie API
-// (testé, voir JOURNAL-MODIFICATIONS-PARTAGEES.md, entrée du 07/09).
-//
-// 2026-09-11 : `mockCabinetsInterceptor` retiré à son tour — liste publique,
-// détail, mise à jour de profil, liste admin, valider/refuser tapent
-// maintenant la vraie API (routes confirmées et testées ce jour-là, voir
-// JOURNAL-MODIFICATIONS-PARTAGEES.md).
-//
-// 19/10/2026 : `mockUtilisateursInterceptor` retiré (gestion des comptes branchée sur /admin/users).
-// `mockRendezVousInterceptor` ne répond plus qu'à POST /rendezvous et GET /rendez-vous/mes-rendez-vous, que
-// plus aucun code n'appelle (voir Docs/JOURNAL-MODIFICATIONS.md, lot 2b-2a) : conservé en attendant décision.
+// OUTIL DE DEV UNIQUEMENT (jamais actif en prod : `environment.production === true` retire tout intercepteur mock).
+// Seul mock encore enregistré (20/10/2026) : `mockStatistiquesInterceptor`, pour `GET /cabinets/{id}/statistiques`
+// (tableau de bord du comptable, écran du propriétaire hors périmètre des derniers lots). Tous les autres mocks
+// (auth, cabinets, utilisateurs, rendez-vous, patients, consultations, prises en charge, commandes) ont été supprimés :
+// leurs écrans tapent l'API réelle. Voir Docs/JOURNAL-MODIFICATIONS.md.
 const interceptors = environment.production
   ? [authInterceptor, errorInterceptor]
   : [
-      mockRendezVousInterceptor,
       mockStatistiquesInterceptor,
-      mockPatientInterceptor,
-      mockCommandeInterceptor,
       authInterceptor,
       errorInterceptor,
     ];

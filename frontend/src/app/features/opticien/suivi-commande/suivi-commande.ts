@@ -1,531 +1,285 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
-import {
-  Commande,
-  DiagnosticOeil,
-  StatutCommande
-} from '../../../models/commande.model';
+import { Auth } from '../../../core/services/auth';
+import { CommandeService } from '../../../core/services/commande';
+import { ConsultationService } from '../../../core/services/consultation';
+import { PatientCabinet, PatientsCabinet } from '../../../core/services/patients-cabinet';
+import { erreursParChamp, messageErreurApi } from '../../../core/utils/api-errors';
+import { Commande, NouvelleCommandePayload, STATUTS_COMMANDE, StatutCommande } from '../../../models/commande.model';
+import { ConsultationOpticien } from '../../../models/consultation.model';
 
+const LIBELLE_STATUT: Record<StatutCommande, string> = {
+  initie: 'Initiée',
+  en_cours: 'En cours',
+  en_verification: 'En vérification',
+  termine: 'Terminée',
+};
+
+const DECIMAL = /^[+-]?\d+([.,]\d+)?$/;
+const ENTIER = /^\d{1,3}$/;
+
+const CHAMPS_FORMULAIRE = ['consultation_id', 'numero_monture', 'type_verre', 'teinte', 'description_foyers', 'port', 'antireflet', 'notes'];
+
+interface LigneCommande {
+  commande: Commande;
+  patientId: string | null;
+  patientNom: string | null;
+}
+
+/**
+ * Suivi des commandes de l'opticien (20/10/2026), branché sur les routes réelles : `GET /cabinets/{id}/commandes`,
+ * `POST /commandes`, `PATCH /commandes/{id}` (statut). `?patientId=` limite la liste aux commandes de ce patient (retrouvé
+ * par la consultation de chaque commande : l'API ne renvoie pas le patient dans la commande). Aucune donnée en dur :
+ * le patient vient de `GET /cabinets/{id}/patients/{patientId}`.
+ */
 @Component({
   selector: 'app-suivi-commande',
   standalone: true,
-  imports: [CommonModule],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './suivi-commande.html',
-  styleUrl: './suivi-commande.css'
+  styleUrl: '../documents-opticien.css',
 })
 export class SuiviCommande implements OnInit {
-
+  private readonly auth = inject(Auth);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly commandeService = inject(CommandeService);
+  private readonly consultationService = inject(ConsultationService);
+  private readonly patientsService = inject(PatientsCabinet);
 
-  // =========================================================
-  // IDENTIFIANTS
-  // =========================================================
+  private readonly cabinetId = this.auth.utilisateur()?.cabinetId ?? '';
 
-  commandeId = '';
+  readonly statuts = STATUTS_COMMANDE;
+  readonly libelleStatut = LIBELLE_STATUT;
+
   patientId = '';
-  dossierVisuelId = '';
+  readonly patient = signal<PatientCabinet | null>(null);
+  readonly commandes = signal<Commande[]>([]);
+  readonly consultations = signal<ConsultationOpticien[]>([]);
 
-  // =========================================================
-  // ÉTAT
-  // =========================================================
+  readonly chargement = signal(true);
+  readonly erreur = signal<string | null>(null);
+  readonly filtreStatut = signal<StatutCommande | 'tous'>('tous');
 
-  commande = signal<Commande | null>(null);
-  chargement = signal(false);
-  messageErreur = signal('');
+  readonly selection = signal<Commande | null>(null);
+  readonly statutChoisi = signal<StatutCommande>('initie');
+  readonly enCours = signal(false);
+  readonly erreurAction = signal<string | null>(null);
+  readonly succes = signal<string | null>(null);
 
-  // =========================================================
-  // PATIENT
-  // =========================================================
+  readonly formulaireOuvert = signal(false);
+  readonly erreurFormulaire = signal<string | null>(null);
+  readonly erreursChamps = signal<Record<string, string>>({});
+  readonly erreursAutres = signal<string[]>([]);
 
-  patientNom = signal('Jean Dupont');
-  patientTelephone = signal('06 12 34 56 78');
+  readonly formulaire = this.fb.nonNullable.group({
+    consultationId: ['', Validators.required],
+    numeroMonture: [''],
+    typeVerre: [''],
+    teinte: [''],
+    descriptionFoyers: [''],
+    port: [''],
+    antireflet: [false],
+    od: this.groupeOeil(),
+    og: this.groupeOeil(),
+    notes: [''],
+  });
 
-  // =========================================================
-  // INITIALISATION
-  // =========================================================
-
-  ngOnInit(): void {
-
-    this.route.queryParamMap.subscribe(params => {
-
-      this.commandeId = params.get('commandeId') ?? '';
-      this.patientId = params.get('patientId') ?? '';
-      this.dossierVisuelId = params.get('dossierVisuelId') ?? '';
-
-      this.chargerPatient();
-
-      /*
-       * Si un vrai commandeId est fourni, on pourrait ici appeler
-       * CommandeService.lire().
-       *
-       * Pour cette version frontend, on utilise les commandes mockées.
-       */
-
-      this.chargerCommandeFrontend();
+  private groupeOeil() {
+    return this.fb.nonNullable.group({
+      sphere: ['', Validators.pattern(DECIMAL)],
+      cylindre: ['', Validators.pattern(DECIMAL)],
+      axe: ['', [Validators.pattern(ENTIER), Validators.min(0), Validators.max(180)]],
+      addition: ['', Validators.pattern(DECIMAL)],
     });
   }
 
-  // =========================================================
-  // PATIENT
-  // =========================================================
+  private readonly consultationParId = computed(() => new Map(this.consultations().map((c) => [c.id, c])));
 
-  private chargerPatient(): void {
+  /** Commandes affichées : filtre patient (si `?patientId=`) et filtre de statut, avec le patient retrouvé par la consultation. */
+  readonly lignes = computed<LigneCommande[]>(() => {
+    const statut = this.filtreStatut();
+    return this.commandes()
+      .map((commande) => {
+        const consultation = this.consultationParId().get(commande.consultationId);
+        return { commande, patientId: consultation?.patientId ?? null, patientNom: consultation?.patientNom ?? null };
+      })
+      .filter((l) => !this.patientId || l.patientId === this.patientId)
+      .filter((l) => statut === 'tous' || l.commande.statut === statut);
+  });
 
-    const patients: Record<
-      string,
-      {
-        nom: string;
-        telephone: string;
-      }
-    > = {
+  readonly aucuneCommande = computed(() => this.commandes().length === 0);
 
-      'patient-001': {
-        nom: 'Jean Dupont',
-        telephone: '06 12 34 56 78'
-      },
+  /** Consultations proposées pour une nouvelle commande (celles du patient si `?patientId=`). */
+  readonly consultationsProposees = computed(() =>
+    this.consultations().filter((c) => !this.patientId || c.patientId === this.patientId),
+  );
 
-      'patient-002': {
-        nom: 'Alice Mbarga',
-        telephone: '06 98 45 21 10'
-      },
-
-      'patient-003': {
-        nom: 'Paul Ndi',
-        telephone: '06 55 32 14 87'
-      },
-
-      'patient-004': {
-        nom: 'Sophie Kamdem',
-        telephone: '06 74 21 65 43'
-      },
-
-      'patient-005': {
-        nom: 'Michel Tchoumi',
-        telephone: '06 82 11 43 90'
-      },
-
-      'patient-006': {
-        nom: 'Clara Ngono',
-        telephone: '06 61 29 38 74'
-      }
-    };
-
-    const patient = patients[this.patientId];
-
-    if (patient) {
-      this.patientNom.set(patient.nom);
-      this.patientTelephone.set(patient.telephone);
-    }
-  }
-
-  // =========================================================
-  // COMMANDES FRONTEND DE DÉMONSTRATION
-  // =========================================================
-
-  private chargerCommandeFrontend(): void {
-
-    this.chargement.set(true);
-    this.messageErreur.set('');
-
-    /*
-     * Commandes fictives uniquement pour permettre au frontend
-     * de fonctionner avant l'intégration de la route backend
-     * de récupération des commandes.
-     */
-
-    const commandes: Commande[] = [
-
-      {
-        id: 'commande-001',
-        priseEnChargeId: 'pec-001',
-        cabinetId: 'cabinet-001',
-        patientId: 'patient-001',
-
-        numeroMonture: 'MONT-2026-145',
-        typeVerre: 'progressif',
-        teinte: 'Transparente',
-        descriptionFoyers:
-          'Progressif personnalisé avec zone de lecture élargie',
-        port: 'permanent',
-        antireflet: 'Premium',
-        autresDetails:
-          'Écart pupillaire : 63 mm — épaisseur standard',
-
-        diagnosticOeilDroit: {
-          sphere: -1.25,
-          cylindre: -0.5,
-          axe: 90,
-          addition: 2
-        },
-
-        diagnosticOeilGauche: {
-          sphere: -1.0,
-          cylindre: -0.25,
-          axe: 85,
-          addition: 2
-        },
-
-        statut: 'enCours',
-
-        modifieParId: 'utilisateur-opticien-001',
-
-        dateInitiation: new Date('2026-09-02T09:30:00'),
-        dateDerniereMiseAJour: new Date('2026-09-05T14:20:00'),
-
-        notificationEnvoyee: false
-      },
-
-      {
-        id: 'commande-002',
-        priseEnChargeId: 'pec-002',
-        cabinetId: 'cabinet-001',
-        patientId: 'patient-002',
-
-        numeroMonture: 'MONT-2026-198',
-        typeVerre: 'unifocal',
-        teinte: 'Transparente',
-        descriptionFoyers: 'Verres unifocaux standards',
-        port: 'permanent',
-        antireflet: 'Standard',
-        autresDetails: 'Écart pupillaire : 61 mm',
-
-        diagnosticOeilDroit: {
-          sphere: -2.0,
-          cylindre: -0.75,
-          axe: 90,
-          addition: 0
-        },
-
-        diagnosticOeilGauche: {
-          sphere: -1.75,
-          cylindre: -0.5,
-          axe: 80,
-          addition: 0
-        },
-
-        statut: 'enVerification',
-
-        modifieParId: 'utilisateur-opticien-001',
-
-        dateInitiation: new Date('2026-08-29T10:15:00'),
-        dateDerniereMiseAJour: new Date('2026-09-06T11:45:00'),
-
-        notificationEnvoyee: false
-      },
-
-      {
-        id: 'commande-003',
-        priseEnChargeId: 'pec-003',
-        cabinetId: 'cabinet-001',
-        patientId: 'patient-003',
-
-        numeroMonture: 'MONT-2026-176',
-        typeVerre: 'bifocal',
-        teinte: 'Légèrement teintée',
-        descriptionFoyers: 'Bifocal classique',
-        port: 'occasionnel',
-        antireflet: 'Premium',
-        autresDetails: 'Écart pupillaire : 64 mm',
-
-        diagnosticOeilDroit: {
-          sphere: 1.25,
-          cylindre: -0.5,
-          axe: 90,
-          addition: 2.5
-        },
-
-        diagnosticOeilGauche: {
-          sphere: 1.5,
-          cylindre: -0.75,
-          axe: 95,
-          addition: 2.5
-        },
-
-        statut: 'termine',
-
-        modifieParId: 'utilisateur-opticien-001',
-
-        dateInitiation: new Date('2026-08-20T08:30:00'),
-        dateDerniereMiseAJour: new Date('2026-08-28T15:00:00'),
-
-        notificationEnvoyee: true
-      },
-
-      {
-        id: 'commande-004',
-        priseEnChargeId: 'pec-004',
-        cabinetId: 'cabinet-001',
-        patientId: 'patient-004',
-
-        numeroMonture: 'MONT-2026-205',
-        typeVerre: 'unifocal',
-        teinte: 'Photochromique',
-        descriptionFoyers: 'Verre unifocal photochromique',
-        port: 'permanent',
-        antireflet: 'Premium',
-        autresDetails: 'Écart pupillaire : 60 mm',
-
-        diagnosticOeilDroit: {
-          sphere: -0.75,
-          cylindre: -0.25,
-          axe: 90,
-          addition: 0
-        },
-
-        diagnosticOeilGauche: {
-          sphere: -0.5,
-          cylindre: -0.25,
-          axe: 90,
-          addition: 0
-        },
-
-        statut: 'initie',
-
-        modifieParId: 'utilisateur-opticien-001',
-
-        dateInitiation: new Date('2026-09-07T09:00:00'),
-        dateDerniereMiseAJour: new Date('2026-09-07T09:00:00'),
-
-        notificationEnvoyee: false
-      }
-    ];
-
-    let commandeTrouvee: Commande | undefined;
-
-    /*
-     * Si un commandeId est fourni, on cherche précisément
-     * cette commande.
-     */
-    if (this.commandeId) {
-
-      commandeTrouvee = commandes.find(
-        commande => commande.id === this.commandeId
-      );
-
-    } else if (this.patientId) {
-
-      /*
-       * Sinon, on cherche la commande du patient.
-       */
-      commandeTrouvee = commandes.find(
-        commande => commande.patientId === this.patientId
-      );
-    }
-
-    /*
-     * Pour les patients sans commande dans la démo,
-     * on affiche un message propre.
-     */
-    if (!commandeTrouvee) {
-
-      this.commande.set(null);
-
-      this.messageErreur.set(
-        'Aucune commande enregistrée pour ce patient.'
-      );
-
+  ngOnInit(): void {
+    this.patientId = this.route.snapshot.queryParamMap.get('patientId') ?? '';
+    if (!this.cabinetId) {
       this.chargement.set(false);
-
+      this.erreur.set("Aucun cabinet rattaché à ce compte — impossible d'afficher les commandes.");
       return;
     }
 
-    this.commande.set(commandeTrouvee);
+    if (this.patientId) {
+      this.patientsService.obtenir(this.cabinetId, this.patientId).subscribe({
+        next: (p) => this.patient.set(p),
+        error: (e: HttpErrorResponse) => this.erreur.set(this.message(e, 'Impossible de charger le patient')),
+      });
+    }
 
-    /*
-     * On conserve l'identifiant pour les navigations futures.
-     */
-    this.commandeId = commandeTrouvee.id;
+    // Les consultations servent à retrouver le patient de chaque commande ; leur échec ne bloque pas la liste.
+    this.consultationService.listerParCabinet(this.cabinetId).subscribe({
+      next: (c) => this.consultations.set(c),
+    });
 
-    this.chargement.set(false);
+    this.commandeService.listerParCabinet(this.cabinetId).subscribe({
+      next: (c) => {
+        this.commandes.set([...c].sort((a, b) => Number(b.id) - Number(a.id)));
+        this.chargement.set(false);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.chargement.set(false);
+        this.erreur.set(this.message(e, 'Impossible de charger les commandes'));
+      },
+    });
   }
 
-  // =========================================================
-  // STATUT
-  // =========================================================
+  /** « Accès refusé. » sur 403, sinon erreurs 422 du serveur, sinon message générique complété du message serveur. */
+  private message(e: HttpErrorResponse, debut: string): string {
+    const messageServeur = (e.error as { message?: string } | null)?.message;
+    return messageErreurApi(e, `${debut}.${messageServeur ? ` Le serveur répond : ${messageServeur}` : ' Réessayez plus tard.'}`);
+  }
 
-  changerStatut(statut: StatutCommande): void {
+  selectionner(commande: Commande): void {
+    this.selection.set(commande);
+    this.statutChoisi.set(commande.statut);
+    this.erreurAction.set(null);
+    this.succes.set(null);
+  }
 
-    const commandeActuelle = this.commande();
+  fermerDetail(): void {
+    this.selection.set(null);
+  }
 
-    if (!commandeActuelle) {
+  nomConsultation(c: ConsultationOpticien): string {
+    return `Consultation n°${c.id} du ${c.date.split('-').reverse().join('/')} — ${c.patientNom ?? 'patient inconnu'} (${c.statut === 'terminee' ? 'terminée' : 'en cours'})`;
+  }
+
+  /** `PATCH /commandes/{id}` avec le nouveau statut ; une commande terminée n'est plus modifiable (422 côté serveur). */
+  changerStatut(): void {
+    const commande = this.selection();
+    if (!commande || !commande.modifiable || this.enCours() || this.statutChoisi() === commande.statut) return;
+    this.enCours.set(true);
+    this.erreurAction.set(null);
+    this.succes.set(null);
+
+    this.commandeService.changerStatut(commande.id, this.statutChoisi()).subscribe({
+      next: (maj) => {
+        this.enCours.set(false);
+        this.commandes.update((liste) => liste.map((c) => (c.id === maj.id ? maj : c)));
+        this.selection.set(maj);
+        this.statutChoisi.set(maj.statut);
+        this.succes.set(`Statut mis à jour : ${LIBELLE_STATUT[maj.statut]}.`);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.enCours.set(false);
+        this.erreurAction.set(this.messageStatut(e));
+      },
+    });
+  }
+
+  /** 422 : `errors.commande[0]` / `errors.statut[0]` du serveur (ex. commande terminée), 403 « Accès refusé. ». */
+  private messageStatut(e: HttpErrorResponse): string {
+    return this.message(e, "Le changement de statut a échoué");
+  }
+
+  ouvrirFormulaire(): void {
+    this.formulaire.reset({
+      consultationId: this.consultationsProposees().length === 1 ? this.consultationsProposees()[0].id : '',
+      antireflet: false,
+    });
+    this.erreurFormulaire.set(null);
+    this.erreursChamps.set({});
+    this.erreursAutres.set([]);
+    this.succes.set(null);
+    this.formulaireOuvert.set(true);
+  }
+
+  fermerFormulaire(): void {
+    this.formulaireOuvert.set(false);
+  }
+
+  private payload(): NouvelleCommandePayload {
+    const v = this.formulaire.getRawValue();
+    const t = (s: unknown) => String(s ?? '').trim();
+    const dec = (s: unknown) => t(s).replace(',', '.');
+    const corps: NouvelleCommandePayload = { consultation_id: Number(v.consultationId), antireflet: v.antireflet };
+    const ajouter = (cle: keyof NouvelleCommandePayload, valeur: string) => {
+      if (valeur !== '') (corps as unknown as Record<string, unknown>)[cle] = valeur;
+    };
+    ajouter('numero_monture', t(v.numeroMonture));
+    ajouter('type_verre', t(v.typeVerre));
+    ajouter('teinte', t(v.teinte));
+    ajouter('description_foyers', t(v.descriptionFoyers));
+    ajouter('port', t(v.port));
+    ajouter('diag_od_sphere', dec(v.od.sphere));
+    ajouter('diag_od_cylindre', dec(v.od.cylindre));
+    ajouter('diag_od_axe', t(v.od.axe));
+    ajouter('diag_od_addition', dec(v.od.addition));
+    ajouter('diag_og_sphere', dec(v.og.sphere));
+    ajouter('diag_og_cylindre', dec(v.og.cylindre));
+    ajouter('diag_og_axe', t(v.og.axe));
+    ajouter('diag_og_addition', dec(v.og.addition));
+    ajouter('notes', t(v.notes));
+    return corps;
+  }
+
+  creer(): void {
+    if (this.enCours()) return;
+    if (this.formulaire.invalid) {
+      this.formulaire.markAllAsTouched();
       return;
     }
+    this.enCours.set(true);
+    this.erreurFormulaire.set(null);
+    this.erreursChamps.set({});
+    this.erreursAutres.set([]);
 
-    /*
-     * Frontend uniquement :
-     * on met à jour la commande localement.
-     *
-     * Le backend pourra ensuite remplacer cette partie
-     * par CommandeService.mettreAJourStatut().
-     */
-
-    const commandeMiseAJour: Commande = {
-      ...commandeActuelle,
-      statut,
-      dateDerniereMiseAJour: new Date(),
-
-      /*
-       * Le frontend ne modifie normalement pas notificationEnvoyee.
-       * On le laisse donc inchangé.
-       */
-      notificationEnvoyee: commandeActuelle.notificationEnvoyee
-    };
-
-    this.commande.set(commandeMiseAJour);
-  }
-
-  // =========================================================
-  // STATUT ACTUEL
-  // =========================================================
-
-  statutLibelle(statut: StatutCommande): string {
-
-    const libelles: Record<StatutCommande, string> = {
-      initie: 'Initiée',
-      enCours: 'En cours',
-      enVerification: 'En vérification',
-      termine: 'Terminée'
-    };
-
-    return libelles[statut];
-  }
-
-  statutClasse(statut: StatutCommande): string {
-
-    const classes: Record<StatutCommande, string> = {
-      initie: 'status-initie',
-      enCours: 'status-encours',
-      enVerification: 'status-verification',
-      termine: 'status-termine'
-    };
-
-    return classes[statut];
-  }
-
-  // =========================================================
-  // PROGRESSION
-  // =========================================================
-
-  etapeActive(statut: StatutCommande): number {
-
-    const etapes: Record<StatutCommande, number> = {
-      initie: 1,
-      enCours: 2,
-      enVerification: 3,
-      termine: 4
-    };
-
-    return etapes[statut];
-  }
-
-  etapeTerminee(
-    etape: number,
-    statut: StatutCommande
-  ): boolean {
-
-    return etape <= this.etapeActive(statut);
-  }
-
-  // =========================================================
-  // DIAGNOSTIC
-  // =========================================================
-
-  formatDioptrie(valeur: number): string {
-
-    if (valeur > 0) {
-      return `+${valeur.toFixed(2)}`;
-    }
-
-    return valeur.toFixed(2);
-  }
-
-  formatAxe(valeur: number): string {
-
-    return `${valeur}°`;
-  }
-
-  // =========================================================
-  // DATE
-  // =========================================================
-
-  formaterDate(date: Date | string | null | undefined): string {
-
-    if (!date) {
-      return '—';
-    }
-
-    const dateObj = date instanceof Date
-      ? date
-      : new Date(date);
-
-    if (Number.isNaN(dateObj.getTime())) {
-      return '—';
-    }
-
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(dateObj);
-  }
-
-  // =========================================================
-  // INITIALES
-  // =========================================================
-
-  initiales(): string {
-
-    const nom = this.patientNom();
-
-    const morceaux = nom
-      .trim()
-      .split(' ')
-      .filter(Boolean);
-
-    if (morceaux.length >= 2) {
-      return (
-        morceaux[0].charAt(0) +
-        morceaux[morceaux.length - 1].charAt(0)
-      ).toUpperCase();
-    }
-
-    return nom.substring(0, 2).toUpperCase();
-  }
-
-  // =========================================================
-  // NAVIGATION
-  // =========================================================
-
-  retourDossier(): void {
-
-    if (this.dossierVisuelId) {
-
-      this.router.navigate(
-        ['/opticien/dossier-visuel-patient'],
-        {
-          queryParams: {
-            dossierVisuelId: this.dossierVisuelId
-          }
+    this.commandeService.creer(this.payload()).subscribe({
+      next: (commande) => {
+        this.enCours.set(false);
+        this.commandes.update((liste) => [commande, ...liste]);
+        this.formulaireOuvert.set(false);
+        this.selectionner(commande);
+        this.succes.set('Commande créée (statut « Initiée »).');
+      },
+      error: (e: HttpErrorResponse) => {
+        this.enCours.set(false);
+        if (e.status !== 422) {
+          this.erreurFormulaire.set(this.message(e, 'La création de la commande a échoué'));
+          return;
         }
-      );
-
-      return;
-    }
-
-    /*
-     * Si le dossier visuel n'est pas connu,
-     * on revient simplement à la liste des patients.
-     */
-    this.router.navigate(['/opticien/mes-patients']);
-  }
-
-  retournerPatients(): void {
-
-    this.router.navigate(['/opticien/mes-patients']);
+        const champs = erreursParChamp(e);
+        const sousChamp: Record<string, string> = {};
+        const autres: string[] = [];
+        for (const [cle, texte] of Object.entries(champs)) {
+          if (CHAMPS_FORMULAIRE.includes(cle)) sousChamp[cle] = texte;
+          else if (cle === 'general' || cle === 'commande' || cle === 'consultation') this.erreurFormulaire.set(texte);
+          else autres.push(`${cle} : ${texte}`);
+        }
+        this.erreursChamps.set(sousChamp);
+        this.erreursAutres.set(autres);
+        if (!this.erreurFormulaire() && autres.length === 0 && Object.keys(sousChamp).length === 0) {
+          this.erreurFormulaire.set(this.message(e, 'La création de la commande a échoué'));
+        }
+      },
+    });
   }
 }

@@ -1,0 +1,275 @@
+/* Styles communs des écrans « Suivi des commandes » et « Factures & ordonnances » de l'opticien. */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #172033;
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.sous-titre {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.lien-retour {
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.carte {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.carte h2,
+.carte h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.barre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.onglets {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.onglet {
+  border: 0;
+  background: transparent;
+  padding: 10px 16px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.onglet.actif {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.bouton {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bouton.secondaire {
+  background: #fff;
+  color: #2563eb;
+}
+
+.bouton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.alerte {
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+}
+
+.alerte.erreur {
+  background: #fef2f2;
+  color: #b3261e;
+  border: 1px solid #fecaca;
+}
+
+.alerte.succes {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.vide {
+  text-align: center;
+  color: #64748b;
+  padding: 24px 0;
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.ligne.cliquable {
+  cursor: pointer;
+}
+
+.ligne.cliquable:hover,
+.ligne.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.ligne .titre {
+  font-weight: 600;
+}
+
+.ligne .meta {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.badge.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.attente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.alerte-badge {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.champ input,
+.champ select,
+.champ textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  color: #172033;
+  background: #fff;
+}
+
+.champ.case {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.erreur-champ {
+  color: #b3261e;
+  font-size: 0.8125rem;
+}
+
+.prescription {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.oeil {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.oeil h4 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+}
+
+.valeurs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+dl.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+dl.details dt {
+  color: #64748b;
+}
+
+dl.details dd {
+  margin: 0;
+}
