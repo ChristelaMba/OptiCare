@@ -8,6 +8,7 @@ import { messageErreurApi } from '../../../core/utils/api-errors';
 import { formaterFcfa } from '../../../core/utils/montant';
 import { StatistiquesCabinet } from '../../../models/statistiques.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 /** Période du compteur de rendez-vous : `aujourd_hui`, `cette_semaine`, `ce_mois` (seules périodes fournies par l'API). */
 type Periode = 'jour' | 'semaine' | 'mois';
@@ -24,7 +25,7 @@ const COULEURS = ['#0050ce', '#1baf7a', '#eda100', '#8e44ad', '#e0457b', '#64748
  */
 @Component({
   selector: 'app-dashboard-comptable',
-  imports: [RouterLink, BoutonDeconnexion],
+  imports: [LogoOpticare, RouterLink, BoutonDeconnexion],
   templateUrl: './dashboard-comptable.html',
   styleUrl: './dashboard-comptable.css',
 })

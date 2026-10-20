@@ -7,11 +7,13 @@ import {
 
 import { Auth } from '../../../core/services/auth';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 @Component({
   selector: 'app-patient-layout',
   standalone: true,
   imports: [
+    LogoOpticare,
     RouterLink,
     RouterOutlet,
     RouterLinkActive,

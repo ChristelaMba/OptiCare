@@ -11,6 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Auth } from '../../../core/services/auth';
 import { messageErreurInscription } from '../../../core/utils/api-errors';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 function motsDePasseIdentiquesValidator(groupe: AbstractControl): ValidationErrors | null {
   const motDePasse = groupe.get('motDePasse')?.value;
@@ -49,7 +50,7 @@ function dateNaissanceValideValidator(control: AbstractControl): ValidationError
 
 @Component({
   selector: 'app-inscription-patient',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [LogoOpticare, ReactiveFormsModule, RouterLink],
   templateUrl: './inscription-patient.html',
   styleUrl: './inscription-patient.css',
 })

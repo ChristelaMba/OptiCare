@@ -9,6 +9,7 @@ import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/log
 
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 type OptionTri = 'recommandes' | 'mieux-notes' | 'alphabetique';
 
@@ -25,7 +26,7 @@ const TAILLE_PAGE = 6;
  */
 @Component({
   selector: 'app-recherche-cabinets',
-  imports: [DecimalPipe, FormsModule, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
+  imports: [LogoOpticare, DecimalPipe, FormsModule, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
   templateUrl: './recherche-cabinets.html',
   styleUrl: './recherche-cabinets.css',
 })

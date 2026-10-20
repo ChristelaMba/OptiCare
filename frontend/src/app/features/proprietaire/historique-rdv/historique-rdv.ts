@@ -9,6 +9,7 @@ import { RendezVousService } from '../../../core/services/rendez-vous';
 import { messageErreurApi } from '../../../core/utils/api-errors';
 import { RendezVous, StatutRendezVous } from '../../../models/rendez-vous.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 const TAILLE_PAGE = 8;
 
@@ -34,7 +35,7 @@ const LABEL_STATUT: Record<StatutRendezVous, string> = {
  */
 @Component({
   selector: 'app-historique-rdv',
-  imports: [DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
+  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './historique-rdv.html',
   styleUrl: './historique-rdv.css',
 })

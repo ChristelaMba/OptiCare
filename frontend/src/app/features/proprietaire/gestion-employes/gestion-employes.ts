@@ -8,6 +8,7 @@ import { CreerEmployePayload, Personnel } from '../../../core/services/personnel
 import { erreursParChamp, messageErreurApi } from '../../../core/utils/api-errors';
 import { Employe, libelleRole, RoleUtilisateur } from '../../../models/utilisateur.model';
 import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 /** Les deux mots de passe doivent être identiques. */
 function motsDePasseIdentiques(groupe: AbstractControl): ValidationErrors | null {
@@ -23,7 +24,7 @@ function motsDePasseIdentiques(groupe: AbstractControl): ValidationErrors | null
  */
 @Component({
   selector: 'app-gestion-employes',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
+  imports: [LogoOpticare, FormsModule, ReactiveFormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './gestion-employes.html',
   styleUrl: './gestion-employes.css',
 })

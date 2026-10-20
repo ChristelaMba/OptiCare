@@ -11,6 +11,7 @@ import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/log
 import { Avis as AvisService, AvisPublic } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 /** Avis réel prêt à afficher (nom abrégé, ancienneté relative). */
 interface AvisAffiche {
@@ -25,7 +26,7 @@ interface AvisAffiche {
 /** Reproduction de la maquette `maquette/accueil_cabinet/` — page publique d'un cabinet. */
 @Component({
   selector: 'app-vitrine-cabinet',
-  imports: [DecimalPipe, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
+  imports: [LogoOpticare, DecimalPipe, RouterLink, ActionsSession, MenuMobilePublic, LogoPiedDePage],
   templateUrl: './vitrine-cabinet.html',
   styleUrl: './vitrine-cabinet.css',
 })

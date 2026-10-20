@@ -7,10 +7,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Auth } from '../../../core/services/auth';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 @Component({
   selector: 'app-validation-cabinets',
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [LogoOpticare, DatePipe, FormsModule, RouterLink],
   templateUrl: './validation-cabinets.html',
   styleUrl: './validation-cabinets.css',
 })

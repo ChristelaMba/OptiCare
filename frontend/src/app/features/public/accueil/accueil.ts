@@ -10,6 +10,7 @@ import { Auth } from '../../../core/services/auth';
 import { Avis as AvisService } from '../../../core/services/avis';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
+import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 /** Nombre de cabinets mis en avant dans la section « Nos cabinets partenaires ». */
 const NB_CABINETS_VITRINE = 6;
@@ -43,7 +44,7 @@ type IdSection = 'specialites' | 'cabinets-partenaires';
  */
 @Component({
   selector: 'app-accueil',
-  imports: [DecimalPipe, RouterLink, ActionsSession, BoutonDeconnexion, LogoPiedDePage],
+  imports: [LogoOpticare, DecimalPipe, RouterLink, ActionsSession, BoutonDeconnexion, LogoPiedDePage],
   templateUrl: './accueil.html',
   styleUrl: './accueil.css',
 })
