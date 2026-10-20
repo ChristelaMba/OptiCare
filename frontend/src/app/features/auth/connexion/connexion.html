@@ -86,7 +86,7 @@
                 type="button"
                 (click)="basculerAffichageMotDePasse()"
                 [attr.aria-label]="afficherMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface transition-colors cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                class="effet-bouton absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-on-surface cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span class="material-symbols-outlined text-[20px]">{{ afficherMotDePasse() ? 'visibility_off' : 'visibility' }}</span>
               </button>
@@ -121,7 +121,7 @@
           <button
             type="submit"
             [disabled]="chargement()"
-            class="w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            class="effet-bouton w-full h-[48px] mt-space-8 bg-primary text-on-primary font-button text-button rounded-xl hover:brightness-110 shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             {{ chargement() ? 'Connexion en cours…' : 'Se connecter' }}
             @if (!chargement()) {
@@ -133,7 +133,7 @@
         <div class="mt-space-6 text-center relative z-10">
           <p class="font-body text-body-base text-on-surface-variant">
             Pas encore de compte ?
-            <a routerLink="/auth/inscription" class="text-primary font-semibold hover:text-tertiary-container transition-colors ml-1 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Créer un compte</a>
+            <a routerLink="/auth/inscription" class="effet-lien text-primary font-semibold hover:text-tertiary-container transition-colors ml-1 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Créer un compte</a>
           </p>
         </div>
       </div>

@@ -14,14 +14,14 @@
     <div class="flex-1 px-space-2 flex flex-col gap-space-1">
       <a
         routerLink="/super-admin/validation-cabinets"
-        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
+        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
       >
         <span class="material-symbols-outlined">verified_user</span>
         <span class="font-button text-button">Validation des cabinets</span>
       </a>
       <a
         routerLink="/super-admin/gestion-comptes"
-        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
       >
         <span class="material-symbols-outlined">manage_accounts</span>
         <span class="font-button text-button">Gestion des comptes</span>
@@ -31,7 +31,7 @@
       <button
         type="button"
         (click)="deconnexion()"
-        class="w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+        class="effet-bouton w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
       >
         <span class="material-symbols-outlined">logout</span>
         <span class="font-button text-button">Déconnexion</span>
@@ -70,7 +70,7 @@
     } @else {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-6">
         @for (cabinet of cabinetsEnAttente(); track cabinet.id) {
-          <div class="bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow p-space-6 border border-border-subtle flex flex-col gap-space-6">
+          <div class="effet-carte bg-surface-container-lowest rounded-xl shadow-sm p-space-6 border border-border-subtle flex flex-col gap-space-6">
             <!-- En-tête carte -->
             <div class="flex justify-between items-start gap-space-4">
               <div class="flex gap-space-4">
@@ -120,7 +120,7 @@
                     type="button"
                     [disabled]="actionEnCours() === cabinet.id"
                     (click)="annulerRejet()"
-                    class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     Annuler
                   </button>
@@ -128,7 +128,7 @@
                     type="button"
                     [disabled]="actionEnCours() === cabinet.id || !motifRefus().trim()"
                     (click)="confirmerRejet(cabinet.id)"
-                    class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Confirmer le refus' }}
                   </button>
@@ -140,7 +140,7 @@
                   type="button"
                   [disabled]="actionEnCours() === cabinet.id"
                   (click)="ouvrirFormulaireRejet(cabinet.id)"
-                  class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Rejeter
                 </button>
@@ -148,7 +148,7 @@
                   type="button"
                   [disabled]="actionEnCours() === cabinet.id"
                   (click)="valider(cabinet.id)"
-                  class="w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-container shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {{ actionEnCours() === cabinet.id ? 'Traitement…' : 'Valider' }}
                 </button>

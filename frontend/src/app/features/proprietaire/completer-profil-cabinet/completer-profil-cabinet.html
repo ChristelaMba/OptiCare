@@ -29,7 +29,7 @@
             </p>
             <a
               routerLink="/proprietaire/dashboard-comptable"
-              class="inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm"
+              class="effet-bouton inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container shadow-sm"
             >
               Aller au tableau de bord
             </a>
@@ -47,7 +47,7 @@
             </p>
             <a
               routerLink="/proprietaire/vitrine-edition"
-              class="inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm"
+              class="effet-bouton inline-flex items-center gap-2 mt-space-6 px-space-6 py-3 rounded-xl bg-primary text-on-primary font-button text-button hover:bg-primary-container shadow-sm"
             >
               Aller sur Ma vitrine
             </a>
@@ -200,7 +200,7 @@
                     <button
                       type="button"
                       (click)="ajouterPhoto()"
-                      class="font-body text-label-sm text-primary hover:text-primary-container transition-colors"
+                      class="effet-bouton font-body text-label-sm text-primary hover:text-primary-container transition-colors"
                     >
                       + Ajouter une photo
                     </button>
@@ -224,7 +224,7 @@
                       <button
                         type="button"
                         (click)="retirerPhoto(i)"
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors shrink-0"
+                        class="effet-bouton w-9 h-9 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors shrink-0"
                       >
                         <span class="material-symbols-outlined text-[20px]">close</span>
                       </button>
@@ -290,7 +290,7 @@
               <button
                 type="submit"
                 [disabled]="envoiEnCours()"
-                class="w-full h-[52px] bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                class="effet-bouton w-full h-[52px] bg-primary text-on-primary font-button text-button rounded-xl hover:bg-primary-container shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 @if (envoiEnCours()) {
                   Envoi en cours…

@@ -200,3 +200,125 @@ body {
     padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+
+/*
+ * =====================================================================
+ *  Interactions uniformes dans toute l'application
+ * =====================================================================
+ *  Trois utilitaires partagés, appliqués aux cartes, aux boutons et aux
+ *  liens pour rendre l'interface vivante sans surcharger : au survol, un
+ *  léger soulèvement et une ombre douce ; au clic, un discret enfoncement.
+ *  Tout est neutralisé si l'utilisateur préfère réduire les mouvements.
+ *
+ *  Source unique de vérité : ces classes sont les SEULES à définir les
+ *  effets de survol/clic de l'application. Aucune page ne doit redéfinir
+ *  ses propres `:hover` — cela garantit une animation identique partout.
+ *
+ *  Réglages volontairement sobres (2 px de soulèvement, ombre modérée) :
+ *  l'effet doit se remarquer, rester professionnel et ne jamais distraire
+ *  de la lecture.
+ */
+:root {
+  /* Ombres partagées, dérivées du bleu nuit de la charte (--color-on-surface) */
+  --ombre-survol-carte: 0 12px 28px -10px rgba(19, 27, 46, 0.18);
+  --ombre-actif-carte: 0 3px 8px -3px rgba(19, 27, 46, 0.2);
+  --ombre-survol-bouton: 0 8px 18px -8px rgba(47, 106, 236, 0.5);
+
+  /* Durées partagées : courtes pour le clic, courtes+fluides pour le survol */
+  --duree-survol: 0.2s;
+  --duree-clic: 0.12s;
+  --courbe-effet: ease;
+}
+
+/* --- Cartes, blocs cliquables (cabinets, KPI, listes…) ------------------- */
+.effet-carte {
+  transition:
+    transform var(--duree-survol) var(--courbe-effet),
+    box-shadow var(--duree-survol) var(--courbe-effet),
+    background-color var(--duree-survol) var(--courbe-effet),
+    border-color var(--duree-survol) var(--courbe-effet),
+    color var(--duree-survol) var(--courbe-effet);
+}
+
+@media (hover: hover) {
+  .effet-carte:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-survol-carte);
+    border-color: var(--color-outline-variant);
+  }
+}
+
+.effet-carte:active {
+  transform: translateY(0);
+  box-shadow: var(--ombre-actif-carte);
+  transition-duration: var(--duree-clic);
+}
+
+/* --- Boutons ------------------------------------------------------------ */
+.effet-bouton {
+  transition:
+    transform var(--duree-clic) var(--courbe-effet),
+    box-shadow var(--duree-survol) var(--courbe-effet),
+    background-color var(--duree-survol) var(--courbe-effet),
+    border-color var(--duree-survol) var(--courbe-effet),
+    color var(--duree-survol) var(--courbe-effet),
+    filter var(--duree-survol) var(--courbe-effet);
+}
+
+@media (hover: hover) {
+  .effet-bouton:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ombre-survol-bouton);
+  }
+}
+
+.effet-bouton:active {
+  transform: translateY(0.5px) scale(0.985);
+  box-shadow: none;
+}
+
+/* Un bouton désactivé ne doit pas réagir au survol (sinon il semble actif). */
+.effet-bouton:disabled,
+.effet-bouton[disabled],
+.effet-bouton[aria-disabled='true'] {
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Liens de texte / navigation ---------------------------------------- */
+.effet-lien {
+  transition:
+    color var(--duree-survol) var(--courbe-effet),
+    opacity var(--duree-survol) var(--courbe-effet),
+    transform var(--duree-clic) var(--courbe-effet);
+}
+
+@media (hover: hover) {
+  .effet-lien:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.effet-lien:active {
+  transform: translateY(0.5px) scale(0.985);
+}
+
+/* --- Respect de « réduire les animations » ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .effet-carte,
+  .effet-bouton,
+  .effet-lien {
+    transition: none;
+  }
+
+  .effet-carte:hover,
+  .effet-carte:active,
+  .effet-bouton:hover,
+  .effet-bouton:active,
+  .effet-lien:hover,
+  .effet-lien:active {
+    transform: none;
+    box-shadow: none;
+  }
+}

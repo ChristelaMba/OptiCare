@@ -184,6 +184,33 @@ export class Accueil implements OnInit, AfterViewInit, OnDestroy {
     return Array.from({ length: Math.max(0, Math.min(5, Math.round(note))) }, (_, i) => i);
   }
 
+  /**
+   * Décompose une note (0 à 5) en 5 étoiles avec leur taux de remplissage :
+   * 100 (pleine), 50 (demi) ou 0 (vide). Ex. 4,5 → 4 pleines + 1 demi + 0 vide.
+   * La note est bornée à [0, 5] et arrondie à la demi-étoile la plus proche.
+   */
+  etoilesDetaillees(note: number): { index: number; remplissage: number }[] {
+    const bornee = Math.max(0, Math.min(5, note));
+    const arrondie = Math.round(bornee * 2) / 2;
+
+    return Array.from({ length: 5 }, (_, index) => {
+      const reste = arrondie - index;
+
+      if (reste >= 1) {
+        return { index, remplissage: 100 };
+      }
+      if (reste >= 0.5) {
+        return { index, remplissage: 50 };
+      }
+      return { index, remplissage: 0 };
+    });
+  }
+
+  /** Vrai si la note mérite un affichage chiffré (au moins une demi-étoile). */
+  aUneNote(note: number): boolean {
+    return note >= 0.5;
+  }
+
   ngAfterViewInit(): void {
     // rootMargin resserre la zone de détection sous la navbar fixe (80px) et
     // s'arrête avant le bas du viewport (-60%) : la section suivante ne

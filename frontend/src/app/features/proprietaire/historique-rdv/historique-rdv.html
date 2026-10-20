@@ -13,7 +13,7 @@
         type="button"
         (click)="exporterCsv()"
         [disabled]="chargement() || totalResultats() === 0"
-        class="bg-primary text-on-primary px-space-4 py-2 rounded-lg font-button text-button hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+        class="effet-bouton bg-primary text-on-primary px-space-4 py-2 rounded-lg font-button text-button hover:bg-surface-tint flex items-center gap-2 shadow-sm disabled:opacity-50"
       >
         <span class="material-symbols-outlined text-[18px]">download</span>
         Exporter
@@ -77,7 +77,7 @@
             [class.text-on-primary-container]="filtreStatut() === 'tous'"
             [class.bg-surface-container-low]="filtreStatut() !== 'tous'"
             [class.text-on-surface-variant]="filtreStatut() !== 'tous'"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Tous
           </button>
@@ -89,7 +89,7 @@
               [class.text-on-primary-container]="filtreStatut() === statut"
               [class.bg-surface-container-low]="filtreStatut() !== statut"
               [class.text-on-surface-variant]="filtreStatut() !== statut"
-              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+              class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
             >
               {{ labelStatut[statut] }}
             </button>
@@ -109,7 +109,7 @@
               [class.text-on-primary-container]="modePeriode() === option"
               [class.bg-surface-container-low]="modePeriode() !== option"
               [class.text-on-surface-variant]="modePeriode() !== option"
-              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+              class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
             >
               {{ libellePeriode[option] }}
             </button>
@@ -121,7 +121,7 @@
             [class.text-on-primary-container]="modePeriode() === 'date'"
             [class.bg-surface-container-low]="modePeriode() !== 'date'"
             [class.text-on-surface-variant]="modePeriode() !== 'date'"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Date précise
           </button>
@@ -132,7 +132,7 @@
             [class.text-on-primary-container]="modePeriode() === 'plage'"
             [class.bg-surface-container-low]="modePeriode() !== 'plage'"
             [class.text-on-surface-variant]="modePeriode() !== 'plage'"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Plage de dates
           </button>
@@ -265,7 +265,7 @@
                 type="button"
                 [disabled]="pageAffichee() === 1"
                 (click)="allerPage(pageAffichee() - 1)"
-                class="p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+                class="effet-bouton p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
               >
                 <span class="material-symbols-outlined text-[16px]">chevron_left</span>
               </button>
@@ -277,7 +277,7 @@
                   [class.text-on-primary-container]="pageAffichee() === numero"
                   [class.border]="pageAffichee() !== numero"
                   [class.border-border-subtle]="pageAffichee() !== numero"
-                  class="px-3 py-1.5 rounded font-body text-label-sm font-medium hover:bg-surface-container-low transition-colors"
+                  class="effet-bouton px-3 py-1.5 rounded font-body text-label-sm font-medium hover:bg-surface-container-low"
                 >
                   {{ numero }}
                 </button>
@@ -286,7 +286,7 @@
                 type="button"
                 [disabled]="pageAffichee() === nombrePages()"
                 (click)="allerPage(pageAffichee() + 1)"
-                class="p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
+                class="effet-bouton p-2 rounded border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40"
               >
                 <span class="material-symbols-outlined text-[16px]">chevron_right</span>
               </button>

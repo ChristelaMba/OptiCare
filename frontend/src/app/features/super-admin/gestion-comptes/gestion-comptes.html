@@ -14,14 +14,14 @@
     <div class="flex-1 px-space-2 flex flex-col gap-space-1">
       <a
         routerLink="/super-admin/validation-cabinets"
-        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
       >
         <span class="material-symbols-outlined">verified_user</span>
         <span class="font-button text-button">Validation des cabinets</span>
       </a>
       <a
         routerLink="/super-admin/gestion-comptes"
-        class="flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
+        class="effet-lien flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 bg-primary text-on-primary rounded-lg"
       >
         <span class="material-symbols-outlined">manage_accounts</span>
         <span class="font-button text-button">Gestion des comptes</span>
@@ -31,7 +31,7 @@
       <button
         type="button"
         (click)="deconnexion()"
-        class="w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+        class="effet-bouton w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
       >
         <span class="material-symbols-outlined">logout</span>
         <span class="font-button text-button">Déconnexion</span>
@@ -83,7 +83,7 @@
         <option value="inactif">Inactif</option>
       </select>
       @if (texteRecherche() || filtreRole() !== 'tous' || filtreStatut() !== 'tous') {
-        <button type="button" (click)="reinitialiserFiltres()" class="text-primary font-button text-button hover:underline">
+        <button type="button" (click)="reinitialiserFiltres()" class="effet-bouton text-primary font-button text-button hover:underline">
           Réinitialiser
         </button>
       }
@@ -167,7 +167,7 @@
                         [disabled]="actionEnCours() === utilisateur.id"
                         (click)="ouvrirReinitialisation(utilisateur)"
                         title="Réinitialiser le mot de passe"
-                        class="p-2 text-text-muted hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                        class="effet-bouton p-2 text-text-muted hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
                       >
                         <span class="material-symbols-outlined text-[18px]">key</span>
                       </button>
@@ -177,7 +177,7 @@
                           [disabled]="actionEnCours() === utilisateur.id"
                           (click)="toggleActivation(utilisateur)"
                           title="Désactiver"
-                          class="p-2 text-text-muted hover:text-warning hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                          class="effet-bouton p-2 text-text-muted hover:text-warning hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
                         >
                           <span class="material-symbols-outlined text-[18px]">block</span>
                         </button>
@@ -187,7 +187,7 @@
                           [disabled]="actionEnCours() === utilisateur.id"
                           (click)="toggleActivation(utilisateur)"
                           title="Activer"
-                          class="p-2 text-text-muted hover:text-success hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+                          class="effet-bouton p-2 text-text-muted hover:text-success hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
                         >
                           <span class="material-symbols-outlined text-[18px]">check_circle</span>
                         </button>
@@ -210,7 +210,7 @@
                 type="button"
                 [disabled]="pageAffichee() === 1"
                 (click)="allerPage(pageAffichee() - 1)"
-                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+                class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span class="material-symbols-outlined text-[18px]">chevron_left</span>
               </button>
@@ -221,7 +221,7 @@
                   [class.bg-primary]="pageAffichee() === numero"
                   [class.text-on-primary]="pageAffichee() === numero"
                   [class.text-on-surface-variant]="pageAffichee() !== numero"
-                  class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 px-2.5 py-1 rounded font-body text-label-sm font-medium hover:bg-surface-container-high transition-colors"
+                  class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 px-2.5 py-1 rounded font-body text-label-sm font-medium hover:bg-surface-container-high"
                 >
                   {{ numero }}
                 </button>
@@ -230,7 +230,7 @@
                 type="button"
                 [disabled]="pageAffichee() === nombrePages()"
                 (click)="allerPage(pageAffichee() + 1)"
-                class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
+                class="effet-bouton inline-flex items-center justify-center min-h-[40px] min-w-[40px] md:min-h-0 md:min-w-0 p-1 rounded text-on-surface-variant hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span class="material-symbols-outlined text-[18px]">chevron_right</span>
               </button>
@@ -275,13 +275,13 @@
           <p class="font-body text-body-base text-error" role="alert">{{ erreurReinit() }}</p>
         }
         <div class="flex justify-end gap-space-3">
-          <button type="button" (click)="fermerReinitialisation()" class="px-space-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container font-button text-button">
+          <button type="button" (click)="fermerReinitialisation()" class="effet-bouton px-space-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container font-button text-button">
             Annuler
           </button>
           <button
             type="submit"
             [disabled]="actionEnCours() === compte.id"
-            class="px-space-4 py-2 rounded-lg bg-primary text-on-primary font-button text-button disabled:opacity-50"
+            class="effet-bouton px-space-4 py-2 rounded-lg bg-primary text-on-primary font-button text-button disabled:opacity-50"
           >
             Réinitialiser
           </button>

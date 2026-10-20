@@ -7,7 +7,7 @@
           type="button"
           (click)="retour()"
           aria-label="Retour à la page précédente"
-          class="flex items-center justify-center w-9 h-9 rounded-full text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors shrink-0"
+          class="effet-bouton flex items-center justify-center w-9 h-9 rounded-full text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors shrink-0"
         >
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
@@ -59,7 +59,7 @@
           [class.bg-surface-container-low]="vue() === 'grille'"
           [class.text-primary]="vue() === 'grille'"
           [class.text-on-surface-variant]="vue() !== 'grille'"
-          class="flex items-center gap-space-2 px-space-4 py-space-2 rounded font-button text-button transition-colors"
+          class="effet-bouton flex items-center gap-space-2 px-space-4 py-space-2 rounded font-button text-button"
         >
           <span class="material-symbols-outlined text-[20px]">grid_view</span>
           Grille
@@ -70,7 +70,7 @@
           [class.bg-surface-container-low]="vue() === 'carte'"
           [class.text-primary]="vue() === 'carte'"
           [class.text-on-surface-variant]="vue() !== 'carte'"
-          class="flex items-center gap-space-2 px-space-4 py-space-2 rounded font-button text-button transition-colors hover:bg-surface-bg"
+          class="effet-bouton flex items-center gap-space-2 px-space-4 py-space-2 rounded font-button text-button hover:bg-surface-bg"
         >
           <span class="material-symbols-outlined text-[20px]">map</span>
           Carte
@@ -84,7 +84,7 @@
       <aside class="w-full lg:w-1/4 bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle p-space-6 self-start lg:sticky lg:top-space-12">
         <div class="flex items-center justify-between mb-space-6 border-b border-border-subtle pb-space-4">
           <h2 class="font-heading text-headline-h3 text-on-surface">Filtres</h2>
-          <button type="button" (click)="reinitialiserFiltres()" class="text-primary font-button text-button hover:underline">
+          <button type="button" (click)="reinitialiserFiltres()" class="effet-bouton text-primary font-button text-button hover:underline">
             Réinitialiser
           </button>
         </div>
@@ -180,7 +180,7 @@
             <button
               type="button"
               (click)="reinitialiserFiltres()"
-              class="bg-primary text-on-primary font-button text-button px-space-6 py-space-2 rounded-lg shadow-sm hover:bg-surface-tint transition-colors"
+              class="effet-bouton bg-primary text-on-primary font-button text-button px-space-6 py-space-2 rounded-lg hover:bg-surface-tint"
             >
               Réinitialiser les filtres
             </button>
@@ -190,7 +190,7 @@
             @for (cabinet of cabinetsPage(); track cabinet.id) {
               <a
                 [routerLink]="['/cabinet', cabinet.id]"
-                class="group bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden hover:shadow-md transition-shadow relative flex flex-col"
+                class="effet-carte group bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden relative flex flex-col"
               >
                 @if (cabinet.abonnementPremium) {
                   <div class="absolute top-space-3 left-space-3 z-10 bg-primary text-on-primary font-body text-badge px-space-2 py-1 rounded shadow-sm flex items-center gap-1">
@@ -234,7 +234,7 @@
                 type="button"
                 [disabled]="pageAffichee() === 1"
                 (click)="allerPage(pageAffichee() - 1)"
-                class="p-space-2 rounded-lg border border-border-subtle text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="effet-bouton p-space-2 rounded-lg border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
               </button>
@@ -247,7 +247,7 @@
                   [class.border]="pageAffichee() !== numero"
                   [class.border-border-subtle]="pageAffichee() !== numero"
                   [class.text-on-surface]="pageAffichee() !== numero"
-                  class="w-10 h-10 rounded-lg font-button text-button flex items-center justify-center transition-colors hover:bg-surface-container-low"
+                  class="effet-bouton w-10 h-10 rounded-lg font-button text-button flex items-center justify-center hover:bg-surface-container-low"
                 >
                   {{ numero }}
                 </button>
@@ -256,7 +256,7 @@
                 type="button"
                 [disabled]="pageAffichee() === nombrePages()"
                 (click)="allerPage(pageAffichee() + 1)"
-                class="p-space-2 rounded-lg border border-border-subtle text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="effet-bouton p-space-2 rounded-lg border border-border-subtle text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span class="material-symbols-outlined text-[20px]">chevron_right</span>
               </button>

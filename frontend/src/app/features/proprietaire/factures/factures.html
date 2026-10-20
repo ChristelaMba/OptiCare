@@ -14,7 +14,7 @@
           type="button"
           (click)="reinitialiserFiltres()"
           [disabled]="chargementEnCours()"
-          class="border border-border-subtle text-on-surface-variant px-space-4 py-2 rounded-lg font-button text-button hover:bg-surface-container transition-colors flex items-center gap-2 disabled:opacity-50"
+          class="border border-border-subtle text-on-surface-variant px-space-4 py-2 rounded-lg font-button text-button hover:bg-surface-container flex items-center gap-2 disabled:opacity-50"
         >
           <span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
           Réinitialiser les filtres
@@ -74,7 +74,7 @@
             [class.text-on-primary-container]="filtreStatut() === ''"
             [class.bg-surface-container-low]="filtreStatut() !== ''"
             [class.text-on-surface-variant]="filtreStatut() !== ''"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Toutes
           </button>
@@ -86,7 +86,7 @@
               [class.text-on-primary-container]="filtreStatut() === statut"
               [class.bg-surface-container-low]="filtreStatut() !== statut"
               [class.text-on-surface-variant]="filtreStatut() !== statut"
-              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+              class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
             >
               {{ libelleStatut[statut] }}
             </button>
@@ -109,7 +109,7 @@
             type="button"
             (click)="rechercher()"
             [disabled]="chargementEnCours()"
-            class="bg-primary text-on-primary px-space-4 h-[40px] rounded-lg font-button text-button hover:bg-surface-tint transition-colors disabled:opacity-50"
+            class="bg-primary text-on-primary px-space-4 h-[40px] rounded-lg font-button text-button hover:bg-surface-tint disabled:opacity-50"
           >
             Rechercher
           </button>
@@ -128,7 +128,7 @@
               [class.text-on-primary-container]="modePeriode() === option"
               [class.bg-surface-container-low]="modePeriode() !== option"
               [class.text-on-surface-variant]="modePeriode() !== option"
-              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+              class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
             >
               {{ libellePeriode[option] }}
             </button>
@@ -140,7 +140,7 @@
             [class.text-on-primary-container]="modePeriode() === 'date'"
             [class.bg-surface-container-low]="modePeriode() !== 'date'"
             [class.text-on-surface-variant]="modePeriode() !== 'date'"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Date précise
           </button>
@@ -151,7 +151,7 @@
             [class.text-on-primary-container]="modePeriode() === 'plage'"
             [class.bg-surface-container-low]="modePeriode() !== 'plage'"
             [class.text-on-surface-variant]="modePeriode() !== 'plage'"
-            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            class="effet-bouton px-3 py-1.5 rounded-full font-badge text-badge border border-transparent"
           >
             Plage de dates
           </button>

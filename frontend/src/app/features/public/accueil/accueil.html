@@ -15,7 +15,7 @@
           [class.border-b-2]="sectionActive() === 'specialites'"
           [class.border-primary]="sectionActive() === 'specialites'"
           [class.text-on-surface-variant]="sectionActive() !== 'specialites'"
-          class="font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
+          class="effet-lien font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
         >
           Services
         </a>
@@ -25,7 +25,7 @@
           [class.border-b-2]="sectionActive() === 'cabinets-partenaires'"
           [class.border-primary]="sectionActive() === 'cabinets-partenaires'"
           [class.text-on-surface-variant]="sectionActive() !== 'cabinets-partenaires'"
-          class="font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
+          class="effet-lien font-body text-body-base hover:text-primary transition-colors duration-200 pb-1"
         >
           Cabinets
         </a>
@@ -94,13 +94,13 @@
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-space-4 mt-space-4">
           <a
             routerLink="/recherche-cabinets"
-            class="accueil-cta-pulse bg-primary text-on-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-on-primary-fixed-variant transition-all shadow-md hover:shadow-lg w-fit text-center"
+            class="effet-bouton bg-primary text-on-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-on-primary-fixed-variant shadow-md w-fit text-center"
           >
             Retrouver un cabinet
           </a>
           <a
             href="#cabinets-partenaires"
-            class="accueil-cta-tapote bg-transparent border-2 border-primary text-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-primary/5 transition-all w-fit text-center"
+            class="effet-bouton bg-transparent border-2 border-primary text-primary font-button text-button px-space-8 py-space-4 rounded-full hover:bg-primary/5 w-fit text-center"
           >
             Prendre rendez-vous
           </a>
@@ -132,7 +132,7 @@
           @for (cabinet of cabinetsAffiches(); track cabinet.id) {
             <a
               [routerLink]="['/cabinet', cabinet.id]"
-              class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-border-subtle hover:shadow-md transition-shadow flex flex-col"
+              class="effet-carte bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-border-subtle flex flex-col"
             >
               <div class="w-full h-48 shrink-0 bg-surface-bg flex items-center justify-center overflow-hidden">
                 @if (cabinet.photos[0]) {
@@ -150,12 +150,20 @@
                   }
                 </div>
 
-                <!-- Notation : nombre exact d'étoiles, séparée du texte par un filet discret -->
+                <!-- Notation : étoiles (remplies exactement selon la note) + valeur, séparées du texte par un filet discret -->
                 <div class="mt-auto pt-space-3 border-t border-border-subtle flex justify-center">
-                  <div class="inline-flex items-center gap-1" [attr.aria-label]="cabinet.noteMoyenne > 0 ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
-                    @if (cabinet.noteMoyenne > 0) {
-                      @for (etoile of etoiles(cabinet.noteMoyenne); track etoile) {
-                        <span class="material-symbols-outlined fill-icon text-warning text-[18px]" aria-hidden="true">star</span>
+                  <div class="inline-flex items-center gap-1" [attr.aria-label]="aUneNote(cabinet.noteMoyenne) ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
+                    @if (aUneNote(cabinet.noteMoyenne)) {
+                      @for (etoile of etoilesDetaillees(cabinet.noteMoyenne); track etoile.index) {
+                        <span class="relative inline-block w-[18px] h-[18px] text-[18px] leading-none">
+                          <span class="material-symbols-outlined text-warning/30 absolute inset-0" aria-hidden="true">star</span>
+                          @if (etoile.remplissage > 0) {
+                            <span
+                              class="material-symbols-outlined fill-icon text-warning absolute inset-0 overflow-hidden"
+                              [style.width.%]="etoile.remplissage"
+                              aria-hidden="true">star</span>
+                          }
+                        </span>
                       }
                       <span class="font-body text-label-sm text-text-muted ml-1">{{ cabinet.noteMoyenne | number: '1.1-1' }}</span>
                     } @else {
@@ -173,7 +181,7 @@
             <button
               type="button"
               (click)="tousLesCabinetsVisibles.set(true)"
-              class="inline-flex items-center gap-1 border-2 border-primary text-primary font-button text-button px-space-8 py-space-3 rounded-full hover:bg-primary/5 transition-all"
+              class="effet-bouton inline-flex items-center gap-1 border-2 border-primary text-primary font-button text-button px-space-8 py-space-3 rounded-full hover:bg-primary/5"
             >
               Voir plus
               <span class="material-symbols-outlined text-[20px]">expand_more</span>
@@ -192,7 +200,7 @@
           <p class="font-body text-body-base text-text-muted mt-space-2">Une expertise complète pour tous vos besoins visuels</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-space-6">
-          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+          <div class="effet-carte flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle shadow-sm">
             <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
               <span class="material-symbols-outlined">contact_support</span>
             </div>
@@ -201,7 +209,7 @@
               Adaptation et suivi pour le port de lentilles de contact souples ou rigides.
             </p>
           </div>
-          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+          <div class="effet-carte flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle shadow-sm">
             <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
               <span class="material-symbols-outlined">zoom_in</span>
             </div>
@@ -210,7 +218,7 @@
               Solutions optiques spécifiques pour optimiser le reste visuel des patients malvoyants.
             </p>
           </div>
-          <div class="flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle hover:shadow-md transition-shadow shadow-sm">
+          <div class="effet-carte flex flex-col items-center p-space-6 bg-surface-container-low rounded-xl border border-border-subtle shadow-sm">
             <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-space-4">
               <span class="material-symbols-outlined">child_care</span>
             </div>
@@ -239,7 +247,7 @@
           />
         </div>
         <div class="flex flex-col justify-start gap-space-6">
-          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+          <div class="effet-carte bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border border-surface-variant flex items-start gap-space-4 group">
             <div class="w-12 h-12 shrink-0 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-[24px]">folder_shared</span>
             </div>
@@ -250,7 +258,7 @@
               </p>
             </div>
           </div>
-          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+          <div class="effet-carte bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border border-surface-variant flex items-start gap-space-4 group">
             <div class="w-12 h-12 shrink-0 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-[24px]">chat</span>
             </div>
@@ -261,7 +269,7 @@
               </p>
             </div>
           </div>
-          <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm hover:shadow-md transition-shadow border border-surface-variant flex items-start gap-space-4 group">
+          <div class="effet-carte bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border border-surface-variant flex items-start gap-space-4 group">
             <div class="w-12 h-12 shrink-0 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-[24px] fill-icon">verified</span>
             </div>
@@ -312,13 +320,13 @@
         <div class="flex flex-col sm:flex-row justify-center gap-space-4">
           <a
             routerLink="/recherche-cabinets"
-            class="bg-on-primary text-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-surface-container-low transition-colors"
+            class="effet-bouton bg-on-primary text-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-surface-container-low"
           >
             Rechercher un cabinet
           </a>
           <a
             routerLink="/auth/inscription"
-            class="bg-transparent border border-on-primary text-on-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-on-primary/10 transition-colors"
+            class="effet-bouton bg-transparent border border-on-primary text-on-primary font-button text-button px-space-6 py-space-3 rounded-full hover:bg-on-primary/10"
           >
             S'inscrire
           </a>
