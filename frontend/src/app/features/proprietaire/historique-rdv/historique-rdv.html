@@ -14,6 +14,14 @@
         <span class="material-symbols-outlined fill-icon">calendar_today</span>
         <span class="font-body text-body-base">Rendez-vous</span>
       </a>
+      <a routerLink="/proprietaire/patients" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">groups</span>
+        <span class="font-body text-body-base">Patients</span>
+      </a>
+      <a routerLink="/proprietaire/factures" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span class="font-body text-body-base">Factures</span>
+      </a>
       <a routerLink="/proprietaire/gestion-employes" class="flex items-center gap-space-3 px-space-4 py-space-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200">
         <span class="material-symbols-outlined">badge</span>
         <span class="font-body text-body-base">Employés</span>
@@ -61,6 +69,35 @@
       </div>
     }
 
+    <!-- Cartes de métriques (sur la période sélectionnée) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-space-4 mb-space-6">
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-total">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Rendez-vous</p>
+        <h3 class="font-heading text-headline-h2 text-on-surface mt-1">{{ chargement() ? '—' : statsPeriode().total }}</h3>
+        <p class="font-body text-label-sm text-text-muted mt-1">{{ libellePeriodeActive() }}</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-en-attente">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">En attente</p>
+        <h3 class="font-heading text-headline-h2 text-on-surface mt-1">{{ chargement() ? '—' : statsPeriode().enAttente }}</h3>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-confirmes">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Confirmés</p>
+        <h3 class="font-heading text-headline-h2 text-text-primary mt-1">{{ chargement() ? '—' : statsPeriode().confirmes }}</h3>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-termines">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Terminés</p>
+        <h3 class="font-heading text-headline-h2 text-on-surface mt-1">{{ chargement() ? '—' : statsPeriode().termines }}</h3>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-annules">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Annulés</p>
+        <h3 class="font-heading text-headline-h2 text-on-surface mt-1">{{ chargement() ? '—' : statsPeriode().annules }}</h3>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle" data-carte="rdv-non-honores">
+        <p class="font-body text-label-sm text-text-muted uppercase tracking-wider">Non honorés</p>
+        <h3 class="font-heading text-headline-h2 text-on-surface mt-1">{{ chargement() ? '—' : statsPeriode().nonHonores }}</h3>
+      </div>
+    </div>
+
     <!-- Filtres -->
     <div class="grid grid-cols-1 md:grid-cols-12 gap-space-4 mb-space-6">
       <div class="md:col-span-5 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
@@ -101,6 +138,86 @@
             </button>
           }
         </div>
+      </div>
+
+      <!-- Filtre de date -->
+      <div class="md:col-span-12 bg-surface-container-lowest rounded-xl p-space-4 shadow-sm border border-border-subtle">
+        <label class="font-body text-label-sm text-on-surface-variant mb-2 block">Période</label>
+        <div class="flex gap-2 flex-wrap">
+          @for (option of periodes; track option) {
+            <button
+              type="button"
+              (click)="changerPeriode(option)"
+              [class.bg-primary-container]="modePeriode() === option"
+              [class.text-on-primary-container]="modePeriode() === option"
+              [class.bg-surface-container-low]="modePeriode() !== option"
+              [class.text-on-surface-variant]="modePeriode() !== option"
+              class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+            >
+              {{ libellePeriode[option] }}
+            </button>
+          }
+          <button
+            type="button"
+            (click)="changerMode('date')"
+            [class.bg-primary-container]="modePeriode() === 'date'"
+            [class.text-on-primary-container]="modePeriode() === 'date'"
+            [class.bg-surface-container-low]="modePeriode() !== 'date'"
+            [class.text-on-surface-variant]="modePeriode() !== 'date'"
+            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+          >
+            Date précise
+          </button>
+          <button
+            type="button"
+            (click)="changerMode('plage')"
+            [class.bg-primary-container]="modePeriode() === 'plage'"
+            [class.text-on-primary-container]="modePeriode() === 'plage'"
+            [class.bg-surface-container-low]="modePeriode() !== 'plage'"
+            [class.text-on-surface-variant]="modePeriode() !== 'plage'"
+            class="px-3 py-1.5 rounded-full font-badge text-badge border border-transparent transition-colors"
+          >
+            Plage de dates
+          </button>
+        </div>
+
+        @if (modePeriode() === 'date') {
+          <div class="mt-space-4 max-w-xs">
+            <label class="font-body text-label-sm text-on-surface-variant mb-2 block" for="date-precise-rdv">Choisir une date</label>
+            <input
+              id="date-precise-rdv"
+              type="date"
+              [ngModel]="datePrecise()"
+              (ngModelChange)="datePrecise.set($event); pageActuelle.set(1)"
+              class="w-full h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+        }
+
+        @if (modePeriode() === 'plage') {
+          <div class="mt-space-4 grid grid-cols-1 sm:grid-cols-2 gap-space-4 max-w-xl">
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-2 block" for="debut-plage-rdv">Du</label>
+              <input
+                id="debut-plage-rdv"
+                type="date"
+                [ngModel]="debutPlage()"
+                (ngModelChange)="debutPlage.set($event); pageActuelle.set(1)"
+                class="w-full h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label class="font-body text-label-sm text-on-surface-variant mb-2 block" for="fin-plage-rdv">Au</label>
+              <input
+                id="fin-plage-rdv"
+                type="date"
+                [ngModel]="finPlage()"
+                (ngModelChange)="finPlage.set($event); pageActuelle.set(1)"
+                class="w-full h-[40px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-low font-body text-body-base focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+          </div>
+        }
       </div>
     </div>
 
@@ -224,20 +341,28 @@
   </main>
 
   <!-- BottomNav (mobile) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-around items-center z-50">
-    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+  <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container-lowest border-t border-border-subtle flex justify-start items-center overflow-x-auto z-50">
+    <a routerLink="/proprietaire/dashboard-comptable" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
       <span class="material-symbols-outlined">dashboard</span>
       <span class="font-body text-label-sm mt-1">Dash</span>
     </a>
-    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center w-full h-full text-primary font-bold">
+    <a routerLink="/proprietaire/historique-rdv" class="flex flex-col items-center justify-center min-w-[72px] h-full text-primary font-bold">
       <span class="material-symbols-outlined fill-icon">calendar_today</span>
       <span class="font-body text-label-sm mt-1">Agenda</span>
     </a>
-    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+    <a routerLink="/proprietaire/patients" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">groups</span>
+      <span class="font-body text-label-sm mt-1">Patients</span>
+    </a>
+    <a routerLink="/proprietaire/factures" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="font-body text-label-sm mt-1">Factures</span>
+    </a>
+    <a routerLink="/proprietaire/gestion-employes" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
       <span class="material-symbols-outlined">badge</span>
       <span class="font-body text-label-sm mt-1">Employés</span>
     </a>
-    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant">
+    <a routerLink="/proprietaire/vitrine-edition" class="flex flex-col items-center justify-center min-w-[72px] h-full text-on-surface-variant">
       <span class="material-symbols-outlined">storefront</span>
       <span class="font-body text-label-sm mt-1">Vitrine</span>
     </a>

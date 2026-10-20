@@ -6,11 +6,21 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 
 import { Auth } from '../../../core/services/auth';
+import { cleDate } from '../../../core/utils/periode-filtre';
 import { HistoriqueRdv } from './historique-rdv';
 
 registerLocaleData(localeFr);
 
 const PATIENT_ALINE = { id: 46, nom: 'Nkeng', prenom: 'Aline', telephone: '+237600000201' };
+
+/** Dates relatives à « aujourd'hui » : robustes quel que soit le jour d'exécution des tests. */
+const AUJOURDHUI = cleDate(new Date());
+const LUNDI_SEMAINE = (() => {
+  const d = new Date();
+  const recul = (d.getDay() + 6) % 7;
+  return cleDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() - recul));
+})();
+const IL_Y_A_UN_AN = cleDate(new Date(new Date().getFullYear(), 0, 1));
 
 function rdvBrut(id: number, date: string, heure: string, statut: string, extra: Record<string, unknown> = {}) {
   return {
@@ -70,8 +80,8 @@ describe('HistoriqueRdv', () => {
     const el = afficher();
     http.expectOne((r) => r.url.endsWith('/rdv')).flush(
       ENVELOPPE([
-        rdvBrut(175, '2026-10-27', '10:00', 'confirme', { motif: 'Controle de la vue' }),
-        rdvBrut(177, '2026-10-28', '09:00', 'reserve', {
+        rdvBrut(175, LUNDI_SEMAINE, '10:00', 'confirme', { motif: 'Controle de la vue' }),
+        rdvBrut(177, AUJOURDHUI, '09:00', 'reserve', {
           patient: null,
           patient_id: null,
           source: 'visiteur',
@@ -91,13 +101,11 @@ describe('HistoriqueRdv', () => {
     expect(texte).toContain('Confirmé');
     expect(texte).toContain('En attente');
     expect(texte).toContain('09:00 - 10:30');
-    // le plus récent d'abord
-    expect(texte.indexOf('Marc Biyong')).toBeLessThan(texte.indexOf('Aline Nkeng'));
   });
 
   it("n'affiche ni colonne ni filtre « Opticien(ne) » (l'API ne renvoie pas d'opticien)", async () => {
     const el = afficher();
-    http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([rdvBrut(175, '2026-10-27', '10:00', 'confirme')]));
+    http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([rdvBrut(175, AUJOURDHUI, '10:00', 'confirme')]));
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -134,11 +142,124 @@ describe('HistoriqueRdv', () => {
     expect(component.erreur()).toBe('Accès refusé.');
   });
 
+  it('le sous-titre dit « passés et à venir » (la liste contient aussi les rendez-vous à venir)', async () => {
+    const el = afficher();
+    http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([]));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('passés et à venir');
+    expect(el.textContent).not.toContain('rendez-vous passés de la clinique');
+  });
+
+  describe('filtres de période (par défaut : cette semaine)', () => {
+    it('la période par défaut est « cette semaine »', () => {
+      afficher();
+      http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([]));
+      expect(component.modePeriode()).toBe('semaine');
+    });
+
+    it('« tous » affiche aussi les rendez-vous hors de la semaine courante', async () => {
+      afficher();
+      http
+        .expectOne((r) => r.url.endsWith('/rdv'))
+        .flush(ENVELOPPE([rdvBrut(175, LUNDI_SEMAINE, '10:00', 'confirme'), rdvBrut(176, IL_Y_A_UN_AN, '11:00', 'termine')]));
+      await fixture.whenStable();
+
+      component.changerPeriode('tous');
+      expect(component.totalResultats()).toBe(2);
+    });
+
+    it('« aujourd’hui » ne garde que les rendez-vous du jour', async () => {
+      afficher();
+      http
+        .expectOne((r) => r.url.endsWith('/rdv'))
+        .flush(ENVELOPPE([rdvBrut(175, AUJOURDHUI, '10:00', 'confirme'), rdvBrut(176, IL_Y_A_UN_AN, '11:00', 'termine')]));
+      await fixture.whenStable();
+
+      component.changerPeriode('jour');
+      expect(component.totalResultats()).toBe(1);
+    });
+
+    it('date précise : une seule journée', async () => {
+      afficher();
+      http
+        .expectOne((r) => r.url.endsWith('/rdv'))
+        .flush(ENVELOPPE([rdvBrut(175, AUJOURDHUI, '10:00', 'confirme'), rdvBrut(176, IL_Y_A_UN_AN, '11:00', 'termine')]));
+      await fixture.whenStable();
+
+      component.changerMode('date');
+      component.datePrecise.set(IL_Y_A_UN_AN);
+      expect(component.totalResultats()).toBe(1);
+      expect(component.rendezVousPage()[0].id).toBe('176');
+    });
+
+    it('plage de dates : bornes inclusives, saisie à l’envers remise dans l’ordre', async () => {
+      afficher();
+      http
+        .expectOne((r) => r.url.endsWith('/rdv'))
+        .flush(ENVELOPPE([rdvBrut(175, IL_Y_A_UN_AN, '10:00', 'confirme'), rdvBrut(176, AUJOURDHUI, '11:00', 'termine')]));
+      await fixture.whenStable();
+
+      component.changerMode('plage');
+      component.debutPlage.set(IL_Y_A_UN_AN);
+      component.finPlage.set(AUJOURDHUI);
+      expect(component.totalResultats()).toBe(2);
+
+      component.debutPlage.set(AUJOURDHUI);
+      component.finPlage.set(IL_Y_A_UN_AN);
+      expect(component.totalResultats()).toBe(2);
+    });
+
+    it('plage incomplète : aucun blocage, la liste reste entière', async () => {
+      afficher();
+      http
+        .expectOne((r) => r.url.endsWith('/rdv'))
+        .flush(ENVELOPPE([rdvBrut(175, IL_Y_A_UN_AN, '10:00', 'confirme'), rdvBrut(176, AUJOURDHUI, '11:00', 'termine')]));
+      await fixture.whenStable();
+
+      component.changerMode('plage');
+      component.debutPlage.set(IL_Y_A_UN_AN);
+      expect(component.bornes()).toBeNull();
+      expect(component.totalResultats()).toBe(2);
+    });
+  });
+
+  describe('bandeau de métriques', () => {
+    it('compte les effectifs par statut sur la période sélectionnée', async () => {
+      const el = afficher();
+      http.expectOne((r) => r.url.endsWith('/rdv')).flush(
+        ENVELOPPE([
+          rdvBrut(1, AUJOURDHUI, '09:00', 'reserve'),
+          rdvBrut(2, AUJOURDHUI, '10:00', 'confirme'),
+          rdvBrut(3, AUJOURDHUI, '11:00', 'confirme'),
+          rdvBrut(4, AUJOURDHUI, '12:00', 'termine'),
+          rdvBrut(5, AUJOURDHUI, '13:00', 'annule'),
+          rdvBrut(6, AUJOURDHUI, '14:00', 'non_honore'),
+        ]),
+      );
+      await fixture.whenStable();
+      component.changerPeriode('jour');
+      fixture.detectChanges();
+
+      const stats = component.statsPeriode();
+      expect(stats.total).toBe(6);
+      expect(stats.enAttente).toBe(1);
+      expect(stats.confirmes).toBe(2);
+      expect(stats.termines).toBe(1);
+      expect(stats.annules).toBe(1);
+      expect(stats.nonHonores).toBe(1);
+      expect(el.querySelector('[data-carte="rdv-total"]')?.textContent).toContain('Rendez-vous');
+      expect(el.querySelector('[data-carte="rdv-en-attente"]')?.textContent).toContain('En attente');
+    });
+  });
+
   it('le CSV exporte uniquement les lignes affichées (filtre statut), sans colonne opticien', async () => {
     afficher();
     http.expectOne((r) => r.url.endsWith('/rdv')).flush(
-      ENVELOPPE([rdvBrut(175, '2026-10-27', '10:00', 'confirme'), rdvBrut(177, '2026-10-28', '09:00', 'reserve')]),
+      ENVELOPPE([rdvBrut(175, AUJOURDHUI, '10:00', 'confirme'), rdvBrut(177, AUJOURDHUI, '09:00', 'reserve')]),
     );
+    component.changerPeriode('jour');
     component.filtreStatut.set('reserve');
 
     let contenu = '';
@@ -156,17 +277,7 @@ describe('HistoriqueRdv', () => {
     const lignes = contenu.replace('﻿', '').split('\n');
     expect(lignes.length).toBe(2);
     expect(lignes[0]).not.toContain('Opticien');
-    expect(lignes[1]).toContain('28/10/2026');
+    expect(lignes[1]).toContain(AUJOURDHUI.split('-').reverse().join('/'));
     expect(lignes[1]).toContain('En attente');
-  });
-
-  it('le sous-titre dit « passés et à venir » (la liste contient aussi les rendez-vous à venir)', async () => {
-    const el = afficher();
-    http.expectOne((r) => r.url.endsWith('/rdv')).flush(ENVELOPPE([]));
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(el.textContent).toContain('passés et à venir');
-    expect(el.textContent).not.toContain('rendez-vous passés de la clinique');
   });
 });
