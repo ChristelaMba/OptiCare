@@ -130,9 +130,11 @@
                   {{ patient.prenom }}
                   {{ patient.nom }}
                 </h3>
-                <span class="patient-id">
-                  {{ patient.id }}
-                </span>
+                @if (patient.telephone) {
+                  <span class="patient-id">
+                    {{ patient.telephone }}
+                  </span>
+                }
               </div>
             </div>
             <!-- ===============================

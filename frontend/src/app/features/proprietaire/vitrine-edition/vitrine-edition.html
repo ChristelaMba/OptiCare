@@ -267,10 +267,11 @@
                   </div>
                   <div class="grid grid-cols-2 gap-2" formArrayName="photos">
                     @for (ctrl of photos.controls; track $index; let i = $index) {
-                      <div class="relative aspect-square rounded-lg overflow-hidden border border-border-subtle group">
+                      <div tabindex="0" class="relative aspect-square rounded-lg overflow-hidden border border-border-subtle group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                         <!-- TODO : pas de vrai upload — aperçu factice tant que l'URL est vide -->
                         <img [src]="ctrl.value || photoPlaceholder" alt="Aperçu photo {{ i + 1 }}" class="w-full h-full object-cover" />
-                        <input type="url" [formControlName]="i" placeholder="https://…" class="absolute bottom-0 inset-x-0 h-7 px-2 text-[10px] bg-surface-container-lowest/90 border-t border-border-subtle font-body outline-none" />
+                        <!-- Adresse web : masquee tant que la photo en a une ; visible au survol, au toucher (focus de la vignette) ou dans le champ -->
+                        <input type="url" [formControlName]="i" placeholder="https://…" [class.opacity-0]="ctrl.value" class="absolute bottom-0 inset-x-0 h-7 px-2 text-[10px] bg-surface-container-lowest/90 border-t border-border-subtle font-body outline-none transition-opacity group-hover:opacity-100 group-focus:opacity-100 focus:opacity-100" />
                         <button type="button" (click)="retirerPhoto(i)" class="absolute top-1 right-1 w-6 h-6 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-error opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                           <span class="material-symbols-outlined text-sm">close</span>
                         </button>

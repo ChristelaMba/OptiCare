@@ -215,4 +215,26 @@ describe('MesPatients', () => {
       expect(component.erreurFormulaire()).toContain('Le serveur répond : Erreur interne');
     });
   });
+
+  it('sous le nom : le téléphone du patient, plus l’identifiant technique ; ligne retirée sans téléphone', async () => {
+    const el = afficher();
+    http.expectOne((r) => r.url.endsWith('/cabinets/6/patients')).flush({
+      status: 'success',
+      message: '',
+      data: {
+        patients: [
+          { id: 46, nom: 'Nkeng', prenom: 'Aline', telephone: '+237600000201', email: null, ville: 'Douala' },
+          { id: 47, nom: 'Biyong', prenom: 'Marc', telephone: '', email: null, ville: null },
+        ],
+      },
+    });
+    http.expectOne((r) => r.url.endsWith('/cabinets/6/consultations')).flush({ status: 'success', message: '', data: { consultations: [] } });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const identites = Array.from(el.querySelectorAll('.patient-identity'));
+    expect(identites[0].querySelector('.patient-id')?.textContent?.trim()).toBe('+237600000201');
+    expect(identites[1].querySelector('.patient-id')).toBeNull();
+    expect(identites.map((i) => i.textContent).join(' ')).not.toMatch(/4[67]/);
+  });
 });
