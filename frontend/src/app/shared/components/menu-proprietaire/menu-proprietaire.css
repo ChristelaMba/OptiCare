@@ -1,14 +1,652 @@
 /*
- * Le drawer s'appuie sur les utilitaires Tailwind `-translate-x-full` (fermé, hors écran à
- * gauche) et `md:translate-x-0` (toujours visible à partir de `md`).
+ * Menu de l'espace propriétaire — habillage strictement identique à la barre
+ * latérale de l'espace patient (`patient-layout.css`), elle-même reprise par
+ * le Super Admin : mêmes variables, mêmes classes, mêmes couleurs, mêmes
+ * polices, mêmes effets au survol et au clic, même bouton de déconnexion
+ * rouge avec son icône au trait. Objectif : la sidebar propriétaire doit être
+ * visuellement indiscernable de celle du patient, seuls les intitulés et les
+ * routes changent.
  *
- * Attention : depuis Tailwind v4, ces utilitaires pilotent la propriété CSS `translate`
- * (et non `transform`). On surcharge donc `translate` — et non `transform` — pour l'état
- * ouvert sur téléphone, sinon `-translate-x-full` l'emporterait et le panneau resterait
- * hors écran (seul le voile sombre serait visible).
+ * Le composant est monté dans des pages hostiles (conteneur `flex` Tailwind) :
+ * on fige donc explicitement les positions et on annule les marges héritées.
  */
-@media (max-width: 767px) {
-  .menu-proprietaire.menu-ouvert {
-    translate: 0 0;
+
+/* =========================================================
+   VARIABLES (copie de patient-layout.css)
+========================================================= */
+
+:host {
+  display: contents;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+  --primary-soft: #dbeafe;
+
+  --text-main: #172033;
+  --text-body: #475569;
+  --text-muted: #94a3b8;
+
+  --background: #f7f9fc;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --border: #e6ebf2;
+  --border-soft: #edf1f6;
+
+  --danger: #dc2626;
+
+  --sidebar-width: 250px;
+
+  font-family:
+    Inter,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.menu-proprietaire-sidebar {
+  position: fixed;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  z-index: 100;
+
+  width: var(--sidebar-width);
+  height: auto;
+  max-height: 100vh;
+
+  margin: 0;
+  border-radius: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 14px 14px;
+
+  background: var(--surface);
+
+  border-right: 1px solid var(--border);
+
+  box-shadow: none;
+
+  overflow: visible;
+
+  translate: none;
+
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.sidebar-brand {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 3px 7px 20px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-text span {
+  margin-top: 1px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+}
+
+.sidebar-close {
+  display: none;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.sidebar-navigation {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  padding-top: 4px;
+
+  overflow-y: auto;
+}
+
+.nav-label {
+  padding: 0 10px;
+  margin: 12px 0 6px;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.nav-label:first-child {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   NAV LINK
+========================================================= */
+
+.nav-link {
+  position: relative;
+
+  min-height: 40px;
+
+  padding: 0 11px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  color: var(--text-body);
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  overflow: hidden;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.nav-link svg {
+  width: 17px;
+  height: 17px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   NAV LINK HOVER
+========================================================= */
+
+.nav-link:hover {
+  background: var(--surface-soft);
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   NAV LINK ACTIF
+========================================================= */
+
+.nav-link.active {
+  background: var(--primary-light);
+
+  color: var(--primary);
+
+  font-weight: 600;
+
+  border-color: transparent;
+}
+
+/* Bordure bleue gauche du bouton actif, qui épouse l'arrondi. */
+.nav-link.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 3px;
+
+  background: var(--primary);
+
+  border-radius: 9px 0 0 9px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   PROFIL SIDEBAR (pied de page)
+========================================================= */
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  /* Colle le bloc profil (et la déconnexion juste en dessous) en pied de
+     sidebar, comme dans l'espace patient. */
+  margin-top: auto;
+
+  padding: 15px 7px 3px;
+}
+
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.profile-details strong {
+  color: var(--text-main);
+
+  font-size: 10px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.profile-details span {
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   DÉCONNEXION (identique à l'espace patient)
+========================================================= */
+
+.sidebar-logout {
+  padding: 4px 16px 12px;
+}
+
+.sidebar-logout ::ng-deep .logout-button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #e4e8ef;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #b42318;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-logout ::ng-deep .logout-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-logout ::ng-deep .logout-button:hover {
+  background: #fff3f4;
+}
+
+
+/* =========================================================
+   BARRE DU HAUT (téléphone)
+========================================================= */
+
+.menu-proprietaire-header {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 180;
+
+  height: 62px;
+
+  margin: 0;
+
+  padding: 0 14px;
+
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+
+  background: var(--surface);
+
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.menu-proprietaire-cabinet {
+  font-size: 11px;
+  font-weight: 600;
+
+  color: var(--text-body);
+
+  min-width: 0;
+  max-width: 140px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-menu-button {
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 4px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: var(--surface);
+  color: var(--text-body);
+
+  cursor: pointer;
+}
+
+.mobile-menu-button span {
+  width: 15px;
+  height: 1.5px;
+
+  border-radius: 2px;
+
+  background: var(--text-body);
+}
+
+.mobile-notification {
+  position: relative;
+
+  width: 35px;
+  height: 35px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: var(--surface);
+  color: var(--text-body);
+
+  cursor: pointer;
+}
+
+.mobile-notification svg {
+  width: 17px;
+  height: 17px;
+}
+
+.mobile-avatar {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   PANNEAU NOTIFICATIONS (téléphone)
+========================================================= */
+
+.menu-proprietaire-notifications {
+  position: fixed;
+
+  top: 62px;
+  right: 12px;
+  left: 12px;
+
+  z-index: 190;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+
+  overflow: hidden;
+}
+
+.menu-proprietaire-notifications .notification-header {
+  padding: 12px 16px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.menu-proprietaire-notifications .notification-header h3 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.menu-proprietaire-notifications .notification-empty {
+  margin: 0;
+  padding: 20px 16px;
+
+  text-align: center;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   VOILE SOMBRE
+========================================================= */
+
+.menu-proprietaire-overlay {
+  display: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  :host {
+    --sidebar-width: 235px;
   }
+
+}
+
+
+@media (max-width: 768px) {
+
+  /*
+   * Ordre des plans (comme l'espace patient) : le tiroir passe au-dessus de la
+   * barre du haut mobile (180) et du voile (90), sinon cette barre masquerait
+   * le haut du tiroir (logo et première entrée de navigation).
+   */
+  .menu-proprietaire-sidebar {
+    z-index: 200;
+
+    transform: translateX(-100%);
+  }
+
+  .menu-proprietaire-sidebar.sidebar-open,
+  .menu-proprietaire-sidebar.menu-ouvert {
+    transform: translateX(0);
+  }
+
+  .menu-proprietaire-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 90;
+
+    display: block;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    backdrop-filter: blur(2px);
+  }
+
+  /*
+   * La barre du haut devient `fixed` et non `sticky` : le composant est monté
+   * dans une rangée flex (`.min-h-screen.flex` des pages propriétaire), où un
+   * élément collant resterait une colonne de 62 px à côté du contenu au lieu de
+   * le surplomber. En `fixed`, elle sort du flux et couvre toute la largeur ;
+   * `.espace-proprietaire-contenu` récupère la hauteur en `padding-top`.
+   */
+  .menu-proprietaire-header {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+
+    display: flex;
+  }
+
+  .sidebar-close {
+    display: none;
+  }
+
+  .menu-proprietaire-cabinet {
+    max-width: 110px;
+  }
+
+}
+
+
+/* =========================================================
+   TRÈS PETIT ÉCRAN — 400px (même palier que l'espace patient)
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .menu-proprietaire-header {
+    padding: 0 10px;
+  }
+
+  .mobile-header-left {
+    gap: 7px;
+  }
+
+  .mobile-header-actions {
+    gap: 5px;
+  }
+
 }
