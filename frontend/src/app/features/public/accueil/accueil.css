@@ -4,7 +4,29 @@
  * Les effets de survol, de clic et les animations sont désormais définis une
  * seule fois dans `src/styles.css` (classes `.effet-carte`, `.effet-bouton`,
  * `.effet-lien`) afin d'être identiques dans toute l'application.
- *
- * Ce fichier reste volontairement vide : il est conservé car le composant le
- * référence (`styleUrl: './accueil.css'`).
  */
+
+/*
+ * Étoiles de notation des cartes cabinets.
+ *
+ * Elles sont dessinées en SVG (et non avec la police d'icônes) pour deux
+ * raisons : la police Material Symbols impose une taille de 24px à ses glyphes
+ * (d'où un rendu « coupé » dans une boîte de 18px), et la coupe d'une note
+ * partielle doit porter sur la surface réelle du dessin. Une étoile à 5
+ * branches étant symétrique, `clip-path: inset(0 x% 0 0)` retire exactement
+ * x % de son aire — 4,5 montre donc une vraie moitié d'étoile, et 4,2 un léger
+ * coloriage sur la dernière étoile plutôt qu'une étoile vide.
+ */
+.star-icon {
+  display: block;
+  overflow: visible;
+}
+
+.star-vide {
+  color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+}
+
+.star-pleine {
+  color: var(--color-warning);
+}
+

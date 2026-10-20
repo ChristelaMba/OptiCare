@@ -5,8 +5,10 @@ import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../../core/services/auth';
 import { Utilisateur as UtilisateurService } from '../../../core/services/utilisateur';
+import { initialesUtilisateur, nomCompletUtilisateur } from '../../../core/utils/identite-utilisateur';
 import { messageErreurApi } from '../../../core/utils/api-errors';
 import { CompteAdmin, libelleRole, RoleUtilisateur, StatsComptes } from '../../../models/utilisateur.model';
+import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion/bouton-deconnexion';
 import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
 
 type FiltreStatut = 'tous' | 'actif' | 'inactif';
@@ -24,7 +26,7 @@ const TAILLE_PAGE = 8;
  */
 @Component({
   selector: 'app-gestion-comptes',
-  imports: [LogoOpticare, FormsModule, RouterLink],
+  imports: [LogoOpticare, FormsModule, RouterLink, BoutonDeconnexion],
   templateUrl: './gestion-comptes.html',
   styleUrl: './gestion-comptes.css',
 })
@@ -32,6 +34,11 @@ export class GestionComptes implements OnInit {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
   private readonly utilisateurService = inject(UtilisateurService);
+
+  /** Identité de l'utilisateur connecté, affichée en pied de sidebar (comme l'espace opticien). */
+  readonly nomComplet = computed(() => nomCompletUtilisateur(this.auth.utilisateur()));
+  readonly initiales = computed(() => initialesUtilisateur(this.auth.utilisateur()));
+  readonly roleUtilisateurLibelle = computed(() => libelleRole(this.auth.role()));
 
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);

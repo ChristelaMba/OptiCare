@@ -155,15 +155,25 @@
                   <div class="inline-flex items-center gap-1" [attr.aria-label]="aUneNote(cabinet.noteMoyenne) ? 'Note : ' + (cabinet.noteMoyenne | number: '1.1-1') + ' sur 5' : 'Pas encore noté'">
                     @if (aUneNote(cabinet.noteMoyenne)) {
                       @for (etoile of etoilesDetaillees(cabinet.noteMoyenne); track etoile.index) {
-                        <span class="relative inline-block w-[18px] h-[18px] text-[18px] leading-none">
-                          <span class="material-symbols-outlined text-warning/30 absolute inset-0" aria-hidden="true">star</span>
+                        <!-- Étoile en SVG : la coupe se fait sur la surface réelle du dessin,
+                             donc une étoile à 50 % montre exactement la moitié de son aire,
+                             et une note non entière (4,2) laisse un coloriage partiel visible. -->
+                        <svg class="star-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <path
+                            class="star-vide"
+                            [attr.d]="CHEMIN_ETOILE"
+                            fill="currentColor"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linejoin="round" />
                           @if (etoile.remplissage > 0) {
-                            <span
-                              class="material-symbols-outlined fill-icon text-warning absolute inset-0 overflow-hidden"
-                              [style.width.%]="etoile.remplissage"
-                              aria-hidden="true">star</span>
+                            <path
+                              class="star-pleine"
+                              [attr.d]="CHEMIN_ETOILE"
+                              fill="currentColor"
+                              [style.clip-path]="'inset(0 ' + (100 - etoile.remplissage) + '% 0 0)'" />
                           }
-                        </span>
+                        </svg>
                       }
                       <span class="font-body text-label-sm text-text-muted ml-1">{{ cabinet.noteMoyenne | number: '1.1-1' }}</span>
                     } @else {
@@ -293,10 +303,25 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
           @for (avis of avisReels(); track avis.id) {
-            <div class="bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
-              <div class="flex items-center gap-1 text-warning" [attr.aria-label]="avis.note + ' sur 5'">
-                @for (etoile of etoiles(avis.note); track etoile) {
-                  <span class="material-symbols-outlined fill-icon text-[18px]">star</span>
+            <div class="effet-carte bg-surface-container-lowest rounded-xl p-space-6 shadow-sm border-l-4 border-primary flex flex-col gap-space-4">
+              <div class="flex items-center gap-1" [attr.aria-label]="(avis.note | number: '1.0-1') + ' sur 5'">
+                @for (etoile of etoilesDetaillees(avis.note); track etoile.index) {
+                  <svg class="star-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path
+                      class="star-vide"
+                      [attr.d]="CHEMIN_ETOILE"
+                      fill="currentColor"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round" />
+                    @if (etoile.remplissage > 0) {
+                      <path
+                        class="star-pleine"
+                        [attr.d]="CHEMIN_ETOILE"
+                        fill="currentColor"
+                        [style.clip-path]="'inset(0 ' + (100 - etoile.remplissage) + '% 0 0)'" />
+                    }
+                  </svg>
                 }
               </div>
               <p class="font-body text-body-base text-on-surface-variant italic">« {{ avis.commentaire }} »</p>

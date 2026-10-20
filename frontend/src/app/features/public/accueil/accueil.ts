@@ -112,6 +112,14 @@ export class Accueil implements OnInit, AfterViewInit, OnDestroy {
   readonly chargementCabinets = signal(true);
   private readonly cabinets = signal<CabinetModel[]>([]);
 
+  /**
+   * Étoile à 5 branches dessinée pour remplir exactement sa boîte 24×24.
+   * Elle est symétrique par rapport à son axe vertical (x = 12), donc une coupe
+   * verticale à x % de la largeur correspond exactement à x % de la surface.
+   */
+  readonly CHEMIN_ETOILE =
+    'M12 1.6 L14.58 9.54 L22.94 9.54 L16.18 14.46 L18.76 22.4 L12 17.49 L5.24 22.4 L7.82 14.46 L1.06 9.54 L9.42 9.54 Z';
+
   /** false = seules les 3 premières cartes sont affichées, jusqu'au clic sur « Voir plus ». */
   readonly tousLesCabinetsVisibles = signal(false);
 
@@ -180,29 +188,21 @@ export class Accueil implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  etoiles(note: number): number[] {
-    return Array.from({ length: Math.max(0, Math.min(5, Math.round(note))) }, (_, i) => i);
-  }
-
   /**
-   * Décompose une note (0 à 5) en 5 étoiles avec leur taux de remplissage :
-   * 100 (pleine), 50 (demi) ou 0 (vide). Ex. 4,5 → 4 pleines + 1 demi + 0 vide.
-   * La note est bornée à [0, 5] et arrondie à la demi-étoile la plus proche.
+   * Décompose une note (0 à 5) en 5 étoiles avec leur taux de remplissage exact :
+   * 4,5 → 4 pleines + une dernière remplie à 50 %, 4,2 → dernière remplie à 20 %.
+   * Le remplissage n'est PAS arrondi : une note comme 4,2 laisse apparaître un
+   * léger coloriage sur la 5e étoile, plutôt qu'une étoile totalement vide.
+   * Comme une étoile à 5 branches est symétrique gauche/droite, une coupe
+   * verticale à x % de la largeur correspond exactement à x % de la surface.
    */
   etoilesDetaillees(note: number): { index: number; remplissage: number }[] {
     const bornee = Math.max(0, Math.min(5, note));
-    const arrondie = Math.round(bornee * 2) / 2;
 
     return Array.from({ length: 5 }, (_, index) => {
-      const reste = arrondie - index;
-
-      if (reste >= 1) {
-        return { index, remplissage: 100 };
-      }
-      if (reste >= 0.5) {
-        return { index, remplissage: 50 };
-      }
-      return { index, remplissage: 0 };
+      const reste = bornee - index;
+      const remplissage = Math.max(0, Math.min(1, reste)) * 100;
+      return { index, remplissage: Math.round(remplissage * 10) / 10 };
     });
   }
 

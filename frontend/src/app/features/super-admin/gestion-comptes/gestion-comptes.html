@@ -27,15 +27,24 @@
         <span class="font-button text-button">Gestion des comptes</span>
       </a>
     </div>
-    <div class="px-space-2 mt-auto">
-      <button
-        type="button"
-        (click)="deconnexion()"
-        class="effet-bouton w-full flex items-center gap-space-3 px-space-4 py-space-3 mx-space-2 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
+
+    <!-- Profil + déconnexion en pied de sidebar (comme l'espace opticien) -->
+    <div class="px-space-4 pt-space-4 mt-auto border-t border-border-subtle">
+      <div class="flex items-center gap-space-3">
+        <div class="w-10 h-10 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center font-button text-button uppercase">
+          {{ initiales() }}
+        </div>
+        <div class="min-w-0">
+          <p class="font-button text-button text-on-surface truncate">{{ nomComplet() }}</p>
+          <p class="font-body text-label-sm text-text-muted truncate">{{ roleUtilisateurLibelle() }}</p>
+        </div>
+      </div>
+      <app-bouton-deconnexion
+        classe="effet-bouton w-full mt-space-3 flex items-center gap-space-3 px-space-4 py-space-3 text-on-surface-variant hover:bg-surface-bg rounded-lg transition-colors"
       >
         <span class="material-symbols-outlined">logout</span>
         <span class="font-button text-button">Déconnexion</span>
-      </button>
+      </app-bouton-deconnexion>
     </div>
   </nav>
 
