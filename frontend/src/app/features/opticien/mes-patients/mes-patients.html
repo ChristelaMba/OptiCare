@@ -14,6 +14,18 @@
           rapidement à leur dossier visuel.
         </p>
       </div>
+      <button
+        type="button"
+        class="primary-button"
+        (click)="ouvrirFormulaire()"
+      >
+        <span class="material-symbols-outlined">
+          person_add
+        </span>
+        <span>
+          Nouveau patient
+        </span>
+      </button>
     </div>
   </header>
   <!-- =====================================================
@@ -90,14 +102,12 @@
     @if (chargement()) {
       <p class="loading-text" aria-live="polite">Chargement des patients…</p>
     }
-
     @if (erreur(); as message) {
       <div class="empty-state" role="alert">
         <h3>Liste indisponible</h3>
         <p>{{ message }}</p>
       </div>
     }
-
     @if (!chargement() && patientsFiltres().length > 0) {
       <div class="patients-grid">
         @for (
@@ -385,6 +395,74 @@
           </button>
         </div>
       </aside>
+    </div>
+  }
+  @if (formulaireOuvert()) {
+    <div class="overlay" role="dialog" aria-modal="true" aria-label="Nouveau patient" (click)="fermerFormulaire()">
+      <form class="patient-form" [formGroup]="formulairePatient" (ngSubmit)="creerPatient()" (click)="$event.stopPropagation()">
+        <h2>Nouveau patient</h2>
+        @if (erreurFormulaire(); as message) {
+          <p class="field-error" role="alert">{{ message }}</p>
+        }
+          <label class="field">
+            <span>Nom *</span>
+            <input type="text" formControlName="nom" />
+            @if (erreursChamps()['nom']; as message) {
+              <span class="field-error" data-champ="nom">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>Prénom *</span>
+            <input type="text" formControlName="prenom" />
+            @if (erreursChamps()['prenom']; as message) {
+              <span class="field-error" data-champ="prenom">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>Téléphone * (+237 suivi de 9 chiffres)</span>
+            <input type="tel" formControlName="telephone" placeholder="+237600000000" (blur)="normaliserTelephone()" />
+            @if (formulairePatient.controls.telephone.touched && formulairePatient.controls.telephone.invalid) {
+              <span class="field-error" data-champ="telephone-format">Format attendu : +237 suivi de 9 chiffres.</span>
+            }
+            @if (erreursChamps()['telephone']; as message) {
+              <span class="field-error" data-champ="telephone">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>E-mail (facultatif)</span>
+            <input type="email" formControlName="email" />
+            @if (erreursChamps()['email']; as message) {
+              <span class="field-error" data-champ="email">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>Ville (facultatif)</span>
+            <input type="text" formControlName="ville" />
+            @if (erreursChamps()['ville']; as message) {
+              <span class="field-error" data-champ="ville">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>Date de naissance (facultatif)</span>
+            <input type="date" formControlName="dateNaissance" />
+            @if (erreursChamps()['date_naissance']; as message) {
+              <span class="field-error" data-champ="date_naissance">{{ message }}</span>
+            }
+          </label>
+          <label class="field">
+            <span>Adresse (facultatif)</span>
+            <input type="text" formControlName="adresse" />
+            @if (erreursChamps()['adresse']; as message) {
+              <span class="field-error" data-champ="adresse">{{ message }}</span>
+            }
+          </label>
+        <div class="form-actions">
+          <button type="button" class="secondary-button" (click)="fermerFormulaire()" [disabled]="envoiEnCours()">Annuler</button>
+          <button type="submit" class="primary-button" [disabled]="envoiEnCours()">
+            {{ envoiEnCours() ? 'Création…' : 'Créer le patient' }}
+          </button>
+        </div>
+      </form>
     </div>
   }
 </div>

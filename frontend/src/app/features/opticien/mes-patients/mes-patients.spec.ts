@@ -75,7 +75,7 @@ describe('MesPatients', () => {
     // données que l'API ne fournit pas : retirées, pas inventées
     expect(texte).not.toContain('ans');
     expect(texte).not.toContain('À suivre');
-    expect(texte).not.toContain('Nouveau patient');
+    expect(texte).toContain('Nouveau patient');
   });
 
   it('un échec de la liste des consultations ne bloque pas les patients', async () => {
@@ -127,5 +127,92 @@ describe('MesPatients', () => {
 
     expect(naviguer).toHaveBeenCalledWith(['/opticien/dossier-visuel-patient'], { queryParams: { patientId: '46' } });
     expect(naviguer).toHaveBeenCalledWith(['/opticien/nouvelle-fiche-consultation'], { queryParams: { patientId: '46' } });
+  });
+
+  describe('Nouveau patient', () => {
+    async function ouvrirFormulaire(): Promise<HTMLElement> {
+      const el = afficher();
+      http.expectOne((r) => r.url.endsWith('/cabinets/6/patients')).flush(PATIENTS);
+      http.expectOne((r) => r.url.endsWith('/cabinets/6/consultations')).flush({ status: 'success', message: '', data: { consultations: [] } });
+      component.ouvrirFormulaire();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return el;
+    }
+
+    function remplir(extra: Record<string, string> = {}): void {
+      component.formulairePatient.patchValue({ nom: 'Essomba', prenom: 'Mireille', telephone: '+237600000203', ville: 'Douala', ...extra });
+    }
+
+    it('le bouton ouvre le formulaire (champs obligatoires et facultatifs)', async () => {
+      const el = await ouvrirFormulaire();
+      const bouton = Array.from(el.querySelectorAll('button')).find((b) => b.textContent?.includes('Nouveau patient'));
+      expect(bouton).toBeDefined();
+      expect(el.querySelector('[role=dialog]')).not.toBeNull();
+      expect(el.querySelectorAll('[role=dialog] input').length).toBe(7);
+    });
+
+    it('POST /cabinets/{id}/patients : champs renseignés seulement, la liste se met à jour', async () => {
+      await ouvrirFormulaire();
+      remplir();
+      component.creerPatient();
+
+      const req = http.expectOne((r) => r.method === 'POST' && r.url.endsWith('/cabinets/6/patients'));
+      expect(req.request.body).toEqual({ nom: 'Essomba', prenom: 'Mireille', telephone: '+237600000203', ville: 'Douala' });
+      req.flush(
+        { status: 'success', message: '', data: { patient: { id: 51, nom: 'Essomba', prenom: 'Mireille', telephone: '+237600000203', email: null, ville: 'Douala' } } },
+        { status: 201, statusText: 'Created' },
+      );
+
+      expect(component.nombrePatients()).toBe(3);
+      expect(component.patients().at(-1)).toMatchObject({ id: '51', nombreConsultations: 0, derniereConsultation: null });
+      expect(component.formulaireOuvert()).toBe(false);
+    });
+
+    it('téléphone saisi avec espaces : normalisé en +237 suivi de 9 chiffres', async () => {
+      await ouvrirFormulaire();
+      remplir({ telephone: '+237 600 000 203' });
+      component.creerPatient();
+
+      expect(http.expectOne((r) => r.method === 'POST').request.body.telephone).toBe('+237600000203');
+    });
+
+    it('format de téléphone invalide ou champs obligatoires manquants : aucun appel', async () => {
+      await ouvrirFormulaire();
+      remplir({ telephone: '600000203' });
+      component.creerPatient();
+      http.expectNone((r) => r.method === 'POST');
+
+      remplir({ telephone: '+237600000203', nom: '' });
+      component.creerPatient();
+      http.expectNone((r) => r.method === 'POST');
+    });
+
+    it('422 (téléphone déjà utilisé) : message du serveur sous le champ téléphone', async () => {
+      const el = await ouvrirFormulaire();
+      remplir();
+      component.creerPatient();
+      http.expectOne((r) => r.method === 'POST').flush(
+        { status: 'error', message: 'Erreur de validation', errors: { telephone: ['Ce numéro de téléphone est déjà utilisé.'] } },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+      fixture.detectChanges();
+
+      expect(el.querySelector('[data-champ=telephone]')?.textContent).toContain('déjà utilisé');
+      expect(component.formulaireOuvert()).toBe(true);
+      expect(component.nombrePatients()).toBe(2);
+    });
+
+    it('403 : « Accès refusé. » ; 500 : message du serveur', async () => {
+      await ouvrirFormulaire();
+      remplir();
+      component.creerPatient();
+      http.expectOne((r) => r.method === 'POST').flush({ status: 'error', message: 'Accès refusé' }, { status: 403, statusText: 'Forbidden' });
+      expect(component.erreurFormulaire()).toBe('Accès refusé.');
+
+      component.creerPatient();
+      http.expectOne((r) => r.method === 'POST').flush({ status: 'error', message: 'Erreur interne' }, { status: 500, statusText: 'Server Error' });
+      expect(component.erreurFormulaire()).toContain('Le serveur répond : Erreur interne');
+    });
   });
 });

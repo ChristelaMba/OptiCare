@@ -8,7 +8,7 @@ import { Auth } from '../../../core/services/auth';
 import { ConsultationService } from '../../../core/services/consultation';
 import { PatientCabinet, PatientsCabinet } from '../../../core/services/patients-cabinet';
 import { erreursParChamp, messageErreurApi } from '../../../core/utils/api-errors';
-import { ConsultationEcriture, ConsultationOpticien } from '../../../models/consultation.model';
+import { ConsultationEcriture, ConsultationModification, ConsultationOpticien } from '../../../models/consultation.model';
 
 /** Champs du serveur affichés sous leur champ de formulaire ; les autres (od_*, og_*, plainte_*) vont dans le bandeau. */
 const CHAMPS_FORMULAIRE = ['patient_id', 'date_consultation', 'motif', 'observations', 'ecart_pupillaire'];
@@ -21,6 +21,10 @@ const LIBELLES_CHAMPS: Record<string, string> = {
   acuite_loin: 'acuité de loin',
   acuite_pres: 'acuité de près',
 };
+
+/** Décimal signé (virgule ou point) : sphère, cylindre, addition. Les valeurs restent des chaînes, comme à l'envoi. */
+const DECIMAL = /^[+-]?\d+([.,]\d+)?$/;
+const ENTIER = /^\d{1,3}$/;
 
 function aujourdHui(): string {
   const d = new Date();
@@ -72,6 +76,20 @@ export class NouvelleFicheConsultation implements OnInit {
   readonly erreursAutres = signal<string[]>([]);
   readonly succes = signal<string | null>(null);
 
+  /** Valeurs du formulaire telles que le serveur les connaît (dernière réponse) : sert à n'envoyer que les champs modifiés. */
+  private reference: Record<string, string | boolean> = {};
+
+  private groupeOeil() {
+    return this.fb.nonNullable.group({
+      sphere: ['', Validators.pattern(DECIMAL)],
+      cylindre: ['', Validators.pattern(DECIMAL)],
+      axe: ['', [Validators.pattern(ENTIER), Validators.min(0), Validators.max(180)]],
+      add: ['', Validators.pattern(DECIMAL)],
+      acuiteLoin: [''],
+      acuitePres: [''],
+    });
+  }
+
   readonly formulaire = this.fb.nonNullable.group({
     patientId: ['', Validators.required],
     dateConsultation: [aujourdHui(), Validators.required],
@@ -85,22 +103,8 @@ export class NouvelleFicheConsultation implements OnInit {
     }),
     autresPlaintes: [''],
     ecartPupillaire: [''],
-    od: this.fb.nonNullable.group({
-      sphere: [''],
-      cylindre: [''],
-      axe: ['', [Validators.min(0), Validators.max(180)]],
-      add: [''],
-      acuiteLoin: [''],
-      acuitePres: [''],
-    }),
-    og: this.fb.nonNullable.group({
-      sphere: [''],
-      cylindre: [''],
-      axe: ['', [Validators.min(0), Validators.max(180)]],
-      add: [''],
-      acuiteLoin: [''],
-      acuitePres: [''],
-    }),
+    od: this.groupeOeil(),
+    og: this.groupeOeil(),
     observations: [''],
   });
 
@@ -200,6 +204,7 @@ export class NouvelleFicheConsultation implements OnInit {
       },
       observations: c.observations,
     });
+    this.reference = this.aplatir();
     // Le patient et la date ne changent pas après la création.
     this.formulaire.controls.patientId.disable();
     if (c.modifiable) {
@@ -210,9 +215,14 @@ export class NouvelleFicheConsultation implements OnInit {
     }
   }
 
-  /** Corps à plat de POST/PATCH : seuls les champs renseignés sont envoyés (les cases à cocher le sont toujours). */
-  private versEcriture(): ConsultationEcriture {
+  /**
+   * Formulaire → champs à plat de l'API. Valeurs de prescription en **chaînes** (le serveur refuse les nombres),
+   * virgule décimale convertie en point ; champ vide = chaîne vide.
+   */
+  private aplatir(): Record<string, string | boolean> {
     const v = this.formulaire.getRawValue();
+    const t = (valeur: unknown) => texte(valeur) ?? '';
+    const dec = (valeur: unknown) => t(valeur).replace(',', '.');
     return {
       date_consultation: v.dateConsultation,
       motif: v.motif.trim(),
@@ -221,26 +231,45 @@ export class NouvelleFicheConsultation implements OnInit {
       plainte_vision_double: v.plaintes.visionDouble,
       plainte_demangeaisons: v.plaintes.demangeaisons,
       plainte_larmoiement: v.plaintes.larmoiement,
-      ...this.si('plainte_autres', texte(v.autresPlaintes)),
-      ...this.si('ecart_pupillaire', texte(v.ecartPupillaire)),
-      ...this.si('observations', texte(v.observations)),
-      ...this.si('od_sphere', texte(v.od.sphere)),
-      ...this.si('od_cylindre', texte(v.od.cylindre)),
-      ...this.si('od_axe', texte(v.od.axe)),
-      ...this.si('od_addition', texte(v.od.add)),
-      ...this.si('od_acuite_loin', texte(v.od.acuiteLoin)),
-      ...this.si('od_acuite_pres', texte(v.od.acuitePres)),
-      ...this.si('og_sphere', texte(v.og.sphere)),
-      ...this.si('og_cylindre', texte(v.og.cylindre)),
-      ...this.si('og_axe', texte(v.og.axe)),
-      ...this.si('og_addition', texte(v.og.add)),
-      ...this.si('og_acuite_loin', texte(v.og.acuiteLoin)),
-      ...this.si('og_acuite_pres', texte(v.og.acuitePres)),
+      plainte_autres: t(v.autresPlaintes),
+      ecart_pupillaire: t(v.ecartPupillaire),
+      observations: t(v.observations),
+      od_sphere: dec(v.od.sphere),
+      od_cylindre: dec(v.od.cylindre),
+      od_axe: t(v.od.axe),
+      od_addition: dec(v.od.add),
+      od_acuite_loin: t(v.od.acuiteLoin),
+      od_acuite_pres: t(v.od.acuitePres),
+      og_sphere: dec(v.og.sphere),
+      og_cylindre: dec(v.og.cylindre),
+      og_axe: t(v.og.axe),
+      og_addition: dec(v.og.add),
+      og_acuite_loin: t(v.og.acuiteLoin),
+      og_acuite_pres: t(v.og.acuitePres),
     };
   }
 
-  private si(cle: keyof ConsultationEcriture, valeur: string | undefined): ConsultationEcriture {
-    return valeur === undefined ? {} : { [cle]: valeur };
+  /** POST : seuls les champs renseignés sont envoyés (les cases à cocher le sont toujours). */
+  private corpsCreation(): ConsultationEcriture {
+    const corps: Record<string, string | boolean> = {};
+    for (const [cle, valeur] of Object.entries(this.aplatir())) {
+      if (typeof valeur === 'boolean' || valeur !== '') corps[cle] = valeur;
+    }
+    return corps as ConsultationEcriture;
+  }
+
+  /**
+   * PATCH : uniquement les champs différents de la dernière réponse du serveur ; un champ vidé est envoyé à `null`
+   * (c'est ce que le serveur enregistre comme « vide »).
+   */
+  private corpsModification(): ConsultationModification {
+    const corps: Record<string, string | boolean | null> = {};
+    for (const [cle, valeur] of Object.entries(this.aplatir())) {
+      if (valeur !== this.reference[cle]) {
+        corps[cle] = valeur === '' ? null : valeur;
+      }
+    }
+    return corps as ConsultationModification;
   }
 
   private reinitialiserMessages(): void {
@@ -260,11 +289,15 @@ export class NouvelleFicheConsultation implements OnInit {
     this.enSoumission.set(true);
 
     const id = this.consultationId();
-    const corps = this.versEcriture();
+    if (id && Object.keys(this.corpsModification()).length === 0) {
+      this.enSoumission.set(false);
+      this.succes.set('Aucune modification à enregistrer.');
+      return;
+    }
     const appel = id
-      ? this.consultationService.modifier(id, corps)
+      ? this.consultationService.modifier(id, this.corpsModification())
       : this.consultationService.creer({
-          ...corps,
+          ...this.corpsCreation(),
           patient_id: Number(this.formulaire.getRawValue().patientId),
           cabinet_id: Number(this.cabinetId),
         });
@@ -308,7 +341,9 @@ export class NouvelleFicheConsultation implements OnInit {
     this.reinitialiserMessages();
     this.enTerminaison.set(true);
 
-    const enregistrement$: Observable<unknown> = this.formulaire.dirty ? this.consultationService.modifier(id, this.versEcriture()) : of(null);
+    const modifications = this.corpsModification();
+    const enregistrement$: Observable<unknown> =
+      Object.keys(modifications).length > 0 ? this.consultationService.modifier(id, modifications) : of(null);
     enregistrement$.pipe(switchMap(() => this.consultationService.terminer(id))).subscribe({
       next: (c) => {
         this.enTerminaison.set(false);

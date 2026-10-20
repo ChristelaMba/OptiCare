@@ -124,4 +124,27 @@ describe('PatientsCabinet', () => {
       { id: '46', nom: 'Nkeng', prenom: 'Aline', nomComplet: 'Aline Nkeng', telephone: '+237600000201', email: null, ville: 'Douala' },
     ]);
   });
+
+describe('PatientsCabinet.creer', () => {
+  it('POST /cabinets/{id}/patients, lit data.patient', () => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    const service = TestBed.inject(PatientsCabinet);
+    const http = TestBed.inject(HttpTestingController);
+
+    let resultat: unknown;
+    const payload = { nom: 'Essomba', prenom: 'Mireille', telephone: '+237600000203', ville: 'Douala' };
+    service.creer('6', payload).subscribe((r) => (resultat = r));
+
+    const req = http.expectOne((r) => r.url.endsWith('/cabinets/6/patients'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush(
+      { status: 'success', message: '', data: { patient: { id: 51, ...payload, email: null, user_id: null, est_interne: true } } },
+      { status: 201, statusText: 'Created' },
+    );
+    http.verify();
+
+    expect(resultat).toEqual({ id: '51', nom: 'Essomba', prenom: 'Mireille', nomComplet: 'Mireille Essomba', telephone: '+237600000203', email: null, ville: 'Douala' });
+  });
+});
 });
