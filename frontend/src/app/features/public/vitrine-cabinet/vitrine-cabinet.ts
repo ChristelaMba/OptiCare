@@ -8,7 +8,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActionsSession } from '../actions-session/actions-session';
 import { MenuMobilePublic } from '../menu-mobile-public/menu-mobile-public';
 import { LogoPiedDePage } from '../../../shared/components/logo-pied-de-page/logo-pied-de-page';
-import { Avis as AvisService, AvisPublic } from '../../../core/services/avis';
+import { Avis as AvisService } from '../../../core/services/avis';
+import { RepartitionNotes } from '../../../models/avis.model';
 import { Cabinet as CabinetService } from '../../../core/services/cabinet';
 import { Cabinet as CabinetModel } from '../../../models/cabinet.model';
 import { LogoOpticare } from '../../../shared/components/logo-opticare/logo-opticare';
@@ -54,6 +55,25 @@ export class VitrineCabinet implements OnInit {
   readonly chargementAvis = signal(true);
   readonly etoiles = [1, 2, 3, 4, 5];
 
+  /** Agrégat public renvoyé par `GET /cabinets/{id}/avis` : moyenne, total et répartition par note. */
+  readonly moyenneAvis = signal(0);
+  readonly totalAvis = signal(0);
+  readonly repartition = signal<RepartitionNotes>({});
+
+  /**
+   * Barres de répartition, de 5 → 1 étoile : chaque ligne porte sa note, son nombre
+   * d'avis et son pourcentage (base = total). Aucune valeur inventée : les notes absentes
+   * de l'agrégat comptent 0.
+   */
+  readonly barresRepartition = computed(() => {
+    const total = this.totalAvis();
+    const repartition = this.repartition();
+    return [5, 4, 3, 2, 1].map((note) => {
+      const nombre = repartition[String(note) as keyof RepartitionNotes] ?? 0;
+      return { note, nombre, pourcentage: total > 0 ? (nombre / total) * 100 : 0 };
+    });
+  });
+
   /** Lien wa.me : whatsappNumero peut contenir espaces/+ dans les données, wa.me n'accepte que des chiffres. */
   readonly lienWhatsapp = computed(() => {
     const cabinet = this.cabinet();
@@ -87,6 +107,9 @@ export class VitrineCabinet implements OnInit {
           this.erreur.set(null);
           this.cabinet.set(null);
           this.avis.set([]);
+          this.moyenneAvis.set(0);
+          this.totalAvis.set(0);
+          this.repartition.set({});
           this.chargementAvis.set(true);
 
           if (!id) {
@@ -115,14 +138,16 @@ export class VitrineCabinet implements OnInit {
 
   private chargerAvis(cabinetId: string): void {
     this.avisService
-      .listerParCabinet(cabinetId)
+      .listerParCabinetAvecAgregat(cabinetId)
       .pipe(
-        catchError(() => of([] as AvisPublic[])),
+        catchError(() =>
+          of({ avis: [], moyenne: 0, total: 0, repartition: {} }),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((liste) => {
+      .subscribe((agregat) => {
         this.avis.set(
-          liste.map((a) => ({
+          agregat.avis.map((a) => ({
             id: a.id,
             initiales: a.patient ? `${a.patient.prenom.charAt(0)}${a.patient.nom.charAt(0)}`.toUpperCase() : 'P',
             nom: a.patient ? `${a.patient.prenom} ${a.patient.nom.charAt(0)}.` : 'Patient',
@@ -131,6 +156,9 @@ export class VitrineCabinet implements OnInit {
             commentaire: a.commentaire ?? '',
           })),
         );
+        this.moyenneAvis.set(agregat.moyenne);
+        this.totalAvis.set(agregat.total);
+        this.repartition.set(agregat.repartition ?? {});
         this.chargementAvis.set(false);
       });
   }

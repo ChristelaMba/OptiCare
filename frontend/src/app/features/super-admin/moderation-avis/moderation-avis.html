@@ -1,0 +1,145 @@
+<!-- Modération des avis — contenu rendu dans SuperAdminLayout -->
+<div class="flex flex-col gap-space-8 max-w-7xl">
+  <!-- En-tête -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-4">
+    <div>
+      <h1 class="font-heading text-headline-h2 md:text-headline-h1 text-on-surface mb-1">Modération des avis</h1>
+      <p class="font-body text-body-lg text-text-muted">Consultez et retirez les avis publiés sur la plateforme.</p>
+    </div>
+    <div class="relative w-full md:w-80 shrink-0">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">search</span>
+      <input
+        type="text"
+        [ngModel]="texteRecherche()"
+        (ngModelChange)="texteRecherche.set($event)"
+        placeholder="Filtrer les cabinets par nom, ville…"
+        class="w-full h-[44px] pl-10 pr-4 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base focus:outline-none focus:ring-2 focus:ring-primary"
+      />
+    </div>
+  </div>
+
+  <!-- Sélection du cabinet -->
+  <div class="flex flex-col sm:flex-row sm:items-center gap-space-3">
+    <label for="cabinet" class="font-body text-body-base text-on-surface-variant">Cabinet :</label>
+    <select
+      id="cabinet"
+      [ngModel]="cabinetSelectionne()?.id ?? ''"
+      (ngModelChange)="selectionner($event)"
+      [disabled]="chargementCabinets()"
+      class="moderation-select h-[44px] px-space-3 rounded-lg border border-border-subtle bg-surface-container-lowest font-body text-body-base text-on-surface disabled:opacity-60"
+    >
+      <option value="">{{ chargementCabinets() ? 'Chargement des cabinets…' : 'Sélectionnez un cabinet' }}</option>
+      @for (cabinet of cabinetsFiltres(); track cabinet.id) {
+        <option [value]="cabinet.id">{{ cabinet.nom }} · {{ cabinet.ville }}</option>
+      }
+    </select>
+  </div>
+
+  @if (erreur()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreur() }}</p>
+    </div>
+  }
+
+  @if (erreurAction()) {
+    <div class="rounded-lg bg-error/10 border border-error/30 px-space-4 py-space-3" role="alert">
+      <p class="font-body text-body-base text-error">{{ erreurAction() }}</p>
+    </div>
+  }
+
+  @if (succesAction()) {
+    <div class="rounded-lg bg-secondary-container px-space-4 py-space-3" role="status">
+      <p class="font-body text-body-base text-on-secondary-container">{{ succesAction() }}</p>
+    </div>
+  }
+
+  <!-- Liste des avis du cabinet sélectionné -->
+  @if (cabinetSelectionne()) {
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+      <div class="px-space-6 py-space-4 border-b border-border-subtle flex flex-wrap items-center justify-between gap-space-3">
+        <h2 class="font-heading text-headline-h3 text-on-surface truncate">{{ cabinetSelectionne()!.nom }}</h2>
+        @if (!chargementAvis() && totalAvis() > 0) {
+          <span class="font-body text-label-sm text-text-muted shrink-0 flex items-center gap-space-2" data-testid="compteur-avis">
+            <span class="inline-flex items-center gap-1 text-warning">
+              <span class="material-symbols-outlined fill-icon text-[16px]">star</span>
+              {{ moyenneAvis() | number: '1.1-1' }}
+            </span>
+            <span>· {{ totalAvis() }} avis</span>
+          </span>
+        }
+      </div>
+
+      @if (chargementAvis()) {
+        <p class="px-space-6 py-space-8 text-center font-body text-body-base text-text-muted">Chargement des avis…</p>
+      } @else if (aucunAvis()) {
+        <p class="px-space-6 py-space-8 text-center font-body text-body-base text-text-muted">
+          Aucun avis pour ce cabinet.
+        </p>
+      } @else {
+        <ul class="divide-y divide-border-subtle">
+          @for (avis of avis(); track avis.id) {
+            <li class="px-space-6 py-space-4 flex flex-col gap-space-2">
+              <div class="flex flex-wrap items-center gap-space-3">
+                <span class="inline-flex items-center gap-1 font-body text-body-base text-on-surface">
+                  <span class="material-symbols-outlined text-warning text-[18px]">star</span>
+                  {{ avis.note }} / 5
+                </span>
+                <span class="font-body text-label-sm text-text-muted">{{ avis.auteur }}</span>
+                <span class="font-body text-label-sm text-text-muted">· {{ avis.date | date: 'd MMM y' }}</span>
+                <button
+                  type="button"
+                  (click)="ouvrirConfirmation(avis)"
+                  class="effet-bouton sm:ml-auto inline-flex items-center gap-1 px-space-3 py-1 rounded-lg font-button text-button border border-error text-error hover:bg-error/10 transition-colors"
+                  [attr.aria-label]="'Supprimer l\'avis de ' + avis.auteur"
+                >
+                  <span class="material-symbols-outlined text-[18px]">delete</span>
+                  Supprimer
+                </button>
+              </div>
+              @if (avis.commentaire) {
+                <p class="font-body text-body-base text-on-surface-variant">{{ avis.commentaire }}</p>
+              } @else {
+                <p class="font-body text-body-base text-text-muted italic">Sans commentaire</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  } @else if (!chargementCabinets() && !erreur()) {
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-border-subtle px-space-6 py-space-8 text-center">
+      <span class="material-symbols-outlined text-text-muted text-[32px]">reviews</span>
+      <p class="font-body text-body-base text-text-muted mt-2">Sélectionnez un cabinet pour afficher ses avis.</p>
+    </div>
+  }
+</div>
+
+<!-- Confirmation de suppression -->
+@if (avisASupprimer(); as avis) {
+  <div class="fixed inset-0 z-[70] bg-black/40 flex items-center justify-center p-space-4" role="dialog" aria-modal="true" aria-label="Confirmer la suppression">
+    <div class="moderation-confirmation bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-md p-space-6 flex flex-col gap-space-4">
+      <h2 class="font-heading text-headline-h2 text-on-surface">Supprimer cet avis ?</h2>
+      <p class="font-body text-body-base text-text-muted">
+        L’avis de {{ avis.auteur }} ({{ avis.note }} / 5) sera définitivement supprimé et ne pourra pas être rétabli.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-end gap-space-3">
+        <button
+          type="button"
+          [disabled]="actionEnCours() === avis.id"
+          (click)="fermerConfirmation()"
+          class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button border border-border-subtle text-on-surface-variant hover:bg-surface-bg disabled:opacity-60"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          [disabled]="actionEnCours() === avis.id"
+          (click)="confirmerSuppression()"
+          class="effet-bouton w-full sm:w-auto px-space-6 py-space-2 rounded-lg font-button text-button bg-error text-on-primary hover:opacity-90 disabled:opacity-60"
+        >
+          {{ actionEnCours() === avis.id ? 'Suppression…' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

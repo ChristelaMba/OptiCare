@@ -39,7 +39,65 @@
 
   <main class="reviews-container">
 
-    @if (cabinetsEligibles().length > 0) {
+    @if (erreur()) {
+
+      <section class="reviews-section">
+
+        <div class="empty-state" role="alert">
+
+          <div class="empty-icon">
+            <span>!</span>
+          </div>
+
+          <span class="empty-label">
+            VOS AVIS
+          </span>
+
+          <h3>Impossible de charger vos avis</h3>
+
+          <p>{{ erreur() }}</p>
+
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="charger()"
+          >
+            Réessayer
+          </button>
+
+        </div>
+
+      </section>
+
+    }
+
+    @if (chargement()) {
+
+      <section class="reviews-section">
+
+        <div class="empty-state">
+
+          <p>Chargement de vos avis…</p>
+
+        </div>
+
+      </section>
+
+    }
+
+    @if (erreurAction()) {
+
+      <div class="form-error" role="alert">
+
+        <span class="form-error-icon">!</span>
+
+        <p>{{ erreurAction() }}</p>
+
+      </div>
+
+    }
+
+    @if (!chargement() && !erreur() && cabinetsEligibles().length > 0) {
 
       <section class="reviews-section">
 
@@ -259,7 +317,8 @@
             </label>
 
             <p class="field-help">
-              Décrivez votre expérience avec quelques mots.
+              Décrivez votre expérience avec quelques mots
+              ({{ commentaireMax }} caractères maximum).
             </p>
 
             <div class="textarea-wrapper">
@@ -269,11 +328,22 @@
               <textarea
                 id="commentaire"
                 rows="5"
+                [attr.maxlength]="commentaireMax"
                 placeholder="Partagez les détails de votre expérience..."
                 [(ngModel)]="commentaireSaisi"
               ></textarea>
 
             </div>
+
+            <span
+              class="field-help"
+              [class.field-help-error]="commentaireTropLong"
+            >
+              {{ commentaireSaisi.length }} / {{ commentaireMax }}
+              @if (commentaireTropLong) {
+                — commentaire trop long
+              }
+            </span>
 
           </div>
 
@@ -324,6 +394,8 @@
 
     }
 
+
+    @if (!chargement() && !erreur()) {
 
     <section class="reviews-section">
 
@@ -488,6 +560,8 @@
       }
 
     </section>
+
+    }
 
 
     <section class="review-information">

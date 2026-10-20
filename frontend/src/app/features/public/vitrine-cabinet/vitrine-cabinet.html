@@ -281,6 +281,33 @@
         } @else if (avis().length === 0) {
           <p class="font-body text-body-base text-text-muted">Aucun avis pour le moment.</p>
         } @else {
+        <!-- Agrégat public (moyenne, total, répartition par note) -->
+        <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-space-6 md:gap-space-8 items-center mb-space-8 pb-space-8 border-b border-border-subtle">
+          <div class="flex flex-col items-center justify-center text-center shrink-0">
+            <span class="font-heading text-5xl font-bold text-on-surface">{{ moyenneAvis() | number: '1.1-1' }}</span>
+            <div class="flex text-warning my-2">
+              @for (etoile of etoiles; track etoile) {
+                <span class="material-symbols-outlined text-[22px]" [class.fill-icon]="etoile <= moyenneAvis()">star</span>
+              }
+            </div>
+            <span class="font-body text-label-sm text-text-muted">
+              {{ totalAvis() }} avis
+            </span>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            @for (barre of barresRepartition(); track barre.note) {
+              <div class="flex items-center gap-space-3">
+                <span class="font-body text-label-sm text-text-muted w-12 shrink-0">{{ barre.note }} étoile{{ barre.note > 1 ? 's' : '' }}</span>
+                <div class="flex-1 h-2 rounded-full bg-surface-container-high overflow-hidden">
+                  <div class="h-full rounded-full bg-warning" [style.width.%]="barre.pourcentage"></div>
+                </div>
+                <span class="font-body text-label-sm text-text-muted w-8 text-right shrink-0">{{ barre.nombre }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-space-6">
           @for (avis of avis(); track avis.id) {
             <div class="effet-carte bg-surface-bg p-space-6 rounded-xl border border-border-subtle border-l-4 border-l-primary flex flex-col gap-space-4 shadow-sm">

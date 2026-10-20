@@ -67,12 +67,20 @@ describe('VitrineCabinet', () => {
     localStorage.clear();
   });
 
-  async function repondre(avis: unknown[]): Promise<string> {
+  async function repondre(
+    avis: unknown[],
+    agregat: { moyenne?: number; total?: number; repartition?: Record<string, number> } = {},
+  ): Promise<string> {
     http.expectOne((r) => r.url.endsWith('/cabinets/5')).flush({ status: 'success', message: '', data: { cabinet: CABINET_BRUT } });
     http.expectOne((r) => r.url.endsWith('/cabinets/5/avis')).flush({
       status: 'success',
       message: '',
-      data: { avis, moyenne: 0, total: avis.length, repartition: {} },
+      data: {
+        avis,
+        moyenne: agregat.moyenne ?? 0,
+        total: agregat.total ?? avis.length,
+        repartition: agregat.repartition ?? {},
+      },
     });
     fixture.detectChanges();
     await fixture.whenStable();
@@ -102,6 +110,29 @@ describe('VitrineCabinet', () => {
     expect(texte).toContain('Accueil chaleureux');
     expect(texte).toContain('Sam D.');
     expect(texte).not.toContain('Aucun avis pour le moment');
+  });
+
+  it('agrégat affiché : moyenne, total et barres de répartition par note', async () => {
+    const texte = await repondre(
+      [
+        { id: 1, note: 5, commentaire: 'Parfait', created_at: new Date().toISOString(), patient: { nom: 'Dupont', prenom: 'Sam' } },
+        { id: 2, note: 3, commentaire: 'Correct', created_at: new Date().toISOString(), patient: null },
+      ],
+      { moyenne: 4, total: 2, repartition: { '1': 0, '2': 0, '3': 1, '4': 0, '5': 1 } },
+    );
+
+    expect(texte).toContain('4.0');
+    expect(texte).toContain('2 avis');
+    // Barres de 5 → 1 étoile : 1 avis pour la note 5 et 1 pour la note 3, 0 ailleurs.
+    expect(component.repartition()['5']).toBe(1);
+    expect(component.repartition()['3']).toBe(1);
+    expect(component.barresRepartition()).toEqual([
+      { note: 5, nombre: 1, pourcentage: 50 },
+      { note: 4, nombre: 0, pourcentage: 0 },
+      { note: 3, nombre: 1, pourcentage: 50 },
+      { note: 2, nombre: 0, pourcentage: 0 },
+      { note: 1, nombre: 0, pourcentage: 0 },
+    ]);
   });
 
   it('adresse sans virgule orpheline quand le quartier est vide', async () => {

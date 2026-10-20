@@ -58,6 +58,8 @@ export interface ApiConsultation {
 export interface ConsultationOpticien {
   id: string;
   patientId: string;
+  /** Cabinet de la consultation (`cabinet_id`) — nécessaire aux écrans patient (ex. avis éligibles). */
+  cabinetId: string;
   /** « Prénom Nom » du patient ; `null` si l'API ne renvoie pas l'objet `patient`. */
   patientNom: string | null;
   opticienNom: string | null;

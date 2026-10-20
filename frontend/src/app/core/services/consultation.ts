@@ -83,6 +83,7 @@ export class ConsultationService {
     return {
       id: String(brute.id),
       patientId: String(brute.patient_id),
+      cabinetId: String(brute.cabinet_id),
       patientNom: nom(brute.patient),
       opticienNom: nom(brute.opticien),
       date: brute.date_consultation.slice(0, 10),
