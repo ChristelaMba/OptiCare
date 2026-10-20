@@ -72,7 +72,7 @@ describe('SuperAdminLayout', () => {
     expect(bouton.textContent).not.toContain('logout');
   });
 
-  it('navigation : 3 sections et 6 liens, avec les routes attendues', () => {
+  it('navigation : 3 sections et 7 liens, avec les routes attendues', () => {
     TestBed.inject(Auth).simulerConnexion('super_admin');
     fixture.detectChanges();
 
@@ -88,6 +88,7 @@ describe('SuperAdminLayout', () => {
       '/cabinets/validation',
       '/cabinets',
       '/comptes',
+      '/avis',
       '/audit-logs',
       '/parametres',
     ]);

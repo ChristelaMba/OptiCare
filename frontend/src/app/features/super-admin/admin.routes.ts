@@ -5,6 +5,7 @@ import { DashboardGlobal } from './dashboard-global/dashboard-global';
 import { AnnuaireCabinets } from './annuaire-cabinets/annuaire-cabinets';
 import { ValidationCabinets } from './validation-cabinets/validation-cabinets';
 import { GestionComptes } from './gestion-comptes/gestion-comptes';
+import { ModerationAvis } from './moderation-avis/moderation-avis';
 import { JournalAudit } from './journal-audit/journal-audit';
 import { ParametresGeneraux } from './parametres-generaux/parametres-generaux';
 
@@ -19,6 +20,7 @@ import { ParametresGeneraux } from './parametres-generaux/parametres-generaux';
  *  - `cabinets/validation`→ demandes d'inscription (API réelle)
  *  - `cabinets`           → annuaire des cabinets validés (API réelle)
  *  - `comptes`            → gestion globale des comptes (API réelle)
+ *  - `avis`               → modération des avis (API réelle, DELETE /avis/{id})
  *  - `audit-logs`         → journal d'audit (données de démo)
  *  - `parametres`         → paramètres généraux (données de démo)
  *
@@ -35,6 +37,7 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'cabinets', component: AnnuaireCabinets },
       { path: 'cabinets/validation', component: ValidationCabinets },
       { path: 'comptes', component: GestionComptes },
+      { path: 'avis', component: ModerationAvis },
       { path: 'audit-logs', component: JournalAudit },
       { path: 'parametres', component: ParametresGeneraux },
     ],

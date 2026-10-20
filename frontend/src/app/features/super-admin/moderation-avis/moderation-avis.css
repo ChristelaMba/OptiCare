@@ -1,0 +1,13 @@
+/*
+ * Modération des avis — compléments au Tailwind inline.
+ * La fenêtre de confirmation et le sélecteur de cabinet n'ont besoin que
+ * d'une contrainte de largeur sur les très petits écrans (le sélecteur natif
+ * peut dépasser la largeur disponible avec un nom de cabinet long).
+ */
+.moderation-select {
+  max-width: 100%;
+}
+
+.moderation-confirmation {
+  max-width: min(28rem, 90vw);
+}

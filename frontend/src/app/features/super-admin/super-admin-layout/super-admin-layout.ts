@@ -92,6 +92,11 @@ export class SuperAdminLayout {
           chemin: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5M18.5 15.5v3M17 17h3',
           route: 'comptes',
         },
+        {
+          libelle: 'Modération des avis',
+          chemin: 'M12 3.8l2.6 5.3 5.9.9-4.25 4.14 1 5.86L12 17.3l-5.25 2.7 1-5.86L3.5 10l5.9-.9L12 3.8Z',
+          route: 'avis',
+        },
       ],
     },
     {
