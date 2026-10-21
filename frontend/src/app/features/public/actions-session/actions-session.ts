@@ -15,15 +15,15 @@ import { BoutonDeconnexion } from '../../../shared/components/bouton-deconnexion
     @if (utilisateur(); as u) {
       <a
         [routerLink]="espace()"
-        class="inline-flex shrink-0 items-center gap-space-2 font-button text-button text-primary hover:bg-surface-container-high px-space-1 sm:px-space-3 py-space-1 rounded-full transition-colors"
+        class="inline-flex min-w-0 items-center gap-space-2 font-button text-button text-primary hover:bg-surface-container-high px-space-1 sm:px-space-3 py-space-1 rounded-full transition-colors"
         [attr.aria-label]="'Aller à mon espace, connecté en tant que ' + nomComplet()"
       >
         <span class="w-8 h-8 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center text-label-sm font-bold">{{ initiales() }}</span>
-        <span class="hidden sm:inline">{{ nomComplet() }}</span>
-        <span class="hidden md:inline text-on-surface-variant font-body text-label-sm">· Mon espace</span>
+        <span class="hidden sm:inline max-w-[160px] lg:max-w-[200px] truncate">{{ nomComplet() }}</span>
+        <span class="hidden lg:inline text-on-surface-variant font-body text-label-sm">· Mon espace</span>
       </a>
       <app-bouton-deconnexion
-        classe="inline-flex items-center whitespace-nowrap font-button text-button text-on-surface-variant hover:text-error hover:bg-surface-container-high px-space-2 sm:px-space-3 py-space-1 rounded-full transition-colors"
+        classe="inline-flex shrink-0 items-center whitespace-nowrap font-button text-button text-on-surface-variant hover:text-error hover:bg-surface-container-high px-space-2 sm:px-space-3 py-space-1 rounded-full transition-colors"
       >
         <span class="material-symbols-outlined sm:hidden" aria-hidden="true">logout</span>
         <span class="hidden sm:inline">Se déconnecter</span>

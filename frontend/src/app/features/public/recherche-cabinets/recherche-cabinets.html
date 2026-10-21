@@ -16,14 +16,14 @@
           <app-logo-opticare [hauteur]="32" />
         </a>
 
-        <div class="hidden lg:flex items-center bg-surface-bg border border-outline-variant rounded-full px-space-4 py-space-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div class="hidden xl:flex items-center bg-surface-bg border border-outline-variant rounded-full px-space-4 py-space-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
           <span class="material-symbols-outlined text-outline mr-space-2">search</span>
           <input
             type="text"
             [ngModel]="texteRecherche()"
             (ngModelChange)="texteRecherche.set($event)"
             placeholder="Rechercher…"
-            class="bg-transparent border-none focus:ring-0 font-body text-body-base w-56 placeholder:text-outline outline-none"
+            class="bg-transparent border-none focus:ring-0 font-body text-body-base w-40 2xl:w-56 placeholder:text-outline outline-none"
           />
         </div>
       </div>
@@ -35,7 +35,7 @@
         </a>
       </div>
 
-      <div class="hidden md:flex">
+      <div class="hidden md:flex min-w-0">
         <app-actions-session />
       </div>
       <app-menu-mobile-public />
